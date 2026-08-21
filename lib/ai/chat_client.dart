@@ -9,7 +9,6 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import '../core/logger.dart';
 import '../model/ai_settings.dart';
 
 class ChatMessage {
@@ -186,10 +185,8 @@ class ChatClient {
               }
             }
           }
-        } catch (e) {
-          // 单行解析失败不该中断整个流，但要记下来——
-          // AI 返回格式跑偏了，插件作者改了 API 之类，不报就永远不知道
-          Log.w('ai', '流式响应行解析失败: $e');
+        } catch (_) {
+          // 单行解析失败不该中断整个流
         }
       }
       if (pendingCalls.isNotEmpty && onToolCalls != null) {
