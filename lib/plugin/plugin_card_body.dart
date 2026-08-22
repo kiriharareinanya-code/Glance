@@ -6,7 +6,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../core/grid.dart';
-import '../core/app_version.dart';
 import '../core/logger.dart';
 import '../core/splash_gate.dart';
 import '../model/card.dart';
@@ -16,7 +15,6 @@ import 'host.dart';
 import 'node.dart';
 import 'registry.dart';
 import 'runtime.dart';
-import 'sdk.dart';
 
 /// 出错后自动重试之前等多久。
 ///
@@ -135,8 +133,6 @@ class _PluginCardBodyState extends State<PluginCardBody> {
       pluginId: loaded.manifest.id,
       onRequestSize: widget.onRequestSize,
       onOpenSettings: widget.onOpenSettings,
-      registry: widget.registry,
-      sdk: PluginSdk(pluginId: loaded.manifest.id, registry: widget.registry),
     );
 
     final rt = PluginRuntime(
@@ -144,9 +140,6 @@ class _PluginCardBodyState extends State<PluginCardBody> {
       source: loaded.source,
       instanceId: widget.card.id,
       host: host.call,
-      sdk: host.sdk,
-      appVersion: appVersion,
-      pluginDir: widget.registry.userDir,
     );
 
     // 卡片没配过的设置项用 manifest 里的默认值补齐
@@ -245,7 +238,6 @@ class _PluginCardBodyState extends State<PluginCardBody> {
             tree: tree,
             onEvent: rt.dispatchEvent,
             animate: widget.state.settings.animations,
-            registry: widget.registry,
           ),
         );
       },

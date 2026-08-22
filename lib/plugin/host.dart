@@ -15,8 +15,6 @@ import '../model/card.dart';
 import '../native/native_bridge.dart';
 import '../store/store.dart';
 import 'images.dart';
-import 'registry.dart';
-import 'sdk.dart';
 
 class PluginHost {
   PluginHost({
@@ -26,8 +24,6 @@ class PluginHost {
     required this.pluginId,
     required this.onRequestSize,
     required this.onOpenSettings,
-    required this.registry,
-    required this.sdk,
   });
 
   final Store store;
@@ -36,8 +32,6 @@ class PluginHost {
   final String pluginId;
   final void Function(String size) onRequestSize;
   final void Function() onOpenSettings;
-  final PluginRegistry registry;
-  final PluginSdk sdk;
 
   /// 实例私有键：同一插件的不同卡片各存各的
   String _localKey(String key) => '@inst:${card.id}:$key';
@@ -109,31 +103,7 @@ class PluginHost {
       case 'openExternal':
         return _openExternal(args['url'] as String? ?? '');
 
-      case 'pickFile':
-        return _pickFile(args);
-
       default:
-        // ---- SDK 注册消息 ----
-        if (method.startsWith('__sdk.')) {
-          return _handleSdk(method, args);
-        }
-
-        // ---- 自定义能力路由 ----
-        final dotIdx = method.lastIndexOf('.');
-        if (dotIdx > 0) {
-          final capName = method.substring(0, dotIdx);
-          final methodName = method.substring(dotIdx + 1);
-          final capHandler = registry.registeredCapabilities[capName];
-          if (capHandler != null) {
-            if (capHandler.methods.containsKey(methodName)) {
-              // v1: 方法是 JS 函数引用，需要通过提供者的运行时调用
-              // 目前先返回提示，后续接入 QuickJS 跨运行时调用
-              return {'ok': false, 'error': 'JS-side capability routing not yet implemented'};
-            }
-            return {'ok': false, 'error': 'method "$methodName" not found in capability "$capName"'};
-          }
-        }
-
         return {'ok': false, 'error': '未知的宿主方法：$method'};
     }
   }
@@ -241,60 +211,6 @@ class PluginHost {
       Log.w('plugin',
           '$pluginId 请求失败 $target（${sw.elapsedMilliseconds}ms）: $e');
       return {'ok': false, 'error': '请求失败：${uri.host}'};
-    }
-  }
-
-  /// 系统文件选择对话框。
-  Future<Map<String, Object?>> _pickFile(Map<String, Object?> args) async {
-    final title = args['title'] as String? ?? '选择文件';
-    final ext = (args['ext'] as List?)?.cast<String>() ?? const [];
-    try {
-      final path = await NativeBridge.pickFile(title: title, ext: ext);
-      if (path == null || path.isEmpty) {
-        return {'ok': false, 'cancelled': true};
-      }
-      return {'ok': true, 'path': path};
-    } catch (e) {
-      return {'ok': false, 'error': '$e'};
-    }
-  }
-
-  /// 处理 SDK 注册消息。
-  Future<Object?> _handleSdk(String method, Map<String, Object?> args) async {
-    switch (method) {
-      case '__sdk.node.register':
-        final type = args['type'] as String?;
-        final render = args['render'];
-        if (type != null && render != null) {
-          sdk.registerNode(type, render);
-        }
-        return true;
-
-      case '__sdk.capability.register':
-        final name = args['name'] as String?;
-        final handler = args['handler'];
-        if (name != null && handler is Map) {
-          sdk.registerCapability(name, handler.cast<String, Object?>());
-        }
-        return true;
-
-      case '__sdk.widget.register':
-        final template = (args['template'] as Map?)?.cast<String, Object?>();
-        if (template != null) {
-          sdk.registerWidget(template);
-        }
-        return true;
-
-      case '__sdk.lifecycle.on':
-        final event = args['event'] as String?;
-        final handler = args['handler'];
-        if (event != null && handler != null) {
-          sdk.onLifecycle(event, handler);
-        }
-        return true;
-
-      default:
-        return {'ok': false, 'error': 'unknown SDK method: $method'};
     }
   }
 

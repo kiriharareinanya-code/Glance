@@ -19,9 +19,6 @@ class PluginManifest {
     this.settings = const [],
     this.scripts = const [],
     this.source = 'builtin',
-    this.apiVersion = '1.0',
-    this.dependencies = const [],
-    this.headless = false,
   });
 
   final String id;
@@ -44,15 +41,6 @@ class PluginManifest {
 
   /// builtin | user
   final String source;
-
-  /// 插件要求的 SDK API 版本。不匹配时警告但不阻止加载。
-  final String apiVersion;
-
-  /// 依赖的其他插件注册的能力（"provider:capability" 格式）。
-  final List<String> dependencies;
-
-  /// 是否支持无 UI 后台运行（用于能力提供者插件）。
-  final bool headless;
 
   static final RegExp _idRe = RegExp(r'^[a-z0-9][a-z0-9\-_]{0,63}$');
 
@@ -103,12 +91,6 @@ class PluginManifest {
           if (s is String) s
       ],
       source: source,
-      apiVersion: (raw['api_version'] as String?)?.trim() ?? '1.0',
-      dependencies: [
-        for (final d in (raw['dependencies'] as List? ?? const []))
-          if (d is String && d.trim().isNotEmpty) d.trim()
-      ],
-      headless: raw['headless'] == true,
     );
   }
 
@@ -124,9 +106,6 @@ class PluginManifest {
         'singleton': singleton,
         'settings': settings,
         'source': source,
-        'api_version': apiVersion,
-        'dependencies': dependencies,
-        'headless': headless,
       };
 
   /// 每个设置项的默认值
