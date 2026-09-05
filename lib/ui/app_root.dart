@@ -354,6 +354,7 @@ class AppRootState extends State<AppRoot> with TrayListener {
           key: 'lock', label: '锁定布局', checked: widget.state.settings.locked),
       MenuItem(key: 'refreshWall', label: '刷新壁纸模糊'),
       MenuItem(key: 'rescan', label: '重新扫描插件'),
+      MenuItem(key: 'restart', label: '重启'),
       MenuItem.separator(),
       MenuItem(key: 'quit', label: '退出'),
     ]));
@@ -382,6 +383,8 @@ class AppRootState extends State<AppRoot> with TrayListener {
         _loadWallpaper();
       case 'rescan':
         await rescanPlugins();
+      case 'restart':
+        await _restartApp();
       case 'market':
         Log.i('app', '打开插件市场');
         NativeWindow.market.show();
@@ -409,6 +412,29 @@ class AppRootState extends State<AppRoot> with TrayListener {
     Log.i('app', '退出');
     await trayManager.destroy();
     exit(0);
+  }
+
+  /// 重启：拉起一个新的自己，再把当前进程交出去。
+  ///
+  /// 新实例带 --wait-restart 接力棒，先等 2 秒让旧进程走干净——主要是在
+  /// 等 Ctrl+Alt+Space 全局热键的注册权释放，否则新实例会注册失败。
+  /// 不走 bat/PowerShell 中转：detached 的 cmd 会闪黑框，等待逻辑放
+  /// Dart 里同样可靠（见 main.dart 的 --wait-restart 处理）。
+  Future<void> _restartApp() async {
+    final exe = Platform.resolvedExecutable;
+    Log.i('app', '重启：$exe');
+    try {
+      await Process.start(
+        exe,
+        const ['--wait-restart'],
+        workingDirectory: File(exe).parent.path,
+        mode: ProcessStartMode.detached,
+      );
+    } catch (e) {
+      Log.e('app', '重启失败：新进程拉起不了 $e');
+      return;
+    }
+    await quitAndExit();
   }
 
   /// 安装已下载好的应用更新：收尾落盘 → 拉起静默安装器 → 退出。
