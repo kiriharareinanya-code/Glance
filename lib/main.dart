@@ -64,6 +64,13 @@ Future<void> _bootstrap(List<String> args) async {
   if (args.contains('--verbose')) {
     Log.setLevel(LogLevel.debug);
   }
+  // --wait-restart：重启流程的接力棒。旧进程拉起新进程后立刻退出，新
+  // 进程在这里等一拍再走——等的是旧实例释放 Ctrl+Alt+Space 热键的
+  // 注册权，抢跑会注册失败。
+  if (args.contains('--wait-restart')) {
+    Log.i('app', '重启接力：等待旧进程退出');
+    await Future.delayed(const Duration(seconds: 2));
+  }
   // --market-mock：插件市场走内置假数据，不联网。
   // Unisphere 还没部署，而"浏览→安装→出现在组件库→添加到桌面"这条链路
   // 必须能验收，靠它把服务器那一段替掉。
