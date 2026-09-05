@@ -309,22 +309,35 @@ class _MultiViewRootState extends State<_MultiViewRoot> {
         View(
           key: ValueKey('view:${_panelView!.viewId}'),
           view: _panelView!,
-          child: PanelApp(
-            appKey: _appKey,
-            state: widget.state,
-            store: widget.store,
-            registry: widget.registry,
+          // 窗口隐藏时挂起整棵内容树：面板里组件库页挂着 5 个真实运行的
+          // 插件预览（QuickJS + 每秒轮询），窗口看不见时它们没有理由活着。
+          // View 本体保留（native 窗口不能没视图），只是不渲染内容。
+          child: ValueListenableBuilder<bool>(
+            valueListenable: NativeWindow.visibilityOf(NativeWindow.panel),
+            builder: (context, visible, _) => visible
+                ? PanelApp(
+                    appKey: _appKey,
+                    state: widget.state,
+                    store: widget.store,
+                    registry: widget.registry,
+                  )
+                : const SizedBox.shrink(),
           ),
         ),
       if (_marketView != null)
         View(
           key: ValueKey('view:${_marketView!.viewId}'),
           view: _marketView!,
-          child: MarketApp(
-            appKey: _appKey,
-            state: widget.state,
-            store: widget.store,
-            registry: widget.registry,
+          child: ValueListenableBuilder<bool>(
+            valueListenable: NativeWindow.visibilityOf(NativeWindow.market),
+            builder: (context, visible, _) => visible
+                ? MarketApp(
+                    appKey: _appKey,
+                    state: widget.state,
+                    store: widget.store,
+                    registry: widget.registry,
+                  )
+                : const SizedBox.shrink(),
           ),
         ),
     ]);
