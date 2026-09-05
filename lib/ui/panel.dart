@@ -19,6 +19,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' show Icons;
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path/path.dart' as p;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../core/app_version.dart' show appVersion;
@@ -1070,6 +1071,8 @@ class _ControlPanelState extends State<ControlPanel> {
               ),
             ],
           ),
+          const SizedBox(height: 8),
+          _bgPicker(card),
           if (plugin != null) ...[
             const SizedBox(height: 8),
             _sizePicker(card, plugin),
@@ -1117,6 +1120,60 @@ class _ControlPanelState extends State<ControlPanel> {
   }
 
   /// 设置项控件类型与 Electron 版一致：boolean / select / number / 其余按文本
+  /// 每卡自定义背景图：选图复制到 userdata/bg/，卡片的 bgImage 设置
+  /// 只存文件名。可读性靠 card_view 的亮度自适应翻转文字色，这里不做修饰。
+  Widget _bgPicker(WidgetCard card) {
+    final current = card.settings['bgImage'] as String?;
+    return Row(
+      children: [
+        Text('背景图片', style: TextStyle(fontSize: 13, color: _c.ink)),
+        const Spacer(),
+        if (current != null)
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Text(current,
+                style: TextStyle(fontSize: 11, color: _c.ink38)),
+          ),
+        Button(
+          child: Text(current == null ? '选择图片' : '更换'),
+          onPressed: () async {
+            final result =
+                await FilePicker.pickFiles(type: FileType.image);
+            final path = result?.files.single.path;
+            if (path == null) return;
+            final dir = Directory(p.join(widget.store.dir, 'bg'));
+            await dir.create(recursive: true);
+            final ext = path.split('.').last.toLowerCase();
+            final name = '${card.id}.$ext';
+            // 换图时清掉旧文件，避免 bg/ 目录攒垃圾
+            if (current != null && current != name) {
+              final old = File(p.join(dir.path, current));
+              if (old.existsSync()) old.deleteSync();
+            }
+            await File(path).copy(p.join(dir.path, name));
+            card.settings['bgImage'] = name;
+            _commit();
+            if (mounted) setState(() {});
+          },
+        ),
+        if (current != null)
+          Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: Button(
+              child: const Text('清除'),
+              onPressed: () {
+                final old = File(p.join(widget.store.dir, 'bg', current));
+                if (old.existsSync()) old.deleteSync();
+                card.settings.remove('bgImage');
+                _commit();
+                if (mounted) setState(() {});
+              },
+            ),
+          ),
+      ],
+    );
+  }
+
   Widget _settingField(WidgetCard card, Map<String, Object?> f) {
     final key = f['key'] as String;
     final label = f['label'] as String? ?? key;
