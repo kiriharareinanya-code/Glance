@@ -87,14 +87,27 @@ class Wallpaper {
       {double sigma = 18, double saturation = 1.0}) async {
     if (_busy) return;
     _busy = true;
+    // 声明在 try 外面：catch 里的兜底 dispose 要够得着它
+    ui.Image? src;
     try {
-      final w = (screenLogical.width * scale).round();
-      final h = (screenLogical.height * scale).round();
+      final w0 = (screenLogical.width * scale).round();
+      final h0 = (screenLogical.height * scale).round();
+      // 模糊输入的长边上限。模糊本身会抹掉细节，sigma 18+ 时 768 长边的
+      // 输入和全分辨率肉眼无差，但位图从 2.4MB/帧降到 ~1.3MB——动态壁纸
+      // 按 10fps 刷新时这是每秒十几 MB 的 GC churn 差距。
+      const kMaxBlurEdge = 768.0;
+      var w = w0, h = h0;
+      final longest = w > h ? w : h;
+      if (longest > kMaxBlurEdge) {
+        final k = kMaxBlurEdge / longest;
+        w = (w * k).round();
+        h = (h * k).round();
+      }
       if (w <= 0 || h <= 0) return;
 
       final swCap = Stopwatch()..start();
       var from = '桌面捕获';
-      ui.Image? src = await _captureDesktop(w, h);
+      src = await _captureDesktop(w, h);
       swCap.stop();
       lastCaptureMs = swCap.elapsedMilliseconds;
       if (src == null) {
@@ -113,6 +126,9 @@ class Wallpaper {
       final blurred = await _blur(src, w, h, sigma, saturation);
       swBlur.stop();
       lastBlurMs = swBlur.elapsedMilliseconds;
+      // 源位图用完即弃。不能放在 _blur 之后顺队写：_blur 一抛异常这行
+      // 就跳过了，动态壁纸下每秒 2.4MB 的位图会一直攒着——所以这里有
+      // 兜底 dispose（正常路径已 dispose 过，二次 dispose 是安全的空操作）
       src.dispose();
 
       image.value?.dispose();
@@ -126,6 +142,10 @@ class Wallpaper {
           '(抓取${lastCaptureMs}ms 模糊${lastBlurMs}ms)');
     } catch (e) {
       Log.w('wallpaper', '刷新失败: $e');
+      // 异常路径兜底：捕获/解码出来的源位图不能跟着异常一起漏掉
+      try {
+        src?.dispose();
+      } catch (_) {}
     } finally {
       _busy = false;
     }

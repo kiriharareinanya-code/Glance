@@ -15,6 +15,8 @@
 ///     字段保留在协议里兼容旧插件，宿主不再产生动画
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'images.dart';
@@ -72,9 +74,35 @@ class _PluginViewState extends State<PluginView> {
   /// 输入框控制器按节点 id 复用，否则每次重建都会丢失光标与内容
   final Map<String, TextEditingController> _controllers = {};
 
+  /// 本次 render 用到的输入框 id（_input 里登记，build 末尾做差分）
+  final Set<String> _usedInputIds = {};
+
+  /// 退出服役的控制器排队延迟销毁。不能立即 dispose：根 key 交叉淡入时
+  /// 旧子树还活着 260ms，里面的 TextField 可能还攥着这个控制器——
+  /// 600ms > 交叉淡入全程，足够安全。
+  final List<(TextEditingController, Timer)> _retiringControllers = [];
+
+  /// 差分清理：这次 render 没再出现的 id 进入退役队列（插件删了输入框、
+  /// 列表滚动导致节点换 id 等）。不清理的话 Map 只进不出，长会话慢慢漏。
+  void _pruneControllers() {
+    _controllers.removeWhere((id, c) {
+      if (_usedInputIds.contains(id)) return false;
+      final timer = Timer(const Duration(milliseconds: 600), () {
+        c.dispose();
+        _retiringControllers.removeWhere((e) => e.$1 == c);
+      });
+      _retiringControllers.add((c, timer));
+      return true;
+    });
+  }
+
   @override
   void dispose() {
     for (final c in _controllers.values) {
+      c.dispose();
+    }
+    for (final (c, timer) in _retiringControllers) {
+      timer.cancel();
       c.dispose();
     }
     super.dispose();
@@ -92,7 +120,9 @@ class _PluginViewState extends State<PluginView> {
       style: const TextStyle(fontSize: 13, decoration: TextDecoration.none),
       child: Builder(builder: (ctx) {
         _fg = DefaultTextStyle.of(ctx).style.color ?? Colors.white;
+        _usedInputIds.clear();
         final content = _build(tree);
+        _pruneControllers();
 
         // 内容切换动画必须由插件显式声明：根节点带 key 时才做交叉淡入。
         // 不能对每次 render 都动画——时钟每秒重绘一次，那样会一直在闪。
@@ -548,6 +578,7 @@ class _PluginViewState extends State<PluginView> {
 
   Widget _input(Map<String, Object?> n) {
     final id = _str(n['id']) ?? 'input';
+    _usedInputIds.add(id);
     final value = _str(n['value']) ?? '';
     final ctrl = _controllers.putIfAbsent(id, () => TextEditingController(text: value));
     // 插件主动改了值（例如提交后清空）才覆盖，避免打字时被回写打断

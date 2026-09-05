@@ -18,6 +18,11 @@ class PluginImages {
   /// 最多留几张。超了就丢最早放进来的。
   static const int _capacity = 4;
 
+  /// 解码长边上限（px）。封面在卡片上最大也就 ~120px 逻辑像素，
+  /// 高 DPI 2~3 倍取 256 绰绰有余；原图动辄 1000²+，不解码到这个尺寸
+  /// 每张白占 4~8MB。
+  static const int _maxDecodeEdge = 256;
+
   static final Map<String, ui.Image> _cache = {};
   static final List<String> _order = [];
 
@@ -47,10 +52,27 @@ class PluginImages {
 
   /// 解码一段编码过的图片字节（JPEG/PNG 之类，不是裸像素）并入缓存。
   /// 解码失败返回 false，调用方据此决定是否回退到占位图。
+  ///
+  /// 内存：按 [_maxDecodeEdge] 降采样解码。SMTC 给的封面动辄 1000²~1400²，
+  /// 原分辨率解码一张就是 4~8MB，而显示尺寸只有几十 px——白占。
   static Future<bool> decodeAndPut(String key, Uint8List bytes) async {
     if (bytes.isEmpty) return false;
     try {
-      final codec = await ui.instantiateImageCodec(bytes);
+      // 等比降采样到"长边 ≤ 256"：先拿原始尺寸再算目标，小图原样解码
+      // （TargetImageSize 不给值 = 保持原尺寸，绝不放大）。原图动辄
+      // 1000²+，不解码到这个尺寸每张白占 4~8MB，而显示尺寸只有几十 px。
+      final buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
+      final codec = await ui.instantiateImageCodecWithSize(
+        buffer,
+        getTargetSize: (int w, int h) {
+          if (w <= _maxDecodeEdge && h <= _maxDecodeEdge) {
+            return const ui.TargetImageSize();
+          }
+          final k = _maxDecodeEdge / (w > h ? w : h);
+          return ui.TargetImageSize(
+              width: (w * k).round(), height: (h * k).round());
+        },
+      );
       final frame = await codec.getNextFrame();
       codec.dispose();
       put(key, frame.image);

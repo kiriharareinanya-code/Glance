@@ -110,6 +110,24 @@ class _MarketWindowState extends State<_MarketWindow> {
   /// 插件真图标的字节。空数组表示"拿过了但没有"，用来避免反复重试。
   final Map<String, Uint8List> _icons = {};
 
+  /// 详情/图标缓存的上限。正常一次会话看几十个插件顶天了；超了丢最早
+  /// 插入的（LinkedHashMap 保序）。防手滑式无界增长，量级本来就是 KB。
+  static const int _cacheCap = 64;
+
+  void _cacheDetail(String id, MarketPlugin full) {
+    if (_details.length >= _cacheCap && !_details.containsKey(id)) {
+      _details.remove(_details.keys.first);
+    }
+    _details[id] = full;
+  }
+
+  void _cacheIcon(String id, Uint8List bytes) {
+    if (_icons.length >= _cacheCap && !_icons.containsKey(id)) {
+      _icons.remove(_icons.keys.first);
+    }
+    _icons[id] = bytes;
+  }
+
   /// 正在拉图标的 id，防止同一个 id 并发发好几次请求
   final Set<String> _iconPending = {};
 
@@ -238,7 +256,7 @@ class _MarketWindowState extends State<_MarketWindow> {
       } catch (_) {}
       if (!mounted) return;
       setState(() {
-        _details[p.id] = full;
+        _cacheDetail(p.id, full);
         _detailLoading = false;
       });
     } on MarketException catch (e) {
@@ -247,7 +265,7 @@ class _MarketWindowState extends State<_MarketWindow> {
       if (!mounted) return;
       if (cached != null) {
         setState(() {
-          _details[p.id] = cached;
+          _cacheDetail(p.id, cached);
           _detailLoading = false;
           _detailError = '离线显示（上次缓存的版本，可能不是最新）';
         });
@@ -299,7 +317,7 @@ class _MarketWindowState extends State<_MarketWindow> {
       final cached = await widget.store.cacheGet('marketplace', 'icon:$id');
       if (cached is String && cached.isNotEmpty) {
         final bytes = base64Decode(cached);
-        if (mounted) setState(() => _icons[id] = bytes);
+        if (mounted) setState(() => _cacheIcon(id, bytes));
         return;
       }
       final bytes = await _client.icon(id);
@@ -311,9 +329,9 @@ class _MarketWindowState extends State<_MarketWindow> {
       }
       if (!mounted) return;
       // 拿不到也要记一笔空的：否则每次重建都会再发一次请求
-      setState(() => _icons[id] = bytes ?? Uint8List(0));
+      setState(() => _cacheIcon(id, bytes ?? Uint8List(0)));
     } catch (_) {
-      if (mounted) setState(() => _icons[id] = Uint8List(0));
+      if (mounted) setState(() => _cacheIcon(id, Uint8List(0)));
     } finally {
       _iconPending.remove(id);
     }

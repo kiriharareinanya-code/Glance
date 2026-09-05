@@ -32,6 +32,11 @@ class PluginRegistry {
 
   final Map<String, LoadedPlugin> _plugins = {};
 
+  /// 插件代码的版本号：每次 scan() 自增。卡片用它感知"插件代码变了要
+  /// 重新挂载"，从而把重建范围从"任何设置变化全量重建"收窄到
+  /// "插件代码真的变了才重建"（见 app_root 的卡片 key）。
+  int codeVersion = 0;
+
   /// 加载失败的插件：目录 -> 原因。面板里要能看到，不能静默吞掉。
   final Map<String, String> errors = {};
 
@@ -83,6 +88,7 @@ class PluginRegistry {
   Future<void> scan() async {
     _plugins.clear();
     errors.clear();
+    codeVersion++;
     await _scanBuiltin();
     await _scanUser();
   }
