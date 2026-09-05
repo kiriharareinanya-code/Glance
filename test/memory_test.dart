@@ -8,7 +8,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show Uint8List;
 import 'package:vectra/model/settings.dart';
+import 'package:flutter/material.dart' show Icons;
 import 'package:vectra/plugin/images.dart';
+import 'package:vectra/plugin/morph_icons.dart' show kMorphIconPaths;
+import 'package:vectra/plugin/node.dart' show iconDataFor;
 import 'package:vectra/store/store.dart';
 
 void main() {
@@ -60,6 +63,16 @@ void main() {
       expect(PluginImages.get('k0'), isNull, reason: '最早的应该被挤出去');
       expect(PluginImages.get('k5'), isNotNull);
     });
+  });
+
+  test('形变表的名字都有字体兜底（图标双表不漂移）', () {
+    // play/pause 这些名字同时存在于字体表（iconDataFor）和形变表
+    // （kMorphIconPaths）——字体表那份是形变不可用时的兜底。
+    // 哪天有人从字体表删掉一个名字而忘了形变表，兜底就会渲染成方块。
+    for (final name in kMorphIconPaths.keys) {
+      expect(iconDataFor(name), isNot(Icons.square_outlined),
+          reason: '$name 在形变表里但字体表没有兜底条目');
+    }
   });
 
   group('卸载插件的内存清理', () {
