@@ -46,7 +46,7 @@ void main() {
 
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
-        body: CardView(
+        body: CardView(dataDir: '.',
           card: WidgetCard(
             id: 'c1',
             pluginId: 'clock',
@@ -306,7 +306,7 @@ void main() {
 
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: CardView(
+          body: CardView(dataDir: '.',
             card: WidgetCard(
                 id: 'c1', pluginId: 'clock', x: 0, y: 0, size: '2x2', z: 1),
             settings: settings,
