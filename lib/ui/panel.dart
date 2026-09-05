@@ -26,6 +26,7 @@ import '../core/app_version.dart' show appVersion;
 import '../core/logger.dart';
 import '../core/paths.dart';
 import '../core/theme.dart';
+import 'card_view.dart';
 import '../core/updater.dart';
 import '../model/ai_settings.dart';
 import '../model/card.dart';
@@ -1120,32 +1121,71 @@ class _ControlPanelState extends State<ControlPanel> {
   }
 
   /// 设置项控件类型与 Electron 版一致：boolean / select / number / 其余按文本
-  /// 每卡自定义背景图：选图复制到 userdata/bg/，卡片的 bgImage 设置
-  /// 只存文件名。可读性靠 card_view 的亮度自适应翻转文字色，这里不做修饰。
+  /// 每卡自定义背景图（Fluent 形态）：缩略图 + 状态行 + 图标按钮。
+  /// 选图复制到 userdata/bg/，卡片的 bgImage 设置只存文件名；
+  /// 可读性由 card_view 按图片实测亮度自动翻转文字色，这里只把结果说出来。
   Widget _bgPicker(WidgetCard card) {
     final current = card.settings['bgImage'] as String?;
+    final file = current == null || current.isEmpty
+        ? null
+        : File(p.join(widget.store.dir, 'bg', current));
+    final fileReady = file != null && file.existsSync();
+
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text('背景图片', style: TextStyle(fontSize: 13, color: _c.ink)),
-        const Spacer(),
-        if (current != null)
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Text(current,
-                style: TextStyle(fontSize: 11, color: _c.ink38)),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(6),
+          child: Container(
+            width: 44,
+            height: 44,
+            color: _c.chipBg,
+            child: fileReady
+                ? Image.file(file!, fit: BoxFit.cover, gaplessPlayback: true)
+                : Center(
+                    child: Icon(Icons.image_outlined,
+                        size: 16, color: _c.ink38)),
           ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('背景图片',
+                  style: TextStyle(fontSize: 13, color: _c.ink)),
+              const SizedBox(height: 2),
+              ValueListenableBuilder<int>(
+                valueListenable: CardView.bgRevision,
+                builder: (context, _, __) {
+                  String status;
+                  if (!fileReady) {
+                    status = '未设置 · 使用主题材质（云母/毛玻璃）';
+                  } else {
+                    final l = CardView.bgLuminance(file!.path);
+                    final adapt = l == null
+                        ? ''
+                        : (l > 0.5 ? ' · 浅色图，文字已自动切黑' : ' · 深色图，文字已自动切白');
+                    status = '$current$adapt';
+                  }
+                  return Text(status,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 11, color: _c.ink38));
+                },
+              ),
+            ],
+          ),
+        ),
         Button(
-          child: Text(current == null ? '选择图片' : '更换'),
           onPressed: () async {
-            final result =
-                await FilePicker.pickFiles(type: FileType.image);
+            final result = await FilePicker.pickFiles(type: FileType.image);
             final path = result?.files.single.path;
             if (path == null) return;
             final dir = Directory(p.join(widget.store.dir, 'bg'));
             await dir.create(recursive: true);
             final ext = path.split('.').last.toLowerCase();
             final name = '${card.id}.$ext';
-            // 换图时清掉旧文件，避免 bg/ 目录攒垃圾
             if (current != null && current != name) {
               final old = File(p.join(dir.path, current));
               if (old.existsSync()) old.deleteSync();
@@ -1155,12 +1195,16 @@ class _ControlPanelState extends State<ControlPanel> {
             _commit();
             if (mounted) setState(() {});
           },
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            const Icon(Icons.image_outlined, size: 14),
+            const SizedBox(width: 6),
+            Text(current == null ? '选择图片' : '更换'),
+          ]),
         ),
         if (current != null)
           Padding(
             padding: const EdgeInsets.only(left: 8),
             child: Button(
-              child: const Text('清除'),
               onPressed: () {
                 final old = File(p.join(widget.store.dir, 'bg', current));
                 if (old.existsSync()) old.deleteSync();
@@ -1168,6 +1212,8 @@ class _ControlPanelState extends State<ControlPanel> {
                 _commit();
                 if (mounted) setState(() {});
               },
+              child: const Text('清除',
+                  style: TextStyle(color: Color(0xFFD13438))),
             ),
           ),
       ],
