@@ -181,10 +181,21 @@ class _FileSink {
       await _todayFile().writeAsString(chunk,
           mode: FileMode.append, flush: true);
     } catch (_) {
-      // 日志写失败不能反过去把程序搞挂：把这块文本还回队列里，等下次再试
-      _buf.write(chunk);
+      // 日志写失败不能反过去把程序搞挂：把这块文本还回队列里，等下次再试。
+      // 但磁盘持续失败（U盘拔了/盘满了）时回灌会无限增长——给个 256KB
+      // 硬顶，顶到就丢最老的。日志的命不值钱，内存不能陪它陪葬。
+      if (_buf.length + chunk.length <= 256 * 1024) {
+        _buf.write(chunk);
+      } else {
+        _buf.clear();
+        _buf.write(_tail(chunk, 128 * 1024));
+      }
     }
   }
+
+  /// 取文本最后 [max] 个字符（保留最近的日志，丢最老的）
+  static String _tail(String s, int max) =>
+      s.length <= max ? s : s.substring(s.length - max);
 
   /// 启动时清扫过期文件：只留最近 7 天的日志。
   void _cleanupOld() {

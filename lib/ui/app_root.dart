@@ -4,6 +4,7 @@
 /// 所以这个窗口现在只干一件事：画磁贴、沉在 Z 序最底、只在卡片上接收输入。
 library;
 
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -431,8 +432,8 @@ class AppRootState extends State<AppRoot> with TrayListener {
   /// 重新扫描插件目录，并让桌面上的卡片按新插件重建。
   ///
   /// 托盘的「重新扫描插件」和市场装完插件都走这里：装好的插件要立刻能在组件库
-  /// 里添加，被更新的插件要立刻换成新代码——两件事都靠 _revision 变化触发卡片
-  /// 重新挂载。
+  /// 里添加，被更新的插件要立刻换成新代码。代码版本号（registry.codeVersion）
+  /// 随 scan 自增，进卡片 key 触发重新挂载。
   Future<void> rescanPlugins() async {
     await widget.registry.scan();
     Log.i('plugin',
@@ -574,7 +575,19 @@ class AppRootState extends State<AppRoot> with TrayListener {
           onCardSecondaryTap: (card) => openPanel(cardId: card.id),
           onCardAnchor: anchorCard,
           buildPluginBody: (card, size) => PluginCardBody(
-            key: ValueKey('${card.id}:${card.size}:$_revision'),
+            // 卡片 key 只编码"会改变运行时行为"的量：卡片 id、尺寸、
+            // 本卡片的设置、插件代码版本。
+            //
+            // 以前这里放的是全局 _revision——面板里改**任何**一项设置
+            // （模糊强度、主题、透明度……）都会让所有卡片的 key 变化，
+            // 5 个 QuickJS 运行时全部销毁重建，瞬时内存峰值和 GC 压力
+            // 全是白付的。现在：外观类设置走壁纸监听/宿主重建即可，
+            // 运行时只在真正影响插件的量变化时才重建。
+            key: ValueKey(
+              '${card.id}:${card.size}:'
+              '${jsonEncode(card.settings)}:'
+              '${widget.registry.codeVersion}',
+            ),
             card: card,
             size: size,
             registry: widget.registry,

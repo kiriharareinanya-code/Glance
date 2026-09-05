@@ -18,6 +18,13 @@ import 'images.dart';
 import 'registry.dart';
 import 'sdk.dart';
 
+/// 插件 HTTP 共享客户端：进程级复用连接池。
+///
+/// 以前每次 `http.get` 新建一个 Client、用完就扔——每请求一次 TCP/TLS
+/// 握手（歌词插件每秒轮询，握手开销全是白付的）。桌面应用进程常驻，
+/// 连接池复用是零成本收益，不需要显式关闭。
+final http.Client _pluginHttp = http.Client();
+
 class PluginHost {
   PluginHost({
     required this.store,
@@ -223,7 +230,7 @@ class PluginHost {
     final sw = Stopwatch()..start();
     try {
       final res =
-          await http.get(uri, headers: headers).timeout(const Duration(seconds: 15));
+          await _pluginHttp.get(uri, headers: headers).timeout(const Duration(seconds: 15));
       sw.stop();
       if (res.statusCode < 200 || res.statusCode >= 300) {
         Log.w('plugin',

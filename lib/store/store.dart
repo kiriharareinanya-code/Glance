@@ -231,8 +231,9 @@ class Store {
     if (await dataFile.exists()) {
       await dataFile.delete();
     }
-    // 从缓存中移除
-    _cacheDir(pluginId); // 这里只是清理内存引用，实际文件已删
+    // 内存总表同步清掉：启动时 pluginData 全量载入内存，卸载不清的话
+    // 这份 kv 会一直持到进程退出（rescanPlugins 重新载入也救不回来）
+    _state?.pluginData.remove(pluginId);
     Log.i('store', '已卸载插件 $pluginId');
   }
 

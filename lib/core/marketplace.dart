@@ -353,15 +353,18 @@ class MarketClient {
         throw MarketException('下载失败：HTTP ${res.statusCode}');
       }
       final total = res.contentLength ?? 0;
-      final bytes = <int>[];
+      // BytesBuilder：逐块追加不重复拷贝（List.addAll 会反复扩容拷贝），
+      // takeBytes 一次性移交，峰值 ≈ 包体积 1 份而不是两三份
+      final builder = BytesBuilder(copy: false);
       await for (final chunk in res.stream) {
-        bytes.addAll(chunk);
-        onProgress?.call(bytes.length, total);
+        builder.add(chunk);
+        onProgress?.call(builder.length, total);
       }
+      final bytes = builder.takeBytes();
       sw.stop();
       Log.i('market',
           '下载完成 ${uri.path} ${bytes.length}B（${sw.elapsedMilliseconds}ms）');
-      return Uint8List.fromList(bytes);
+      return bytes;
     } on MarketException {
       rethrow;
     } catch (e) {
@@ -405,7 +408,11 @@ class PluginInstaller {
     if (archive.isEmpty) throw MarketException('插件包是空的');
 
     // ---- 1. 逐条查路径。带 .. 或绝对路径的包整个拒绝 ----
-    final files = <String, List<int>>{};
+    // 内存：这里**不**把所有条目的解压内容攒进 Map（那等于把整个解压后
+    // 的包再持一份），第一遍只记名字 + 顺路捞 manifest 字节（KB 级），
+    // 解压写盘放在校验全部通过后的第二遍逐条进行。
+    final names = <String>[];
+    List<int>? manifestCandidate;
     for (final entry in archive) {
       if (!entry.isFile) continue;
       final name = entry.name.replaceAll('\\', '/');
@@ -415,16 +422,20 @@ class PluginInstaller {
           RegExp(r'^[a-zA-Z]:').hasMatch(name)) {
         throw MarketException('插件包里有非法路径，已拒绝安装');
       }
-      files[name] = entry.content;
+      names.add(name);
+      if (p.basename(name) == 'manifest.json') {
+        manifestCandidate = entry.content as Uint8List?;
+      }
     }
-    if (files.isEmpty) throw MarketException('插件包里没有文件');
+    if (names.isEmpty) throw MarketException('插件包里没有文件');
 
     // ---- 2. manifest 必须在包的根目录 ----
     //
     // 有些打包工具会多套一层目录（zip 里是 hello/manifest.json），
     // 这里也认：只要全部文件都在同一个顶层目录下，就把那层剥掉。
-    final normalized = _stripSingleRoot(files);
-    final manifestRaw = normalized['manifest.json'];
+    final prefix = _rootPrefix(names);
+    final manifestPath = '${prefix}manifest.json';
+    final manifestRaw = names.contains(manifestPath) ? manifestCandidate : null;
     if (manifestRaw == null) {
       throw MarketException('插件包里没有 manifest.json');
     }
@@ -447,7 +458,9 @@ class PluginInstaller {
           '插件包版本是 ${manifest.version}，与市场登记的 $expectVersion 不符');
     }
     // 入口文件得真的在包里，否则装完是个跑不起来的空壳
-    if (!normalized.containsKey(manifest.entry.replaceAll('\\', '/'))) {
+    // （按剥掉单一顶层目录之后的名字找）
+    final entryPath = manifest.entry.replaceAll('\\', '/');
+    if (!names.any((n) => n.substring(prefix.length) == entryPath)) {
       throw MarketException('插件包里找不到入口文件 ${manifest.entry}');
     }
 
@@ -459,14 +472,18 @@ class PluginInstaller {
 
     try {
       await staging.create(recursive: true);
-      for (final e in normalized.entries) {
-        final dest = File(p.join(staging.path, e.key));
+      // 第二遍：逐条解压写盘。entry.content 用完即弃，内存里始终只有
+      // 一个文件的内容，而不是整个解压后的包
+      for (final entry in archive) {
+        if (!entry.isFile) continue;
+        final name = entry.name.replaceAll('\\', '/');
+        final dest = File(p.join(staging.path, name.substring(prefix.length)));
         // 再兜一道：拼完的绝对路径必须还在 staging 里面
         if (!p.isWithin(staging.path, dest.path)) {
           throw MarketException('插件包里有非法路径，已拒绝安装');
         }
         await dest.parent.create(recursive: true);
-        await dest.writeAsBytes(e.value);
+        await dest.writeAsBytes(entry.content as List<int>);
       }
 
       // 旧版本先挪走而不是直接删：替换过程中出岔子还能放回去
@@ -517,23 +534,21 @@ class PluginInstaller {
     }
   }
 
-  /// 全部文件都在同一个顶层目录下时，把那层剥掉。
+  /// 全部文件都在同一个顶层目录下时，返回那层目录的前缀（含斜杠），
+  /// 否则返回空串。zip 打包时习惯连目录一起打（`hello/manifest.json`），
+  /// 而我们要的是目录里的内容。只有"确实只有一个顶层目录"时才剥，避免误伤。
   ///
-  /// zip 打包时习惯连目录一起打（`hello/manifest.json`），而我们要的是
-  /// 目录里的内容。只有"确实只有一个顶层目录"时才剥，避免误伤。
-  static Map<String, List<int>> _stripSingleRoot(Map<String, List<int>> files) {
-    if (files.containsKey('manifest.json')) return files;
+  /// 只看名字列表就够了，不需要持有任何文件内容。
+  static String _rootPrefix(List<String> names) {
+    if (names.contains('manifest.json')) return '';
     final roots = <String>{};
-    for (final name in files.keys) {
+    for (final name in names) {
       final i = name.indexOf('/');
-      if (i <= 0) return files; // 根目录下有散文件，不是"单一顶层目录"
+      if (i <= 0) return ''; // 根目录下有散文件，不是"单一顶层目录"
       roots.add(name.substring(0, i));
     }
-    if (roots.length != 1) return files;
-    final prefix = '${roots.first}/';
-    return {
-      for (final e in files.entries) e.key.substring(prefix.length): e.value,
-    };
+    if (roots.length != 1) return '';
+    return '${roots.first}/';
   }
 }
 
