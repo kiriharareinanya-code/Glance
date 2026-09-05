@@ -5,16 +5,19 @@ import 'dart:ui' as ui;
 import 'package:flutter/gestures.dart' show PointerDeviceKind, kPrimaryMouseButton;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:iconic_morph/iconic_morph.dart' show IconImage;
 import 'package:vectra/plugin/images.dart';
 import 'package:vectra/plugin/node.dart';
+import 'package:vectra/plugin/node_anim.dart' show kNodeAnimDuration;
 
 void main() {
   Future<void> pump(WidgetTester tester, Map<String, Object?>? tree,
-      {PluginEvent? onEvent}) async {
+      {PluginEvent? onEvent, bool animate = true}) async {
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
         body: PluginView(
           tree: tree,
+          animate: animate,
           onEvent: onEvent ?? (_, _) {},
         ),
       ),
@@ -143,21 +146,181 @@ void main() {
       'bg': '#29B6F6',
       'child': {'t': 'text', 'v': 'x'}
     });
-    final box = tester.widget<Container>(find.byType(Container).first);
+    final box = tester.widget<AnimatedContainer>(
+        find.byType(AnimatedContainer).first);
     final deco = box.decoration as BoxDecoration;
     expect(deco.color, const Color(0xFF29B6F6));
   });
 
   testWidgets('8 位色值按 RRGGBBAA 解析', (tester) async {
     await pump(tester, {'t': 'box', 'w': 20, 'h': 20, 'bg': '#29B6F680'});
-    final box = tester.widget<Container>(find.byType(Container).first);
+    final box = tester.widget<AnimatedContainer>(
+        find.byType(AnimatedContainer).first);
     final deco = box.decoration as BoxDecoration;
     expect(deco.color, const Color(0x8029B6F6));
   });
 
+  // ---------------- 状态变化的过渡（待办勾选 / 歌词高亮换行） ----------------
+
+  testWidgets('底色变化走过渡容器，不是硬切', (tester) async {
+    // 待办勾选项的背景色随 done 变化；硬切时"图标在形变、底色啪一下"很违和
+    await pump(tester, {
+      't': 'box',
+      'w': 20,
+      'h': 20,
+      'bg': '#FFFFFF12',
+      'child': {'t': 'text', 'v': 'x'}
+    });
+    // 以文本为锚点往上找：Scaffold/Material 自身也用 AnimatedContainer
+    final boxFinder = find.ancestor(
+      of: find.text('x'),
+      matching: find.byType(AnimatedContainer),
+    );
+    expect(boxFinder, findsOneWidget);
+    final deco = tester
+        .widget<AnimatedContainer>(boxFinder.first)
+        .decoration as BoxDecoration;
+    expect(deco.color, const Color(0x12FFFFFF));
+  });
+
+  testWidgets('文字颜色/删除线变化走过渡样式', (tester) async {
+    await pump(tester, {
+      't': 'text',
+      'v': '买牛奶',
+      'color': '#FFFFFF',
+      'opacity': 0.4,
+      'strike': true,
+    });
+    // 同理：Material/Scaffold 内部就有 AnimatedDefaultTextStyle，
+    // 必须限定在插件文字的祖先链上，否则测的是框架自己那一份
+    final styleFinder = find.ancestor(
+      of: find.text('买牛奶'),
+      matching: find.byType(AnimatedDefaultTextStyle),
+    );
+    expect(styleFinder, findsWidgets);
+    // 取最近的那一份（Material 自己也挂了一层 AnimatedDefaultTextStyle）
+    final anim = tester.widget<AnimatedDefaultTextStyle>(styleFinder.first);
+    expect(anim.style.decoration, TextDecoration.lineThrough,
+        reason: '删除线由过渡样式承载，才能在勾选/取消之间滑过去');
+    expect(anim.style.color, const Color(0x66FFFFFF));
+    expect(anim.duration, kNodeAnimDuration);
+  });
+
+  testWidgets('全局动画关掉时不做任何过渡', (tester) async {
+    await pump(
+      tester,
+      {
+        't': 'text',
+        'v': '买牛奶',
+        'color': '#FFFFFF',
+        'strike': true,
+      },
+      animate: false,
+    );
+    // 关掉动画时样式直接挂在 Text 上（style != null），不再套过渡组件
+    final text = tester.widget<Text>(find.text('买牛奶'));
+    expect(text.style, isNotNull,
+        reason: '关掉动画就该直给样式，不该再挂一层过渡组件');
+    expect(text.style!.decoration, TextDecoration.lineThrough);
+  });
+
+  testWidgets('文字过渡不丢卡片字体（回归：过渡层遮蔽环境字体）', (tester) async {
+    // AnimatedDefaultTextStyle 会成为新的 DefaultTextStyle——如果只把
+    // 插件声明的样式塞进去（fontFamily 多半是 null），Text 向上合并到这层
+    // 就停了，卡片设置的字体（时钟的圆体、卡片的鸿蒙体）全部丢失。
+    await tester.pumpWidget(MaterialApp(
+      home: DefaultTextStyle(
+        style: const TextStyle(
+            fontFamily: 'RoundFont', fontSize: 20, color: Colors.white),
+        child: PluginView(
+          tree: {'t': 'text', 'v': '00:52', 'size': 40},
+          onEvent: (_, _) {},
+        ),
+      ),
+    ));
+    await tester.pump();
+
+    final finder = find.ancestor(
+      of: find.text('00:52'),
+      matching: find.byType(AnimatedDefaultTextStyle),
+    );
+    expect(finder, findsWidgets);
+    final anim = tester.widget<AnimatedDefaultTextStyle>(finder.first);
+    expect(anim.style.fontFamily, 'RoundFont',
+        reason: '过渡样式必须把环境字体解析进来，卡片字体不能被过渡层遮蔽');
+    expect(anim.style.inherit, isFalse,
+        reason: '解析完的样式要定稿（inherit:false），否则又是不完整的部分答案');
+    expect(anim.style.fontSize, 40);
+  });
+
+  testWidgets('tap 节点有按压反馈但不挡交互', (tester) async {
+    String? tapped;
+    await pump(
+      tester,
+      {
+        't': 'tap',
+        'id': 'h',
+        'child': {'t': 'text', 'v': 'go'}
+      },
+      onEvent: (id, _) => tapped = id,
+    );
+    await tester.tap(find.text('go'));
+    await tester.pump();
+    expect(tapped, 'h', reason: '按压反馈只是视觉层，事件必须照常发出');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('trans:true 的文字内容变化做交叉过渡（时钟数字）', (tester) async {
+    Future<void> pumpV(String v) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: PluginView(
+            tree: {'t': 'text', 'v': v, 'trans': true},
+            onEvent: (_, _) {},
+          ),
+        ),
+      ));
+    }
+
+    await pumpV('07');
+    await tester.pump();
+    await pumpV('08');
+    await tester.pump(); // 触发切换
+
+    expect(find.text('07'), findsOneWidget, reason: '交叉过渡里旧值还在退场，不是硬切');
+    expect(find.text('08'), findsOneWidget, reason: '新值同帧就在，不能有空白帧');
+
+    await tester.pumpAndSettle();
+    expect(find.text('07'), findsNothing, reason: '过渡结束后只剩新值');
+    expect(find.text('08'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('没声明 trans 的文字内容变化仍是原地替换（老契约不变）', (tester) async {
+    Future<void> pumpV(String v) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: PluginView(
+            tree: {'t': 'text', 'v': v},
+            onEvent: (_, _) {},
+          ),
+        ),
+      ));
+    }
+
+    await pumpV('旧');
+    await tester.pump();
+    await pumpV('新');
+    await tester.pump();
+    expect(find.text('旧'), findsNothing,
+        reason: '内容切换动画当年因闪白被移除，只有显式 trans 的节点才允许过渡');
+    expect(find.text('新'), findsOneWidget);
+  });
+
   testWidgets('3 位色值展开', (tester) async {
     await pump(tester, {'t': 'box', 'w': 20, 'h': 20, 'bg': '#f00'});
-    final box = tester.widget<Container>(find.byType(Container).first);
+    final box = tester.widget<AnimatedContainer>(
+        find.byType(AnimatedContainer).first);
     final deco = box.decoration as BoxDecoration;
     expect(deco.color, const Color(0xFFFF0000));
   });
@@ -288,8 +451,10 @@ void main() {
         {'t': 'icon', 'v': 'music'},
       ]
     });
-    expect(find.byIcon(Icons.play_arrow_rounded), findsOneWidget);
-    expect(find.byIcon(Icons.pause_rounded), findsOneWidget);
+    // play / pause 进了形变表（kMorphIconPaths），渲染成 SVG 的 IconImage——
+    // 图形与字体字形同源，但 finder 里不再是 Icon
+    expect(find.byType(IconImage), findsNWidgets(2),
+        reason: 'play/pause 要走 SVG 渲染，才能支撑播放/暂停切换的形变');
     expect(find.byIcon(Icons.skip_previous_rounded), findsOneWidget);
     expect(find.byIcon(Icons.skip_next_rounded), findsOneWidget);
     expect(find.byIcon(Icons.music_note_rounded), findsOneWidget);

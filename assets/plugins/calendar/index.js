@@ -43,8 +43,10 @@ lw.register({
       }
 
       var headCells = heads.map(function (h, i) {
-        return { t: 'text', v: h, size: 12, align: 'center', weight: 500,
-                 opacity: weekendCols.indexOf(i) >= 0 ? 0.55 : 0.38 };
+        // 表头：周末列稍亮做区分，但整体对比度都要够读（原 0.38/0.55 太灰）
+        return { t: 'text', v: h, size: 13, align: 'center', weight: 600,
+                 spacing: 1,
+                 opacity: weekendCols.indexOf(i) >= 0 ? 0.8 : 0.62 };
       });
 
       var prev = ctx.on(function () {
@@ -66,10 +68,10 @@ lw.register({
             { t: 'tap', id: reset, child: {
               t: 'row', gap: 6, cross: 'center', children: [
                 { t: 'text', v: viewYear + '年' + (viewMonth + 1) + '月',
-                  size: 16, weight: 500 },
+                  size: 17, weight: 600 },
                 offMonth
-                  ? { t: 'box', pad: [2, 6], radius: 5, bg: '#FFFFFF14',
-                      child: { t: 'text', v: '今天', size: 9, opacity: 0.6 } }
+                  ? { t: 'box', pad: [2, 7], radius: 5, bg: '#FFFFFF14',
+                      child: { t: 'text', v: '今天', size: 10, opacity: 0.78 } }
                   : { t: 'box' }
               ] } },
             { t: 'row', gap: 2, children: [
@@ -83,7 +85,7 @@ lw.register({
           ] },
           { t: 'grid', cols: 7, gap: 0, children: headCells },
           { t: 'flex', f: 1, child: {
-              t: 'grid', cols: 7, gap: 2, fill: true, children: cells } }
+              t: 'grid', cols: 7, gap: 5, fill: true, children: cells } }
         ]
       };
 
@@ -102,14 +104,14 @@ lw.register({
       if (!l) return { t: 'box' };
       var parts = [
         { t: 'box', pad: [2, 7], radius: 6, bg: '#FFFFFF12', child: {
-            t: 'text', v: l.monthText + l.dayText, size: 11 } },
-        { t: 'text', v: Lunar.ganzhi(l.y) + '年', size: 11, opacity: 0.45 },
-        { t: 'text', v: '属' + Lunar.zodiac(l.y), size: 11, opacity: 0.45 }
+            t: 'text', v: l.monthText + l.dayText, size: 12 } },
+        { t: 'text', v: Lunar.ganzhi(l.y) + '年', size: 12, opacity: 0.58 },
+        { t: 'text', v: '属' + Lunar.zodiac(l.y), size: 12, opacity: 0.58 }
       ];
       var t = Lunar.termOf(today.getFullYear(), today.getMonth() + 1, today.getDate());
       if (t) {
         parts.push({ t: 'box', pad: [2, 7], radius: 6, bg: '#8FD6A022', child: {
-          t: 'text', v: '今日' + t, size: 11, color: '#8FD6A0' } });
+          t: 'text', v: '今日' + t, size: 12, color: '#8FD6A0' } });
       }
       return { t: 'row', gap: 8, cross: 'center', children: parts };
     }
@@ -123,8 +125,8 @@ lw.register({
       if (nt) {
         items.push({ t: 'row', gap: 6, cross: 'center', children: [
           { t: 'box', w: 4, h: 4, radius: 2, bg: '#8FD6A0' },
-          { t: 'text', v: nt.name, size: 11.5 },
-          { t: 'text', v: nt.days + ' 天后', size: 11, opacity: 0.42 }
+          { t: 'text', v: nt.name, size: 12.5 },
+          { t: 'text', v: nt.days + ' 天后', size: 11.5, opacity: 0.55 }
         ] });
       }
 
@@ -137,16 +139,16 @@ lw.register({
         if (!f) continue;
         items.push({ t: 'row', gap: 6, cross: 'center', children: [
           { t: 'box', w: 4, h: 4, radius: 2,
-            bg: f.statutory ? '#FF8A6B' : '#FFFFFF44' },
-          { t: 'text', v: f.name, size: 11.5,
+            bg: f.statutory ? '#FF8A6B' : '#FFFFFF55' },
+          { t: 'text', v: f.name, size: 12.5,
             color: f.statutory ? '#FF8A6B' : null },
-          { t: 'text', v: m + '月' + i + '日', size: 11, opacity: 0.42 }
+          { t: 'text', v: m + '月' + i + '日', size: 11.5, opacity: 0.55 }
         ] });
         listed++;
       }
 
       if (!items.length) {
-        items.push({ t: 'text', v: '本月没有更多节日了', size: 11, opacity: 0.3 });
+        items.push({ t: 'text', v: '本月没有更多节日了', size: 11.5, opacity: 0.42 });
       }
       return { t: 'col', gap: 6, children: items };
     }
@@ -172,34 +174,41 @@ lw.register({
         sub = lunar.d === 1 ? lunar.monthText : lunar.dayText;
       }
 
-      // 节日/节气所在格给一个很淡的圆底，让它从一片数字里跳出来
+      // 节日/节气所在格给一个淡的圆底，让它从一片数字里跳出来
       var marked = !isToday && inMonth && showFest && (fest || term);
+
+      // 法定节假日：日期数字也用节日色（原来只有下行的节日名上色，
+      // 数字本身和普通日没两样，状态一眼分不出来）
+      var statutory = !!(showFest && fest && fest.statutory);
 
       var dayColor = null, dayOpacity = 1;
       if (isToday) {
         dayColor = '#0B1116';
       } else if (!inMonth) {
-        dayOpacity = 0.28;
-      } else if (weekend) {
+        // 非本月：弱化但保持可辨认（原 0.28 在深色壁纸上几乎看不见）
+        dayOpacity = 0.4;
+      } else if (weekend || statutory) {
         dayColor = HOLIDAY;
-        dayOpacity = 0.9;
+        dayOpacity = 1;
       }
 
       var inner = {
-        t: 'col', gap: 1, cross: 'center', main: 'center', children: [
-          { t: 'text', v: '' + day, size: 15, weight: isToday ? 700 : 500,
+        t: 'col', gap: 2, cross: 'center', main: 'center', children: [
+          { t: 'text', v: '' + day, size: 17,
+            weight: isToday ? 800 : 600,
+            spacing: 0.3,
             align: 'center', color: dayColor, opacity: dayOpacity },
           sub
-            ? { t: 'text', v: sub, size: 9.5, align: 'center', maxLines: 1,
+            ? { t: 'text', v: sub, size: 11, align: 'center', maxLines: 1,
                 color: isToday ? '#0B1116' : subColor,
-                opacity: isToday ? 0.85 : (inMonth ? 0.5 : 0.22) }
+                opacity: isToday ? 0.9 : (inMonth ? 0.72 : 0.32) }
             : { t: 'box' }
         ]
       };
 
       return { t: 'row', main: 'center', children: [
-        { t: 'box', w: 36, h: 36, radius: 18, center: true,
-          bg: isToday ? ACCENT : (marked ? '#FFFFFF12' : null),
+        { t: 'box', w: 38, h: 38, radius: 19, center: true,
+          bg: isToday ? ACCENT : (marked ? '#FFFFFF18' : null),
           child: inner }
       ] };
     }

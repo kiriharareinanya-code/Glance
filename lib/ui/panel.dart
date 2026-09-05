@@ -40,7 +40,8 @@ import 'wallpaper.dart';
 
 /// 全局统一的主色与材质，跟磁贴/侧边栏同一套语言
 /// （主题蓝放 _PanelColors.accent 里按深浅色翻转）
-const double _kRadius = 14;
+/// 面板统一圆角：Win11 设置的设置卡片是 8px，跟着走
+const double _kRadius = 8;
 
 /// 面板自身的一套颜色，按深浅色翻转。
 ///
@@ -72,10 +73,16 @@ class _PanelColors {
   Color get ink24 =>
       light ? Color(0x3D16181C) : Color(0x3DFFFFFF);
 
-  /// 卡片底/边框：深色是白 5%/12%，浅色换成黑 5%/12%
-  Color get card => light ? Color(0x0D000000) : Color(0x0DFFFFFF);
+  /// 卡片底/边框：Win11 设置风格的**实色**卡片（浅色纯白 / 深色比底色亮一档）
+  Color get card => light ? Color(0xFFFFFFFF) : Color(0xFF23292B);
   Color get cardBorder =>
-      light ? Color(0x1F000000) : Color(0x1FFFFFFF);
+      light ? Color(0x14000000) : Color(0x1FFFFFFF);
+
+  /// 侧边栏导航项的悬停 / 选中底（Win11 那种浅灰胶囊）
+  Color get navHover =>
+      light ? Color(0x0A000000) : Color(0x0AFFFFFF);
+  Color get navSelected =>
+      light ? Color(0x14181C1C) : Color(0x1FFFFFFF);
 
   /// 未选中 chip / 分隔线的底（白 8% ↔ 黑 8%）
   Color get chipBg =>
@@ -171,13 +178,10 @@ class ControlPanel extends StatefulWidget {
 class _ControlPanelState extends State<ControlPanel> {
   late int _tab = widget.initialTab ?? (widget.focusCardId != null ? 1 : 0);
 
-  /// 导航栏是展开还是收成图标条。
-  ///
-  /// 必须自己存着：NavigationView 的收起按钮只通过 onDisplayModeChanged
-  /// 把新模式**报出来**，它自己不留状态。之前这里给的是写死的
-  /// PaneDisplayMode.expanded，按钮按下去内部虽然变了，可下一次重建又被
-  /// 这个常量按回展开——表现就是"点了没反应"。
-  PaneDisplayMode _paneMode = PaneDisplayMode.expanded;
+  /// 顶部搜索框：内容与焦点
+  final TextEditingController _searchCtrl = TextEditingController();
+  final FocusNode _searchFocus = FocusNode();
+  String _query = '';
 
   /// 关于页的版本信息；异步加载，未就绪时显示"获取中…"
   PackageInfo? _pkgInfo;
@@ -280,19 +284,32 @@ class _ControlPanelState extends State<ControlPanel> {
       _commitTimer!.cancel();
       widget.onChanged();
     }
+    _searchCtrl.dispose();
+    _searchFocus.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // WinUI 3 标准布局：无边框自绘标题栏（最顶）+ NavigationView（左侧导航
-    // 窗格 + 右侧内容）。NavigationView 的 body 按选中项构建（keyed 切换），
-    // 不会像 TabView/IndexedStack 那样同时建多页，安全的。
+    // Win11 设置布局：无边框自绘标题栏（最顶，中间有"查找设置"）+
+    // 左侧栏 + 右侧内容。内容按选中项构建，不会同时建多页。
     final body = Column(
       children: [
         // 无边框窗口的自绘标题栏；内嵌模式没有独立窗口，不需要
         if (!widget.embedded) _titleBar(),
         Expanded(child: _navigation()),
+      ],
+    );
+
+    // 搜索结果浮层挂在 body 上层的 Stack 里，从标题栏正下方弹出。
+    // 放在 Column 外面（Positioned），弹出时不把内容往下顶。
+    final layered = Stack(
+      fit: StackFit.expand,
+      children: [
+        body,
+        ...[
+          if (!widget.embedded) _searchResultsPanel() ?? const SizedBox.shrink(),
+        ],
       ],
     );
 
@@ -302,7 +319,8 @@ class _ControlPanelState extends State<ControlPanel> {
       // fit 用 expand：Stack 的子节点全是 Positioned 时，它自己会塌缩到约束
       // 允许的最小尺寸，手柄就跟着缩没了（surface.dart 里踩过同样的坑）
       return Stack(fit: StackFit.expand, children: [
-        Positioned.fill(child: body),
+        layered,
+        ...resizeHandles(NativeWindow.panel),
         ...resizeHandles(NativeWindow.panel),
         // 描边。窗口是无边框的，浅色主题下面板底色和浅色桌面/浅色应用背景
         // 挨在一起时几乎分不出边界，一圈淡黑色才能把窗口"框"出来。
@@ -353,77 +371,344 @@ class _ControlPanelState extends State<ControlPanel> {
     );
   }
 
-  // ---------------- 左侧导航（NavigationView） ----------------
+  // ---------------- Win11 设置风格的导航壳 ----------------
+
+  /// 导航元数据（图标 + 标题）。**顺序即索引**：AI 固定在 3、其他 4、
+  /// 关于 5——托盘的 openPanel(tab: 3)、AI 侧边栏齿轮的跳转都按这个
+  /// 下标写死，别动。
+  static const List<(int, IconData, String)> _navItems = [
+    (0, Icons.widgets_outlined, '组件库'),
+    (1, Icons.grid_view_outlined, '已放置'),
+    (2, Icons.palette_outlined, '外观'),
+    (3, Icons.smart_toy_outlined, 'AI'),
+    (4, Icons.tune_outlined, '其他'),
+  ];
 
   Widget _navigation() {
-    return NavigationView(
-      // 收起按钮只负责把新模式报出来，记不记得住得靠调用方。
-      // 这个回调挂在 NavigationView 上，不是 NavigationPane 上。
-      onDisplayModeChanged: (m) {
-        if (m != _paneMode) setState(() => _paneMode = m);
+    // Win11 设置布局：左侧固定宽度侧栏（品牌卡 + 导航列表 + 底部固定项），
+    // 中间一条发丝分隔线，右侧内容区只建当前选中页。
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _sidebar(),
+        Container(width: 1, color: _c.chipBg),
+        Expanded(child: _pageSwitcher()),
+      ],
+    );
+  }
+
+  /// 当前页内容。按需懒构建——以前每次 setState 会把 5 个页面（含组件库
+  /// 那些实时跑的插件预览）全构建一遍，只挂一页也是白费力气。
+  Widget _currentPage() => switch (_tab) {
+        0 => _pageFrame('组件库', _library()),
+        1 => _pageFrame('已放置', _placed()),
+        2 => _pageFrame('外观', _appearance()),
+        3 => _pageFrame('AI', _aiSettings()),
+        4 => _pageFrame('其他', _other()),
+        _ => _pageFrame('关于', _about()),
+      };
+
+  /// 页面切换动画：淡入 + 轻微上移（Win11 设置换页时的那种感觉）。
+  ///
+  /// 进和出用**不对称**的节奏：新页 200ms 缓动入场，旧页 100ms 快速
+  /// 淡出（easeInCubic 起手就猛退）。AnimatedSwitcher 默认新旧交叉淡变
+  /// 且时长相同，旧页文字会几乎全程挂在新页上——"切换时字体留存过久"
+  /// 就是对称交叉淡变留下的残影，缩短 reverseDuration 并加速退场解决。
+  Widget _pageSwitcher() {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      reverseDuration: const Duration(milliseconds: 100),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, animation) {
+        // 透明度线性（时长由 duration/reverseDuration 控制）；缓动曲线只给
+        // 位移。旧页退场时如果透明度也走 easeOutCubic，反向播放会在接近
+        // 完全不透明处滞留到最后一刻——"字体留存"就是这么来的。
+        final slide = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        );
+        return FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.012),
+              end: Offset.zero,
+            ).animate(slide),
+            child: child,
+          ),
+        );
       },
-      pane: NavigationPane(
-        selected: _tab,
-        onChanged: (i) => setState(() => _tab = i),
-        displayMode: _paneMode,
-        size: const NavigationPaneSize(openWidth: 220),
-        // 品牌行不放了：标题栏已有「Vectra 设置」，导航栏顶部再放一遍重复
-        items: [
-          PaneItem(
-            icon: Icon(Icons.widgets_outlined, size: 18),
-            title: Text('组件库'),
-            body: _pageFrame('组件库', _library()),
-          ),
-          PaneItem(
-            icon: Icon(Icons.grid_view_outlined, size: 18),
-            title: Text('已放置 ${widget.state.cards.length}'),
-            body: _pageFrame('已放置', _placed()),
-          ),
-          PaneItem(
-            icon: Icon(Icons.palette_outlined, size: 18),
-            title: Text('外观'),
-            body: _pageFrame('外观', _appearance()),
-          ),
-          PaneItem(
-            icon: Icon(Icons.smart_toy_outlined, size: 18),
-            title: Text('AI'),
-            body: _pageFrame('AI', _aiSettings()),
-          ),
-          // 放在 AI 之后：AI 仍是索引 3，托盘的 openPanel(tab: 3) 不受影响
-          PaneItem(
-            icon: Icon(Icons.tune_outlined, size: 18),
-            title: Text('其他'),
-            body: _pageFrame('其他', _other()),
-          ),
-        ],
-        // 底部固定项：关于页固定在标签栏下方，不随 items 区滚动
-        footerItems: [
-          if (widget.embedded)
-            PaneItemAction(
-              icon: Icon(Icons.close, size: 18),
-              title: Text('关闭'),
-              onTap: widget.onClose,
+      child: KeyedSubtree(
+        key: ValueKey('page:$_tab'),
+        child: _currentPage(),
+      ),
+    );
+  }
+
+  Widget _sidebar() {
+    return SizedBox(
+      width: 256,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _brandCard(),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              children: [
+                for (final (index, icon, title) in _navItems)
+                  _navItem(index, icon, title,
+                      // 已放置的卡片数量跟在标题后面，和旧导航栏的信息一致
+                      trailing: index == 1 && widget.state.cards.isNotEmpty
+                          ? '${widget.state.cards.length}'
+                          : null),
+              ],
             ),
-          PaneItem(
-            icon: Icon(Icons.info_outline, size: 18),
-            title: Text('关于'),
-            body: _pageFrame('关于', _about()),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 4, 10, 10),
+            child: _navItem(5, Icons.info_outline, '关于'),
           ),
         ],
       ),
     );
   }
 
-  /// 内容页的标准骨架：大标题 + 可滚动内容
+  /// 侧栏顶部的品牌卡（对应 Win11 设置里的账户卡：头像 + 名称 + 说明）
+  Widget _brandCard() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.asset('assets/logo.png',
+                width: 38, height: 38, filterQuality: FilterQuality.medium),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Vectra',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: _c.ink)),
+                const SizedBox(height: 2),
+                Text('v$appVersion · 桌面磁贴',
+                    style: TextStyle(fontSize: 11, color: _c.ink54)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 导航项：Win11 那种浅灰胶囊选中态（选中图标用主色，悬停浅浅一层），
+  /// 左侧一条主色小指示条随选中伸缩。全部动画用 easeOutCubic 缓动，
+  /// 起步快、收尾减速，跟 Win11 系统应用同一个节奏。
+  Widget _navItem(int index, IconData icon, String title, {String? trailing}) {
+    final selected = _tab == index;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: HoverButton(
+        onPressed: () => setState(() => _tab = index),
+        builder: (context, states) {
+          final Color bg;
+          if (selected) {
+            bg = _c.navSelected;
+          } else if (states.contains(WidgetState.hovered) ||
+              states.contains(WidgetState.pressed)) {
+            bg = _c.navHover;
+          } else {
+            bg = Colors.transparent;
+          }
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 140),
+            curve: Curves.easeOutCubic,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Row(
+              children: [
+                // Win11 的选中指示条：3px 宽的圆头小竖条，选中时长出来
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 160),
+                  curve: Curves.easeOutCubic,
+                  width: 3,
+                  height: selected ? 16 : 0,
+                  margin: EdgeInsets.only(right: selected ? 9 : 0),
+                  decoration: BoxDecoration(
+                    color: _c.accent,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                Icon(icon,
+                    size: 18, color: selected ? _c.accent : _c.ink60),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 140),
+                    curve: Curves.easeOutCubic,
+                    style: TextStyle(
+                        fontSize: 13,
+                        fontWeight:
+                            selected ? FontWeight.w600 : FontWeight.w400,
+                        color: selected ? _c.ink : _c.ink70),
+                    child: Text(title),
+                  ),
+                ),
+                if (trailing != null)
+                  Text(trailing,
+                      style: TextStyle(fontSize: 11, color: _c.ink38)),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // ---------------- 设置搜索 ----------------
+
+  /// 搜索索引：关键词 -> 页面。纯静态表，加新分组时顺手补一行就行。
+  /// 做成"关键词集合"而不是精确标题：中文没有前缀匹配的必要，
+  /// 搜"备份"、"启动"这类词能直接命中分组才是想要的体验。
+  static const List<(String, int, String)> _searchIndex = [
+    ('组件 插件 添加 组件库 市场 预览 第三方', 0, '组件库'),
+    ('已放置 卡片 尺寸 移除 删除 布局', 1, '已放置'),
+    ('外观 网格 间距 吸附 对齐 锁定 动画 材质 毛玻璃 云母 圆角 透明度 '
+        '底色 颜色 取色 莫奈 主题 深色 浅色 壁纸 刷新 模糊', 2, '外观'),
+    ('AI 人工智能 接口 base url api key 模型 温度 历史 提示词 '
+        '快捷键 热键 投放点 agent 助手', 3, 'AI'),
+    ('更新 升级 版本 检查更新 下载 更新源 自动下载 自启 开机启动 启动 '
+        '日志 备份 导出 导入 恢复', 4, '其他'),
+    ('关于 版本 作者 链接 github macrostar 开源', 5, '关于'),
+  ];
+
+  List<(String, int)> get _searchResults {
+    final q = _query.trim().toLowerCase();
+    if (q.isEmpty) return const [];
+    return [
+      for (final (keywords, tab, label) in _searchIndex)
+        if (keywords.toLowerCase().contains(q) ||
+            label.toLowerCase().contains(q))
+          (label, tab),
+    ];
+  }
+
+  /// 标题栏中间的搜索框（"查找设置"那个位置的的东西）
+  Widget _searchBox() {
+    return SizedBox(
+      width: 300,
+      height: 30,
+      child: TextBox(
+        controller: _searchCtrl,
+        focusNode: _searchFocus,
+        placeholder: '查找设置',
+        prefix: Padding(
+          padding: const EdgeInsets.only(left: 8),
+          child: Icon(Icons.search, size: 14, color: _c.ink38),
+        ),
+        style: const TextStyle(fontSize: 12),
+        onChanged: (v) => setState(() => _query = v),
+      ),
+    );
+  }
+
+  /// 搜索结果浮层：标题栏正下方拉出一个卡片，点结果跳页。
+  /// 出现时是淡入 + 轻微上提的非线性动画，不是"啪"地闪现。
+  Widget? _searchResultsPanel() {
+    final results = _searchResults;
+    if (results.isEmpty || !_searchFocus.hasFocus) return null;
+    return Positioned(
+      top: 48,
+      left: 0,
+      right: 0,
+      child: Center(
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: const Duration(milliseconds: 160),
+          curve: Curves.easeOutCubic,
+          builder: (context, t, child) => Opacity(
+            opacity: t,
+            child: Transform.translate(
+              offset: Offset(0, -6 * (1 - t)),
+              child: child,
+            ),
+          ),
+          child: Container(
+            width: 380,
+            decoration: BoxDecoration(
+              color: _c.card,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: _c.cardBorder),
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x33000000),
+                  blurRadius: 16,
+                  offset: Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final (label, tab) in results)
+                  _searchResultRow(label, tab),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _searchResultRow(String label, int tab) {
+    return HoverButton(
+      onPressed: () {
+        setState(() {
+          _tab = tab;
+          _query = '';
+          _searchCtrl.clear();
+          _searchFocus.unfocus();
+        });
+      },
+      builder: (context, states) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        decoration: BoxDecoration(
+          color: states.contains(WidgetState.hovered)
+              ? _c.navHover
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(children: [
+          Icon(Icons.search, size: 13, color: _c.ink38),
+          const SizedBox(width: 10),
+          Expanded(
+              child: Text(label,
+                  style: TextStyle(fontSize: 12.5, color: _c.ink70))),
+          Icon(Icons.chevron_right, size: 12, color: _c.ink24),
+        ]),
+      ),
+    );
+  }
+
+  /// 内容页的标准骨架：大标题 + 可滚动内容（Win11 设置那种 28px 页题）
   Widget _pageFrame(String title, Widget content) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(28, 22, 28, 10),
+          padding: const EdgeInsets.fromLTRB(32, 20, 32, 10),
           child: Text(title,
               style: TextStyle(
-                  fontSize: 26,
+                  fontSize: 28,
                   fontWeight: FontWeight.w600,
                   color: _c.ink)),
         ),
@@ -440,9 +725,11 @@ class _ControlPanelState extends State<ControlPanel> {
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: _c.chipBg)),
       ),
-      child: Row(children: [
-        Expanded(
-          // 整条标题栏（按钮区域除外）都能拖窗口：按下即让 native 接管鼠标
+      child: Stack(children: [
+        // 左侧品牌 + 可拖区域。搜索框是 Stack 里的独立兄弟节点，压在
+        // 拖动区上方——TextBox 命中时事件到不了下面的拖动 Listener，
+        // 搜索框里点按就不会把窗口拖走。
+        Positioned.fill(
           child: Listener(
             behavior: HitTestBehavior.opaque,
             onPointerDown: _onTitleDrag,
@@ -460,26 +747,38 @@ class _ControlPanelState extends State<ControlPanel> {
             ]),
           ),
         ),
-        WindowButton(
-          icon: Icons.minimize_rounded,
-          tooltip: '最小化',
-          light: _c.light,
-          onTap: () => NativeWindow.panel.minimize(),
+        // 标题栏正中的搜索框（对齐 Win11 设置的"查找设置"位置）
+        Align(
+          alignment: Alignment.center,
+          child: _searchBox(),
         ),
-        WindowButton(
-          icon: Icons.crop_square_rounded,
-          tooltip: '最大化 / 还原',
-          light: _c.light,
-          onTap: () => NativeWindow.panel.toggleMaximize(),
+        // 右上角窗口按钮
+        Positioned(
+          right: 4,
+          top: 0,
+          bottom: 0,
+          child: Row(children: [
+            WindowButton(
+              icon: Icons.minimize_rounded,
+              tooltip: '最小化',
+              light: _c.light,
+              onTap: () => NativeWindow.panel.minimize(),
+            ),
+            WindowButton(
+              icon: Icons.crop_square_rounded,
+              tooltip: '最大化 / 还原',
+              light: _c.light,
+              onTap: () => NativeWindow.panel.toggleMaximize(),
+            ),
+            WindowButton(
+              icon: Icons.close_rounded,
+              tooltip: '关闭',
+              light: _c.light,
+              danger: true,
+              onTap: widget.onClose,
+            ),
+          ]),
         ),
-        WindowButton(
-          icon: Icons.close_rounded,
-          tooltip: '关闭',
-          light: _c.light,
-          danger: true,
-          onTap: widget.onClose,
-        ),
-        const SizedBox(width: 4),
       ]),
     );
   }
@@ -506,14 +805,25 @@ class _ControlPanelState extends State<ControlPanel> {
                         style: TextStyle(color: _c.ink30, fontSize: 12))),
               )
             else
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.25,
-                children: [for (final p in plugins) _pluginCard(p)],
+              // 列数随内容宽度走：宽了 3 列、窄了 2 列、再窄 1 列，
+              // 不写死（写死 2 列时窄窗口会把卡片挤成细条）
+              LayoutBuilder(
+                builder: (context, box) {
+                  final cols = box.maxWidth > 920
+                      ? 3
+                      : box.maxWidth > 520
+                          ? 2
+                          : 1;
+                  return GridView.count(
+                    crossAxisCount: cols,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisSpacing: 14,
+                    mainAxisSpacing: 14,
+                    childAspectRatio: 1.22,
+                    children: [for (final p in plugins) _pluginCard(p)],
+                  );
+                },
               ),
           ],
         ),
@@ -569,23 +879,20 @@ class _ControlPanelState extends State<ControlPanel> {
     final blocked = singleBlocked || screenFull;
     final loaded = widget.registry[p.id];
     return Container(
-      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: _c.card,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(_kRadius),
         border: Border.all(color: _c.cardBorder),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 真实实时预览：插件真的在跑
+          // 真实实时预览：插件真的在跑。占据卡片上方、高度随卡片宽度走
           Expanded(
             child: Container(
               width: double.infinity,
-              decoration: BoxDecoration(
-                color: _c.previewBg,
-                borderRadius: BorderRadius.circular(10),
-              ),
+              decoration: BoxDecoration(color: _c.previewBg),
               clipBehavior: Clip.antiAlias,
               child: FittedBox(
                 fit: BoxFit.contain,
@@ -599,76 +906,101 @@ class _ControlPanelState extends State<ControlPanel> {
               ),
             ),
           ),
-          const SizedBox(height: 10),
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(p.icon, style: TextStyle(fontSize: 20)),
-            const SizedBox(width: 8),
-            Expanded(
+          // 信息区固定高度：以前用 Expanded 均分，预览把信息挤到只剩一行，
+          // 按钮都贴边了；改成"预览吃掉剩余高度 + 信息区定高"，任何卡片
+          // 宽度下信息排布都一致
+          SizedBox(
+            height: 112,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(children: [
-                    Flexible(
-                      child: Text(p.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: _c.ink)),
-                    ),
-                    const SizedBox(width: 6),
-                    Text('v${p.version}',
-                        style: TextStyle(fontSize: 10, color: _c.ink30)),
-                    if (p.source == 'user') ...[
-                      const SizedBox(width: 6),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 5, vertical: 1),
+                        width: 32,
+                        height: 32,
                         decoration: BoxDecoration(
-                            color: _c.badgeBg,
-                            borderRadius: BorderRadius.circular(4)),
-                        child: Text('第三方',
-                            style: TextStyle(
-                                fontSize: 9, color: _c.accentSoft)),
+                          color: _c.iconTile,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(p.icon,
+                            style: const TextStyle(fontSize: 17)),
+                      ),
+                      const SizedBox(width: 9),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(children: [
+                              Flexible(
+                                child: Text(p.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: _c.ink)),
+                              ),
+                              const SizedBox(width: 5),
+                              Text('v${p.version}',
+                                  style: TextStyle(
+                                      fontSize: 10, color: _c.ink30)),
+                              if (p.source == 'user') ...[
+                                const SizedBox(width: 5),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 4, vertical: 1),
+                                  decoration: BoxDecoration(
+                                    color: _c.badgeBg,
+                                    borderRadius: BorderRadius.circular(4)),
+                                  child: Text('第三方',
+                                      style: TextStyle(
+                                          fontSize: 9, color: _c.accentSoft)),
+                                ),
+                              ],
+                            ]),
+                            if (p.description.isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(p.description,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      fontSize: 10.5, color: _c.ink38)),
+                            ],
+                          ],
+                        ),
                       ),
                     ],
+                  ),
+                  const Spacer(),
+                  Row(children: [
+                    if (placed > 0)
+                      Text('已放置 $placed',
+                          style: TextStyle(fontSize: 11, color: _c.ink30)),
+                    const Spacer(),
+                    FilledButton(
+                      onPressed: blocked
+                          ? null
+                          : () {
+                              widget.onAdd(p);
+                              // 导航项标题上有已放置数量，添加后要刷新
+                              if (mounted) setState(() {});
+                            },
+                      child: Text(
+                          singleBlocked
+                              ? '仅一个'
+                              : (screenFull ? '每屏一个' : '添加'),
+                          style: const TextStyle(fontSize: 12)),
+                    ),
                   ]),
-                  if (p.description.isNotEmpty)
-                    Text(p.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 10.5, color: _c.ink38, height: 1.3)),
                 ],
               ),
             ),
-          ]),
-          const SizedBox(height: 8),
-          Row(children: [
-            if (placed > 0)
-              Text('已放置 $placed',
-                  style: TextStyle(fontSize: 11, color: _c.ink30)),
-            const Spacer(),
-            FilledButton(
-              style: ButtonStyle(
-                backgroundColor:
-                    WidgetStateProperty.all(_c.cardBorder),
-                padding: WidgetStateProperty.all(
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 5)),
-              ),
-              onPressed: blocked
-                  ? null
-                  : () {
-                      widget.onAdd(p);
-                      // 导航项标题上有已放置数量，添加后要刷新
-                      if (mounted) setState(() {});
-                    },
-              child: Text(
-                  singleBlocked ? '仅一个' : (screenFull ? '每屏一个' : '添加'),
-                  style: TextStyle(fontSize: 12)),
-            ),
-          ]),
+          ),
         ],
       ),
     );
@@ -766,6 +1098,7 @@ class _ControlPanelState extends State<ControlPanel> {
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 160),
+              curve: Curves.easeOutCubic,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                 color: card.size == s
@@ -1018,6 +1351,7 @@ class _ControlPanelState extends State<ControlPanel> {
               child: AnimatedOpacity(
                 opacity: _s.autoColorFromWallpaper ? 0.35 : 1.0,
                 duration: const Duration(milliseconds: 150),
+                curve: Curves.easeOutCubic,
                 child: Wrap(
                   spacing: 10,
                   runSpacing: 10,
@@ -1108,6 +1442,7 @@ class _ControlPanelState extends State<ControlPanel> {
               },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 160),
+                curve: Curves.easeOutCubic,
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
                   color: _s.theme == m.$1
@@ -1154,6 +1489,7 @@ class _ControlPanelState extends State<ControlPanel> {
                   },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 160),
+                    curve: Curves.easeOutCubic,
                     padding:
                         const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
@@ -1421,7 +1757,9 @@ class _ControlPanelState extends State<ControlPanel> {
             _commit();
             widget.onHotkeyChanged?.call();
           },
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 140),
+            curve: Curves.easeOutCubic,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
               color: on ? _c.accentBg : _c.chipBg,
@@ -1729,6 +2067,7 @@ class _ControlPanelState extends State<ControlPanel> {
                     },
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 160),
+                      curve: Curves.easeOutCubic,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
@@ -2104,48 +2443,59 @@ class _ControlPanelState extends State<ControlPanel> {
     );
   }
 
+  /// 开关行：Win11 设置那样"文字在左、开关在右"，不再把文字塞进开关里
   Widget _switch(String label, bool value, ValueChanged<bool> onChanged) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: ToggleSwitch(
-        checked: value,
-        onChanged: onChanged,
-        content: Text(label,
-            style: TextStyle(fontSize: 12, color: _c.ink70)),
-      ),
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(children: [
+        Expanded(
+          child: Text(label,
+              style: TextStyle(fontSize: 12.5, color: _c.ink70)),
+        ),
+        const SizedBox(width: 12),
+        ToggleSwitch(checked: value, onChanged: onChanged),
+      ]),
     );
   }
 
-  /// 分组卡片：圆角 + 半透明底 + 小节标题
+  /// Win11 设置的分组样式：**小标题在卡片外面**（组名 + 可选图标），
+  /// 下面一张实色圆角卡片装着这一组的所有行。
   Widget _group({
     required String title,
     IconData? icon,
     required List<Widget> children,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
-      decoration: BoxDecoration(
-        color: _c.card,
-        borderRadius: BorderRadius.circular(_kRadius),
-        border: Border.all(color: _c.cardBorder),
-      ),
+      margin: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [
-            if (icon != null) ...[
-              Icon(icon, size: 14, color: _c.accentIcon),
-              const SizedBox(width: 6),
-            ],
-            Text(title,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: _c.accentSoft)),
-          ]),
-          const SizedBox(height: 12),
-          ...children,
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: 6),
+            child: Row(children: [
+              if (icon != null) ...[
+                Icon(icon, size: 13, color: _c.ink54),
+                const SizedBox(width: 6),
+              ],
+              Text(title,
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: _c.ink)),
+            ]),
+          ),
+          Container(
+            padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
+            decoration: BoxDecoration(
+              color: _c.card,
+              borderRadius: BorderRadius.circular(_kRadius),
+              border: Border.all(color: _c.cardBorder),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: children,
+            ),
+          ),
         ],
       ),
     );

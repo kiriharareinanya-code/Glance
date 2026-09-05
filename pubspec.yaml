@@ -48,6 +48,9 @@ dependencies:
   # Flutter 的未捕获错误、Zone 外的异常，以及 Log.e 主动上报，都走它。
   # release 用 appVersion 标，好在面板上区分版本。
   sentry_flutter: ^8.14.2
+  # 图标形变动画：icon 节点的图标名变化时（勾选、播放/暂停）在 SVG path
+  # 之间平滑形变。零依赖，path 级动画不是位图帧，MIT 协议
+  iconic_morph: ^1.9.0
 
 dev_dependencies:
   flutter_test:
