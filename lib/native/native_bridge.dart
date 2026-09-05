@@ -4,6 +4,7 @@
 /// 所有业务判断都留在 Dart，native 不参与决策。
 library;
 
+import 'package:flutter/foundation.dart' show ValueNotifier;
 import 'package:flutter/services.dart';
 
 import '../core/hit.dart';
@@ -252,6 +253,26 @@ class NativeWindow {
 
   static const MethodChannel _channel = MethodChannel('vectra/native');
 
+  /// 窗口可见性（show/hide 时更新）。隐藏窗口的内容树据此挂起：
+  /// 设置/市场窗口不显示时，里面的整棵 widget 树（含组件库的 5 个
+  /// 实时预览运行时和它们的定时器）没有必要继续活着。
+  static final Map<String, ValueNotifier<bool>> _visibility = {
+    for (final w in const [panel, market]) w.key: ValueNotifier(false),
+  };
+
+  static ValueNotifier<bool> visibilityOf(NativeWindow window) =>
+      _visibility[window.key] ?? ValueNotifier(false);
+
+  Future<void> show() {
+    _visibility[key]?.value = true;
+    return _channel.invokeMethod<void>('windowShow', key);
+  }
+
+  Future<void> hide() {
+    _visibility[key]?.value = false;
+    return _channel.invokeMethod<void>('windowHide', key);
+  }
+
   /// 在**同一个引擎**上再开一个视图，挂到这个窗口上。
   ///
   /// 要把 Dart 侧的 engineId 报给 native：C++ 拿不到
@@ -261,10 +282,6 @@ class NativeWindow {
       await _channel
           .invokeMethod<int>('createView', {'key': key, 'engineId': engineId}) ??
       -1;
-
-  Future<void> show() => _channel.invokeMethod<void>('windowShow', key);
-
-  Future<void> hide() => _channel.invokeMethod<void>('windowHide', key);
 
   /// 无边框窗口的标题栏操作：拖动 / 最小化 / 最大化切换。
   Future<void> dragMove() => _channel.invokeMethod<void>('windowDragMove', key);
