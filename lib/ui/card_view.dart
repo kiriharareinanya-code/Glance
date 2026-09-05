@@ -82,6 +82,13 @@ class CardView extends StatelessWidget {
   /// 用户数据目录：自定义背景图存放在 <dataDir>/bg/ 下
   final String dataDir;
 
+  /// 面板读取：某张自定义背景图的实测亮度（还没算出来时是 null）。
+  /// 配合 [bgRevision] 做状态行刷新。
+  static double? bgLuminance(String path) => _CardBg.luminance(path);
+
+  /// 亮度缓存更新通知——面板的状态行监听它，算完自动刷新文字。
+  static ValueNotifier<int> get bgRevision => _CardBg.revision;
+
   /// 本卡的自定义背景图（card.settings['bgImage']，bg/ 下的文件名）。
   /// 没设置就是 null，走原来的云母/毛玻璃/纯色材质。
   File? get _bgImageFile {
