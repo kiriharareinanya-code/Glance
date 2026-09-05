@@ -12,3 +12,4 @@ installer/out/
 MS-WEB/
 plugins/dist/
 .sentry-native/
+flutter_*.log
