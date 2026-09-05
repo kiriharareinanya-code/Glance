@@ -57,6 +57,12 @@ void ensureMorphIconResolver() {
   };
 }
 
+/// 形变播完后切回静态渲染的延迟：形变时长 + 一拍缓冲。
+/// 派生自 kNodeMorphDuration——改形变时长这里自动跟着走，
+/// 别把它当独立的可调参数。
+final Duration kMorphSettleDelay =
+    kNodeMorphDuration + const Duration(milliseconds: 40);
+
 /// icon 节点的渲染组件：名字没变或在形变表之外时等同原来的字体图标；
 /// 名字变化且两端都有 path 数据时，从旧图标形变到新图标。
 ///
@@ -113,8 +119,7 @@ class _MorphableIconState extends State<MorphableIcon> {
 
   void _startSettleTimer() {
     _settleTimer?.cancel();
-    _settleTimer = Timer(kNodeMorphDuration + const Duration(milliseconds: 40),
-        () {
+    _settleTimer = Timer(kMorphSettleDelay, () {
       if (mounted && _from != null) setState(() => _from = null);
     });
   }

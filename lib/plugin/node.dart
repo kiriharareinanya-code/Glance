@@ -68,9 +68,6 @@ class PluginView extends StatefulWidget {
 }
 
 class _PluginViewState extends State<PluginView> {
-  /// 当前卡片的默认前景色
-  Color _fg = Colors.white;
-
   /// 输入框控制器按节点 id 复用，否则每次重建都会丢失光标与内容
   final Map<String, TextEditingController> _controllers = {};
 
@@ -119,9 +116,11 @@ class _PluginViewState extends State<PluginView> {
     return DefaultTextStyle.merge(
       style: const TextStyle(fontSize: 13, decoration: TextDecoration.none),
       child: Builder(builder: (ctx) {
-        _fg = DefaultTextStyle.of(ctx).style.color ?? Colors.white;
+        // 前景色作为参数显式下传（fg），原子渲染器不再读 State 可变字段——
+        // 渲染函数保持纯函数，主题色的来源一眼可见。
+        final fg = DefaultTextStyle.of(ctx).style.color ?? Colors.white;
         _usedInputIds.clear();
-        final content = _build(tree);
+        final content = _build(tree, fg);
         _pruneControllers();
 
         // 内容切换动画必须由插件显式声明：根节点带 key 时才做交叉淡入。
@@ -164,20 +163,20 @@ class _PluginViewState extends State<PluginView> {
     ];
   }
 
-  Widget _build(Map<String, Object?> n) {
+  Widget _build(Map<String, Object?> n, Color fg) {
     switch (_str(n['t'])) {
       case 'col':
-        return _flexBox(n, Axis.vertical);
+        return _flexBox(n, Axis.vertical, fg);
       case 'row':
-        return _flexBox(n, Axis.horizontal);
+        return _flexBox(n, Axis.horizontal, fg);
       case 'text':
-        return _text(n);
+        return _text(n, fg);
       case 'box':
-        return _box(n);
+        return _box(n, fg);
       case 'flex':
         return Expanded(
           flex: (_num(n['f']) ?? 1).round(),
-          child: _child(n),
+          child: _child(n, fg),
         );
       case 'spacer':
         return const Spacer();
@@ -185,10 +184,10 @@ class _PluginViewState extends State<PluginView> {
         final s = _num(n['v']) ?? 8;
         return SizedBox(width: s, height: s);
       case 'grid':
-        return _grid(n);
+        return _grid(n, fg);
       case 'tap':
-        return _tap(n);      case 'input':
-        return _input(n);
+        return _tap(n, fg);      case 'input':
+        return _input(n, fg);
       case 'divider':
         return Container(
           height: 1,
@@ -218,9 +217,9 @@ class _PluginViewState extends State<PluginView> {
           ),
         );
       case 'scroll':
-        return SingleChildScrollView(child: _child(n));
+        return SingleChildScrollView(child: _child(n, fg));
       case 'stack':
-        return Stack(children: [for (final c in _children(n['children'])) _build(c)]);
+        return Stack(children: [for (final c in _children(n['children'])) _build(c, fg)]);
       case 'icon':
         // 可形变的图标（circle/check_circle、play/pause 等）走 MorphableIcon：
         // 插件重绘导致图标名变化时做一次 SVG path 形变；其余名字维持字体渲染。
@@ -228,7 +227,7 @@ class _PluginViewState extends State<PluginView> {
         // 在形变、颜色却啪一下切换，两段动画打架。
         final iconName = _str(n['v']);
         return NodeAnimatedColor(
-          color: _color(n['color']) ?? _fg.withValues(alpha: 0.75),
+          color: _color(n['color']) ?? fg.withValues(alpha: 0.75),
           animate: widget.animate,
           builder: (context, color) => MorphableIcon(
             name: iconName,
@@ -239,11 +238,11 @@ class _PluginViewState extends State<PluginView> {
           ),
         );
       case 'image':
-        return _image(n);
+        return _image(n, fg);
       case 'slider':
         return _slider(n);
       case 'flip':
-        return _flip(n);
+        return _flip(n, fg);
       default:
         // 查插件注册的自定义节点类型
         final nodeType = _str(n['t']);
@@ -258,11 +257,11 @@ class _PluginViewState extends State<PluginView> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.extension_outlined,
-                      size: 14, color: _fg.withValues(alpha: 0.5)),
+                      size: 14, color: fg.withValues(alpha: 0.5)),
                   const SizedBox(width: 4),
                   Text(nodeType,
                       style: TextStyle(
-                          fontSize: 11, color: _fg.withValues(alpha: 0.5))),
+                          fontSize: 11, color: fg.withValues(alpha: 0.5))),
                 ],
               ),
             );
@@ -273,7 +272,7 @@ class _PluginViewState extends State<PluginView> {
     }
   }
 
-  Widget _child(Map<String, Object?> n) {
+  Widget _child(Map<String, Object?> n, Color fg) {
     final c = n['child'];
     // animKey 字段保留在协议里（兼容旧插件），但**不再产生动画**：
     // 真实渲染下换行动画（_SlideSwap，见 git 历史 18ca340/dc2a61b）会闪白
@@ -281,15 +280,15 @@ class _PluginViewState extends State<PluginView> {
     // 无动画版本不闪。换行改回原地替换（内容直接平移到新位置）。
     // 要恢复动画前，必须先在真实渲染环境定位闪白机制（flutter_test 的
     // toImage 对 TransformLayer 有固有伪影，测试里无法复现真实渲染）。
-    return c is Map ? _build(c.cast<String, Object?>()) : const SizedBox.shrink();
+    return c is Map ? _build(c.cast<String, Object?>(), fg) : const SizedBox.shrink();
   }
 
   /// 3D Y 轴翻转：children[0] 前脸，children[1] 后脸。
   /// flipKey 变化时触发 180° 翻转，中间点切换显示面。
-  Widget _flip(Map<String, Object?> n) {
+  Widget _flip(Map<String, Object?> n, Color fg) {
     final kids = _children(n['children']);
-    final front = kids.isNotEmpty ? _build(kids.first) : const SizedBox.shrink();
-    final back = kids.length > 1 ? _build(kids[1]) : const SizedBox.shrink();
+    final front = kids.isNotEmpty ? _build(kids.first, fg) : const SizedBox.shrink();
+    final back = kids.length > 1 ? _build(kids[1], fg) : const SizedBox.shrink();
     final flipKey = _str(n['flipKey']);
     if (!widget.animate || flipKey == null) return front;
     return _FlipSwap(
@@ -299,7 +298,7 @@ class _PluginViewState extends State<PluginView> {
     );
   }
 
-  Widget _flexBox(Map<String, Object?> n, Axis axis) {
+  Widget _flexBox(Map<String, Object?> n, Axis axis, Color fg) {
     final gap = _num(n['gap']) ?? 0;
     final kids = _children(n['children']);
     final widgets = <Widget>[];
@@ -309,7 +308,7 @@ class _PluginViewState extends State<PluginView> {
             width: axis == Axis.horizontal ? gap : 0,
             height: axis == Axis.vertical ? gap : 0));
       }
-      widgets.add(_build(kids[i]));
+      widgets.add(_build(kids[i], fg));
     }
     final cross = _crossAlign(_str(n['cross']));
     final mainName = _str(n['main']);
@@ -352,7 +351,7 @@ class _PluginViewState extends State<PluginView> {
         _ => MainAxisAlignment.start,
       };
 
-  Widget _text(Map<String, Object?> n) {
+  Widget _text(Map<String, Object?> n, Color fg) {
     final w = _num(n['weight'])?.round();
     final style = TextStyle(
       fontSize: _num(n['size']) ?? 13,
@@ -361,14 +360,14 @@ class _PluginViewState extends State<PluginView> {
       // font 字段：插件想换字体时显式指定 family（比如时钟用圆体数字）。
       // 不传就继承卡片默认字体（全局字体，见 card_view），老插件行为不变。
       fontFamily: _str(n['font']),
-      color: (_color(n['color']) ?? _fg)
+      color: (_color(n['color']) ?? fg)
           .withValues(alpha: _num(n['opacity']) ?? 1.0),
       // glow 字段：文字辉光（霓虹效果）。给颜色就发光，sigma 控制光晕
       // 半径（默认 8）。两层 shadow 叠加——内层实、外层虚，做出光晕
       // 渐变而不是一圈生硬的描边。歌词插件用它在"正在唱"那一行上。
       shadows: n['glow'] == null
           ? null
-          : _glow(_color(n['glow']) ?? _fg, _num(n['glowSigma']) ?? 8),
+          : _glow(_color(n['glow']) ?? fg, _num(n['glowSigma']) ?? 8),
       fontFeatures: n['mono'] == true
           ? const [FontFeature.tabularFigures()]
           : null,
@@ -489,7 +488,7 @@ class _PluginViewState extends State<PluginView> {
     return EdgeInsets.zero;
   }
 
-  Widget _box(Map<String, Object?> n) {
+  Widget _box(Map<String, Object?> n, Color fg) {
     // AnimatedContainer：插件重绘时底色/圆角/内边距/尺寸的变化会自己滑过去。
     // 待办勾选项的灰底变化、歌词卡按钮的禁用态底变化都靠这一处——
     // 以前是硬切，同一张卡片上"图标在形变、底色却啪一下"很违和。
@@ -516,7 +515,7 @@ class _PluginViewState extends State<PluginView> {
             ? null
             : Border.all(color: _color(n['border']) ?? Colors.white24, width: 1),
       ),
-      child: n['child'] == null ? null : _child(n),
+      child: n['child'] == null ? null : _child(n, fg),
     );
     // 渐变遮罩：顶部和底部淡出，让滚出视口的内容自然消失。
     // fade 是遮罩渐变的相对高度比例（0~0.5），默认 0.15。
@@ -541,7 +540,7 @@ class _PluginViewState extends State<PluginView> {
 
   /// 固定列数的网格。用 Column+Row 而不是 GridView：日历要的是确定的行列，
   /// 而且卡片里不需要滚动虚拟化。
-  Widget _grid(Map<String, Object?> n) {
+  Widget _grid(Map<String, Object?> n, Color fg) {
     final cols = (_num(n['cols']) ?? 7).round().clamp(1, 12);
     final gap = _num(n['gap']) ?? 4;
     // fill：让各行均分可用高度。放在 flex 里却不开这个的话，网格会缩在顶部，
@@ -555,7 +554,7 @@ class _PluginViewState extends State<PluginView> {
       for (var j = 0; j < cols; j++) {
         if (j > 0 && gap > 0) cells.add(SizedBox(width: gap));
         cells.add(Expanded(
-          child: j < slice.length ? _build(slice[j]) : const SizedBox.shrink(),
+          child: j < slice.length ? _build(slice[j], fg) : const SizedBox.shrink(),
         ));
       }
       if (rows.isNotEmpty && gap > 0) rows.add(SizedBox(height: gap));
@@ -567,16 +566,16 @@ class _PluginViewState extends State<PluginView> {
     );
   }
 
-  Widget _tap(Map<String, Object?> n) {
+  Widget _tap(Map<String, Object?> n, Color fg) {
     final id = _str(n['id']);
     return _TapFeedback(
       animate: widget.animate,
       onTap: id == null ? null : () => widget.onEvent(id, const {}),
-      child: _child(n),
+      child: _child(n, fg),
     );
   }
 
-  Widget _input(Map<String, Object?> n) {
+  Widget _input(Map<String, Object?> n, Color fg) {
     final id = _str(n['id']) ?? 'input';
     _usedInputIds.add(id);
     final value = _str(n['value']) ?? '';
@@ -587,21 +586,21 @@ class _PluginViewState extends State<PluginView> {
           text: value, selection: TextSelection.collapsed(offset: value.length));
     }
     final submit = _str(n['submit']);
-    // 输入框的颜色全部从 _fg 派生（_fg 是卡片前景色，深浅色自动翻转）：
+    // 输入框的颜色全部从 fg 派生（fg 是卡片前景色，深浅色自动翻转）：
     // 提示文字、填充底色、光标都跟着明暗走，否则浅色卡上硬编码的白色
     // 提示和底纹会看不见（todo 添加框踩过）。
     return TextField(
       controller: ctrl,
-      style: TextStyle(fontSize: _num(n['size']) ?? 13, color: _fg),
-      cursorColor: _fg.withValues(alpha: 0.8),
+      style: TextStyle(fontSize: _num(n['size']) ?? 13, color: fg),
+      cursorColor: fg.withValues(alpha: 0.8),
       cursorHeight: (_num(n['size']) ?? 13) + 2,
       decoration: InputDecoration(
         isDense: true,
         contentPadding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
         hintText: _str(n['placeholder']),
-        hintStyle: TextStyle(color: _fg.withValues(alpha: 0.35), fontSize: 12),
+        hintStyle: TextStyle(color: fg.withValues(alpha: 0.35), fontSize: 12),
         filled: true,
-        fillColor: _fg.withValues(alpha: 0.08),
+        fillColor: fg.withValues(alpha: 0.08),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide.none,
@@ -621,7 +620,7 @@ class _PluginViewState extends State<PluginView> {
   /// 插件只给 key，不给字节。字节由宿主取、解码、缓存（见 PluginImages 的
   /// 注释：一张封面十几万字节，塞进 UI 树等于每次 render 都序列化一遍）。
   /// key 查不到就画一个占位方块——封面是异步解码的，第一帧必然还没有。
-  Widget _image(Map<String, Object?> n) {
+  Widget _image(Map<String, Object?> n, Color fg) {
     final key = _str(n['key']);
     final w = _num(n['w']);
     final h = _num(n['h']);
@@ -640,7 +639,7 @@ class _PluginViewState extends State<PluginView> {
             color: const Color(0x14FFFFFF),
             alignment: Alignment.center,
             child: Icon(Icons.music_note_rounded,
-                size: (w ?? 32) * 0.32, color: _fg.withValues(alpha: 0.25)),
+                size: (w ?? 32) * 0.32, color: fg.withValues(alpha: 0.25)),
           );
         } else {
           child = RawImage(
@@ -696,40 +695,7 @@ class _PluginViewState extends State<PluginView> {
     );
   }
 
-  IconData _icon(String? name) => switch (name) {
-        'check' => Icons.check,
-        'check_circle' => Icons.check_circle_outline,
-        'circle' => Icons.circle_outlined,
-        'close' => Icons.close,
-        'add' => Icons.add,
-        'refresh' => Icons.refresh,
-        'left' => Icons.chevron_left,
-        'right' => Icons.chevron_right,
-        'up' => Icons.arrow_drop_up,
-        'down' => Icons.arrow_drop_down,
-        // 天气图标：换成真正的气象语义图标，别再用 grain/flash_on 这种
-        // 名字对不上的通用符号硬凑（grain 本意是"颗粒"，flash_on 是"闪光
-        // 灯开关"，跟雨/雷完全不是一回事，凑合用一眼就能看出没认真做）。
-        'sun' => Icons.wb_sunny_outlined,
-        'moon' => Icons.nights_stay_outlined,
-        'cloud' => Icons.cloud_outlined,
-        'cloud_sun' => Icons.wb_cloudy_outlined,
-        'rain' => Icons.water_drop_outlined,
-        'snow' => Icons.ac_unit,
-        'sleet' => Icons.cloudy_snowing,
-        'fog' => Icons.foggy,
-        'storm' => Icons.thunderstorm_outlined,
-        'thermostat' => Icons.thermostat_outlined,
-        'air' => Icons.air,
-        'settings' => Icons.settings,
-        // 媒体控制
-        'play' => Icons.play_arrow_rounded,
-        'pause' => Icons.pause_rounded,
-        'prev' => Icons.skip_previous_rounded,
-        'next' => Icons.skip_next_rounded,
-        'music' => Icons.music_note_rounded,
-        _ => Icons.square_outlined,
-      };
+  IconData _icon(String? name) => iconDataFor(name);
 
   /// 支持 #RGB / #RRGGBB / #RRGGBBAA
   Color? _color(Object? v) {
@@ -1036,3 +1002,41 @@ class _TapFeedbackState extends State<_TapFeedback> {
     );
   }
 }
+
+/// 图标名 → 字体图标。形变表（morph_icons.dart 的 kMorphIconPaths）里的
+/// 名字也会走到这里作为兜底——两份表的一致性由 test/memory_test.dart 的
+/// morphNamesHaveFontFallback 锁住。
+@visibleForTesting
+IconData iconDataFor(String? name) => switch (name) {
+      'check' => Icons.check,
+      'check_circle' => Icons.check_circle_outline,
+      'circle' => Icons.circle_outlined,
+      'close' => Icons.close,
+      'add' => Icons.add,
+      'refresh' => Icons.refresh,
+      'left' => Icons.chevron_left,
+      'right' => Icons.chevron_right,
+      'up' => Icons.arrow_drop_up,
+      'down' => Icons.arrow_drop_down,
+      // 天气图标：真正的气象语义图标（rain=水滴、storm=雷暴），
+      // 别用 grain/flash_on 这种名字对不上的通用符号硬凑
+      'sun' => Icons.wb_sunny_outlined,
+      'moon' => Icons.nights_stay_outlined,
+      'cloud' => Icons.cloud_outlined,
+      'cloud_sun' => Icons.wb_cloudy_outlined,
+      'rain' => Icons.water_drop_outlined,
+      'snow' => Icons.ac_unit,
+      'sleet' => Icons.cloudy_snowing,
+      'fog' => Icons.foggy,
+      'storm' => Icons.thunderstorm_outlined,
+      'thermostat' => Icons.thermostat_outlined,
+      'air' => Icons.air,
+      'settings' => Icons.settings,
+      // 媒体控制
+      'play' => Icons.play_arrow_rounded,
+      'pause' => Icons.pause_rounded,
+      'prev' => Icons.skip_previous_rounded,
+      'next' => Icons.skip_next_rounded,
+      'music' => Icons.music_note_rounded,
+      _ => Icons.square_outlined,
+    };

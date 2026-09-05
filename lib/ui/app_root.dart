@@ -57,6 +57,9 @@ class AppRootState extends State<AppRoot> with TrayListener {
   final GlobalKey<DesktopSurfaceState> _surfaceKey = GlobalKey();
 
   /// 改了它就会让所有卡片重建（尺寸/圆角等全局设置变化时需要）
+  /// 布局对账信号：只负责让 build 重新执行（卡片位置/显示器变化后
+  /// 重算命中区等）。不再参与卡片 key——卡片重建的触发条件见
+  /// buildPluginBody 里的 key 注释。
   int _revision = 0;
 
   /// 最近一次见过的显示器集合。显示器插拔时和新的比对，
