@@ -18,6 +18,8 @@ library;
 import 'package:flutter/material.dart';
 
 import 'images.dart';
+import 'morph_icons.dart';
+import 'node_anim.dart';
 import 'registry.dart';
 
 /// 事件回调：插件在树里声明 {"t":"tap","id":"h1"}，点中时回调 h1
@@ -98,7 +100,7 @@ class _PluginViewState extends State<PluginView> {
         final key = _str(tree['key']);
         if (!widget.animate || key == null) return content;
         return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 220),
+          duration: kNodeAnimDuration,
           switchInCurve: Curves.easeOutCubic,
           switchOutCurve: Curves.easeInCubic,
           transitionBuilder: (child, anim) => FadeTransition(
@@ -155,8 +157,7 @@ class _PluginViewState extends State<PluginView> {
       case 'grid':
         return _grid(n);
       case 'tap':
-        return _tap(n);
-      case 'input':
+        return _tap(n);      case 'input':
         return _input(n);
       case 'divider':
         return Container(
@@ -165,14 +166,25 @@ class _PluginViewState extends State<PluginView> {
           margin: const EdgeInsets.symmetric(vertical: 4),
         );
       case 'progress':
+        // 进度值做过渡：歌词/播客卡片每秒推一次进度，硬切会看到刻度在跳。
+        // TweenAnimationBuilder 在目标值变化时从当前动画位置接着追，
+        // 连续更新也不会回退或抖动。
+        final value = (_num(n['v']) ?? 0).clamp(0.0, 1.0);
+        final color = _color(n['color']) ?? const Color(0xFF7CC7FF);
+        final height = _num(n['h']) ?? 4.0;
         return ClipRRect(
           borderRadius: BorderRadius.circular(3),
-          child: LinearProgressIndicator(
-            value: (_num(n['v']) ?? 0).clamp(0, 1),
-            minHeight: _num(n['h']) ?? 4,
-            backgroundColor: const Color(0x22FFFFFF),
-            valueColor: AlwaysStoppedAnimation(
-                _color(n['color']) ?? const Color(0xFF7CC7FF)),
+          child: TweenAnimationBuilder<double>(
+            tween: Tween<double>(
+                begin: widget.animate ? null : value, end: value),
+            duration: widget.animate ? kNodeAnimDuration : Duration.zero,
+            curve: kNodeAnimCurve,
+            builder: (context, v, _) => LinearProgressIndicator(
+              value: v,
+              minHeight: height,
+              backgroundColor: const Color(0x22FFFFFF),
+              valueColor: AlwaysStoppedAnimation(color),
+            ),
           ),
         );
       case 'scroll':
@@ -180,10 +192,21 @@ class _PluginViewState extends State<PluginView> {
       case 'stack':
         return Stack(children: [for (final c in _children(n['children'])) _build(c)]);
       case 'icon':
-        return Icon(
-          _icon(_str(n['v'])),
-          size: _num(n['size']) ?? 16,
+        // 可形变的图标（circle/check_circle、play/pause 等）走 MorphableIcon：
+        // 插件重绘导致图标名变化时做一次 SVG path 形变；其余名字维持字体渲染。
+        // 颜色也做过渡（待办勾选的红↔绿、歌词按钮的禁用灰↔白），否则图标
+        // 在形变、颜色却啪一下切换，两段动画打架。
+        final iconName = _str(n['v']);
+        return NodeAnimatedColor(
           color: _color(n['color']) ?? _fg.withValues(alpha: 0.75),
+          animate: widget.animate,
+          builder: (context, color) => MorphableIcon(
+            name: iconName,
+            size: _num(n['size']) ?? 16,
+            color: color,
+            animate: widget.animate,
+            fallback: _icon(iconName),
+          ),
         );
       case 'image':
         return _image(n);
@@ -301,7 +324,33 @@ class _PluginViewState extends State<PluginView> {
 
   Widget _text(Map<String, Object?> n) {
     final w = _num(n['weight'])?.round();
-    return Text(
+    final style = TextStyle(
+      fontSize: _num(n['size']) ?? 13,
+      height: _num(n['lh']),
+      fontWeight: w == null ? null : _weight(w),
+      // font 字段：插件想换字体时显式指定 family（比如时钟用圆体数字）。
+      // 不传就继承卡片默认字体（全局字体，见 card_view），老插件行为不变。
+      fontFamily: _str(n['font']),
+      color: (_color(n['color']) ?? _fg)
+          .withValues(alpha: _num(n['opacity']) ?? 1.0),
+      // glow 字段：文字辉光（霓虹效果）。给颜色就发光，sigma 控制光晕
+      // 半径（默认 8）。两层 shadow 叠加——内层实、外层虚，做出光晕
+      // 渐变而不是一圈生硬的描边。歌词插件用它在"正在唱"那一行上。
+      shadows: n['glow'] == null
+          ? null
+          : _glow(_color(n['glow']) ?? _fg, _num(n['glowSigma']) ?? 8),
+      fontFeatures: n['mono'] == true
+          ? const [FontFeature.tabularFigures()]
+          : null,
+      // spacing 字段：字间距（px）。中文小字（农历、日期）加一点点间距
+      // 就没那么挤；不传为 null，维持系统默认。
+      letterSpacing: _num(n['spacing']),
+      decoration: n['strike'] == true
+          ? TextDecoration.lineThrough
+          : TextDecoration.none,
+    );
+
+    final text = Text(
       _str(n['v']) ?? '',
       maxLines: _num(n['maxLines'])?.round(),
       overflow: n['maxLines'] != null ? TextOverflow.ellipsis : null,
@@ -310,27 +359,63 @@ class _PluginViewState extends State<PluginView> {
         'end' => TextAlign.end,
         _ => TextAlign.start,
       },
-      style: TextStyle(
-        fontSize: _num(n['size']) ?? 13,
-        height: _num(n['lh']),
-        fontWeight: w == null ? null : _weight(w),
-        // font 字段：插件想换字体时显式指定 family（比如时钟用圆体数字）。
-        // 不传就继承卡片默认字体（全局字体，见 card_view），老插件行为不变。
-        fontFamily: _str(n['font']),
-        color: (_color(n['color']) ?? _fg)
-            .withValues(alpha: _num(n['opacity']) ?? 1.0),
-        // glow 字段：文字辉光（霓虹效果）。给颜色就发光，sigma 控制光晕
-        // 半径（默认 8）。两层 shadow 叠加——内层实、外层虚，做出光晕
-        // 渐变而不是一圈生硬的描边。歌词插件用它在"正在唱"那一行上。
-        shadows: n['glow'] == null
-            ? null
-            : _glow(_color(n['glow']) ?? _fg, _num(n['glowSigma']) ?? 8),
-        fontFeatures: n['mono'] == true
-            ? const [FontFeature.tabularFigures()]
-            : null,
-        decoration: n['strike'] == true
-            ? TextDecoration.lineThrough
-            : TextDecoration.none,
+      // 样式交给外层（AnimatedDefaultTextStyle）以便过渡；关闭动画时
+      // 直接把 style 挂在 Text 上，省一层。
+      style: widget.animate ? null : style,
+    );
+
+    // AnimatedDefaultTextStyle：文字颜色/透明度/字重/删除线在两次 render
+    // 之间变化时平滑过渡。待办项"划掉"和歌词"当前行高亮"都是这条路径——
+    // 以前颜色、删除线是硬切，一眼能看出状态被替换而不是被改变。
+    //
+    // 字体继承：style 里的 fontFamily 多半是 null（继承卡片字体），如果直接
+    // 把它塞给 AnimatedDefaultTextStyle，这层 DefaultTextStyle 会**遮住**
+    // 外面卡片设的字体环境——Text 向上合并时只会合并到这一层为止，
+    // fontFamily 是 null 就落回全局默认字体，卡片的圆体字全丢了。
+    // 所以先把当前环境样式整个解析进来（base.merge），再以 inherit:false
+    // 定稿，让这一层就是"最终答案"而不是"又一层部分答案"。
+    if (!widget.animate) return text;
+    final resolved = DefaultTextStyle.of(context).style.merge(style).copyWith(
+          inherit: false,
+        );
+    // 文字内容变化过渡：**必须由插件显式声明**（trans: true）——这个项目
+    // 当年专门移除过内容切换动画（真实渲染下闪白，见文件尾部注释），测试
+    // 也锁着"替换瞬间旧内容必须退场"的契约。时钟数字这类固定位置的
+    // 值才声明 trans，交叉过渡才不会在别处复活闪白。
+    // AnimatedSwitcher 对内容没变的重绘不会重播——key 相同直接复用。
+    // trans 是布尔开关，别用 _str 读（它只认 String，bool 永远落空）
+    if (n['trans'] != true) {
+      return AnimatedDefaultTextStyle(
+        duration: kNodeAnimDuration,
+        curve: kNodeAnimCurve,
+        style: resolved,
+        softWrap: true,
+        child: text,
+      );
+    }
+    return AnimatedDefaultTextStyle(
+      duration: kNodeAnimDuration,
+      curve: kNodeAnimCurve,
+      style: resolved,
+      softWrap: true,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (c, anim) => FadeTransition(
+          opacity: anim,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 0.12),
+              end: Offset.zero,
+            ).animate(anim),
+            child: c,
+          ),
+        ),
+        child: KeyedSubtree(
+          key: ValueKey(_str(n['v']) ?? ''),
+          child: text,
+        ),
       ),
     );
   }
@@ -375,7 +460,13 @@ class _PluginViewState extends State<PluginView> {
   }
 
   Widget _box(Map<String, Object?> n) {
-    Widget w = Container(
+    // AnimatedContainer：插件重绘时底色/圆角/内边距/尺寸的变化会自己滑过去。
+    // 待办勾选项的灰底变化、歌词卡按钮的禁用态底变化都靠这一处——
+    // 以前是硬切，同一张卡片上"图标在形变、底色却啪一下"很违和。
+    final animate = widget.animate;
+    Widget w = AnimatedContainer(
+      duration: animate ? kNodeAnimDuration : Duration.zero,
+      curve: kNodeAnimCurve,
       width: _num(n['w']),
       height: _num(n['h']),
       padding: _pad(n['pad']),
@@ -448,8 +539,8 @@ class _PluginViewState extends State<PluginView> {
 
   Widget _tap(Map<String, Object?> n) {
     final id = _str(n['id']);
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    return _TapFeedback(
+      animate: widget.animate,
       onTap: id == null ? null : () => widget.onEvent(id, const {}),
       child: _child(n),
     );
@@ -533,10 +624,25 @@ class _PluginViewState extends State<PluginView> {
             filterQuality: FilterQuality.medium,
           );
         }
-        if (radius <= 0) return child;
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(radius),
-          child: child,
+        // 换歌时封面是异步解码的：占位图 → 封面直接闪一下很生硬。
+        // 交叉淡入 260ms，封面晚到也能平滑补上；关掉动画时保持直切。
+        final Widget framed = radius <= 0
+            ? child
+            : ClipRRect(
+                borderRadius: BorderRadius.circular(radius),
+                child: child,
+              );
+        if (!widget.animate) return framed;
+        return AnimatedSwitcher(
+          duration: kNodeAnimDuration,
+          switchInCurve: kNodeAnimCurve,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (c, anim) =>
+              FadeTransition(opacity: anim, child: c),
+          child: KeyedSubtree(
+            key: ValueKey(current == null ? 'ph:${w}x$h' : 'img:$key'),
+            child: framed,
+          ),
         );
       },
     );
@@ -846,3 +952,56 @@ class _FlipSwapState extends State<_FlipSwap>
 /// TransformLayer 有固有伪影（最小化 SlideTransition 对照实验同样全空白），
 /// 测试环境无法复现/验证真实渲染。换行现在走原地替换。
 
+
+/// 可点元素的按压反馈：按下轻微缩小 + 变淡，松手弹回。
+///
+/// 苹果 HIG 的触感语言——"按下去有东西让位给你"。以前 tap 节点按下毫无
+/// 反应，上一曲/下一曲点了像没点上。scale 收着放（0.96）不抢戏：大区域
+/// （整行待办）和小按钮（媒体控制）用同一个量级都不会夸张。
+class _TapFeedback extends StatefulWidget {
+  const _TapFeedback({
+    required this.child,
+    required this.animate,
+    this.onTap,
+  });
+
+  final Widget child;
+  final bool animate;
+  final VoidCallback? onTap;
+
+  @override
+  State<_TapFeedback> createState() => _TapFeedbackState();
+}
+
+class _TapFeedbackState extends State<_TapFeedback> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final pressed = _pressed && widget.animate;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown:
+          widget.onTap == null ? null : (_) => setState(() => _pressed = true),
+      onTapUp:
+          widget.onTap == null ? null : (_) => setState(() => _pressed = false),
+      onTapCancel:
+          widget.onTap == null ? null : () => setState(() => _pressed = false),
+      onTap: widget.onTap,
+      child: AnimatedScale(
+        scale: pressed ? 0.96 : 1.0,
+        duration: widget.animate
+            ? const Duration(milliseconds: 130)
+            : Duration.zero,
+        curve: Curves.easeOutCubic,
+        child: AnimatedOpacity(
+          opacity: pressed ? 0.8 : 1.0,
+          duration: widget.animate
+              ? const Duration(milliseconds: 130)
+              : Duration.zero,
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}

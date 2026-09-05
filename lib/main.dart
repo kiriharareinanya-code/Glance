@@ -41,6 +41,21 @@ import 'ui/panel_app.dart';
 void sidebarMain() => sidebar.sidebarMain();
 
 Future<void> main(List<String> args) async {
+  // 整个启动流程都跑在同一个 guarded Zone 里：ensureInitialized 和后面的
+  // runWidget 必须同 Zone，否则 Debug 模式会抛 "Zone mismatch" 断言。
+  // runZonedGuarded 补的是"异步 Future 没被 await 而抛的异常"——那条缝
+  // FlutterError（Sentry 装的 onError 钩子）抓不到。
+  runZonedGuarded(
+    () => _bootstrap(args),
+    (error, stack) {
+      Log.e('app', '未捕获异常: $error', stack);
+      sentry.reportExceptionToSentry(error, stack);
+    },
+  );
+}
+
+/// main 的实际启动流程。由 main() 在 guarded Zone 里调起。
+Future<void> _bootstrap(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // 日志系统就绪后再干别的，后面每一行才能进文件
@@ -171,29 +186,18 @@ Future<void> main(List<String> args) async {
     Log.i('app', '--test-sentry 已发出，检查 Sentry 面板');
   }
 
-  // runWidget 而不是 runApp：这个进程要开两个窗口——覆盖整个虚拟屏幕的磁贴层，
+  // runWidget 而不是 runApp：这个进程要开两个窗口——覆盖整个虚拟屏幕的磁贴层,
   // 和任务栏里那个独立的设置窗口。两个窗口共用**同一个引擎、同一个 isolate**，
   // 控制面板因此还能直接改 AppState 里的对象（缘由见 panel_window.h 顶部）。
   // runApp 只认一个隐式视图，多视图必须走 runWidget + ViewCollection。
-  //
-  // runZonedGuarded 补的是"异步 Future 没被 await 而抛的异常"——那条缝
-  // FlutterError（Sentry 装的 onError 钩子）抓不到。
-  runZonedGuarded(
-    () {
-      runWidget(_MultiViewRoot(
-        state: state,
-        store: store,
-        registry: registry,
-        openPanel: args.contains('--panel'),
-        openMarket: args.contains('--market'),
-        openAi: args.contains('--ai'),
-      ));
-    },
-    (error, stack) {
-      Log.e('app', '未捕获异常: $error', stack);
-      sentry.reportExceptionToSentry(error, stack);
-    },
-  );
+  runWidget(_MultiViewRoot(
+    state: state,
+    store: store,
+    registry: registry,
+    openPanel: args.contains('--panel'),
+    openMarket: args.contains('--market'),
+    openAi: args.contains('--ai'),
+  ));
 }
 
 /// 两个视图的根：隐式视图画桌面磁贴，第二个视图画设置窗口。

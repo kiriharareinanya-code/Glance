@@ -193,19 +193,18 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
   });
 
-  testWidgets('导航栏收起按钮按下去要真的收起（而且记得住）', (tester) async {
-    // NavigationView 的收起按钮只把新模式报出来，自己不留状态。
-    // displayMode 以前写死 expanded，按钮按下去下一帧又被按回展开 ——
-    // 表现就是"点了没反应"。
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-            const MethodChannel('vectra/native'), (call) async => null);
-
+  testWidgets('侧栏导航：点导航项要真的切页，而且切过去要留得住', (tester) async {
+    // 导航壳重做成 Win11 设置风格的自绘侧栏（不再是 NavigationView），
+    // 这条守住导航的基本行为：点谁去谁页，选中态不会自己弹回去。
     // 按真实窗口来：900x640 是 panel_window.cpp 里的 kWidth/kHeight，
     // embedded:false 是 panel_app.dart 里实际用的模式
     tester.view.physicalSize = const Size(900, 640);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
+
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+            const MethodChannel('vectra/native'), (call) async => null);
 
     final state = AppState(settings: AppSettings(), cards: []);
     final store = Store(Directory.systemTemp.createTempSync('lw-panel5').path);
@@ -226,42 +225,21 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    NavigationPane paneNow() =>
-        tester.widget<NavigationView>(find.byType(NavigationView)).pane!;
+    expect(find.text('网格单元大小'), findsNothing,
+        reason: '初始在组件库页，不该看到外观页的设置项');
 
-    expect(paneNow().displayMode, PaneDisplayMode.expanded,
-        reason: '默认是展开的');
-
-    final view = tester.widget<NavigationView>(find.byType(NavigationView));
-    expect(view.onDisplayModeChanged, isNotNull,
-        reason: '不接这个回调的话，收起按钮报出来的新模式没人接，等于白按');
-    // 直接走 NavigationView 对外的回调，等价于用户点那个按钮
-    view.onDisplayModeChanged!(PaneDisplayMode.compact);
-    await tester.pump();
-
-    expect(paneNow().displayMode, PaneDisplayMode.compact,
-        reason: '收起之后必须留在收起状态，不能被写死的常量按回展开');
-
-    // 收起动画途中，fluent_ui 自己那个 Row 会瞬时溢出 4px
-    // （pane_items.dart:305，外面就套着 ClipRect，显然是预料之中的过渡产物）。
-    // 这里放掉动画、把这个已知的瞬时异常取走，但紧接着要证明**稳态是干净的**
-    // ——否则就不是过渡产物，而是真的布局塌了。
+    // 点侧栏里的「外观」导航项（此时界面上只有一个「外观」文本）
+    await tester.tap(find.text('外观'));
     await tester.pumpAndSettle();
-    tester.takeException();
 
-    await tester.pump(const Duration(milliseconds: 100));
-    await tester.pump(const Duration(milliseconds: 100));
-    expect(tester.takeException(), isNull,
-        reason: '收起稳定之后不该再有溢出，否则是真的布局问题而不是过渡');
+    expect(find.text('网格单元大小'), findsOneWidget,
+        reason: '点侧栏「外观」要真的切到外观页');
+    expect(find.text('打开插件市场'), findsNothing,
+        reason: '切页之后旧页不该还在（内容按选中项构建，不同时建多页）');
 
-    view.onDisplayModeChanged!(PaneDisplayMode.expanded);
-    await tester.pumpAndSettle();
-    tester.takeException(); // 展开动画同理
-    expect(paneNow().displayMode, PaneDisplayMode.expanded,
-        reason: '再点一次要能展开回来');
-
+    // 稳态干净：切换完成后不该有布局异常
     await tester.pump(const Duration(milliseconds: 100));
-    expect(tester.takeException(), isNull, reason: '展开稳态同样要干净');
+    expect(tester.takeException(), isNull, reason: '切换页面之后不该有布局异常');
 
     await tester.pump(const Duration(milliseconds: 400));
   });
