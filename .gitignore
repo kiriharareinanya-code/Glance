@@ -2,6 +2,16 @@ build/
 .dart_tool/
 *.iml
 
+# IDE / 编辑器本地配置：各人机器不同，不进仓库
+.idea/
+.vscode/
+
+# AI 工具留下的临时计划与会话产物
+.zcode/
+
+# git filter-branch 的临时工作目录
+.git-rewrite/
+
 # Visual Studio 打开项目时的本地设置
 .vs/
 
@@ -12,3 +22,4 @@ installer/out/
 MS-WEB/
 plugins/dist/
 .sentry-native/
+flutter_*.log
