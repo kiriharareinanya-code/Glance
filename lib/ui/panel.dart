@@ -20,7 +20,6 @@ import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/material.dart' show Icons;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
-import 'package:url_launcher/url_launcher.dart';
 
 import '../core/app_version.dart' show appVersion;
 import '../core/logger.dart';
@@ -590,7 +589,7 @@ class _ControlPanelState extends State<ControlPanel> {
         '快捷键 热键 投放点 agent 助手', 3, 'AI'),
     ('更新 升级 版本 检查更新 下载 更新源 自动下载 自启 开机启动 启动 '
         '日志 备份 导出 导入 恢复', 4, '其他'),
-    ('关于 版本 作者 链接 github macrostar 开源', 5, '关于'),
+    ('关于 版本 作者', 5, '关于'),
   ];
 
   List<(String, int)> get _searchResults {
@@ -2427,22 +2426,6 @@ class _ControlPanelState extends State<ControlPanel> {
         _group(title: '信息', icon: Icons.info_outline, children: [
           _aboutRow('作者', 'MacroSTAR Studio © 2026'),
           _aboutRow('数据', widget.store.dir, monospace: true),
-        ]),
-        _group(title: '项目', icon: Icons.link_outlined, children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: Row(children: [
-              const SizedBox(width: 2),
-              Icon(Icons.link, size: 14, color: _c.accentIcon),
-              const SizedBox(width: 10),
-              HyperlinkButton(
-                onPressed: () => launchUrl(
-                    Uri.parse('https://github.com/MacroSTAR-Org/Vectra')),
-                child: Text('github.com/MacroSTAR-Org/Vectra',
-                    style: TextStyle(fontSize: 12, color: _c.accent)),
-              ),
-            ]),
-          ),
         ]),
       ],
     );
