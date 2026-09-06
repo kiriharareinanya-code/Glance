@@ -67,5 +67,61 @@ eq(LRC.fmt(217333), '3:37', '实测那首泡泡的时长');
 eq(LRC.fmt(3661000), '1:01:01', '超过一小时带小时位');
 eq(LRC.fmt(-5), '0:00', '负数按零');
 
+console.log('— 简繁折叠 —');
+eq(LRC.toSimplified('陽光下的星星'), '阳光下的星星', '繁体折叠');
+eq(LRC.toSimplified('阳光下的星星'), '阳光下的星星', '简体原样返回');
+eq(LRC.norm('陽光下的星星'), LRC.norm('阳光下的星星'), '归一化后简繁等价');
+
+console.log('— 全角/半角折叠 —');
+eq(LRC.norm('Ｌｉｖｅ！'), LRC.norm('live!'), '全角拉丁折成半角');
+
+console.log('— 二元组相似度 —');
+eq(LRC.sim('夜に駆ける', '夜に駆ける'), 1, '完全一致');
+if (!(LRC.sim('夜に駆ける', '夜駆け') > 0.3)) { fail++; console.log('  FAIL 日语前缀相似度应过 0.3'); } else { pass++; console.log('  ok   日语前缀相似度应过 0.3'); }
+if (LRC.sim('Night cloak', '月亮代表我的心') < 0.1) { pass++; console.log('  ok   完全无关接近 0'); } else { fail++; console.log('  FAIL 完全无关接近 0'); }
+
+console.log('— 标题变体生成 —');
+eq(LRC.titleVariants('夜に駆ける (Yoru ni Kakeru)'),
+  ['夜に駆ける (Yoru ni Kakeru)', '夜に駆ける', 'Yoru ni Kakeru'],
+  '括号备注拆出罗马音别名');
+eq(LRC.titleVariants('Shape of You (Live)'), ['Shape of You (Live)', 'Shape of You', 'Live'],
+  '去掉 (Live) 备注');
+if (LRC.titleVariants('陽光下的星星').indexOf('阳光下的星星') >= 0) { pass++; console.log('  ok   繁体折叠成简体变体'); } else { fail++; console.log('  FAIL 繁体折叠成简体变体'); }
+eq(LRC.titleVariants(''), [], '空标题返回空');
+
+console.log('— 挑歌：语言不一致的容错 —');
+const jSongs = [
+  { name: '夜に駆ける', artists: [{ name: 'YOASOBI' }], duration: 273000 },
+  { name: 'アイドル', artists: [{ name: 'YOASOBI' }], duration: 213000 },
+  { name: 'ハルジオン', artists: [{ name: 'YOASOBI' }], duration: 240000 }
+];
+const pickedTrans = LRC.pickSong(jSongs, 'Racing Into The Night', 'YOASOBI', 273000);
+if (pickedTrans && pickedTrans.name === '夜に駆ける') { pass++; console.log('  ok   翻译名标题 0 分，但歌手+时长正确锁定日文原曲'); } else { fail++; console.log('  FAIL 翻译名应靠歌手+时长锁定原曲'); }
+const pickedArtistOnly = LRC.pickSong(jSongs, '', 'YOASOBI', 240000);
+if (pickedArtistOnly && pickedArtistOnly.name === 'ハルジオン') { pass++; console.log('  ok   歌手单独搜索按时长正确挑中'); } else { fail++; console.log('  FAIL 歌手单独搜索应按时长挑中'); }
+
+const enSongs = [
+  { name: 'Idol', artists: [{ name: 'YOASOBI' }], duration: 213000 },
+  { name: 'The Brave', artists: [{ name: 'YOASOBI' }], duration: 213000 }
+];
+const pickedEn = LRC.pickSong(enSongs, 'Idol', 'YOASOBI', 213000);
+if (pickedEn && pickedEn.name === 'Idol') { pass++; console.log('  ok   字面相等优先'); } else { fail++; console.log('  FAIL 字面相等应优先'); }
+
+const stSongs = [
+  { name: '阳光下的星星', artists: [{ name: '黄雅莉' }], duration: 236000 },
+  { name: '阳光下的星星 (伴奏)', artists: [{ name: '黄雅莉' }], duration: 236000 }
+];
+const pickedSt = LRC.pickSong(stSongs, '陽光下的星星', '黃雅莉', 236000);
+if (pickedSt && pickedSt.name === '阳光下的星星') { pass++; console.log('  ok   繁体标题正确选中简体原曲，伴奏被扣分排除'); } else { fail++; console.log('  FAIL 繁体标题应选中简体原曲'); }
+
+const liveSongs = [
+  { name: '光年之外', artists: [{ name: 'G.E.M. 邓紫棋' }], duration: 234000 },
+  { name: '光年之外 (Live)', artists: [{ name: 'G.E.M. 邓紫棋' }], duration: 234000 }
+];
+const pickedLive = LRC.pickSong(liveSongs, '光年之外', 'G.E.M. 邓紫棋', 234000);
+if (pickedLive && pickedLive.name === '光年之外') { pass++; console.log('  ok   Live 版被扣分排除'); } else { fail++; console.log('  FAIL Live 版应被排除'); }
+
+eq(LRC.norm('ＮＯＮＥ　OF MY BUSI（NE）SS'), LRC.norm('noneofmybusiss'), '全角折半角后归一');
+
 console.log(`\n结果：${pass} 通过，${fail} 失败`);
 process.exit(fail === 0 ? 0 : 1);
