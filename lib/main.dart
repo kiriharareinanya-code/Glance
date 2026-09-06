@@ -119,7 +119,8 @@ Future<void> _bootstrap(List<String> args) async {
   // 失败无声——连不上更新服务器是常态，不该给刚开机的用户弹任何东西。
   Future<void>.delayed(const Duration(seconds: 30), () {
     runUpdateCheck(
-      currentVersion: appVersion,
+      // 更新比较需要四段数值，显示串是个性化的非数字格式
+      currentVersion: appVersionNumeric,
       sources: buildUpdateSources(
           updateSource: state.settings.updateSource,
           marketBaseUrl: state.settings.marketBaseUrl),
