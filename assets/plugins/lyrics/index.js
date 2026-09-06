@@ -151,39 +151,149 @@ lw.register({
     // 放那边才能用 node 跑断言，见 test/js/lrc_verify.js。
     var pickSong = LRC.pickSong;
 
-    function fetchNetease(title, artist, durMs) {
-      var q = encodeURIComponent((title + ' ' + artist).trim());
-      var url = 'https://music.163.com/api/search/get?s=' + q + '&type=1&limit=10';
+    // ---- 查询编排 ------------------------------------------------------
+    //
+    // 单次「歌名+歌手」精确搜索对语言不一致的容错太差：SMTC 给的标题可
+    // 能是翻译名/罗马音/繁体/带括号备注，跟曲库里的字面对不上就 0 结果。
+    // 所以改成「变体列表 × 来源优先级」的序列尝试：
+    //   1. 生成标题变体（见 LRC.titleVariants）
+    //   2. 每个变体依次试各来源，任一步拿到歌词立即收工
+    //   3. 单个请求失败/0 结果只跳过这一步，绝不中断整体
+    //   4. 最后兜底：只拿歌手名搜（歌词挑选靠歌手+时长打分，标题语言
+    //      随便是什么都能对上——这是覆盖"歌名被翻译成另一门语言"的杀招）
+    //
+    // 请求上限：标题变体 ≤3 × 来源 + 2 个兜底。只在切歌时跑一轮（按
+    // trackKey 防重入），不会打爆接口。
+
+    function searchNeteaseSongs(query, limit) {
+      var q = encodeURIComponent(query.trim());
+      var url = 'https://music.163.com/api/search/get?s=' + q + '&type=1&limit=' + (limit || 10);
       return ctx.http.getJSON(url, NE_HEADERS).then(function (r) {
         if (!r.ok || !r.data || !r.data.result) return null;
         var songs = r.data.result.songs || [];
-        if (!songs.length) return null;
-        var song = pickSong(songs, title, artist, durMs);
+        return songs.length ? songs : null;
+      }, function () { return null; });
+    }
+
+    function lyricsFromNeteaseSong(song) {
+      var lu = 'https://music.163.com/api/song/lyric?id=' + song.id + '&lv=1&kv=1&tv=-1';
+      return ctx.http.getJSON(lu, NE_HEADERS).then(function (r2) {
+        if (!r2.ok || !r2.data || !r2.data.lrc) return null;
+        var main = stripCredits(LRC.parse(r2.data.lrc.lyric || ''));
+        if (!main.length) return null;
+        if (S.trans && r2.data.tlyric) {
+          return LRC.merge(main, LRC.parse(r2.data.tlyric.lyric || ''));
+        }
+        return main;
+      }, function () { return null; });
+    }
+
+    /** 网易云：搜歌 → 挑歌 → 拿歌词，一步失败返回 null */
+    function neteaseAttempt(vTitle, artist, durMs, artistOnly) {
+      var query = artistOnly ? artist : ((vTitle + ' ' + artist).trim());
+      if (!query) return Promise.resolve(null);
+      return searchNeteaseSongs(query, artistOnly ? 30 : 10).then(function (songs) {
+        if (!songs) return null;
+        var song = pickSong(songs, vTitle, artist, durMs);
         if (!song) return null;
-        var lu = 'https://music.163.com/api/song/lyric?id=' + song.id + '&lv=1&kv=1&tv=-1';
-        return ctx.http.getJSON(lu, NE_HEADERS).then(function (r2) {
-          if (!r2.ok || !r2.data || !r2.data.lrc) return null;
-          var main = stripCredits(LRC.parse(r2.data.lrc.lyric || ''));
-          if (!main.length) return null;
-          if (S.trans && r2.data.tlyric) {
-            return LRC.merge(main, LRC.parse(r2.data.tlyric.lyric || ''));
-          }
-          return main;
-        });
+        return lyricsFromNeteaseSong(song);
       });
     }
 
-    function fetchLrclib(title, artist, durMs) {
-      var u = 'https://lrclib.net/api/get?track_name=' + encodeURIComponent(title) +
+    /** LRCLIB：精确 get。找不到时返回 404，宿主包成 {ok:false} */
+    function lrclibGetAttempt(vTitle, artist, durMs) {
+      var u = 'https://lrclib.net/api/get?track_name=' + encodeURIComponent(vTitle) +
         '&artist_name=' + encodeURIComponent(artist);
       if (durMs > 0) u += '&duration=' + Math.round(durMs / 1000);
       return ctx.http.getJSON(u).then(function (r) {
-        // 找不到时 LRCLIB 返回 404，宿主会包成 {ok:false}
         if (!r.ok || !r.data) return null;
         var synced = r.data.syncedLyrics;
         if (!synced) return null;   // 只有无时间轴的纯文本就当没有
         var arr = stripCredits(LRC.parse(synced));
         return arr.length ? arr : null;
+      }, function () { return null; });
+    }
+
+    /** LRCLIB：模糊 search 接口，候选打分后直接用自带的 syncedLyrics */
+    function lrclibSearchAttempt(vTitle, artist, durMs) {
+      var u = 'https://lrclib.net/api/search?track_name=' + encodeURIComponent(vTitle) +
+        '&artist_name=' + encodeURIComponent(artist);
+      return ctx.http.getJSON(u).then(function (r) {
+        if (!r.ok || !r.data || !r.data.length) return null;
+        // 转成 pickSong 认识的形状
+        var songs = [];
+        for (var i = 0; i < r.data.length && i < 20; i++) {
+          var it = r.data[i];
+          if (!it || !it.syncedLyrics) continue;
+          songs.push({
+            id: i,
+            name: it.trackName || '',
+            artists: [{ name: it.artistName || '' }],
+            duration: it.duration || 0,
+            _synced: it.syncedLyrics
+          });
+        }
+        var song = pickSong(songs, vTitle, artist, durMs);
+        if (!song) return null;
+        var arr = stripCredits(LRC.parse(song._synced));
+        return arr.length ? arr : null;
+      }, function () { return null; });
+    }
+
+    /** 顺序尝试一串 attempt，单个失败/为空自动滑到下一个 */
+    function trySeq(list, fn, i) {
+      if (i >= list.length) return Promise.resolve(null);
+      return fn(list[i]).then(function (r) {
+        if (r && r.length) return r;
+        return trySeq(list, fn, i + 1);
+      }, function () { return trySeq(list, fn, i + 1); });
+    }
+
+    /**
+     * 完整搜索编排。
+     * 来源优先级：auto = 网易云 → LRCLIB；手动选源时只跑所选来源，
+     * 但来源内部的变体/兜底序列保持完整（选源选的是"优先"，不是"仅此一家"——
+     * 用户手动选源仍想要歌词，而不是想要一个"没找到"）。
+     */
+    function searchLyrics(title, artist, durMs) {
+      var variants = LRC.titleVariants(title).slice(0, 3);
+      if (!variants.length) return Promise.resolve(null);
+      var bare = variants.length > 1 ? variants[1] : variants[0];
+
+      function neteaseBlock() {
+        var list = [];
+        for (var i = 0; i < variants.length; i++) {
+          list.push((function (v) {
+            return function () { return neteaseAttempt(v, artist, durMs, false); };
+          })(variants[i]));
+        }
+        // 兜底 1：只搜歌手（30 条候选里靠歌手+时长挑），专治歌名被
+        // 翻译成另一门语言/罗马音对不上曲库的情况
+        list.push(function () { return neteaseAttempt(title, artist, durMs, true); });
+        return trySeq(list, function (fn) { return fn(); }, 0);
+      }
+
+      function lrclibBlock() {
+        var list = [];
+        for (var i = 0; i < variants.length; i++) {
+          list.push((function (v) {
+            return function () { return lrclibGetAttempt(v, artist, durMs); };
+          })(variants[i]));
+        }
+        // 兜底 2：LRCLIB 的模糊 search 接口
+        list.push(function () { return lrclibSearchAttempt(bare, artist, durMs); });
+        return trySeq(list, function (fn) { return fn(); }, 0);
+      }
+
+      var src = S.source || 'auto';
+      if (src === 'lrclib') return lrclibBlock().then(function (r) {
+        return r || neteaseBlock();
+      });
+      if (src === 'netease') return neteaseBlock().then(function (r) {
+        return r || lrclibBlock();
+      });
+      return neteaseBlock().then(function (r) {
+        return r || lrclibBlock();
       });
     }
 
@@ -207,18 +317,7 @@ lw.register({
           paint(true);
           return;
         }
-        var src = S.source || 'auto';
-        var chain;
-        if (src === 'lrclib') {
-          chain = fetchLrclib(title, artist, durMs);
-        } else if (src === 'netease') {
-          chain = fetchNetease(title, artist, durMs);
-        } else {
-          chain = fetchNetease(title, artist, durMs).then(function (r) {
-            return r || fetchLrclib(title, artist, durMs);
-          });
-        }
-        chain.then(function (arr) {
+        searchLyrics(title, artist, durMs).then(function (arr) {
           if (trackKey !== key) return;
           if (arr && arr.length) {
             lyrics = arr;
