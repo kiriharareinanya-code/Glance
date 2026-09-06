@@ -11,6 +11,7 @@ import '../core/logger.dart';
 import '../core/splash_gate.dart';
 import '../model/card.dart';
 import '../store/store.dart';
+import '../ui/card_view.dart';
 import '../ui/wallpaper.dart';
 import 'host.dart';
 import 'node.dart';
@@ -118,6 +119,18 @@ class _PluginCardBodyState extends State<PluginCardBody> {
     return '#$hex';
   }
 
+  /// 基线内容尺寸：按默认单元算出的内容区（刨掉卡片内边距）。
+  /// 与 surface 传进来的 widget.size 同一套扣减规则，只是单元固定为
+  /// kDefaultCell——缩放 = 实际尺寸 / 基线尺寸。
+  Size get _baseContentSize {
+    final grid = parseSize(widget.card.size) ?? const GridSize(2, 2);
+    final px = sizeToPx(grid, kDefaultCell, widget.state.settings.gridGap);
+    return Size(
+      px.w - CardView.contentPadding.horizontal,
+      px.h - CardView.contentPadding.vertical,
+    );
+  }
+
   Future<void> _boot() async {
     final loaded = widget.registry[widget.card.pluginId];
     if (loaded == null) {
@@ -156,10 +169,15 @@ class _PluginCardBodyState extends State<PluginCardBody> {
     };
 
     final grid = parseSize(widget.card.size) ?? const GridSize(2, 2);
+    // 关键：插件永远按**基线单元**（kDefaultCell）排版，而不是当前实际
+    // 尺寸。实际渲染时整树 Transform.scale 缩放到实际大小——磁贴单元
+    // 大小滑杆因此从"重新排版"变成"全局缩放"，插件内部写死的字号/图标
+    // 不会再在小尺寸下溢出（天气卡五日预报溢出就是这个根因）。
+    final base = _baseContentSize;
     await rt.mount(
       settings: settings,
-      w: widget.size.width,
-      h: widget.size.height,
+      w: base.width,
+      h: base.height,
       cols: grid.cols,
       rows: grid.rows,
       themeAccent: _themeAccentHex(),
@@ -241,12 +259,34 @@ class _PluginCardBodyState extends State<PluginCardBody> {
         if (err != null) return _errorBox(err);
         return ValueListenableBuilder<Map<String, Object?>?>(
           valueListenable: rt.tree,
-          builder: (context, tree, _) => PluginView(
-            tree: tree,
-            onEvent: rt.dispatchEvent,
-            animate: widget.state.settings.animations,
-            registry: widget.registry,
-          ),
+          builder: (context, tree, _) {
+            final base = _baseContentSize;
+            final scale =
+                (base.width > 0 ? widget.size.width / base.width : 1.0)
+                    .clamp(0.3, 3.0);
+            // OverflowBox 让插件按基线尺寸排版（挣脱外层的紧约束），
+            // Transform.scale 再缩到实际大小。两者都参与命中测试，
+            // 点击/滑动手感不变。
+            return Transform.scale(
+              scale: scale,
+              alignment: Alignment.topLeft,
+              child: OverflowBox(
+                alignment: Alignment.topLeft,
+                maxWidth: double.infinity,
+                maxHeight: double.infinity,
+                child: SizedBox(
+                  width: base.width,
+                  height: base.height,
+                  child: PluginView(
+                    tree: tree,
+                    onEvent: rt.dispatchEvent,
+                    animate: widget.state.settings.animations,
+                    registry: widget.registry,
+                  ),
+                ),
+              ),
+            );
+          },
         );
       },
     );
