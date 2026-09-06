@@ -355,7 +355,6 @@ class AppRootState extends State<AppRoot> with TrayListener {
       MenuItem.checkbox(
           key: 'lock', label: '锁定布局', checked: widget.state.settings.locked),
       MenuItem(key: 'refreshWall', label: '刷新壁纸模糊'),
-      MenuItem(key: 'rescan', label: '重新扫描插件'),
       MenuItem(key: 'restart', label: '重启'),
       MenuItem.separator(),
       MenuItem(key: 'quit', label: '退出'),
@@ -383,8 +382,6 @@ class AppRootState extends State<AppRoot> with TrayListener {
         setState(() {});
       case 'refreshWall':
         _loadWallpaper();
-      case 'rescan':
-        await rescanPlugins();
       case 'restart':
         await _restartApp();
       case 'quit':
@@ -453,19 +450,6 @@ class AppRootState extends State<AppRoot> with TrayListener {
     exit(0);
   }
 
-
-  /// 重新扫描插件目录，并让桌面上的卡片按新插件重建。
-  ///
-  /// 托盘的「重新扫描插件」和市场装完插件都走这里：装好的插件要立刻能在组件库
-  /// 里添加，被更新的插件要立刻换成新代码。代码版本号（registry.codeVersion）
-  /// 随 scan 自增，进卡片 key 触发重新挂载。
-  Future<void> rescanPlugins() async {
-    await widget.registry.scan();
-    Log.i('plugin',
-        '重新扫描插件，现有 ${widget.registry.list().length} 个'
-        '${widget.registry.errors.isEmpty ? "" : "，失败 ${widget.registry.errors.length} 个"}');
-    if (mounted) setState(() => _revision++);
-  }
 
   /// 打开设置窗口（任务栏里那个独立窗口），可指定停在哪页/定位到哪张卡片。
   ///

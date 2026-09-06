@@ -2424,7 +2424,7 @@ class _ControlPanelState extends State<ControlPanel> {
         ),
         const SizedBox(height: 28),
         _group(title: '信息', icon: Icons.info_outline, children: [
-          _aboutRow('作者', 'MacroSTAR Studio © 2026'),
+          _aboutRow('作者', 'KiriharaReina © 2026'),
           _aboutRow('数据', widget.store.dir, monospace: true),
         ]),
       ],
