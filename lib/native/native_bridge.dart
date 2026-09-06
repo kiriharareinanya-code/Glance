@@ -248,16 +248,13 @@ class NativeWindow {
   /// 设置窗口
   static const panel = NativeWindow('panel');
 
-  /// 插件市场
-  static const market = NativeWindow('market');
-
   static const MethodChannel _channel = MethodChannel('vectra/native');
 
   /// 窗口可见性（show/hide 时更新）。隐藏窗口的内容树据此挂起：
   /// 设置/市场窗口不显示时，里面的整棵 widget 树（含组件库的 5 个
   /// 实时预览运行时和它们的定时器）没有必要继续活着。
   static final Map<String, ValueNotifier<bool>> _visibility = {
-    for (final w in const [panel, market]) w.key: ValueNotifier(false),
+    for (final w in const [panel]) w.key: ValueNotifier(false),
   };
 
   static ValueNotifier<bool> visibilityOf(NativeWindow window) =>

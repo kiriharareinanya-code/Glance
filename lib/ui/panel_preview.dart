@@ -116,7 +116,7 @@ class _PluginPreviewState extends State<PluginPreview> {
       // 面板跑在 FluentApp 里，没有 Material 祖先；插件树里的 input 节点
       // 渲染 Material 的 TextField，缺 Material 会抛异常，ErrorWidget 的
       // 异常布局还会连累外层 Column 报 9 万像素溢出。透明 Material 只补
-      // 祖先链、不画任何东西（市场窗口的 m.Material 是同类处理，见 market_app）。
+      // 祖先链、不画任何东西（同类处理见 panel 的 Material 包裹）。
       child: Material(
         type: MaterialType.transparency,
         child: ClipRRect(

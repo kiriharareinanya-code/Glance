@@ -1,6 +1,6 @@
 /// 应用自身的更新系统：查版本、比版本、下载新安装包。
 ///
-/// 与 marketplace.dart 同一个分工原则：这里只有数据和文件，没有界面。
+/// 分工原则：这里只有数据和文件，没有界面。
 /// 安装动作（保存退出 → 拉起 Inno 静默安装器）由 UI 层编排，因为它需要
 /// store 和 exit，那些不归这一层管。
 ///
@@ -21,7 +21,37 @@ import 'package:path/path.dart' as p;
 
 import 'app_version.dart' show appUserAgent;
 import 'logger.dart';
-import 'marketplace.dart' show kMarketBaseUrl, resolveDownloadUrl;
+
+/// Unisphere 部署根（应用自更新源默认指向这里，可用设置里的地址覆盖）。
+const String kMarketBaseUrl = 'https://unisphere.macrostar.top';
+
+/// 把服务器广播的下载地址归一化到"我们正在对话的那个源"。
+///
+/// 起因是实测：Unisphere 返回的 downloadUrl 是
+/// `http://unisphere.macrostar.top:443/...`——http 配 443 端口，连不上
+/// （反代没把 X-Forwarded-Proto 传给应用）。服务端该修，但客户端不能因为
+/// 服务器写错一个字段就连不上。
+///
+/// 规则：
+///   - 相对地址 → 拼到 base 上
+///   - 同主机 → 一律改用 base 的协议和端口（我们刚从这个源通信过，它一定是通的）
+///   - 别的主机 → 原样保留（CDN / 对象存储是合法做法，不该被改写）
+Uri? resolveDownloadUrl(String baseUrl, String advertised) {
+  final base = Uri.tryParse(baseUrl);
+  final raw = Uri.tryParse(advertised.trim());
+  if (base == null || raw == null || advertised.trim().isEmpty) return null;
+
+  final abs = raw.hasScheme ? raw : base.resolveUri(raw);
+  if (abs.scheme != 'http' && abs.scheme != 'https') return null;
+
+  if (abs.host == base.host) {
+    return abs.replace(
+      scheme: base.scheme,
+      port: base.hasPort ? base.port : null,
+    );
+  }
+  return abs;
+}
 
 /// 比较两个四段版本号（`A.B.C.D`），返回 -1/0/1。
 ///

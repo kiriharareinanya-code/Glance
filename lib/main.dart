@@ -12,13 +12,6 @@ import 'dart:async' show runZonedGuarded;
 
 import 'core/app_version.dart';
 import 'core/logger.dart';
-import 'core/marketplace.dart'
-    show
-        checkPluginUpdates,
-        marketAutoInstallId,
-        marketAutoOpenId,
-        marketAutoUninstallId,
-        marketMockEnabled;
 import 'core/paths.dart';
 import 'core/sentry.dart' as sentry;
 import 'core/sentry_reporter.dart' show wireSentryReporter;
@@ -29,7 +22,6 @@ import 'plugin/registry.dart';
 import 'sidebar_main.dart' as sidebar;
 import 'store/store.dart';
 import 'ui/app_root.dart';
-import 'ui/market_app.dart';
 import 'ui/panel_app.dart';
 
 /// AI 侧边栏那个引擎的入口。
@@ -70,27 +62,6 @@ Future<void> _bootstrap(List<String> args) async {
   if (args.contains('--wait-restart')) {
     Log.i('app', '重启接力：等待旧进程退出');
     await Future.delayed(const Duration(seconds: 2));
-  }
-  // --market-mock：插件市场走内置假数据，不联网。
-  // Unisphere 还没部署，而"浏览→安装→出现在组件库→添加到桌面"这条链路
-  // 必须能验收，靠它把服务器那一段替掉。
-  if (args.contains('--market-mock')) {
-    marketMockEnabled = true;
-  }
-  // --market-install=<id>：市场打开后自动点一次「安装」，用于自动验证整条链路
-  for (final a in args) {
-    if (a.startsWith('--market-install=')) {
-      marketAutoInstallId = a.substring('--market-install='.length).trim();
-    }
-    // --market-open=<id>：直接进详情页，同样是为了能自动验收
-    if (a.startsWith('--market-open=')) {
-      marketAutoOpenId = a.substring('--market-open='.length).trim();
-    }
-    // --market-uninstall=<id>：直接卸载（跳过确认框），验的是删卡片+删目录+重扫
-    if (a.startsWith('--market-uninstall=')) {
-      marketAutoUninstallId =
-          a.substring('--market-uninstall='.length).trim();
-    }
   }
   Log.i('app', '启动参数: ${args.join(" ")}');
 
@@ -144,17 +115,9 @@ Future<void> _bootstrap(List<String> args) async {
     sentry.disableSentry();
   }
 
-  // 启动后延迟静默检查更新（应用 + 插件各一次）：
+  // 启动后延迟静默检查应用更新：
   // 失败无声——连不上更新服务器是常态，不该给刚开机的用户弹任何东西。
-  // 应用更新检查到新版且开了自动下载时顺手下到 userdata\update\，装不装
-  // 仍由用户在设置面板里决定。
   Future<void>.delayed(const Duration(seconds: 30), () {
-    checkPluginUpdates(
-      installed: {
-        for (final m in registry.list()) m.id: m.version,
-      },
-      baseUrl: state.settings.marketBaseUrl,
-    );
     runUpdateCheck(
       currentVersion: appVersion,
       sources: buildUpdateSources(
@@ -202,7 +165,6 @@ Future<void> _bootstrap(List<String> args) async {
     store: store,
     registry: registry,
     openPanel: args.contains('--panel'),
-    openMarket: args.contains('--market'),
     openAi: args.contains('--ai'),
   ));
 }
@@ -218,7 +180,6 @@ class _MultiViewRoot extends StatefulWidget {
     required this.store,
     required this.registry,
     required this.openPanel,
-    required this.openMarket,
     required this.openAi,
   });
 
@@ -229,8 +190,6 @@ class _MultiViewRoot extends StatefulWidget {
   /// --panel：启动即弹出设置窗口，供不合成键鼠的验证使用
   final bool openPanel;
 
-  /// --market：启动即弹出插件市场窗口，同样是为了验证
-  final bool openMarket;
 
   /// --ai：启动即展开 AI 侧边栏
   final bool openAi;
@@ -241,7 +200,6 @@ class _MultiViewRoot extends StatefulWidget {
 
 class _MultiViewRootState extends State<_MultiViewRoot> {
   ui.FlutterView? _panelView;
-  ui.FlutterView? _marketView;
 
   /// 设置窗口那个视图要直接调 AppRoot 的方法（添加卡片要读桌面视图的
   /// 尺寸来找空位）。同一个 isolate，所以这是真正的对象引用。
@@ -255,14 +213,10 @@ class _MultiViewRootState extends State<_MultiViewRoot> {
 
   Future<void> _createWindows() async {
     // 设置窗口先建：它是常用入口，早一点就绪早一点能弹出来。
-    // 市场窗口紧随其后——两个都只是"建好视图挂着"，不显示，不占屏幕。
+    // 只建好视图挂着，不显示，不占屏幕。
     final panel = await _createView(NativeWindow.panel, '设置窗口');
     if (mounted && panel != null) setState(() => _panelView = panel);
     if (panel != null && widget.openPanel) NativeWindow.panel.show();
-
-    final market = await _createView(NativeWindow.market, '插件市场窗口');
-    if (mounted && market != null) setState(() => _marketView = market);
-    if (market != null && widget.openMarket) NativeWindow.market.show();
   }
 
   /// 让 native 建一个次级窗口 + 视图，等它出现在 PlatformDispatcher 里。
@@ -323,22 +277,6 @@ class _MultiViewRootState extends State<_MultiViewRoot> {
             valueListenable: NativeWindow.visibilityOf(NativeWindow.panel),
             builder: (context, visible, _) => visible
                 ? PanelApp(
-                    appKey: _appKey,
-                    state: widget.state,
-                    store: widget.store,
-                    registry: widget.registry,
-                  )
-                : const SizedBox.shrink(),
-          ),
-        ),
-      if (_marketView != null)
-        View(
-          key: ValueKey('view:${_marketView!.viewId}'),
-          view: _marketView!,
-          child: ValueListenableBuilder<bool>(
-            valueListenable: NativeWindow.visibilityOf(NativeWindow.market),
-            builder: (context, visible, _) => visible
-                ? MarketApp(
                     appKey: _appKey,
                     state: widget.state,
                     store: widget.store,

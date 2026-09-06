@@ -372,10 +372,9 @@ lw.register({
 | weather | HTTP 请求 + 错误处理 + cacheSet + flip 翻面 |
 | lyrics | ctx.media 全套、image 封面、slider、gradientMask |
 
-**launcher（快捷启动）不是内置插件**：源码在仓库 `plugins/launcher/`，走
-Unisphere 市场分发（zip 内套一层 `launcher/` 目录，含 manifest.json + index.js，
-manifest 的 id 必须与目录名一致）。它展示 SDK onLoad + widget.register +
-flip 编辑面（重命名/重排/删除）+ pickFile + launch。
+（注：launcher 快捷启动插件已随插件市场功能一并移除；它曾演示 SDK
+onLoad + widget.register + flip 编辑面 + pickFile + launch，需要时从
+git 历史（backup/pre-market-removal 分支）取回。）
 
 ### 8.6 内置插件注册
 
@@ -414,31 +413,16 @@ C++ → Dart：`setMethodCallHandler` 回调
 
 ---
 
-## 10. 市场服务器
 
-### 10.1 地址
+## 10. 应用更新
 
-- 生产环境：`https://unisphere.macrostar.top`
-- 可配置：设置里改 `marketBaseUrl`
-- 内置默认：`lib/core/marketplace.dart` 里的 `kMarketBaseUrl`
+> 插件市场已移除，本章只覆盖**应用自更新**（Unisphere 部署根 / GitHub 兜底）。
 
-### 10.2 API 协议
-
-客户端用 v1 简版协议（`/api/v1/*`）：
-
-| 端点 | 用途 |
-|:---|:---|
-| `GET /api/v1/catalog` | 插件目录 |
-| `GET /api/v1/plugins/{id}` | 插件详情（含 README） |
-| `GET {downloadUrl}` | 下载 zip 包 |
-
-真图标用完整版端点：`GET /api/vectra/plugins/{id}/resources/icon`
-
-### 10.3 下载地址归一化
+### 10.1 下载地址归一化
 
 服务器可能返回 `http://host:443`（协议和端口矛盾）。客户端用 `resolveDownloadUrl()` 自动修正：同主机一律改用 base 的协议和端口。
 
-### 10.4 应用更新端点（服务端待实现）
+### 10.2 应用更新端点（服务端待实现）
 
 客户端的"检查更新"按下面这个协议问 Unisphere（实现在 `lib/core/updater.dart`）：
 

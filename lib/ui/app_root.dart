@@ -351,7 +351,6 @@ class AppRootState extends State<AppRoot> with TrayListener {
   Future<void> _rebuildTrayMenu() async {
     await trayManager.setContextMenu(Menu(items: [
       MenuItem(key: 'panel', label: '控制面板'),
-      MenuItem(key: 'market', label: '插件市场'),
       MenuItem.separator(),
       MenuItem.checkbox(
           key: 'lock', label: '锁定布局', checked: widget.state.settings.locked),
@@ -388,9 +387,6 @@ class AppRootState extends State<AppRoot> with TrayListener {
         await rescanPlugins();
       case 'restart':
         await _restartApp();
-      case 'market':
-        Log.i('app', '打开插件市场');
-        NativeWindow.market.show();
       case 'quit':
         await quitAndExit();
     }
