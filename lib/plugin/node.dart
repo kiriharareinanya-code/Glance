@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'images.dart';
+import 'flip_transition.dart';
 import 'morph_icons.dart';
 import 'node_anim.dart';
 import 'registry.dart';
@@ -379,19 +380,23 @@ class _PluginViewState extends State<PluginView> {
           : TextDecoration.none,
     );
 
-    final text = Text(
-      _str(n['v']) ?? '',
-      maxLines: _num(n['maxLines'])?.round(),
-      overflow: n['maxLines'] != null ? TextOverflow.ellipsis : null,
-      textAlign: switch (_str(n['align'])) {
-        'center' => TextAlign.center,
-        'end' => TextAlign.end,
-        _ => TextAlign.start,
-      },
-      // 样式交给外层（AnimatedDefaultTextStyle）以便过渡；关闭动画时
-      // 直接把 style 挂在 Text 上，省一层。
-      style: widget.animate ? null : style,
-    );
+    // 抽成"给一个字符串就画出来"的回调：翻页过渡要同时画旧值和新值
+    // （各自取上半/下半页），没法只拿一个现成的 Text。
+    Widget buildText(String value) => Text(
+          value,
+          maxLines: _num(n['maxLines'])?.round(),
+          overflow: n['maxLines'] != null ? TextOverflow.ellipsis : null,
+          textAlign: switch (_str(n['align'])) {
+            'center' => TextAlign.center,
+            'end' => TextAlign.end,
+            _ => TextAlign.start,
+          },
+          // 样式交给外层（AnimatedDefaultTextStyle）以便过渡；关闭动画时
+          // 直接把 style 挂在 Text 上，省一层。
+          style: widget.animate ? null : style,
+        );
+
+    final text = buildText(_str(n['v']) ?? '');
 
     // AnimatedDefaultTextStyle：文字颜色/透明度/字重/删除线在两次 render
     // 之间变化时平滑过渡。待办项"划掉"和歌词"当前行高亮"都是这条路径——
@@ -407,12 +412,27 @@ class _PluginViewState extends State<PluginView> {
     final resolved = DefaultTextStyle.of(context).style.merge(style).copyWith(
           inherit: false,
         );
-    // 文字内容变化过渡：**必须由插件显式声明**（trans: true）——这个项目
-    // 当年专门移除过内容切换动画（真实渲染下闪白，见文件尾部注释），测试
-    // 也锁着"替换瞬间旧内容必须退场"的契约。时钟数字这类固定位置的
-    // 值才声明 trans，交叉过渡才不会在别处复活闪白。
+    // 文字内容变化过渡：**必须由插件显式声明**（trans: true / 'flip'）——
+    // 这个项目当年专门移除过内容切换动画（真实渲染下闪白，见文件尾部
+    // 注释），测试也锁着"替换瞬间旧内容必须退场"的契约。时钟数字这类
+    // 固定位置的值才声明 trans，过渡才不会在别处复活闪白。
     // AnimatedSwitcher 对内容没变的重绘不会重播——key 相同直接复用。
     // trans 是布尔开关，别用 _str 读（它只认 String，bool 永远落空）
+    // trans 有两种模式：
+    //   true   交叉淡入 + 轻微上移（通用，适合日期/星期这类文字）
+    //   'flip' 机械翻页（时钟数字用，见 flip_transition.dart）
+    if (n['trans'] == 'flip') {
+      return AnimatedDefaultTextStyle(
+        duration: kNodeAnimDuration,
+        curve: kNodeAnimCurve,
+        style: resolved,
+        softWrap: true,
+        child: FlipTransition(
+          value: _str(n['v']) ?? '',
+          textBuilder: buildText,
+        ),
+      );
+    }
     if (n['trans'] != true) {
       return AnimatedDefaultTextStyle(
         duration: kNodeAnimDuration,

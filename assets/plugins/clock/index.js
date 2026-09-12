@@ -1,5 +1,9 @@
 // 时钟：每秒重绘一次。
 //
+// 数字的切换动效走"机械翻页"（trans: 'flip'，实现在宿主的
+// flip_transition.dart）：上半页翻下去、下半页翻上来，时分秒三位各自
+// 独立翻，节奏一致。日期和星期不是数字，保持交叉淡入（trans: true）。
+//
 // 两套排版：
 //   - 3x3（够高够方）：仿安卓锁屏那种"时/分各占一行"的堆叠大字，
 //     字号是拿真实字体量出来的（HarmonyOS Sans SC，见 git 历史里跑过
@@ -53,11 +57,11 @@ lw.register({
         // 带一点壁纸色调"的效果对不上。小时留白/黑默认色保持稳重，
         // 分钟上色制造一点呼应，两行不是同一个颜色更有层次。
         var minuteRow = [
-          { t: 'text', font: 'TsukushiBMaru', v: two(now.getMinutes()), size: STACK_SIZE, weight: 300, mono: true, lh: 0.85, color: ACCENT, trans: true }
+          { t: 'text', font: 'TsukushiBMaru', v: two(now.getMinutes()), size: STACK_SIZE, weight: 300, mono: true, lh: 0.85, color: ACCENT, trans: 'flip' }
         ];
         if (ctx.settings.seconds) {
           minuteRow.push({ t: 'box', pad: [0, 0, 0, 8], child: {
-            t: 'text', font: 'TsukushiBMaru', v: two(now.getSeconds()), size: 20, weight: 400, mono: true, opacity: 0.4, trans: true } });
+            t: 'text', font: 'TsukushiBMaru', v: two(now.getSeconds()), size: 20, weight: 400, mono: true, opacity: 0.4, trans: 'flip' } });
         }
         if (suffix) {
           minuteRow.push({ t: 'box', pad: [0, 0, 0, 10], child: {
@@ -66,7 +70,7 @@ lw.register({
         ctx.render({
           t: 'col', main: 'center', cross: 'start', gap: 10,
           children: [
-            { t: 'text', font: 'TsukushiBMaru', v: two(h), size: STACK_SIZE, weight: 300, mono: true, lh: 0.85, color: ACCENT, trans: true },
+            { t: 'text', font: 'TsukushiBMaru', v: two(h), size: STACK_SIZE, weight: 300, mono: true, lh: 0.85, color: ACCENT, trans: 'flip' },
             { t: 'row', cross: 'end', children: minuteRow },
             dateRow
           ]
@@ -81,15 +85,15 @@ lw.register({
       // 线都在往"分钟更轻、更跟着壁纸走"这个方向走，不是等重同色的
       // 数字堆。
       var timeRow = [
-        { t: 'text', font: 'TsukushiBMaru', v: two(h), size: big, weight: 900, mono: true, lh: 1.0, color: ACCENT, trans: true },
+        { t: 'text', font: 'TsukushiBMaru', v: two(h), size: big, weight: 900, mono: true, lh: 1.0, color: ACCENT, trans: 'flip' },
         { t: 'box', pad: [0, 2], child: {
           t: 'text', font: 'TsukushiBMaru', v: ':', size: big, weight: 300, opacity: 0.35, mono: true, lh: 1.0 } },
-        { t: 'text', font: 'TsukushiBMaru', v: two(now.getMinutes()), size: big, weight: 400, mono: true, lh: 1.0, color: ACCENT, trans: true }
+        { t: 'text', font: 'TsukushiBMaru', v: two(now.getMinutes()), size: big, weight: 400, mono: true, lh: 1.0, color: ACCENT, trans: 'flip' }
       ];
       if (ctx.settings.seconds) {
         timeRow.push({ t: 'box', pad: [0, 0, 0, 4], child: {
           t: 'text', font: 'TsukushiBMaru', v: two(now.getSeconds()), size: Math.round(big * 0.42),
-          weight: 400, mono: true, opacity: 0.45, trans: true } });
+          weight: 400, mono: true, opacity: 0.45, trans: 'flip' } });
       }
       if (suffix) {
         timeRow.push({ t: 'box', pad: [0, 0, 0, 5], child: {

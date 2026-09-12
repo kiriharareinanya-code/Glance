@@ -296,6 +296,90 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets("trans:'flip' 的文字内容变化走机械翻页（时钟数字）", (tester) async {
+    Future<void> pumpV(String v) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: PluginView(
+            tree: {'t': 'text', 'v': v, 'trans': 'flip'},
+            onEvent: (_, _) {},
+          ),
+        ),
+      ));
+    }
+
+    await pumpV('07');
+    await tester.pump();
+    await pumpV('08');
+    await tester.pump(); // 翻页起步
+
+    // 翻页必须同时画出旧值和新值（各取上/下半页），否则中间会缺半页
+    expect(find.text('07'), findsWidgets, reason: '下落页还在翻，旧值不能提前消失');
+    expect(find.text('08'), findsWidgets, reason: '新的上半页同帧就位，不能有空白帧');
+
+    // 翻到一半：上半页转到侧立，下半页还没起翻——两半都在
+    await tester.pump(const Duration(milliseconds: 210));
+    expect(find.text('07'), findsWidgets, reason: '中线附近旧的下半页仍被压着');
+    expect(find.text('08'), findsWidgets, reason: '上半页已经换成新值');
+
+    await tester.pumpAndSettle();
+    expect(find.text('07'), findsNothing, reason: '翻完旧值必须退场，不留残影');
+    expect(find.text('08'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets("trans:'flip' 在关闭动画时直接换值（不翻）", (tester) async {
+    Future<void> pumpV(String v) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: PluginView(
+            tree: {'t': 'text', 'v': v, 'trans': 'flip'},
+            onEvent: (_, _) {},
+            animate: false,
+          ),
+        ),
+      ));
+    }
+
+    await pumpV('07');
+    await tester.pump();
+    await pumpV('08');
+    await tester.pump();
+    expect(find.text('07'), findsNothing, reason: '动画总开关关掉时不留旧值');
+    expect(find.text('08'), findsOneWidget);
+  });
+
+  testWidgets('时/分/秒三位同时翻页，互不干扰', (tester) async {
+    Map<String, Object?> treeOf(String h, String m, String sec) => {
+          't': 'row',
+          'children': [
+            {'t': 'text', 'v': h, 'trans': 'flip'},
+            {'t': 'text', 'v': m, 'trans': 'flip'},
+            {'t': 'text', 'v': sec, 'trans': 'flip'},
+          ],
+        };
+
+    Future<void> pumpT(String h, String m, String sec) async {
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: PluginView(tree: treeOf(h, m, sec), onEvent: (_, _) {}),
+        ),
+      ));
+    }
+
+    await pumpT('07', '59', '59');
+    await tester.pump();
+    await pumpT('08', '00', '00');
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    expect(find.text('08'), findsWidgets);
+    expect(find.text('00'), findsWidgets);
+    expect(find.text('07'), findsNothing);
+    expect(find.text('59'), findsNothing, reason: '三位的旧值都要退场');
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('没声明 trans 的文字内容变化仍是原地替换（老契约不变）', (tester) async {
     Future<void> pumpV(String v) async {
       await tester.pumpWidget(MaterialApp(
