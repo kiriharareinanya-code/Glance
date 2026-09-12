@@ -1,4 +1,4 @@
-/// Vectra（MacroSTAR Studio）· Flutter + Win32 版
+/// Glance · 一瞥 · Flutter + Win32 版
 ///
 /// 单进程、单窗口：一个覆盖整个虚拟屏幕的透明置顶窗口装下所有磁贴，
 /// 窗口区域被裁成"所有卡片圆角矩形的并集"，区域外的点击自然落到桌面。
@@ -150,7 +150,7 @@ Future<void> _bootstrap(List<String> args) async {
   // --test-sentry 的异常在 init 之后发，确保 SDK 已经就绪
   if (args.contains('--test-sentry')) {
     try {
-      throw StateError('sentry connectivity test from Vectra $appVersion');
+      throw StateError('sentry connectivity test from Glance $appVersion');
     } catch (e, st) {
       await sentry.reportExceptionToSentry(e, st);
     }

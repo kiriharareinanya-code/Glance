@@ -62,7 +62,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   }
 
   FlutterWindow window(project);
-  if (!window.CreateOverlay(L"Vectra", vx, vy, vw, vh, /*topmost=*/raise)) {
+  if (!window.CreateOverlay(L"Glance 一瞥", vx, vy, vw, vh, /*topmost=*/raise)) {
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);

@@ -8,7 +8,7 @@ rem    build_release.bat --skip    skip flutter build (use existing)
 rem
 rem  Output:
 rem    Release folder: build\windows\x64\runner\Release\
-rem    Portable:       installer\out\Vectra-<version>-portable.exe
+rem    Portable:       installer\out\Glance-<version>-portable.exe
 rem
 rem  The version comes from pubspec.yaml and nowhere else. `A.B.C+D` there
 rem  becomes the four-part Windows version A.B.C.D used for the exe, the
@@ -36,7 +36,7 @@ if not defined PUBSPEC_VERSION (
 rem  0.1.1+120 -> 0.1.1.120
 set "APP_VERSION=%PUBSPEC_VERSION:+=.%"
 echo [ver] %APP_VERSION%  (from pubspec.yaml: %PUBSPEC_VERSION%)
-set "OUT_PORTABLE=%OUT_DIR%\Vectra-%APP_VERSION%-portable.exe"
+set "OUT_PORTABLE=%OUT_DIR%\Glance-%APP_VERSION%-portable.exe"
 
 rem ---- find ISCC.exe ----
 set "ISCC="
@@ -64,8 +64,8 @@ if /i not "%~1"=="--skip" (
     echo [1/3] flutter build skipped (--skip)
 )
 
-if not exist "%RELEASE%\vectra.exe" (
-    echo [ERROR] %RELEASE%\vectra.exe not found.
+if not exist "%RELEASE%\glance.exe" (
+    echo [ERROR] %RELEASE%\glance.exe not found.
     exit /b 1
 )
 
@@ -93,6 +93,6 @@ if errorlevel 1 (
 
 echo.
 echo Output:
-echo   %RELEASE%\vectra.exe   (release folder, copy as-is)
+echo   %RELEASE%\glance.exe   (release folder, copy as-is)
 echo   %OUT_PORTABLE%
 endlocal

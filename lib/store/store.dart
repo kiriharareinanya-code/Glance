@@ -264,7 +264,7 @@ class Store {
       throw const FormatException('不是有效的配置文件');
     }
     if (!raw.containsKey('settings') || !raw.containsKey('cards')) {
-      throw const FormatException('缺少 settings / cards，可能不是 Vectra 的备份');
+      throw const FormatException('缺少 settings / cards，可能不是 Glance 的备份');
     }
     return _stateFromJson(raw);
   }

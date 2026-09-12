@@ -344,7 +344,7 @@ class AppRootState extends State<AppRoot> with TrayListener {
     } catch (_) {
       // 图标缺失不该让应用起不来
     }
-    await trayManager.setToolTip('Vectra');
+    await trayManager.setToolTip('Glance · 一瞥');
     await _rebuildTrayMenu();
   }
 

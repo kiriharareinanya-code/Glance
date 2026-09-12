@@ -26,7 +26,7 @@ for /f "tokens=2 delims= " %%v in ('findstr /b /c:"version:" "%ROOT%\pubspec.yam
 )
 set "APP_VERSION=%PUBSPEC_VERSION:+=.%"
 
-set "OUT_EXE=%OUT_DIR%\Vectra-%APP_VERSION%-???????.exe"
+set "OUT_EXE=%OUT_DIR%\Glance-%APP_VERSION%-???????.exe"
 
 rem ---- ?? Enigma ?????��??? ----
 set "EVB="
@@ -42,7 +42,7 @@ if not defined EVB (
 if not exist "%EVB_PROJ%" (
     echo [????] ??????????? %EVB_PROJ%
     echo        ???? Enigma Virtual Box GUI ??????��?
-    echo          1. ??????? %RELEASE%\vectra.exe
+    echo          1. ??????? %RELEASE%\glance.exe
     echo          2. Add Folder Recursive ??? %RELEASE%
     echo          3. Options - File Options ??? Compress files
     echo          4. ????? %EVB_PROJ%
@@ -65,8 +65,8 @@ if /i not "%~1"=="--skip" (
 )
 
 rem ---- ?????? ----
-if not exist "%RELEASE%\vectra.exe" (
-    echo [????] ????? %RELEASE%\vectra.exe
+if not exist "%RELEASE%\glance.exe" (
+    echo [????] ????? %RELEASE%\glance.exe
     exit /b 1
 )
 

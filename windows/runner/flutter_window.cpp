@@ -37,7 +37,10 @@ constexpr UINT kRevealFallbackMs = 8000;
 // 开机自启走 HKCU 的 Run 键：不需要管理员权限，也不用装计划任务。
 constexpr const wchar_t kRunKeyPath[] =
     L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-constexpr const wchar_t kRunValueName[] = L"Vectra";
+// 自启动条目名（改名后写入 Glance）。旧名 "Vectra" 会在读写时被清理，
+// 否则老用户升级后会留下两条重复的自启项（见 CleanupLegacyRunValue）。
+constexpr const wchar_t kRunValueName[] = L"Glance";
+constexpr const wchar_t kLegacyRunValueName[] = L"Vectra";
 
 std::wstring CurrentExePath() {
   wchar_t buf[MAX_PATH]{};
@@ -98,12 +101,25 @@ std::wstring StripQuotes(const std::wstring& s) {
   return s;
 }
 
+// 清掉改名前的自启动条目（旧值名 "Vectra"）。不清的话，改名前开过自启的
+// 用户升级后会同时存在 Vectra / Glance 两条，开机拉起两个实例。
+void DeleteLegacyRunValue() {
+  HKEY key = nullptr;
+  if (::RegOpenKeyExW(HKEY_CURRENT_USER, kRunKeyPath, 0, KEY_WRITE, &key) !=
+      ERROR_SUCCESS) {
+    return;
+  }
+  ::RegDeleteValueW(key, kLegacyRunValueName);
+  ::RegCloseKey(key);
+}
+
 bool WriteRunValue(const std::wstring& command) {
   HKEY key = nullptr;
   if (::RegCreateKeyExW(HKEY_CURRENT_USER, kRunKeyPath, 0, nullptr, 0,
                         KEY_WRITE, nullptr, &key, nullptr) != ERROR_SUCCESS) {
     return false;
   }
+  DeleteLegacyRunValue();
   const LSTATUS st = ::RegSetValueExW(
       key, kRunValueName, 0, REG_SZ,
       reinterpret_cast<const BYTE*>(command.c_str()),
@@ -119,6 +135,8 @@ bool DeleteRunValue() {
     return true;  // 键都不在，等于已经关了
   }
   const LSTATUS st = ::RegDeleteValueW(key, kRunValueName);
+  // 关闭自启时把改名前的旧条目一并清掉，避免残留
+  ::RegDeleteValueW(key, kLegacyRunValueName);
   ::RegCloseKey(key);
   return st == ERROR_SUCCESS || st == ERROR_FILE_NOT_FOUND;
 }
@@ -684,7 +702,7 @@ void HandleMethodCall(
   //
   // 便携版会被整个文件夹搬走，搬完之后 Run 键里还指着老路径，自启就悄悄失效了。
   // 所以这里发现登记的路径和当前 exe 对不上时顺手改成当前路径——用户的意图是
-  // 「开机启动 Vectra」，不是「开机启动某个特定路径」。
+  // 「开机启动 Glance」，不是「开机启动某个特定路径」。
   if (call.method_name() == "isAutoStart") {
     const std::wstring recorded = StripQuotes(ReadRunValue());
     if (recorded.empty()) {

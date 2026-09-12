@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 128" width="420" height="128" role="img">
+  <title>Glance 一瞥 · 横版字标</title>
+  <desc>月与山标记加字标：Glance 主名、一瞥中文名、桌面组件层定位语</desc>
+  <defs>
+    <clipPath id="tileLk"><rect x="2" y="2" width="124" height="124" rx="30"/></clipPath>
+  </defs>
+  <rect x="2" y="2" width="124" height="124" rx="30" fill="#16263C"/>
+  <g clip-path="url(#tileLk)">
+    <circle cx="84" cy="44" r="26" fill="#F1E8D6" opacity="0.12"/>
+    <circle cx="84" cy="44" r="19" fill="#F1E8D6"/>
+    <circle cx="26" cy="34" r="1.6" fill="#DDE5EE" opacity="0.55"/>
+    <circle cx="46" cy="24" r="1.2" fill="#DDE5EE" opacity="0.4"/>
+    <path d="M2 96 L20 74 Q26 67 32 74 L48 92 L68 70 Q74 63 80 70 L98 90 L126 72 L126 126 L2 126 Z" fill="#3A5470"/>
+    <path d="M2 108 L26 86 Q32 79 38 86 L60 106 L84 82 Q90 75 96 82 L126 100 L126 126 L2 126 Z" fill="#2A4058"/>
+    <path d="M2 118 L34 100 Q40 96 46 100 L74 118 L104 100 Q110 96 116 100 L126 108 L126 126 L2 126 Z" fill="#1E3145"/>
+  </g>
+  <text x="164" y="68" font-family="Segoe UI, HarmonyOS Sans SC, sans-serif"
+        font-size="42" font-weight="500" fill="#1B2A41">Glance</text>
+  <text x="166" y="98" font-family="HarmonyOS Sans SC, Segoe UI, sans-serif"
+        font-size="20" font-weight="500" fill="#3A5470">一瞥</text>
+  <text x="222" y="98" font-family="HarmonyOS Sans SC, Segoe UI, sans-serif"
+        font-size="13" fill="#8A94A0">桌面组件层 · 一眼可见</text>
+</svg>

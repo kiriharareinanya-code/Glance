@@ -1,4 +1,4 @@
-# Vectra 插件开发
+# Glance 插件开发
 
 一个插件就是一个目录、两个文件：`manifest.json` 说明它是什么，`index.js` 决定它长什么样。
 没有构建步骤、没有依赖安装、没有打包——写完把目录丢进 `userdata\plugins\`，重新扫描一下就能用。
@@ -700,4 +700,4 @@ onLoad: function (api) {
 ---
 
 有问题或者发现文档和实际对不上，欢迎提 issue：
-[github.com/MacroSTAR-Org/Vectra](https://github.com/MacroSTAR-Org/Vectra)
+[github.com/kiriharareinanya-code/Glance](https://github.com/kiriharareinanya-code/Glance)

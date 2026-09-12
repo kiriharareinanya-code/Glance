@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img">
+  <title>Glance 一瞥 · 月与山 · 浅色版</title>
+  <desc>浅色版：晨雾灰蓝底配淡金圆月，山脊同样只分明暗，适合浅色界面</desc>
+  <defs>
+    <clipPath id="tileL"><rect x="2" y="2" width="124" height="124" rx="30"/></clipPath>
+  </defs>
+  <rect x="2" y="2" width="124" height="124" rx="30" fill="#EDF1F5"/>
+  <g clip-path="url(#tileL)">
+    <circle cx="84" cy="44" r="26" fill="#C9A96A" opacity="0.18"/>
+    <circle cx="84" cy="44" r="19" fill="#F0DDB4"/>
+    <circle cx="26" cy="34" r="1.6" fill="#9AB0C2" opacity="0.7"/>
+    <circle cx="46" cy="24" r="1.2" fill="#9AB0C2" opacity="0.5"/>
+    <path d="M2 96 L20 74 Q26 67 32 74 L48 92 L68 70 Q74 63 80 70 L98 90 L126 72 L126 126 L2 126 Z" fill="#C3D0DC"/>
+    <path d="M2 108 L26 86 Q32 79 38 86 L60 106 L84 82 Q90 75 96 82 L126 100 L126 126 L2 126 Z" fill="#A7BACB"/>
+    <path d="M2 118 L34 100 Q40 96 46 100 L74 118 L104 100 Q110 96 116 100 L126 108 L126 126 L2 126 Z" fill="#86A2B8"/>
+  </g>
+</svg>

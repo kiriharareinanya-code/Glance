@@ -61,7 +61,7 @@ class PanelApp extends StatelessWidget {
         final light = effectiveBrightness(state.settings) == Brightness.light;
         return FluentApp(
           debugShowCheckedModeBanner: false,
-          title: 'Vectra 设置',
+          title: 'Glance 设置',
           color: light ? const Color(0xFFF3F3F6) : const Color(0xFF171B1B),
           // FluentApp 默认就会带上 FluentLocalizations + Material/Cupertino/Widgets
           // 三套 Global delegates 和它的 supportedLocales（含 zh_CN），不用自己再传

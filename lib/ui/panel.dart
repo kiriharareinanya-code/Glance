@@ -492,7 +492,7 @@ class _ControlPanelState extends State<ControlPanel> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Vectra',
+                Text('Glance · 一瞥',
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -740,7 +740,7 @@ class _ControlPanelState extends State<ControlPanel> {
                   width: 16, height: 16,
                   filterQuality: FilterQuality.medium),
               const SizedBox(width: 8),
-              Text('Vectra 设置',
+              Text('Glance 设置',
                   style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -2117,7 +2117,7 @@ class _ControlPanelState extends State<ControlPanel> {
             builder: (context, snap, _) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('当前版本 Vectra $appVersion',
+                Text('当前版本 Glance $appVersion',
                     style: TextStyle(fontSize: 11, color: _c.ink38)),
                 const SizedBox(height: 10),
                 _updateBody(snap),
@@ -2184,7 +2184,7 @@ class _ControlPanelState extends State<ControlPanel> {
                   style: TextStyle(fontSize: 12, color: _c.ink38)),
             )
           else
-            _switch('开机时自动启动 Vectra', _autoStart!, _toggleAutoStart),
+            _switch('开机时自动启动 Glance', _autoStart!, _toggleAutoStart),
           Text(
             '登记在当前用户的启动项里，不需要管理员权限。\n'
             '便携版整个文件夹搬走后，下次打开设置会自动把路径修正过来。',
@@ -2288,7 +2288,7 @@ class _ControlPanelState extends State<ControlPanel> {
     try {
       final stamp = DateTime.now();
       String two(int v) => v.toString().padLeft(2, '0');
-      final name = 'vectra-backup-${stamp.year}${two(stamp.month)}'
+      final name = 'glance-backup-${stamp.year}${two(stamp.month)}'
           '${two(stamp.day)}-${two(stamp.hour)}${two(stamp.minute)}.json';
       final path = await FilePicker.saveFile(
         dialogTitle: '导出布局备份',
@@ -2408,7 +2408,7 @@ class _ControlPanelState extends State<ControlPanel> {
         ),
         const SizedBox(height: 16),
         Center(
-          child: Text('Vectra',
+          child: Text('Glance · 一瞥',
               style: TextStyle(
                   fontSize: 24, fontWeight: FontWeight.w600, color: _c.ink)),
         ),

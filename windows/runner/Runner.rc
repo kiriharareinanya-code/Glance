@@ -96,13 +96,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "MacroSTAR Studio" "\0"
-            VALUE "FileDescription", "Vectra" "\0"
+            VALUE "CompanyName", "KiriharaReina" "\0"
+            VALUE "FileDescription", "Glance 一瞥" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "vectra" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 MacroSTAR Studio. All rights reserved." "\0"
-            VALUE "OriginalFilename", "vectra.exe" "\0"
-            VALUE "ProductName", "Vectra" "\0"
+            VALUE "InternalName", "glance" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 KiriharaReina. All rights reserved." "\0"
+            VALUE "OriginalFilename", "glance.exe" "\0"
+            VALUE "ProductName", "Glance 一瞥" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

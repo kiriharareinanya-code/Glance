@@ -11,9 +11,9 @@
 ;
 ; 编译：ISCC.exe installer\vectra_portable.iss
 
-#define AppName "Vectra"
-#define AppNameEn "Vectra"
-#define AppExe "vectra.exe"
+#define AppName "Glance 一瞥"
+#define AppNameEn "Glance"
+#define AppExe "glance.exe"
 #define SrcDir "..\build\windows\x64\runner\Release"
 
 ; 版本号由 build_release.bat 从 pubspec.yaml 读出后用 /DAppVersion= 传进来，
@@ -28,12 +28,12 @@ AppId={{C1522C3A-7782-42CE-A7EC-4C48431FD1D2}}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppVerName={#AppName} v{#AppVersion} 便携版
-AppPublisher=MacroSTAR Studio
+AppPublisher=KiriharaReina
 ; {src} = 这个 exe 自己所在的目录，所以是"解到自己旁边"
 DefaultDirName={src}\{#AppNameEn}
 PrivilegesRequired=lowest
 OutputDir=out
-OutputBaseFilename={#AppName}-{#AppVersion}-便携版
+OutputBaseFilename={#AppNameEn}-{#AppVersion}-portable
 SetupIconFile=..\windows\runner\resources\app_icon.ico
 Compression=lzma2/max
 SolidCompression=yes
