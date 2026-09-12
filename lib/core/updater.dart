@@ -176,7 +176,8 @@ class UnisphereUpdateSource implements UpdateSource {
 ///
 /// 国内直连时通时不通，只做兜底；查的是 latest release。
 class GitHubUpdateSource implements UpdateSource {
-  GitHubUpdateSource({this.repo = 'MacroSTAR-Org/Vectra', http.Client? client})
+  GitHubUpdateSource(
+      {this.repo = 'kiriharareinanya-code/Glance', http.Client? client})
       : _client = client ?? http.Client();
 
   final String repo;
@@ -210,7 +211,7 @@ class GitHubUpdateSource implements UpdateSource {
       final j = jsonDecode(utf8.decode(res.bodyBytes));
       if (j is! Map) return null;
       final m = j.cast<String, Object?>();
-      // tag 形如 v0.1.2.156，也可能没有 v 前缀
+      // tag 形如 v0.2.0.126，也可能没有 v 前缀
       final tag = (m['tag_name'] as String? ?? '').trim();
       final version = tag.startsWith('v') || tag.startsWith('V')
           ? tag.substring(1)
@@ -219,7 +220,7 @@ class GitHubUpdateSource implements UpdateSource {
       if (!RegExp(r'^\d+(\.\d+)*$').hasMatch(version)) return null;
       final assets = m['assets'];
       if (assets is! List) return null;
-      final assetName = 'Vectra-$version-便携版.exe';
+      final assetName = 'Glance-$version-portable.exe';
       for (final a in assets) {
         if (a is! Map) continue;
         if (a['name'] == assetName) {
@@ -305,7 +306,7 @@ class UpdateDownloader {
         ? uri.pathSegments.last
         : '');
     if (!name.toLowerCase().endsWith('.exe')) {
-      name = 'Vectra-${u.version}.exe';
+      name = 'Glance-${u.version}.exe';
     }
     await Directory(dir).create(recursive: true);
     final finalPath = p.join(dir, name);

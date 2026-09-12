@@ -33,8 +33,8 @@ void main() {
 
   test('透传安装器路径与目标目录', () async {
     const installer =
-        r'C:\Users\Seren\AppData\update\Vectra-0.1.2.156-便携版.exe';
-    const dir = r'I:\Tools\Vectra';
+        r'C:\Users\KiriharaReina\AppData\update\Glance-0.2.0.126-portable.exe';
+    const dir = r'I:\Tools\Glance';
     final ok = await NativeBridge.runUpdateInstaller(installer, dir);
     expect(ok, isTrue);
     expect(calls, hasLength(1));

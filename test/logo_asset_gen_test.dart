@@ -56,7 +56,8 @@ Path _ridgesNear() => Path()
 
 /// 按 SVG 的 128 坐标系绘制标记；[scale] 决定输出像素。
 /// [light] 为 true 时用浅色版配色（晨雾）。
-Future<Uint8List> _renderMark(double scale, {bool light = false}) async {
+Future<Uint8List> _renderMark(double scale,
+    {bool light = false, bool simple = false}) async {
   const s = 128.0;
   final px = s * scale;
   final recorder = ui.PictureRecorder();
@@ -80,16 +81,18 @@ Future<Uint8List> _renderMark(double scale, {bool light = false}) async {
   canvas.drawCircle(const Offset(84, 44), 19,
       Paint()..color = light ? const Color(0xFFF0DDB4) : const Color(0xFFF1E8D6));
 
-  final star = light ? const Color(0xFF9AB0C2) : const Color(0xFFDDE5EE);
-  canvas.drawCircle(const Offset(26, 34), 1.6,
-      Paint()..color = star.withValues(alpha: light ? 0.7 : 0.55));
-  canvas.drawCircle(const Offset(46, 24), 1.2,
-      Paint()..color = star.withValues(alpha: light ? 0.5 : 0.4));
+  if (!simple) {
+    final star = light ? const Color(0xFF9AB0C2) : const Color(0xFFDDE5EE);
+    canvas.drawCircle(const Offset(26, 34), 1.6,
+        Paint()..color = star.withValues(alpha: light ? 0.7 : 0.55));
+    canvas.drawCircle(const Offset(46, 24), 1.2,
+        Paint()..color = star.withValues(alpha: light ? 0.5 : 0.4));
 
-  canvas.drawPath(
-      _ridges(),
-      Paint()
-        ..color = light ? const Color(0xFFC3D0DC) : const Color(0xFF3A5470));
+    canvas.drawPath(
+        _ridges(),
+        Paint()
+          ..color = light ? const Color(0xFFC3D0DC) : const Color(0xFF3A5470));
+  }
   canvas.drawPath(
       _ridgesMid(),
       Paint()
@@ -108,6 +111,10 @@ Future<Uint8List> _renderMark(double scale, {bool light = false}) async {
 }
 
 void main() {
+  // 图标要的尺寸档：Windows 会按 DPI/场景自己挑（任务栏 32、托盘 16、
+  // 资源管理器大图标 256）。16px 是下限，必须还能看出"月亮+山"。
+  const icoSizes = [16, 24, 32, 48, 64, 128, 256];
+
   testWidgets('生成 assets/logo.png（来源：assets/branding/glance-mark.svg）',
       (tester) async {
     await tester.runAsync(() async {
@@ -117,9 +124,18 @@ void main() {
       await File('assets/branding/glance-mark-light-128.png')
           .writeAsBytes(await _renderMark(1, light: true));
 
+      // ICO 用的各档 PNG 帧，交给 tool/make_icons.py 装进 ICO 容器
+      final iconsDir = Directory('assets/branding/ico-frames');
+      if (!iconsDir.existsSync()) iconsDir.createSync(recursive: true);
+      for (final size in icoSizes) {
+        // ≤24px 走简化版：去掉星星和最远那层山脊，否则缩到 16px 糊成一团
+        final bytes = await _renderMark(size / 128, simple: size <= 24);
+        await File('${iconsDir.path}/mark-$size.png').writeAsBytes(bytes);
+      }
+
       // ignore: avoid_print
-      print('已生成 assets/logo.png（768px）、'
-          'assets/branding/glance-mark-128.png、glance-mark-light-128.png');
+      print('已生成 assets/logo.png（768px）、两版 128px、'
+          'assets/branding/ico-frames/mark-{${icoSizes.join(",")}}.png');
     });
   });
 }

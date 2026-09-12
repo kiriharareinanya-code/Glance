@@ -6,24 +6,26 @@
 
 ## 1. 版本号
 
-**唯一出处**：`pubspec.yaml` 里的 `version: A.B.C+D`。
+**两层版本，别混用**（当前 `Forst-0.2.126`）：
 
-- Windows 四段版本：`A.B.C.D`（如 `0.1.2.146`）
-- 便携包文件名：`Vectra-0.1.2.146-便携版.exe`
-- HTTP User-Agent：`Vectra/0.1.2.146`
+| 层 | 出处 | 用途 |
+|:---|:---|:---|
+| 数值版本 `0.2.0.126` | `pubspec.yaml` 的 `version: A.B.C+D` | exe 文件版本、更新检查的四段比较 |
+| 显示版本 `Forst-0.2.126` | `lib/core/app_version.dart` 的 `kVersionDisplay` | 关于页、日志、User-Agent、Sentry release |
 
-**每次功能完成，版本号 +2**（`0.1.2.146` → `0.1.2.148` → `0.1.2.150`）。不跳号，不留空档。
+- Windows 四段版本：`A.B.C.D`（exe 资源里就是它）
+- 便携包文件名：`Glance-0.2.126-portable.exe`
+- HTTP User-Agent：`Glance/Forst-0.2.126`
 
-**改版本号的方法**：
+**为什么拆两层**：显示串带大版本名（`Forst-`），不是四段数字，拿去和远端
+版本比较会被 `compareVersion` 判成“相同”，**自动更新会永远静默**。所以
+凡是比较版本的代码（`runUpdateCheck`）必须用 `appVersionNumeric`。
 
-```powershell
-$f = "pubspec.yaml"
-$t = [IO.File]::ReadAllText($f, [Text.Encoding]::UTF8)
-$t = $t -replace "version: 0\.1\.2\+\d+", "version: 0.1.2+148"
-[IO.File]::WriteAllText($f, $t, (New-Object Text.UTF8Encoding($false)))
-```
+**改版本号**：`pubspec.yaml` 的 `version:` 和 `app_version.dart` 的
+`kVersionDisplay` 一起改，两处对不上会让关于页显示和 exe 属性不一致。
+每次功能完成数值版本 +1（`0.2.0.126` → `0.2.0.127`）。
 
-注意 UTF-8 无 BOM。不要用记事本改。
+改 pubspec 时注意 UTF-8 无 BOM，不要用记事本改。
 
 ---
 
@@ -63,7 +65,7 @@ tool\build_release.bat
 三步走：
 1. `flutter build windows --release --no-pub`
 2. 复制 VC++ 运行时 DLL（`msvcp140.dll` 等）到 Release 目录
-3. Inno Setup 打便携包 → `installer\out\Vectra-<版本>-便携版.exe`
+3. Inno Setup 打便携包 → `installer\out\Glance-<版本>-portable.exe`
 
 **注意**：`build_release.bat` 会自动设好 VS 环境。直接跑 `flutter build` 有时会因为 CMake 缓存问题失败，用 `build_release.bat` 更稳。
 
@@ -430,7 +432,7 @@ C++ → Dart：`setMethodCallHandler` 回调
 GET /api/v1/app/latest
 → {
     "version": "0.1.2.154",              // 四段版本号
-    "downloadUrl": "https://.../Vectra-0.1.2.154-便携版.exe",
+    "downloadUrl": "https://.../Glance-0.2.0.126-portable.exe",
     "notes": "Markdown 更新日志",          // 可选
     "sha256": "…"                          // 可选，v1 只记录不校验
   }
@@ -441,8 +443,8 @@ GET /api/v1/app/latest
 - `downloadUrl` 同主机时协议端口跟着 base 走（复用市场的归一化）
 - 版本比较是四段语义化数值比较（`compareVersion`），"不高于当前"不算更新
 
-GitHub Releases 是兜底源：`api.github.com/repos/MacroSTAR-Org/Vectra/releases/latest`，
-tag 形如 `v0.1.2.154`，资产名 `Vectra-<版本>-便携版.exe`。
+GitHub Releases 是兜底源：`api.github.com/repos/kiriharareinanya-code/Glance/releases/latest`，
+tag 形如 `v0.2.0.126`，资产名 `Glance-<版本>-portable.exe`。
 
 安装方式：下载便携包到 `userdata\update\` → 保存退出 → 拉起安装器
 `/VERYSILENT /DIR=<程序目录>`（Inno 覆盖 exe/dll/data，不碰 userdata）→
@@ -454,7 +456,7 @@ tag 形如 `v0.1.2.154`，资产名 `Vectra-<版本>-便携版.exe`。
 
 ### 11.1 Sentry（Sentry SaaS）
 
-- DSN 写死在 `lib/core/sentry.dart`（macrostar-studio / flutter 项目）
+- DSN 写死在 `lib/core/sentry.dart`
 - 100% 采样
 - `--no-sentry` 关闭
 - `--test-sentry` 验证上报链路

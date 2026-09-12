@@ -136,14 +136,14 @@ void main() {
 
     test('从 tag 和可预测资产名解出更新', () async {
       final src = GitHubUpdateSource(repo: 'org/vectra', client: MockClient(
-        (req) async => ghRelease(assets: ['Vectra-0.1.2.156-便携版.exe', 'source.zip']),
+        (req) async => ghRelease(assets: ['Glance-0.1.2.156-portable.exe', 'source.zip']),
       ));
       final u = await src.latest();
       expect(u, isNotNull);
       expect(u!.version, '0.1.2.156'); // v 前缀剥掉
       expect(u.source, 'github');
       expect(u.notes, '更新日志内容');
-      expect(u.downloadUrl, 'https://github.com/dl/Vectra-0.1.2.156-便携版.exe');
+      expect(u.downloadUrl, 'https://github.com/dl/Glance-0.1.2.156-portable.exe');
     });
 
     test('请求打向 api.github.com 且带 Accept 头', () async {
@@ -163,7 +163,7 @@ void main() {
 
     test('tag 不带 v 前缀也认', () async {
       final src = GitHubUpdateSource(repo: 'org/vectra', client: MockClient(
-        (req) async => ghRelease(tag: '0.1.2.156', assets: ['Vectra-0.1.2.156-便携版.exe']),
+        (req) async => ghRelease(tag: '0.1.2.156', assets: ['Glance-0.1.2.156-portable.exe']),
       ));
       expect((await src.latest())!.version, '0.1.2.156');
     });
