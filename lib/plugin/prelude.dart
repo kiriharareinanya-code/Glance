@@ -1,9 +1,15 @@
-/// 注入到每个插件 QuickJS 运行时里的引导脚本。
+/// 注入到共享 QuickJS 运行时里的引导脚本。
 ///
 /// QuickJS 是干净的 ES2020 引擎：没有 DOM、没有 fetch、没有 setInterval。
 /// 宿主能力全部通过 lw.call(method, args) 发到 Dart，再由 Dart 回调 lw.__resolve。
 /// 之所以不用 sendMessage 的返回值：flutter_js 的 onMessage 处理器返回值被丢弃，
 /// 只能走"单向发 + 回调"这一条路。
+///
+/// 共享运行时之后，这段脚本对整个进程只求值一次，做两件全局的事：
+///   1. Date 时区修正（所有插件共享同一个时区偏移，放全局正好）；
+///   2. 定义 `__lwCreate(key)` 工厂——每 个插件调用一次，拿到一份**私有**的
+///      lw API。pending / timers / handlers / impl / ctx 全在工厂闭包里，
+///      插件之间互不可见；post 出去的每条消息都带 `__lw: key`，宿主据此路由。
 library;
 
 const String kPrelude = r'''
@@ -31,18 +37,25 @@ const String kPrelude = r'''
   Date = LWDate;
 })();
 
-var lw = (function () {
+globalThis.__lwCreate = function (key) {
   var pending = {};      // 宿主调用的回调
   var seq = 0;
   var timers = {};       // 由 Dart 持有真实定时器，这里只存函数
+  var timerSeq = 0;
   var handlers = {};     // 声明式 UI 里的事件处理器
   var handlerSeq = 0;
   var impl = null;
   var ctx = null;
 
-  function post(payload) {
-    sendMessage('lw', JSON.stringify(payload));
+  // 出站消息统一打上 __lw 标签：共享运行时里所有插件走同一个 sendMessage，
+  // 宿主靠这个标签把消息路由回对应的插件实例。
+  function __send(ch, payloadStr) {
+    var o = JSON.parse(payloadStr);
+    o.__lw = key;
+    sendMessage(ch, JSON.stringify(o));
   }
+
+  function post(payload) { __send('lw', JSON.stringify(payload)); }
 
   function call(method, args) {
     var id = 'c' + (++seq);
@@ -103,7 +116,6 @@ var lw = (function () {
   }
 
   // ---- 定时器：Dart 持有句柄，卸载时统一回收 ----
-  var timerSeq = 0;
   function setInterval(fn, ms) {
     var id = 't' + (++timerSeq);
     timers[id] = fn;
@@ -243,6 +255,7 @@ var lw = (function () {
     setTimeout: setTimeout,
     setInterval: setInterval,
     clearTimer: clearTimer,
+    __send: __send,
     __mount: __mount,
     __resolve: __resolve,
     __timer: __timer,
@@ -252,12 +265,5 @@ var lw = (function () {
     __theme: __theme,
     __unmount: __unmount
   };
-})();
-
-// 覆盖 flutter_js 自带的 setTimeout：那一份不可取消，插件卸载后仍会触发。
-// 这里三个全局都换成 lw 内部实现，定时器句柄由 Dart 持有，卸载时统一回收。
-var setTimeout = lw.setTimeout;
-var setInterval = lw.setInterval;
-var clearTimeout = lw.clearTimer;
-var clearInterval = lw.clearTimer;
+};
 ''';
