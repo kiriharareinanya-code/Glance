@@ -7,7 +7,6 @@ import 'dart:ui' as ui;
 import 'package:flutter_test/flutter_test.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show Uint8List;
-import 'package:vectra/model/settings.dart';
 import 'package:flutter/material.dart' show Icons;
 import 'package:vectra/plugin/images.dart';
 import 'package:vectra/plugin/morph_icons.dart' show kMorphIconPaths;

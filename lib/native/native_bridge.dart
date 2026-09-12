@@ -61,25 +61,6 @@ class NativeBridge {
   static Future<void> setDragging(bool on) =>
       _channel.invokeMethod<void>('setDragging', on);
 
-  /// 注册全局快捷键。mods 是 Win32 修饰位（ALT=1 CTRL=2 SHIFT=4 WIN=8），
-  /// vk 是虚拟键码。返回是否注册成功（被别的程序占用会失败）。
-  static Future<bool> registerHotkey(int mods, int vk) async =>
-      await _channel.invokeMethod<bool>(
-          'registerHotkey', {'mods': mods, 'vk': vk}) ??
-      false;
-
-  // 这里原先有个 onHotkey：全局快捷键早已改成 C++ 里直接切换侧边栏窗口，
-  // Dart 根本收不到那条消息，是死代码，已删除。
-
-  /// native 请求打开控制面板，参数是要定位到的标签页（目前只有 'ai'）。
-  ///
-  /// 用途：AI 侧边栏跑在另一个 Flutter 引擎里，点它的齿轮时没法直接调到这边，
-  /// 两个引擎不共享 isolate。只能由侧边栏喊 native、native 再喊这边。
-  static void onOpenPanel(void Function(String tab) handler) {
-    _ensureHandler();
-    _onOpenPanel = handler;
-  }
-
   /// 显示器插拔后 native 通知这边（磁贴窗口已重摆到新虚拟屏），
   /// 用来迁移卡片、刷新壁纸。
   static void onDisplayChanged(VoidCallback handler) {
@@ -97,7 +78,6 @@ class NativeBridge {
   static Future<bool> getSystemTheme() async =>
       await _channel.invokeMethod<bool>('getSystemTheme') ?? false;
 
-  static void Function(String tab)? _onOpenPanel;
   static VoidCallback? _onDisplayChanged;
   static VoidCallback? _onThemeChanged;
   static bool _handlerInstalled = false;
@@ -109,8 +89,6 @@ class NativeBridge {
     _handlerInstalled = true;
     _channel.setMethodCallHandler((call) async {
       switch (call.method) {
-        case 'openPanel':
-          _onOpenPanel?.call('${call.arguments ?? ''}');
         case 'displayChanged':
           _onDisplayChanged?.call();
         case 'themeChanged':
@@ -204,12 +182,6 @@ class NativeBridge {
   /// 全部就绪，让启动幕布收尾淡出。
   static Future<void> splashFinish() =>
       _channel.invokeMethod<void>('splashFinish');
-
-  /// 通知侧边栏那个引擎重新读一遍配置。
-  /// 两个引擎不共享 isolate，AI 配置由本引擎写进 config.json，
-  /// 不喊一声的话侧边栏要等到下次唤出才知道变了。
-  static Future<void> reloadSidebar() =>
-      _channel.invokeMethod<void>('reloadSidebar');
 
   /// 是否已登记开机自启（HKCU 的 Run 键，不需要管理员权限）。
   /// 便携版被搬走后 native 会顺手把登记的路径修正到当前 exe。

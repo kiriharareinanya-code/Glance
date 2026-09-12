@@ -128,7 +128,7 @@ void main() {
         store: store,
         registry:
             PluginRegistry(Directory.systemTemp.createTempSync('lw-reg').path),
-        initialTab: 4, // 「其他」页：日志和启动、备份一样属于运维项
+        initialTab: 3, // 「其他」页：日志和启动、备份一样属于运维项
         onClose: () {},
         onChanged: () {},
         onAdd: (_) {},
@@ -178,7 +178,7 @@ void main() {
         store: store,
         registry:
             PluginRegistry(Directory.systemTemp.createTempSync('lw-reg').path),
-        initialTab: 4,
+        initialTab: 3,
         onClose: () {},
         onChanged: () {},
         onAdd: (_) {},

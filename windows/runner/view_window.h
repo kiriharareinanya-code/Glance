@@ -10,8 +10,8 @@
 //
 // 它和磁贴窗口**共用同一个 Flutter 引擎**（也就是同一个 Dart isolate），
 // 只是多了一个视图。这一点是整个设计的关键：控制面板要就地修改
-// AppSettings / AiSettings / 每张卡片的 size 和 settings，改完 AppRoot 还要
-// 把同一个对象读回去（注册快捷键读 state.ai、添加卡片读 state.cards 和桌面
+// AppSettings / 每张卡片的 size 和 settings，改完 AppRoot 还要
+// 把同一个对象读回去（添加卡片读 state.cards 和桌面
 // 的 MediaQuery）。如果面板跑在另一个引擎里，这些共享对象就全断了，得改成
 // 二十几个字段的双向同步协议，而 state.json 现在有十一个写入点、每次又是
 // 整份重写，两边各持一份状态必然互相覆盖。

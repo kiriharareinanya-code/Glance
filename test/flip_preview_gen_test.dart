@@ -8,7 +8,6 @@
 //
 // 用时钟的圆体字（TsukushiBMaru），因为翻页效果是给它做的。
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';

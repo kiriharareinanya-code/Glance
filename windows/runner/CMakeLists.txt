@@ -9,10 +9,8 @@ project(runner LANGUAGES CXX)
 add_executable(${BINARY_NAME} WIN32
   "flutter_window.cpp"
   "desktop_capture.cpp"
-  "file_drop.cpp"
   "hit_region.cpp"
   "view_window.cpp"
-  "sidebar_window.cpp"
   "smtc.cpp"
   "splash_window.cpp"
   "main.cpp"

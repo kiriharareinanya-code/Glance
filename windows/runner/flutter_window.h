@@ -12,22 +12,18 @@
 #include "win32_window.h"
 
 // 系统当前是否浅色主题（注册表 AppsUseLightTheme，1=浅色）。
-// 主引擎和侧边栏引擎都要用，所以放在头文件里共享。
+// 别的翻译单元也要用，所以放在头文件里共享。
 bool SystemIsLightTheme();
 
 // A window that does nothing but host a Flutter view.
 class FlutterWindow : public Win32Window {
  public:
-  // Creates a new FlutterWindow hosting a Flutter view running |project|.
+  // Creates a new Flutter window hosting a Flutter view running |project|.
   explicit FlutterWindow(const flutter::DartProject& project);
   virtual ~FlutterWindow();
 
-  // 进程内单例：侧边栏那个引擎要请求打开控制面板，只能穿过 native 传话
-  // ——两个 Flutter 引擎不共享 isolate，Dart 之间没有直接通路。
+  // 进程内单例：揭幕兜底（splash 超时）要找到磁贴窗口用。
   static FlutterWindow* instance();
-
-  // 让磁贴那个引擎打开控制面板并定位到 AI 页
-  void OpenAiPanel();
 
   // 揭幕：把磁贴窗口显示出来。
   //
@@ -40,8 +36,8 @@ class FlutterWindow : public Win32Window {
   // 把一行日志转给 Dart，由那边统一落进 userdata\logs\。
   //
   // C++ 这边的 printf 在发布版是丢的：GUI 子系统没有控制台，
-  // main.cpp 只在有父控制台或调试器时才 attach（实测 sidebar_window
-  // 里早就因此改走 Dart 通道了）。日志系统统一收口后，native 也走这条。
+  // main.cpp 只在有父控制台或调试器时才 attach。日志系统统一收口后，
+  // native 也走这条。
   void Log(const std::string& message);
 
  protected:

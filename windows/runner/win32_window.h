@@ -44,8 +44,8 @@ class Win32Window {
   //   3. 创建后调用 DwmEnableBlurBehindWindow 打开逐像素 alpha（空 region =
   //      只要透明、不要模糊），否则 Flutter 画的透明区域会被合成成黑色。
   //
-  // [topmost] 决定这个窗口常驻最底（磁贴，桌面小组件）还是常驻最前
-  // （AI 侧边栏）。两者必须分成两个窗口：一个窗口不可能同时在最底和最顶。
+  // [topmost] 决定这个窗口常驻最底（磁贴，桌面小组件）还是常驻最前。
+  // 磁贴用 false；真有需要浮在最前面的窗口才传 true。
   bool CreateOverlay(const std::wstring& title, int x, int y, int width,
                      int height, bool topmost = false);
 
@@ -106,7 +106,6 @@ class Win32Window {
   bool quit_on_close_ = false;
 
   // true = 每次 WM_WINDOWPOSCHANGING 都按回 Z 序最底（桌面小组件）
-  // false = 按到最前（AI 侧边栏）
   bool force_bottom_ = true;
 
   // window handle for top level window.

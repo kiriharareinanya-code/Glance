@@ -72,19 +72,19 @@ void main() {
             r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} I \[plugin\] 已加载 5 个$')));
   });
 
-  test('两个引擎各写各的文件，不互相插队', () async {
+  test('不同 engine 前缀各写各的文件，不互相插队', () async {
     Log.init(engine: 'main', dir: tmp.path);
     Log.i('app', '磁贴引擎');
     await Log.flushLogs();
     Log.resetForTest();
 
-    Log.init(engine: 'sidebar', dir: tmp.path);
-    Log.i('sidebar', '侧边栏引擎');
+    Log.init(engine: 'test-engine', dir: tmp.path);
+    Log.i('test-engine', '第二个引擎');
     await Log.flushLogs();
 
     expect(readToday('main'), contains('磁贴引擎'));
-    expect(readToday('main'), isNot(contains('侧边栏引擎')));
-    expect(readToday('sidebar'), contains('侧边栏引擎'));
+    expect(readToday('main'), isNot(contains('第二个引擎')));
+    expect(readToday('test-engine'), contains('第二个引擎'));
   });
 
   test('native 转发的日志按 info 记，模块名为 native', () async {

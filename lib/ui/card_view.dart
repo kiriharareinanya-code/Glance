@@ -128,7 +128,7 @@ class CardView extends StatelessWidget {
   /// 深壁纸 + 毛玻璃 + 系统浅色，卡片明明是深的，字却按浅底规则画成黑色，
   /// 直接糊在一起看不见（云母那条分支上次已经修过，毛玻璃这条漏了）。
   ///
-  /// 主题设置仍然管着设置窗口和 AI 侧边栏的明暗，只是不再插手卡片。
+  /// 主题设置仍然管着设置窗口的明暗，只是不再插手卡片。
   bool get _brightBackdrop {
     final bgf = _bgImageFile;
     if (bgf != null) {

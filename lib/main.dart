@@ -19,18 +19,9 @@ import 'core/splash_gate.dart';
 import 'core/updater.dart';
 import 'native/native_bridge.dart';
 import 'plugin/registry.dart';
-import 'sidebar_main.dart' as sidebar;
 import 'store/store.dart';
 import 'ui/app_root.dart';
 import 'ui/panel_app.dart';
-
-/// AI 侧边栏那个引擎的入口。
-///
-/// 必须定义在**根库**（也就是含 main() 的这个文件）里：引擎按名字找入口时
-/// 只在根库里查，定义在别处会报 "Could not resolve main entrypoint function"
-/// —— 实测踩过。
-@pragma('vm:entry-point')
-void sidebarMain() => sidebar.sidebarMain();
 
 Future<void> main(List<String> args) async {
   // 整个启动流程都跑在同一个 guarded Zone 里：ensureInitialized 和后面的
@@ -166,7 +157,6 @@ Future<void> _bootstrap(List<String> args) async {
     store: store,
     registry: registry,
     openPanel: args.contains('--panel'),
-    openAi: args.contains('--ai'),
   ));
 }
 
@@ -181,7 +171,6 @@ class _MultiViewRoot extends StatefulWidget {
     required this.store,
     required this.registry,
     required this.openPanel,
-    required this.openAi,
   });
 
   final AppState state;
@@ -190,10 +179,6 @@ class _MultiViewRoot extends StatefulWidget {
 
   /// --panel：启动即弹出设置窗口，供不合成键鼠的验证使用
   final bool openPanel;
-
-
-  /// --ai：启动即展开 AI 侧边栏
-  final bool openAi;
 
   @override
   State<_MultiViewRoot> createState() => _MultiViewRootState();
@@ -264,7 +249,6 @@ class _MultiViewRootState extends State<_MultiViewRoot> {
             state: widget.state,
             store: widget.store,
             registry: widget.registry,
-            openAi: widget.openAi,
           ),
         ),
       if (_panelView != null)
@@ -297,16 +281,12 @@ class VectraApp extends StatelessWidget {
     required this.state,
     required this.store,
     required this.registry,
-    this.openAi = false,
   });
 
   final AppState state;
   final Store store;
   final PluginRegistry registry;
   final GlobalKey<AppRootState> appKey;
-
-  /// --ai：启动即展开侧边栏，用于不合成键鼠的验证
-  final bool openAi;
 
   @override
   Widget build(BuildContext context) {
@@ -323,7 +303,6 @@ class VectraApp extends StatelessWidget {
             state: state,
             store: store,
             registry: registry,
-            openAi: openAi,
           ),
       ),
     );

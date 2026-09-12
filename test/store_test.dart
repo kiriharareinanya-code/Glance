@@ -445,14 +445,12 @@ void main() {
           z: 7,
           settings: {'city': '下陆'}));
       state.disabledPlugins.add('lyrics');
-      state.ai.model = 'SAI-L7';
 
       final restored = store.decodeConfig(store.encodeConfig(state));
 
       expect(restored.settings.theme, 'dark');
       expect(restored.settings.cardRadius, 25);
       expect(restored.disabledPlugins, ['lyrics']);
-      expect(restored.ai.model, 'SAI-L7');
       expect(restored.cards.single.id, 'w1');
       expect(restored.cards.single.x, 100);
       expect(restored.cards.single.settings['city'], '下陆');

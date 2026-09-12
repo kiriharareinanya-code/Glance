@@ -43,7 +43,7 @@ class HitRect {
   final double z;
 
   /// 自定义圆角半径。为 null 时用调用方给的统一值。
-  /// AI 侧边栏和磁贴的圆角是分开配置的，所以需要按矩形区分。
+  /// 磁贴不同区域（卡片、投放点）的圆角分开配置，所以需要按矩形区分。
   final double? radius;
 
   const HitRect({

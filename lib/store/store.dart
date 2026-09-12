@@ -1,7 +1,7 @@
 /// 状态持久化。
 ///
 /// 存储分成三类，各写各的文件：
-///   config.json                设置 + 卡片布局 + AI 配置（小，值得备份）
+///   config.json                设置 + 卡片布局（小，值得备份）
 ///   `plugindata/<id>.json`     每个插件自己的键值存储（一插件一文件）
 ///   `plugindata/<id>/<hash>.json`  每个插件的缓存（一条一个文件）
 ///
@@ -28,7 +28,6 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 import '../core/logger.dart';
-import '../model/ai_settings.dart';
 import '../model/card.dart';
 import '../model/settings.dart';
 
@@ -37,9 +36,7 @@ class AppState {
     required this.settings,
     required this.cards,
     List<String>? disabledPlugins,
-    AiSettings? ai,
-  })  : disabledPlugins = disabledPlugins ?? <String>[],
-        ai = ai ?? AiSettings();
+  }) : disabledPlugins = disabledPlugins ?? <String>[];
 
   AppSettings settings;
   List<WidgetCard> cards;
@@ -47,9 +44,6 @@ class AppState {
   /// 用 ?? [] 而不是 const []：默认值若是 const 列表，全新安装（还没有配置
   /// 文件）时任何一次 add 都会在运行时炸「Cannot add to an unmodifiable list」。
   List<String> disabledPlugins;
-
-  /// AI 侧边栏配置。会话历史不在这儿——那是侧边栏引擎独占的 chat.json。
-  AiSettings ai;
 
   /// 插件命名空间的键值存储：pluginData[pluginId][key]。
   /// 内存里仍是一张总表，落盘时按 pluginId 拆成多个文件。
@@ -142,8 +136,6 @@ class Store {
       cards: cards,
       disabledPlugins:
           (raw['disabledPlugins'] as List? ?? const []).cast<String>().toList(),
-      ai: AiSettings.fromJson(
-          (raw['ai'] as Map?)?.cast<String, Object?>() ?? const {}),
     );
   }
 
@@ -251,7 +243,6 @@ class Store {
       'settings': state.settings.toJson(),
       'cards': state.cards.map((c) => c.toJson()).toList(),
       'disabledPlugins': state.disabledPlugins,
-      'ai': state.ai.toJson(),
     };
     return const JsonEncoder.withIndent('  ').convert(payload);
   }

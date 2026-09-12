@@ -5,7 +5,7 @@
 /// 控制面板改设置仍然是就地改，不需要任何跨进程同步。
 ///
 /// 添加/删除卡片、改完设置后的重建，都要落到 AppRoot 上执行：找空位要读
-/// **桌面那个视图**的尺寸，注册快捷键要读改完的 state.ai。所以这里直接持有
+/// **桌面那个视图**的尺寸。所以这里直接持有
 /// AppRoot 的 State（同一个 isolate，是真正的对象引用，不是消息）。
 ///
 /// 界面用 fluent_ui 的 Windows 11 风格（小组件磁贴那边不用它，保持原样）。
@@ -20,7 +20,7 @@ import 'app_root.dart';
 import 'panel.dart';
 
 /// 设置窗口该显示哪一页 / 定位到哪张卡片。
-/// 托盘、右键卡片、AI 侧边栏齿轮都往这里写，设置窗口监听。
+/// 托盘、右键卡片都往这里写，设置窗口监听。
 final ValueNotifier<int?> panelTabRequest = ValueNotifier(null);
 final ValueNotifier<String?> panelCardRequest = ValueNotifier(null);
 
@@ -93,7 +93,6 @@ class PanelApp extends StatelessWidget {
                   initialTab: tab,
                   // 独立窗口里不要遮罩、不要固定尺寸、不要自绘关闭按钮
                   embedded: false,
-                  onHotkeyChanged: () => appKey.currentState?.applyHotkey(),
                   onClose: () => appKey.currentState?.hidePanelWindow(),
                   onChanged: () => appKey.currentState?.onPanelChanged(),
                   onAdd: (plugin) => appKey.currentState?.addCard(plugin),

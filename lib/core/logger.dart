@@ -56,8 +56,8 @@ class Log {
 
   /// 初始化。在 main() 最前面调一次即可。
   ///
-  /// [engine] 填 'main'（磁贴/面板引擎）或 'sidebar'（侧边栏引擎），
-  /// 决定日志文件名前缀——两个引擎各写各的，避免并发追加同一个文件时插队。
+  /// [engine] 决定日志文件名前缀（'main' = 磁贴/面板引擎），
+  /// 多引擎各写各的，避免并发追加同一个文件时插队。
   static void init({
     required String engine,
     required String dir,
@@ -206,7 +206,7 @@ class _FileSink {
       for (final f in d.listSync()) {
         if (f is! File || !f.path.endsWith('.log')) continue;
         final base = p.basenameWithoutExtension(f.path);
-        // 形如 main-2026-08-16 / sidebar-2026-08-16：日期是最后**三**段。
+        // 形如 main-2026-08-16：日期是最后**三**段。
         // 只取最后一段的话拿到的是 "16"，tryParse 给 null，文件就永远删不掉。
         final parts = base.split('-');
         if (parts.length < 4) continue;

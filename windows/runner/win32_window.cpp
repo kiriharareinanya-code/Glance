@@ -164,7 +164,7 @@ bool Win32Window::CreateOverlay(const std::wstring& title, int x, int y,
   //
   // 磁贴窗口刻意**不加** WS_EX_TOPMOST：它是桌面小组件，应该待在所有窗口
   // 下面，只有桌面露出来时才看得见。这样反而天然满足"看得见就一定拖得动"。
-  // AI 侧边栏窗口则相反，必须置顶。两者的层级由 WM_WINDOWPOSCHANGING 各自维持。
+  // 层级由 WM_WINDOWPOSCHANGING 维持。
   //
   // WS_EX_NOREDIRECTIONBITMAP 不能加：Flutter 的合成需要重定向表面。
   DWORD ex_style = WS_EX_TOOLWINDOW;
@@ -263,7 +263,6 @@ Win32Window::MessageHandler(HWND hwnd,
       // 是不够的：任何一次点击、激活、显示都会把窗口重新提到上面来。
       // 在这里改写目标 Z 位置，等于每次都被按回底部，不需要轮询。
       //
-      // 层级完全按窗口区分：磁贴窗口永远按回最底，AI 侧边栏永远按回最顶。
       // 这里原先还要看 HitRegion 的 keep_top —— 那是控制面板画在磁贴窗口里时
       // 用来临时置顶的例外。面板搬进任务栏里的独立窗口后不再需要，例外已删。
       auto* pos = reinterpret_cast<WINDOWPOS*>(lparam);
@@ -313,10 +312,8 @@ void Win32Window::SetChildContent(HWND content) {
              frame.bottom - frame.top, true);
 
   // 这里曾经子类化 FLUTTERVIEW 做 WM_NCHITTEST 穿透。那条路实测无效
-  // （最终改用 SetWindowRgn），但代码留了下来，等 AI 侧边栏成为第二个窗口时
-  // 反噬：侧边栏的 Flutter 视图拿磁贴的矩形做命中判定，全都不匹配，于是
-  // 拒收所有鼠标输入 —— 整个侧边栏按不动。而且保存原窗口过程的是一个全局
-  // 变量，第二个窗口还会把第一个的覆盖掉。已整段删除。
+  // （最终改用 SetWindowRgn），而且子类化保存原窗口过程用的是全局变量，
+  // 多窗口时互相覆盖。已整段删除。
 
   SetFocus(child_content_);
 }

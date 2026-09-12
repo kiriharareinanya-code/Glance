@@ -17,7 +17,6 @@
 #include "desktop_capture.h"
 #include "hit_region.h"
 #include "view_window.h"
-#include "sidebar_window.h"
 #include "smtc.h"
 #include "splash_window.h"
 #include "utils.h"
@@ -25,9 +24,6 @@
 namespace {
 
 constexpr const char kChannelName[] = "vectra/native";
-
-// 全局快捷键的标识。只用一个，改快捷键时先注销再重注册。
-constexpr int kHotkeyId = 1;
 
 // 揭幕兜底：从窗口创建起最多等这么久，就算 Dart 没报"全部就绪"也把磁贴
 // 显示出来。比 splash 自己的 4 秒超时留得宽一点，正常情况轮不到它。
@@ -281,39 +277,12 @@ void HandleMethodCall(
     return;
   }
 
-  if (call.method_name() == "registerHotkey") {
-    // 全局快捷键。RegisterHotKey 把 WM_HOTKEY 投递到指定窗口，
-    // 所以不需要装钩子，也不需要额外线程。
-    const auto* args = std::get_if<flutter::EncodableMap>(call.arguments());
-    auto geti = [&](const char* k, int def) {
-      if (!args) return def;
-      auto it = args->find(flutter::EncodableValue(k));
-      if (it == args->end()) return def;
-      if (const auto* i = std::get_if<int32_t>(&it->second)) return *i;
-      if (const auto* d = std::get_if<double>(&it->second))
-        return static_cast<int>(*d);
-      return def;
-    };
-    // 先注销旧的，否则改快捷键之后两个都会生效
-    UnregisterHotKey(hwnd, kHotkeyId);
-    const int mods = geti("mods", 0);
-    const int vk = geti("vk", 0);
-    if (vk == 0) {
-      result->Success(flutter::EncodableValue(false));
-      return;
-    }
-    // MOD_NOREPEAT：按住不放时只触发一次
-    const BOOL ok = RegisterHotKey(hwnd, kHotkeyId, mods | 0x4000, vk);
-    result->Success(flutter::EncodableValue(ok != FALSE));
-    return;
-  }
-
-  // 这里原先有 setTopmost：AI 侧边栏还和磁贴共用一个窗口时用它把窗口顶起来。
-  // 侧边栏拆成独立窗口之后 Dart 侧再没调过，是死代码，删除。
+  // 这里原先有 setTopmost：AI 侧边栏还和磁贴共用一个窗口时用它把窗口顶起来，
+  // 是死代码，删除。
 
   if (call.method_name() == "getWorkArea") {
     // 主显示器的工作区：屏幕范围减去任务栏等应用栏。
-    // 侧边栏用它决定上下边界，免得压在任务栏上面。
+    // 磁贴用它决定上下边界，免得压在任务栏上面。
     RECT wa{};
     if (!SystemParametersInfoW(SPI_GETWORKAREA, 0, &wa, 0)) {
       result->Success();
@@ -522,14 +491,6 @@ void HandleMethodCall(
       }
     }
     if (ViewWindow* win = ViewWindow::ForKey(key)) win->ResizeFrom(edge);
-    result->Success();
-    return;
-  }
-
-  if (call.method_name() == "reloadSidebar") {
-    // 控制面板改完 AI 配置：叫侧边栏那个引擎重新读一遍 state.json。
-    // 两个引擎不共享 isolate，配置靠磁盘交接，得有人说"文件变了"。
-    if (SidebarWindow* sb = SidebarWindow::instance()) sb->RequestReload();
     result->Success();
     return;
   }
@@ -774,7 +735,7 @@ void HandleMethodCall(
 
 // 系统当前是否浅色主题（注册表 AppsUseLightTheme，1=浅色）。
 // 深浅色适配用：卡片文字/描边按"底子明暗"翻转，保证可读性。
-// 侧边栏引擎也要查（sidebar_window.cpp），所以不能留在匿名 namespace 里。
+// 它也要被别的翻译单元调用，所以不能留在匿名 namespace 里。
 bool SystemIsLightTheme() {
   HKEY key;
   DWORD v = 0, size = sizeof(v);
@@ -837,14 +798,6 @@ void FlutterWindow::CoverVirtualScreen(HWND hwnd, const char* reason) {
   SetWindowPos(hwnd, HWND_BOTTOM, vx, vy, vw, vh, SWP_NOACTIVATE);
 }
 
-void FlutterWindow::OpenAiPanel() {
-  // 侧边栏点齿轮时走这条。两个 Flutter 引擎不共享 isolate，Dart 之间没有
-  // 直接通路，只能穿过 native 传话。
-  if (!method_channel_) return;
-  method_channel_->InvokeMethod(
-      "openPanel", std::make_unique<flutter::EncodableValue>("ai"));
-}
-
 bool FlutterWindow::OnCreate() {
   if (!Win32Window::OnCreate()) {
     return false;
@@ -873,8 +826,8 @@ bool FlutterWindow::OnCreate() {
         HandleMethodCall(call, std::move(result), hwnd);
       });
 
-  // 磁贴窗口刻意不接受文件拖放：它常驻 Z 序最底，被任何窗口盖住就够不到，
-  // 做了也只是时灵时不灵。投放点在 AI 侧边栏那个置顶窗口上（见 sidebar_window）。
+  // 磁贴窗口不接受文件拖放：它常驻 Z 序最底，被任何窗口盖住就够不到，
+  // 做了也只是时灵时不灵。
 
   // 磁贴窗口不再在第一帧就显示，改成等 RevealTiles()（见头文件里的说明）。
   //
@@ -906,18 +859,6 @@ LRESULT
 FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
                               WPARAM const wparam,
                               LPARAM const lparam) noexcept {
-  // 全局快捷键：RegisterHotKey 注册的组合被按下时，系统把 WM_HOTKEY 投到本窗口。
-  // 直接切换侧边栏窗口 —— 主窗口自己完全不参与置顶，磁贴永远待在桌面层。
-  //
-  // 必须放在交给 Flutter 之前：HandleTopLevelWindowProc 可能把消息消费掉。
-  // --test-openpanel 的定时器：模拟侧边栏点齿轮，走一遍跨引擎打开面板的链路
-  if (message == WM_TIMER && wparam == 0x5150) {
-    KillTimer(hwnd, 0x5150);
-    Log("触发跨引擎打开面板（--test-openpanel）");
-    OpenAiPanel();
-    return 0;
-  }
-
   // 揭幕兜底：Dart 一直没报"全部就绪"，也得把磁贴放出来
   if (message == WM_TIMER && wparam == kRevealFallbackTimer) {
     Log("等待卡片就绪超时，直接显示磁贴");
@@ -931,13 +872,6 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
     return 0;
   }
 
-  if (message == WM_HOTKEY && static_cast<int>(wparam) == kHotkeyId) {
-    if (SidebarWindow* sb = SidebarWindow::instance()) {
-      sb->Toggle();
-    }
-    return 0;
-  }
-
   // 显示器插拔：磁贴窗口重新覆盖新的虚拟屏，再通知 Dart 迁移卡片、刷新壁纸。
   // 放在交给 Flutter 之前，避免被 HandleTopLevelWindowProc 消费掉。
   if (message == WM_DISPLAYCHANGE) {
@@ -946,8 +880,6 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
       method_channel_->InvokeMethod(
           "displayChanged", std::make_unique<flutter::EncodableValue>(true));
     }
-    // 侧边栏贴屏幕右侧，屏变了要重摆
-    if (SidebarWindow* sb = SidebarWindow::instance()) sb->OnDisplayChange();
     return 0;
   }
 
@@ -967,7 +899,6 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
       method_channel_->InvokeMethod(
           "displayChanged", std::make_unique<flutter::EncodableValue>(true));
     }
-    if (SidebarWindow* sb = SidebarWindow::instance()) sb->OnDisplayChange();
     return 0;
   }
 

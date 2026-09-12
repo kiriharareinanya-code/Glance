@@ -27,7 +27,6 @@ import '../core/paths.dart';
 import '../core/theme.dart';
 import 'card_view.dart';
 import '../core/updater.dart';
-import '../model/ai_settings.dart';
 import '../model/card.dart';
 import '../model/settings.dart';
 import '../native/native_bridge.dart';
@@ -135,7 +134,6 @@ class ControlPanel extends StatefulWidget {
     this.canAdd,
     this.focusCardId,
     this.initialTab,
-    this.onHotkeyChanged,
     this.onInstallUpdate,
     this.embedded = true,
   });
@@ -162,11 +160,8 @@ class ControlPanel extends StatefulWidget {
   /// 从卡片右键进来时，直接定位到该卡片的设置
   final String? focusCardId;
 
-  /// 指定打开时停在哪一页（AI 侧边栏的齿轮会指到 AI 页）
+  /// 指定打开时停在哪一页（托盘/卡片右键的跳转用）
   final int? initialTab;
-
-  /// 快捷键改了要重新向系统注册
-  final VoidCallback? onHotkeyChanged;
 
   /// 安装应用更新（保存退出 → 拉起静默安装器）。由磁贴侧 AppRoot 提供，
   /// 不传时（内嵌/测试）点了没反应。
@@ -374,15 +369,13 @@ class _ControlPanelState extends State<ControlPanel> {
 
   // ---------------- Win11 设置风格的导航壳 ----------------
 
-  /// 导航元数据（图标 + 标题）。**顺序即索引**：AI 固定在 3、其他 4、
-  /// 关于 5——托盘的 openPanel(tab: 3)、AI 侧边栏齿轮的跳转都按这个
-  /// 下标写死，别动。
+  /// 导航元数据（图标 + 标题）。**顺序即索引**：其他 3、关于 4——
+  /// 托盘的 openPanel(tab:) 按这个下标写死，别动。
   static const List<(int, IconData, String)> _navItems = [
     (0, Icons.widgets_outlined, '组件库'),
     (1, Icons.grid_view_outlined, '已放置'),
     (2, Icons.palette_outlined, '外观'),
-    (3, Icons.smart_toy_outlined, 'AI'),
-    (4, Icons.tune_outlined, '其他'),
+    (3, Icons.tune_outlined, '其他'),
   ];
 
   Widget _navigation() {
@@ -404,8 +397,7 @@ class _ControlPanelState extends State<ControlPanel> {
         0 => _pageFrame('组件库', _library()),
         1 => _pageFrame('已放置', _placed()),
         2 => _pageFrame('外观', _appearance()),
-        3 => _pageFrame('AI', _aiSettings()),
-        4 => _pageFrame('其他', _other()),
+        3 => _pageFrame('其他', _other()),
         _ => _pageFrame('关于', _about()),
       };
 
@@ -469,7 +461,7 @@ class _ControlPanelState extends State<ControlPanel> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(10, 4, 10, 10),
-            child: _navItem(5, Icons.info_outline, '关于'),
+            child: _navItem(4, Icons.info_outline, '关于'),
           ),
         ],
       ),
@@ -585,11 +577,9 @@ class _ControlPanelState extends State<ControlPanel> {
     ('已放置 卡片 尺寸 移除 删除 布局', 1, '已放置'),
     ('外观 网格 间距 吸附 对齐 锁定 动画 材质 毛玻璃 云母 圆角 透明度 '
         '底色 颜色 取色 莫奈 主题 深色 浅色 壁纸 刷新 模糊', 2, '外观'),
-    ('AI 人工智能 接口 base url api key 模型 温度 历史 提示词 '
-        '快捷键 热键 投放点 agent 助手', 3, 'AI'),
     ('更新 升级 版本 检查更新 下载 更新源 自动下载 自启 开机启动 启动 '
-        '日志 备份 导出 导入 恢复', 4, '其他'),
-    ('关于 版本 作者', 5, '关于'),
+        '日志 备份 导出 导入 恢复', 3, '其他'),
+    ('关于 版本 作者', 4, '关于'),
   ];
 
   List<(String, int)> get _searchResults {
@@ -1122,7 +1112,7 @@ class _ControlPanelState extends State<ControlPanel> {
             height: 44,
             color: _c.chipBg,
             child: fileReady
-                ? Image.file(file!, fit: BoxFit.cover, gaplessPlayback: true)
+                ? Image.file(file, fit: BoxFit.cover, gaplessPlayback: true)
                 : Center(
                     child: Icon(Icons.image_outlined,
                         size: 16, color: _c.ink38)),
@@ -1143,7 +1133,7 @@ class _ControlPanelState extends State<ControlPanel> {
                   if (!fileReady) {
                     status = '未设置 · 使用主题材质（云母/毛玻璃）';
                   } else {
-                    final l = CardView.bgLuminance(file!.path);
+                    final l = CardView.bgLuminance(file.path);
                     final adapt = l == null
                         ? ''
                         : (l > 0.5 ? ' · 浅色图，文字已自动切黑' : ' · 深色图，文字已自动切白');
@@ -1655,241 +1645,6 @@ class _ControlPanelState extends State<ControlPanel> {
     );
   }
 
-  // ---------------- AI ----------------
-
-  Widget _aiSettings() {
-    final ai = widget.state.ai;
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(28, 4, 28, 24),
-      children: [
-        _group(
-          title: '接口',
-          icon: Icons.link_outlined,
-          children: [
-            _aiField('Base URL', ai.baseUrl,
-                placeholder: 'https://api.openai.com/v1',
-                desc: '按 OpenAI 兼容格式请求 {BaseURL}/chat/completions。'
-                    'DeepSeek、Kimi、本地 Ollama、One API 都可以填。',
-                onSubmit: (v) {
-              ai.baseUrl = v.trim();
-              _commit();
-            }),
-            _aiField('API Key', ai.apiKey,
-                obscure: true,
-                desc: '明文存在 state.json 里，请勿把该文件分享出去。',
-                onSubmit: (v) {
-              ai.apiKey = v.trim();
-              _commit();
-            }),
-            _aiField('模型', ai.model, placeholder: 'gpt-4o-mini', onSubmit: (v) {
-              ai.model = v.trim();
-              _commit();
-            }),
-            _slider('温度（越高越发散）', ai.temperature, 0, 2, 0.1, (v) {
-              ai.temperature = v;
-              _commit();
-            }, decimals: 1),
-            _slider('携带历史条数', ai.maxHistory.toDouble(), 2, 60, 2, (v) {
-              ai.maxHistory = v.round();
-              _commit();
-            }),
-          ],
-        ),
-        _group(
-          title: '对话',
-          icon: Icons.chat_outlined,
-          children: [
-            Text('系统提示词',
-                style: TextStyle(fontSize: 12, color: _c.ink70)),
-            const SizedBox(height: 6),
-            _LwTextBox(
-              initial: ai.systemPrompt,
-              maxLines: 5,
-              minLines: 3,
-              onChanged: (v) {
-                ai.systemPrompt = v;
-                _commit();
-              },
-            ),
-            const SizedBox(height: 4),
-            Text('改动自动保存',
-                style: TextStyle(fontSize: 10, color: _c.ink24)),
-          ],
-        ),
-        _group(
-          title: '外观',
-          icon: Icons.palette_outlined,
-          children: [
-            _slider('侧边栏宽度', ai.sidebarWidth, 280, 640, 10, (v) {
-              ai.sidebarWidth = v;
-              _commit();
-            }, suffix: 'px'),
-            _slider('侧边栏圆角', ai.radius, 0, 48, 2, (v) {
-              ai.radius = v;
-              _commit();
-            }, suffix: 'px'),
-            _switch('侧边栏用毛玻璃（与磁贴同一材质）', ai.glass, (v) {
-              ai.glass = v;
-              _commit();
-            }),
-            if (ai.glass)
-              _slider('侧边栏不透明度', ai.tint, 0, 1, 0.05, (v) {
-                ai.tint = v;
-                _commit();
-              }, percent: true),
-            const SizedBox(height: 4),
-            Text('侧边栏的材质与磁贴共用同一张预模糊图，但透明度和圆角单独调。'
-                '它会停在任务栏上方，不会压住任务栏。',
-                style: TextStyle(fontSize: 10, color: _c.ink24)),
-          ],
-        ),
-        _group(
-          title: '行为',
-          icon: Icons.tune_outlined,
-          children: [
-            _switch('Agent 能力（让 AI 操作电脑与读文件）', ai.agent, (v) {
-              ai.agent = v;
-              _commit();
-            }),
-            Text('开启后 AI 可以读文件、查系统信息、调音量、开设置页等。'
-                '执行脚本、删文件、关机重启这类会先弹卡片让你确认。',
-                style: TextStyle(fontSize: 10, color: _c.ink24)),
-            const SizedBox(height: 8),
-            _switch('右下角投放点（收起后缩成小方块）', ai.dock, (v) {
-              ai.dock = v;
-              _commit();
-            }),
-            Text('把文件拖到屏幕右下角那个小方块上，侧边栏就会展开并把文件挂成附件。'
-                '它是常驻置顶的——磁贴常驻在最底层，右下角一被别的窗口盖住就够不到，'
-                '所以投放点只能长在侧边栏这个置顶窗口上。代价是那 56x56 会挡住下面一小块的点击。',
-                style: TextStyle(fontSize: 10, color: _c.ink24, height: 1.5)),
-          ],
-        ),
-        _group(
-          title: '快捷键',
-          icon: Icons.keyboard_outlined,
-          children: [
-            _hotkeyRow(ai),
-            const SizedBox(height: 8),
-            ValueListenableBuilder<String>(
-              valueListenable: hotkeyStatus,
-              builder: (context, msg, _) {
-                final bad = msg.startsWith('注册失败');
-                return Row(children: [
-                  Icon(bad ? Icons.error_outline : Icons.check_circle_outline,
-                      size: 13,
-                      color:
-                          bad ? Color(0xFFFF9E7D) : Color(0xFF7CE38B)),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(msg,
-                        style: TextStyle(
-                            fontSize: 10.5,
-                            color: bad
-                                ? Color(0xFFFF9E7D)
-                                : Color(0xFF7CE38B))),
-                  ),
-                ]);
-              },
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _aiField(String label, String value,
-      {String? placeholder,
-      String? desc,
-      bool obscure = false,
-      required ValueChanged<String> onSubmit}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: TextStyle(fontSize: 12, color: _c.ink70)),
-          if (desc != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Text(desc,
-                  style: TextStyle(fontSize: 10, color: _c.ink24)),
-            ),
-          const SizedBox(height: 6),
-          _LwTextBox(
-            initial: value,
-            placeholder: placeholder,
-            obscure: obscure,
-            // 和旧实现一致：每敲一下都提交（外层有 260ms 去抖）
-            onChanged: onSubmit,
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 快捷键选择：修饰键多选 + 主键下拉。不做"按下录制"，
-  /// 因为录制时按键会被面板自己吃掉，反而容易设出用不了的组合。
-  Widget _hotkeyRow(dynamic ai) {
-    Widget mod(String label, int bit) {
-      final on = (ai.hotkeyMods & bit) != 0;
-      return Padding(
-        padding: const EdgeInsets.only(right: 6),
-        child: GestureDetector(
-          onTap: () {
-            ai.hotkeyMods ^= bit;
-            _commit();
-            widget.onHotkeyChanged?.call();
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 140),
-            curve: Curves.easeOutCubic,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: on ? _c.accentBg : _c.chipBg,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(label,
-                style: TextStyle(
-                    fontSize: 11, color: on ? _c.accentSoft : _c.ink54)),
-          ),
-        ),
-      );
-    }
-
-    const keys = <(int, String)>[
-      (0x20, 'Space'), (0x41, 'A'), (0x44, 'D'), (0x51, 'Q'),
-      (0x57, 'W'), (0x70, 'F1'), (0x71, 'F2'), (0x7A, 'F11'), (0x7B, 'F12'),
-    ];
-    // Wrap 自适应：内容区变窄时自动换行，不溢出
-    return Wrap(
-      spacing: 6,
-      runSpacing: 8,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        mod('Ctrl', 2),
-        mod('Alt', 1),
-        mod('Shift', 4),
-        mod('Win', 8),
-        ComboBox<int>(
-          value: keys.any((k) => k.$1 == ai.hotkeyVk) ? ai.hotkeyVk : null,
-          items: [
-            for (final k in keys)
-              ComboBoxItem(value: k.$1, child: Text(k.$2))
-          ],
-          onChanged: (v) {
-            if (v == null) return;
-            ai.hotkeyVk = v;
-            _commit();
-            widget.onHotkeyChanged?.call();
-          },
-        ),
-        Text('当前：${ai.hotkeyLabel()}',
-            style: TextStyle(fontSize: 11, color: _c.ink38)),
-      ],
-    );
-  }
-
   // ---------------- 卡片自定义底色 ----------------
 
   /// 自定义卡片底色按钮（紧跟 7 个预设色块）：
@@ -2211,7 +1966,7 @@ class _ControlPanelState extends State<ControlPanel> {
         ]),
         _group(title: '布局备份', icon: Icons.backup_outlined, children: [
           Text(
-            '备份包含卡片布局、外观设置和 AI 配置，不含插件缓存，只有几 KB。\n'
+            '备份包含卡片布局和外观设置，不含插件缓存，只有几 KB。\n'
             '换电脑或重装前导出一份，装好之后导入即可恢复原样。',
             style: TextStyle(fontSize: 11, color: _c.ink38, height: 1.5),
           ),
@@ -2335,7 +2090,6 @@ class _ControlPanelState extends State<ControlPanel> {
       widget.state.settings = incoming.settings;
       widget.state.cards = incoming.cards;
       widget.state.disabledPlugins = incoming.disabledPlugins;
-      widget.state.ai = incoming.ai;
 
       await widget.store.saveNow(widget.state);
       Log.i('panel',
@@ -2347,11 +2101,9 @@ class _ControlPanelState extends State<ControlPanel> {
         _backupFailed = false;
         _backupHint = '已导入 ${incoming.cards.length} 张卡片，布局已恢复。';
       });
-      // 让磁贴、面板外壳、侧边栏都按新配置重建
+      // 让磁贴、面板外壳都按新配置重建
       _maybeBumpThemeRevision();
       widget.onChanged();
-      widget.onHotkeyChanged?.call();
-      NativeBridge.reloadSidebar();
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -2372,7 +2124,7 @@ class _ControlPanelState extends State<ControlPanel> {
                 fontSize: 16, color: _c.ink, fontWeight: FontWeight.w600)),
         content: Text(
           '备份里有 $cardCount 张卡片。导入后当前的 ${widget.state.cards.length} 张卡片'
-          '和全部外观、AI 设置都会被覆盖，且无法撤销。',
+          '和全部外观设置都会被覆盖，且无法撤销。',
           style: TextStyle(fontSize: 13, color: _c.ink70, height: 1.6),
         ),
         actions: [
@@ -2575,19 +2327,11 @@ class _LwTextBox extends StatefulWidget {
   const _LwTextBox({
     required this.initial,
     this.placeholder,
-    this.maxLines = 1,
-    this.minLines,
-    this.obscure = false,
-    this.onChanged,
     this.onSubmitted,
   });
 
   final String initial;
   final String? placeholder;
-  final int maxLines;
-  final int? minLines;
-  final bool obscure;
-  final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
 
   @override
@@ -2606,19 +2350,9 @@ class _LwTextBoxState extends State<_LwTextBox> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.obscure) {
-      return PasswordBox(
-        controller: _controller,
-        placeholder: widget.placeholder,
-        onChanged: widget.onChanged,
-      );
-    }
     return TextBox(
       controller: _controller,
       placeholder: widget.placeholder,
-      maxLines: widget.maxLines,
-      minLines: widget.minLines,
-      onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
     );
   }

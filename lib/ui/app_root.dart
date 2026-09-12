@@ -17,7 +17,6 @@ import '../core/monitor.dart';
 import '../core/paths.dart';
 import '../core/snap.dart' as snap;
 import '../core/theme.dart';
-import '../model/ai_settings.dart';
 import '../model/card.dart';
 import '../native/native_bridge.dart';
 import '../plugin/manifest.dart';
@@ -35,7 +34,6 @@ class AppRoot extends StatefulWidget {
     required this.store,
     required this.registry,
     this.openPanel = false,
-    this.openAi = false,
   });
 
   final AppState state;
@@ -44,9 +42,6 @@ class AppRoot extends StatefulWidget {
 
   /// 启动即打开面板（--panel），供验证与自检使用
   final bool openPanel;
-
-  /// 启动即展开 AI 侧边栏（--ai）
-  final bool openAi;
 
   @override
   State<AppRoot> createState() => AppRootState();
@@ -74,11 +69,6 @@ class AppRootState extends State<AppRoot> with TrayListener {
   void initState() {
     super.initState();
     trayManager.addListener(this);
-    // AI 侧边栏在另一个引擎里，它点齿轮时只能让 native 转告这边
-    NativeBridge.onOpenPanel((tab) {
-      if (!mounted) return;
-      openPanel(tab: tab == 'ai' ? 3 : null);
-    });
     // 显示器插拔：native 已重摆窗口，这里迁移卡片、刷壁纸
     NativeBridge.onDisplayChanged(_onDisplayChanged);
     // 深浅色：读系统主题，切换时卡片文字自动翻转
@@ -87,7 +77,6 @@ class AppRootState extends State<AppRoot> with TrayListener {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _applyMaterial();
       _loadWallpaper();
-      applyHotkey();
       _initMonitors();
     });
   }
@@ -316,28 +305,6 @@ class AppRootState extends State<AppRoot> with TrayListener {
   }
 
 
-
-  Future<void> applyHotkey() async {
-    final ai = widget.state.ai;
-    final ok = await NativeBridge.registerHotkey(ai.hotkeyMods, ai.hotkeyVk);
-    // 成功也要打日志：只在失败时打的话，"没有日志"既可能是成功、
-    // 也可能是这段压根没执行，事后分不清楚（实测就被这一点误导过）。
-    final msg = ok
-        ? '已注册：${ai.hotkeyLabel()}'
-        : '注册失败：${ai.hotkeyLabel()} 已被别的程序占用，换一个组合';
-    hotkeyStatus.value = msg;
-    if (ok) {
-      Log.i('ai', msg);
-    } else {
-      Log.w('ai', msg);
-    }
-  }
-
-
-
-
-
-
   Future<void> _initTray() async {
     try {
       await trayManager.setIcon('assets/tray.ico');
@@ -476,9 +443,6 @@ class AppRootState extends State<AppRoot> with TrayListener {
     _loadWallpaper();
     // 面板能改卡片尺寸和网格大小，两者都会挪动卡片中心，家要跟着刷新
     _anchorAll();
-    // AI 那页的改动写在 state.json 里，侧边栏是另一个引擎，
-    // 得喊一声它才会重新读——否则要等到下次唤出才生效。
-    NativeBridge.reloadSidebar();
     setState(() => _revision++);
   }
 
