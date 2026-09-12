@@ -16,7 +16,6 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_js/flutter_js.dart';
-import 'package:flutter_js/quickjs/quickjs_runtime2.dart';
 
 import '../core/logger.dart';
 import 'manifest.dart';
@@ -84,12 +83,7 @@ class PluginRuntime {
     // 启动幕布挂多久。逐个记下来，慢的那个一眼就能挑出来。
     final sw = Stopwatch()..start();
     try {
-      // 每个运行时 64MB 硬上限：正常插件离这个数还远，但能保证一个失控
-      //（或被恶意塞死的）插件最多烧掉自己的配额，而不是拖垮整个进程。
-      // QuickJS 超限时抛的是普通 JS 异常，走 _guard 的常规错误路径。
-      // 不能用 getJavascriptRuntime：它不透出 memoryLimit 参数。
-      final rt = QuickJsRuntime2(memoryLimit: 64 * 1024 * 1024)
-        ..enableHandlePromises();
+      final rt = getJavascriptRuntime(xhr: false);
       _rt = rt;
 
       rt.onMessage('lw', (dynamic args) {
