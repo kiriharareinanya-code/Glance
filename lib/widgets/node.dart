@@ -527,12 +527,26 @@ class _NodeViewState extends State<NodeView> {
       // 左侧一条细缝，看起来就是"歌词区一片空白"。
       //
       // 所以裁切盒必须自己把**横向约束收紧**：给个 infinity 宽的 SizedBox，
-      // 让孩子的宽度确定下来（高度仍由盒子的 h 决定）。只对 clip 盒生效，
-      // 不影响其它节点的原有布局。
+      // 让孩子的宽度确定下来（高度仍由盒子的 h 决定）。
+      //
+      // 高度方向反过来：裁切盒**允许孩子超出**。取景框的高度是外层 flex
+      // 给的、事先算不准（歌词区的头部随卡片尺寸变），而里面滚动的整列
+      // 歌词天然比取景框高——这正是"取景框"存在的意义。若把高度收紧了，
+      // 内层 Column 会报 RenderFlex overflow（debug 黄黑条，release 无声
+      // 裁掉）。用 OverflowBox 把孩子的高度约束放开，让它按natural size
+      // 布局，再由 ClipPath 裁掉越界部分。
       child: n['child'] == null
           ? null
           : (n['clip'] == true
-              ? SizedBox(width: double.infinity, child: _child(n, fg))
+              ? SizedBox(
+                  width: double.infinity,
+                  child: OverflowBox(
+                    minHeight: 0,
+                    maxHeight: double.infinity,
+                    alignment: Alignment.topCenter,
+                    child: _child(n, fg),
+                  ),
+                )
               : _child(n, fg)),
     );
     // 渐变遮罩：顶部和底部淡出，让滚出视口的内容自然消失。

@@ -163,7 +163,7 @@ void main() {
         reason: '偏移必须等于 -(窗口起点 × 行高)，滑动才对得上位置');
   });
 
-  test('槽位数按双语的极端情况备齐（行高切换时也够用）', () {
+  test('槽位数按单行（行数最多的极端）备齐，运行时还会现补', () {
     final (w, ctx) = mountLyrics(
         size: const Size(300, 340), settings: const {'trans': false});
     addTearDown(() {
@@ -172,11 +172,39 @@ void main() {
     w.debugSetLyrics(lines(12));
     w.debugPaint(3);
 
-    // handler 按上限注册：行高会在单行/双语间切换，双语时可见行数最少，
-    // 按它备齐就不会有点不中的行
     expect(w.debugSlotCount, w.debugMaxSlotCount);
-    expect(w.debugMaxSlotCount, greaterThanOrEqualTo(w.debugVisibleLines + 2),
-        reason: '双语行高更大 → 可见行数更少，槽位上限必须覆盖单行时更多的那种');
+    expect(w.debugSlotCount, greaterThanOrEqualTo(w.debugVisibleLines),
+        reason: '注册数必须覆盖可见行数（不够的话 _handlerFor 会现补，'
+            '但初始就该备够）');
+  });
+
+  // ↓ 用户真实反馈的回归：5x2 小卡片（608x236）上歌词只剩两三行 = 不能用。
+  //   真因是头部固定预留 88px（占卡片 37%）+ 又给预铺行扣了 2 行的预算。
+  test('小卡片（5x2）也要显示足够多的歌词行，不能退化成字幕条', () {
+    final (w, ctx) = mountLyrics(
+        size: const Size(608, 236), settings: const {'trans': false});
+    addTearDown(() {
+      ctx.unmount();
+    });
+    w.debugSetLyrics(lines(14));
+    w.debugPaint(4);
+
+    // 至少 4 行：小卡片上也要能看清上下文（上一句/当前句/下一句/更下一句）
+    expect(w.debugVisibleLines, greaterThanOrEqualTo(4),
+        reason: '5x2 卡片可见行数必须 ≥4（之前只有 2，用户直接说"不能用"）');
+  });
+
+  test('小卡片开了翻译也要能显示至少 3 行', () {
+    final (w, ctx) = mountLyrics(
+        size: const Size(608, 236), settings: const {'trans': true});
+    addTearDown(() {
+      ctx.unmount();
+    });
+    w.debugSetLyrics(lines(14, trans: '译文'));
+    w.debugPaint(4);
+
+    expect(w.debugVisibleLines, greaterThanOrEqualTo(3),
+        reason: '双语行高更大，但也不能只剩 1 行（之前就是 1）');
   });
 
   test('开了翻译但整首歌都没有译文时，不留任何双语空白', () {

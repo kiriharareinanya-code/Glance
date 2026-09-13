@@ -56,10 +56,6 @@ class LyricsWidget extends BuiltinController {
   static const _ctrlMain = 34;
   static const _ctrlBox = 42;
 
-  /// 歌词区上方（按钮 + 进度条 + 时间行 + 间隔）占用的固定高度。
-  /// mount() 与 _visibleLines() 必须用同一个值，否则行数预算和实际渲染打架。
-  static const _headerBlock = 88;
-
   // ---- 运行时状态 ----
   Map<String, Object?>? _media; // 最近一次「有歌在放」的 SMTC 快照
   List<LrcLine> _lyrics = [];
@@ -499,18 +495,43 @@ class LyricsWidget extends BuiltinController {
     _lineContext = wantTrans ? _lineBilingual : _lineSingle;
   }
 
-  /// 歌词区能放下几行（按**当前实际行高**算）。
+  /// 歌词区能放下的**完整**行数（不含预铺的两行）。
   ///
-  /// **预留两行**：滚动时上下各多铺一行（slots = 可见 + 2），这两行必须
-  /// 也在取景框里——否则内层 Column 会比取景框高，触发 RenderFlex 溢出
-  /// （实测 38~60px），滑动过程中还会在上/下边缘露白。
+  /// 预算 = 卡片高 − 上下内边距 − 头部（按钮/进度条/时间）实际占高。
+  /// 一行高度就取 [lineH]，能整除多少行就用多少行。
+  ///
+  /// **不要给"预铺行"另占预算**：预铺的两行本来就画在取景框外（被裁掉），
+  /// 它们只是滑动过程中用来填边缘的，不参与"看得见几行"的预算。上一版在
+  /// 这里多减 2，5x2 的小卡片直接只剩 1~2 行，等于不能用。
   int _visibleLines() {
-    final avail = _h - _pad * 2 - _headerBlock;
-    // 先按"含预铺两行"的总行数反推可见行数：n + 2 行要能塞进 avail
-    var n = (avail / _lineContext).floor() - 2;
-    if (n < 1) n = 1;
-    if (n > 16) n = 16;
+    final avail = _availHeight();
+    var n = (avail / _lineContext).floor();
+    // 至少 3 行：小卡片上也要能看清"上一句 / 当前句 / 下一句"的上下文，
+    // 只有 1~2 行的话歌词就退化成"字幕条"了，完全没有浏览感。
+    if (n < 3) n = 3;
+    if (n > 18) n = 18;
     return n;
+  }
+
+  /// 歌词区实际可用的高度（像素）。
+  ///
+  /// 头部高度**按卡片尺寸缩**：固定写 88 在小卡片上是灾难——5x2 只有
+  /// 236px 高，88 就吃掉 37%，剩 124px 连三行都放不下。这里按比例给，
+  /// 上限 88（大卡片用满），下限 64（再小也别把控制条压扁）。
+  double _availHeight() {
+    final head = _headerBlockFor(_h);
+    final avail = _h - _pad * 2 - head;
+    return avail < 0 ? 0 : avail;
+  }
+
+  /// 头部（控制条 + 进度条 + 时间行 + 间隔）占用高度。
+  ///
+  /// 控制按钮盒子固定 42px，进度条 + 时间行约 22px，加两处 gap 12px ≈ 76px。
+  /// 小卡片稍微收紧一点，大卡片给足，避免"头重脚轻"。
+  static double _headerBlockFor(double h) {
+    if (h >= 340) return 88;
+    if (h >= 280) return 80;
+    return 72;
   }
 
   /// 槽位数的**上限**（mount 时先备一批 handler 用）。
@@ -519,11 +540,12 @@ class LyricsWidget extends BuiltinController {
   /// **单行行高更小 → 可见行数更多 → 需要更多槽位**，所以上限要按单行算。
   /// 运行时若仍不够，[_handlerFor] 会现补，这里只是省掉常见的几次补注册。
   int _maxSlotCount() {
-    final avail = _h - _pad * 2 - _headerBlock;
-    var n = (avail / _lineSingle).floor() - 2;
-    if (n < 1) n = 1;
-    if (n > 18) n = 18;
-    return n + 2;
+    final avail = _availHeight();
+    var n = (avail / _lineSingle).floor();
+    if (n < 3) n = 3;
+    if (n > 20) n = 20;
+    // 预铺行 + 余量
+    return n + 4;
   }
 
   Map<String, Object?> _lyricArea(int idx) {
@@ -539,15 +561,18 @@ class LyricsWidget extends BuiltinController {
     if (base < 0) base = 0;
     _windowBase = base;
 
-    // 滚动偏移：把 base 号行推到槽位 0。弹簧由 'slide' 节点负责，
-    // 这里只给目标像素值（行高固定，所以就是简单的乘法）。
-    final shift = -(base * _lineContext).toDouble();
-    // 多铺两行：滑动过程中上下边缘不能露白
-    final slots = lines + 2;
+    // 槽位 i 显示第 (base + i - 1) 行——往上多铺一行（滑动时填上边缘）。
+    // 需要铺满的高度 = 取景框 + 上下各一行（滑动过程中要盖住边缘）。
+    //
+    // **取景框高度取"实际可用高度"而不是 lineH × 行数**：可用高度往往
+    // 不是行高的整数倍（608x236 卡片：avail=140、lineH=31 → 4.5 行），
+    // 写 lineH×4 会留一条缝、写 lineH×5 会溢出。取 avail 本身、行数按
+    // "盖得住"算，缝和溢出就都没了。
+    final viewport = _availHeight();
+    final needRows = (viewport / _lineContext).ceil() + 2;
+    final slots = needRows;
     final rows = <Map<String, Object?>>[];
     for (var i = 0; i < slots; i++) {
-      // 槽位 i 显示第 (base + i - 1) 行——往上多铺了一行。
-      // handler 也是照这个映射注册的（见 _registerHandlers），两边必须一致。
       final li = base + i - 1;
       if (li < 0 || li >= _lyrics.length) {
         rows.add({'t': 'box', 'h': _lineContext});
@@ -630,23 +655,21 @@ class LyricsWidget extends BuiltinController {
         }
       });
     }
-    // 外层固定高度 + clip：滑动要有"取景框"。
+    // 取景框：高度 = 实际可用高度（外面 flex 给多少就用多少），
+    // clip 掉滑动时探出边缘的行。
     //
-    // 高度**必须等于内层 Column 的总高**（slots × 行高）。因为外面套着
-    // flex（Expanded），取景框拿到的是**紧约束**——写多少都会被拉伸成
-    // 剩余空间的高度；如果内层 Column 比它高，RenderFlex 就会溢出。
-    // 所以让 n+2 行刚好等于 flex 剩下的空间（见 _visibleLines 已扣掉 2）。
-    final boxH = _lineContext * slots;
+    // 内层行堆的总高 = slots × 行高 ≥ 取景框高（needRows 按 ceil 算），
+    // 所以**不会**出现"内容比框矮"的露白，也**不会**出现溢出：
+    // 多余的部分被 clip 裁掉，正是取景框该干的事。
     return {
       't': 'box',
-      'h': boxH,
-      // 只裁**滑动方向**的多余部分。取景框本身高度 = 内容高度，正常
-      // 情况下没有可裁的东西；clip 留着是为了连续换句时中途的过冲位移
-      // 不会把内容画出框外。
+      'h': viewport,
       'clip': true,
       'child': {
+        // 整列平移：把 base 号行推到取景框顶。滑动时给弹簧，静止时靠
+        // SpringSlide 的 AlwaysStoppedAnimation 直接贴在目标位置。
         't': 'slide',
-        'v': shift,
+        'v': -(base * _lineContext).toDouble(),
         'child': {
           't': 'col',
           'gap': 0,
@@ -659,10 +682,10 @@ class LyricsWidget extends BuiltinController {
   Map<String, Object?> _lyricPlaceholder() {
     final msg = _lyricState == 'loading' ? '正在找歌词…' : '没找到这首歌的歌词';
     return {
-      // 高度必须和真有歌词时一致（slots 行），否则切歌时整块跳一下。
+      // 高度必须和真有歌词时一致（取景框高度），否则切歌时整块跳一下。
       't': 'box',
       'center': true,
-      'h': _lineContext * (_visibleLines() + 2),
+      'h': _availHeight(),
       'child': _txt(msg, 12, null, 0.35)
     };
   }
