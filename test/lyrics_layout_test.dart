@@ -93,45 +93,6 @@ void main() {
     return hit;
   }
 
-  /// 取景框里第 (当前行 - 窗口起点 + 预滚行) 个槽位是否真的画着东西。
-  ///
-  /// 列表式布局：槽位 i 对应行 `窗口起点 - 1 + i`（预滚 1 行）。当前行
-  /// [idx] 的槽位 = `idx - 窗口起点 + 1`。若该槽位存在且孩子的文字节点
-  /// 不是空盒（h 盒但没有 text），就说明当前行确实被画进了可见区。
-  bool currentSlotHasText(Map<String, Object?> tree, int idx, int windowBase) {
-    final slot = idx - windowBase + 1;
-    if (slot < 0) return false;
-    final slide = findSlide(tree);
-    if (slide == null) return false;
-    final child = slide['child'];
-    if (child is! Map) return false;
-    final kids = child['children'];
-    if (kids is! List) return false;
-    if (slot >= kids.length) return false;
-    final row = kids[slot];
-    if (row is! Map) return false;
-    final box = row['child'];
-    if (box is! Map) return false;
-    final cell = box['child'];
-    if (cell is! Map) return false;
-    // 槽位里必须有真正的 text 节点（空盒没有）。
-    bool hasText(Object? n) {
-      if (n is Map) {
-        if (n['t'] == 'text') return true;
-        for (final v in n.values) {
-          if (hasText(v)) return true;
-        }
-      } else if (n is List) {
-        for (final v in n) {
-          if (hasText(v)) return true;
-        }
-      }
-      return false;
-    }
-
-    return hasText(cell);
-  }
-
   /// 收集歌词行盒子的高度
   List<int> rowHeights(Map<String, Object?> tree) {
     final out = <int>[];
@@ -181,34 +142,38 @@ void main() {
     expect(hs.first, w.debugLineContext, reason: '行高应取单行值，译文不撑高行');
   });
 
-  test('列表式滚动：偏移恒为 -行高（预滚一行），与当前行号无关', () {
+  test('弹簧滚动：偏移是绝对滚动量，随换句单调增长（偏移不变=动画不启动）', () {
     final (w, ctx) = mountLyrics(
         size: const Size(300, 340), settings: const {'trans': false});
     addTearDown(() {
       ctx.unmount();
     });
-    w.debugSetLyrics(lines(12));
+    w.debugSetLyrics(lines(30));
 
     w.debugPaint(0);
     var slide = findSlide(ctx.tree.value!);
     expect(slide, isNotNull, reason: '歌词区必须包在 slide 节点里');
-    // 列表式模型：数组从「当前行上一行」开始（预滚行），只需把这一行推出去，
-    // 所以偏移恒为 -行高，**不随当前行号增长**。
-    expect(slide!['v'], -w.debugLineContext.toDouble(),
-        reason: '第一行时偏移应为 -行高（推掉预滚行）');
+    expect(slide!['v'], 0, reason: '第 0 行时窗口顶端就是 0，偏移应为 0');
 
+    // 往后换句：偏移必须跟着变（变大），否则 SpringSlide 直接 return，
+    // 弹簧永远不启动——这正是"改成常量偏移后弹簧不见了"的原因。
     w.debugPaint(5);
-    slide = findSlide(ctx.tree.value!);
-    final base = w.debugWindowBase;
-    expect(base, greaterThan(0), reason: '到第 5 行窗口应该已经前移');
-    expect(slide!['v'], -w.debugLineContext.toDouble(),
-        reason: '列表式滚动偏移恒定，绝不能是 -(窗口起点 × 行高)'
-            '——那个旧公式把偏移算了两遍，歌曲后段整列会飞出取景框（实测 y≈-734）');
+    final v5 = (findSlide(ctx.tree.value!)!['v'] as num).toDouble();
+    expect(v5, lessThan(0), reason: '到第 5 行窗口应该已经滚动（偏移为负）');
+
+    w.debugPaint(10);
+    final v10 = (findSlide(ctx.tree.value!)!['v'] as num).toDouble();
+    expect(v10, lessThan(v5),
+        reason: '继续往后偏移必须继续增大，才有"滚上去"的位移可动');
+
+    // 偏移 = -(窗口起点 × 行高)，窗口起点就是 debugWindowBase
+    expect(v10, -(w.debugWindowBase * w.debugLineContext).toDouble());
   });
 
   // ↓ 用户真实反馈的回归：歌词在歌曲后半段"逐渐消失"。
-  //   真因：旧实现的偏移 = -(base × 行高)，而行数组本身也已经从 base 开始取，
-  //   偏移被算了两遍；base 越大整列被推得越远，到歌曲后段整列都在取景框上方。
+  //   历史坑：偏移曾等于 -(base × 行高)，而行数组**也**从 base 重取，
+  //   偏移被算了两遍；base 越大整列被推得越远，到后段整列飞出取景框。
+  //   现在数组从 0 起铺、下标即行号，偏移是绝对滚动量，不会重复计算。
   test('歌曲任意位置（含最后一行）当前行都必须留在取景框内', () {
     const card = Size(608, 236);
     final (w, ctx) =
@@ -223,15 +188,19 @@ void main() {
       final tree = ctx.tree.value!;
       final slide = findSlide(tree);
       expect(slide, isNotNull, reason: 'idx=$idx 时应能找到 slide 节点');
-      // 不变量：偏移必须是一个"把预滚行推出去"的小量（0 或 -行高），
-      // 绝不能随当前行号变成 -700 这种大数。
       final v = (slide!['v'] as num).toDouble();
-      expect(v.abs(), lessThanOrEqualTo(w.debugLineContext.toDouble() + 0.01),
-          reason: 'idx=$idx 的偏移 $v 过大——整列会被推出取景框（旧 bug 的形态）');
-      // 当前行必须真的在取景框里：取景框只铺了 slots 行，检查当前行
-      // 对应的槽位存在且不是空盒。
-      expect(currentSlotHasText(tree, idx, w.debugWindowBase), isTrue,
-          reason: 'idx=$idx 时当前行没能出现在列表的可见槽位里');
+      final base = w.debugWindowBase;
+      // 偏移必须严格等于 -(窗口起点 × 行高)：数组从 0 起，所以"行号 × 行高"
+      // 就是它在未平移坐标系里的位置，没有第二处平移。
+      expect(v, -(base * w.debugLineContext).toDouble(),
+          reason: 'idx=$idx 的偏移 $v 与窗口起点 $base 对不上');
+      // 当前行屏上坐标 = 行号 × 行高 + v，必须落在取景框（可容忍 1px 误差）。
+      final lh = w.debugLineContext;
+      final onScreen = idx * lh + v;
+      expect(onScreen, greaterThanOrEqualTo(-1.0),
+          reason: 'idx=$idx 时当前行跑到取景框上方了（y=$onScreen）');
+      expect(onScreen, lessThan(w.debugAvailHeight + 1),
+          reason: 'idx=$idx 时当前行跑到取景框下方了（y=$onScreen）');
     }
     ctx.unmount();
   });
@@ -325,7 +294,13 @@ void main() {
           child: SizedBox(
             width: 300,
             height: 340,
-            child: NodeView(tree: ctx.tree.value!, onEvent: (_, _) {}),
+            // 必须监听 tree：塞快照的话后续 render 都不生效（早期踩过）。
+            child: ValueListenableBuilder<Map<String, Object?>?>(
+              valueListenable: ctx.tree,
+              builder: (_, tree, _) => tree == null
+                  ? const SizedBox.shrink()
+                  : NodeView(tree: tree, onEvent: (_, _) {}),
+            ),
           ),
         ),
       ),
@@ -381,7 +356,12 @@ void main() {
           child: SizedBox(
             width: 300,
             height: 340,
-            child: NodeView(tree: ctx.tree.value!, onEvent: (_, _) {}),
+            child: ValueListenableBuilder<Map<String, Object?>?>(
+              valueListenable: ctx.tree,
+              builder: (_, tree, _) => tree == null
+                  ? const SizedBox.shrink()
+                  : NodeView(tree: tree, onEvent: (_, _) {}),
+            ),
           ),
         ),
       ),
@@ -394,6 +374,61 @@ void main() {
         reason: '当前行的译文必须显示出来');
     expect(tester.takeException(), isNull,
         reason: '正文 + 译文必须放得进双语行高，不能溢出');
+
+    ctx.unmount();
+  });
+
+  // ↓ 用户反馈"弹簧效果又不见了"的回归。
+  //   弹簧的触发条件是 SpringSlide.didUpdateWidget 里 offset 变了；
+  //   偏移若恒为常量（-行高），动画根本不启动。这条在**真实渲染**里
+  //   验证换句时歌词真的在动，而不只是断言"节点字段的值变了"。
+  testWidgets('真实渲染：换句时歌词整列弹簧平移（不是原地换词）', (tester) async {
+    final (w, ctx) = mountLyrics(size: const Size(300, 340));
+    w.debugSetLyrics([
+      for (var i = 0; i < 20; i++) LrcLine(t: i * 1000, s: 'L$i'),
+    ]);
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: SizedBox(
+            width: 300,
+            height: 340,
+            child: ValueListenableBuilder<Map<String, Object?>?>(
+              valueListenable: ctx.tree,
+              builder: (_, tree, _) => tree == null
+                  ? const SizedBox.shrink()
+                  : NodeView(tree: tree, onEvent: (_, _) {}),
+            ),
+          ),
+        ),
+      ),
+    ));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+
+    // 先让整列稳定在某个位置
+    w.debugPaintFull(2);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 600));
+    final yBefore = tester.getTopLeft(find.text('L3')).dy;
+
+    // 换句：把当前行推到第 6 句，窗口起点随之 +4 → 整列应向上滚 4 行
+    w.debugPaintFull(6);
+    await tester.pump();
+    // 动画**进行中**（还没 settle）：位置应当介于起点和终点之间
+    await tester.pump(const Duration(milliseconds: 120));
+    final yMid = tester.getTopLeft(find.text('L3')).dy;
+    expect(yMid, lessThan(yBefore),
+        reason: '换句后必须真的在往上移动（原地换词的话位置不变）');
+
+    await tester.pumpAndSettle();
+    final yAfter = tester.getTopLeft(find.text('L3')).dy;
+    final lh = w.debugLineContext;
+    // 换句后窗口起点前移 4 行，L3 应恰好上移 4 行高
+    expect(yAfter, closeTo(yBefore - 4 * lh, 1.0),
+        reason: '弹簧终点应当正好滚过 4 行（实际 yBefore=$yBefore '
+            'yAfter=$yAfter 行高=$lh）');
 
     ctx.unmount();
   });
