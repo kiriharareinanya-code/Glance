@@ -14,6 +14,9 @@ library;
 import 'dart:convert';
 
 import '../catalog.dart';
+import '../kit.dart'
+    show FlipSwap, NodeIcon, TapFeedback, nodeColor, nodeWeight, withGaps;
+import 'package:flutter/material.dart';
 
 class _Loc {
   _Loc(this.name, this.cityId, this.lat, this.lon);
@@ -96,93 +99,142 @@ class WeatherWidget extends BuiltinController {
   @override
   void onSettingsChange() {}
 
-  // ---- 前脸：当前天气 + 5 天预报 ----
-  Map<String, Object?> _buildFront(
-      Map<String, Object?> data, _Loc loc, int rows) {
+  // ---- 前脸：当前天气 + 5 天预报（原生 Widget）----
+
+  Widget _grid(
+      {required int cols,
+      required double gap,
+      required bool fill,
+      required List<Widget> kids}) {
+    // 与旧 grid 节点逐行对应：fill 让各行均分可用高度（放在 flex 里
+    // 不开这个的话，网格会缩在顶部，卡片放大后中间留一大块空白）。
+    final rows = <Widget>[];
+    for (var i = 0; i < kids.length; i += cols) {
+      final slice = kids.sublist(i, (i + cols).clamp(0, kids.length));
+      final cells = <Widget>[];
+      for (var j = 0; j < cols; j++) {
+        if (j > 0 && gap > 0) cells.add(SizedBox(width: gap));
+        cells.add(Expanded(
+            child: j < slice.length ? slice[j] : const SizedBox.shrink()));
+      }
+      if (rows.isNotEmpty && gap > 0) rows.add(SizedBox(height: gap));
+      rows.add(fill ? Expanded(child: Row(children: cells)) : Row(children: cells));
+    }
+    return Column(
+      mainAxisSize: fill ? MainAxisSize.max : MainAxisSize.min,
+      children: rows,
+    );
+  }
+
+  Widget _divider() => Container(
+        height: 1,
+        color: const Color(0x1AFFFFFF),
+        margin: const EdgeInsets.symmetric(vertical: 4),
+      );
+
+  /// 钉死可用高度的取景框：内容超了就裁，不会顶穿卡片（与旧 box h+clip 对应）。
+  Widget _framed(Widget child) {
+    return SizedBox(
+      height: ctx.size.height,
+      width: double.infinity,
+      child: ClipRect(
+        child: OverflowBox(
+          minHeight: 0,
+          maxHeight: double.infinity,
+          alignment: Alignment.topCenter,
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  TextStyle _ts(Color fg,
+      {double? size,
+      double? opacity,
+      int? weight,
+      double? spacing,
+      bool mono = false}) {
+    return TextStyle(
+      fontSize: size,
+      color: fg.withValues(alpha: opacity ?? 1.0),
+      fontWeight: weight == null ? null : nodeWeight(weight),
+      letterSpacing: spacing,
+      fontFeatures: mono ? const [FontFeature.tabularFigures()] : null,
+    );
+  }
+
+  Widget _buildFront(
+      Map<String, Object?> data, _Loc loc, int rows, Color fg) {
     final cur = (data['current'] as Map?)?.cast<String, Object?>() ?? {};
     final fd = (data['forecastDaily'] as Map?)?.cast<String, Object?>() ?? {};
     final compact = rows <= 2;
     final curCode = _codeOf(cur['weather']);
-    final kids = <Map<String, Object?>>[
-      {
-        't': 'row',
-        'main': 'between',
-        'cross': 'start',
-        'children': [
-          {
-            't': 'col',
-            'gap': 3,
-            'children': [
-              {
-                't': 'row',
-                'gap': 6,
-                'cross': 'center',
-                'children': [
-                  {'t': 'box', 'w': 4, 'h': 4, 'radius': 2, 'bg': '#7CC7FF'},
-                  {'t': 'text', 'v': loc.name, 'size': 13, 'opacity': 0.55},
-                ]
-              },
-              {
-                't': 'row',
-                'cross': 'start',
-                'children': [
-                  {
-                    't': 'text',
-                    'v': '${_nest(cur, ['temperature', 'value']) ?? '--'}',
-                    'size': 48,
-                    'weight': 300,
-                    'lh': 1.0,
-                    'mono': true
-                  },
-                  {
-                    't': 'box',
-                    'pad': [4, 0, 0, 2],
-                    'child': {
-                      't': 'text',
-                      'v': '°',
-                      'size': 22,
-                      'weight': 300,
-                      'opacity': 0.5
-                    }
-                  },
-                ]
-              },
-            ]
-          },
-          {
-            't': 'col',
-            'cross': 'end',
-            'gap': 6,
-            'children': [
-              {
-                't': 'box',
-                'w': 40,
-                'h': 40,
-                'radius': 20,
-                'center': true,
-                'bg': '${_iconColorOf(curCode)}26',
-                'child': {
-                  't': 'icon',
-                  'v': _iconOf(curCode),
-                  'size': 22,
-                  'color': _iconColorOf(curCode)
-                }
-              },
-              {'t': 'text', 'v': _descOf(curCode), 'size': 12, 'opacity': 0.65},
-            ]
-          },
-        ]
-      },
+    final kids = <Widget>[
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: withGaps([
+              Row(
+                children: withGaps([
+                  Container(
+                    width: 4,
+                    height: 4,
+                    decoration: BoxDecoration(
+                        color: nodeColor('#7CC7FF'),
+                        borderRadius: BorderRadius.circular(2)),
+                  ),
+                  Text(loc.name, style: _ts(fg, size: 13, opacity: 0.55)),
+                ], 6, horizontal: true),
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('${_nest(cur, ['temperature', 'value']) ?? '--'}',
+                      style: _ts(fg, size: 48, weight: 300, mono: true)),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 2, top: 4),
+                    child: Text('°', style: _ts(fg, size: 22, weight: 300, opacity: 0.5)),
+                  ),
+                ],
+              ),
+            ], 3),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: withGaps([
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: nodeColor('${_iconColorOf(curCode)}26'),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Center(
+                  child: NodeIcon(
+                      name: _iconOf(curCode),
+                      size: 22,
+                      color: nodeColor(_iconColorOf(curCode)),
+                      animate: ctx.animate),
+                ),
+              ),
+              Text(_descOf(curCode), style: _ts(fg, size: 12, opacity: 0.65)),
+            ], 6),
+          ),
+        ],
+      ),
     ];
 
     // 当前详情徽章：体感 / 湿度 / 风速 / UV
-    final detail = <Map<String, Object?>>[];
+    final detail = <Map<String, String>>[];
     final feels = _nest(cur, ['feelsLike', 'value']);
     if (feels != null) {
-      detail.add({
-        'icon': 'thermostat',
-        'v': '体感 $feels°',
-      });
+      detail.add({'icon': 'thermostat', 'v': '体感 $feels°'});
     }
     final hum = _nest(cur, ['humidity', 'value']);
     if (hum != null) detail.add({'icon': 'rain', 'v': '$hum%'});
@@ -193,37 +245,33 @@ class WeatherWidget extends BuiltinController {
       detail.add({'icon': 'sun', 'v': 'UV $uv'});
     }
     if (detail.isNotEmpty) {
-      kids.add({
-        't': 'row',
-        'gap': 6,
-        'children': [
+      kids.add(Row(
+        children: withGaps([
           for (final it in detail)
-            {
-              't': 'box',
-              'pad': [3, 8],
-              'radius': 9,
-              'bg': '#FFFFFF12',
-              'child': {
-                't': 'row',
-                'gap': 4,
-                'cross': 'center',
-                'children': [
-                  {
-                    't': 'icon',
-                    'v': it['icon'],
-                    'size': 11,
-                    'opacity': 0.55
-                  },
-                  {'t': 'text', 'v': it['v'], 'size': 11, 'opacity': 0.75},
-                ]
-              }
-            }
-        ]
-      });
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+              decoration: BoxDecoration(
+                color: nodeColor('#FFFFFF12'),
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: Row(
+                children: withGaps([
+                  NodeIcon(
+                      name: it['icon']!,
+                      size: 11,
+                      color: fg.withValues(alpha: 0.55),
+                      animate: ctx.animate),
+                  Text(it['v']!, style: _ts(fg, size: 11, opacity: 0.75)),
+                ], 4, horizontal: true),
+              ),
+            ),
+        ], 6, horizontal: true),
+      ));
     }
 
     // 5 天预报：forecastDaily index 0 = 今天，星期用本地日期加下标推算
-    final days = <Map<String, Object?>>[];
+    final days = <Widget>[];
     final temps =
         (_nest(fd, ['temperature', 'value']) as List?)?.cast<Object?>() ?? [];
     final wtrs =
@@ -235,61 +283,58 @@ class WeatherWidget extends BuiltinController {
       final d = DateTime.now().add(Duration(days: i));
       const wk = ['日', '一', '二', '三', '四', '五', '六'];
       final label = i == 0 ? '今天' : '周${wk[d.weekday % 7]}';
-      final cellKids = <Map<String, Object?>>[
-        {'t': 'text', 'v': label, 'size': 11, 'opacity': 0.45, 'align': 'center'},
-        {'t': 'icon', 'v': _iconOf(wcode), 'size': 15, 'color': _iconColorOf(wcode)},
+      final cellKids = <Widget>[
+        Text(label, textAlign: TextAlign.center, style: _ts(fg, size: 11, opacity: 0.45)),
+        NodeIcon(
+            name: _iconOf(wcode),
+            size: 15,
+            color: nodeColor(_iconColorOf(wcode)),
+            animate: ctx.animate),
       ];
       if (hi != null) {
-        cellKids.add({
-          't': 'text',
-          'v': '${hi.round()}°',
-          'size': 12,
-          'align': 'center',
-          'weight': 600
-        });
+        cellKids.add(Text('${hi.round()}°',
+            textAlign: TextAlign.center,
+            style: _ts(fg, size: 12, weight: 600)));
         if (!compact && lo != null) {
-          cellKids.add({
-            't': 'text',
-            'v': '${lo.round()}°',
-            'size': 11,
-            'align': 'center',
-            'opacity': 0.4
-          });
+          cellKids.add(Text('${lo.round()}°',
+              textAlign: TextAlign.center,
+              style: _ts(fg, size: 11, opacity: 0.4)));
         }
       }
-      days.add({
-        't': 'box',
-        'pad': compact ? [2, 2] : [6, 2],
-        'radius': 10,
-        'bg': i == 0 ? '#FFFFFF1C' : '#FFFFFF0A',
-        'border': i == 0 ? '#FFFFFF2E' : null,
-        'child': {
-          't': 'col',
-          'gap': 4,
-          'cross': 'center',
-          'children': cellKids
-        }
-      });
+      days.add(Container(
+        padding: EdgeInsets.symmetric(
+            vertical: compact ? 2 : 6, horizontal: 2),
+        decoration: BoxDecoration(
+          color: nodeColor(i == 0 ? '#FFFFFF1C' : '#FFFFFF0A'),
+          borderRadius: BorderRadius.circular(10),
+          border: i == 0
+              ? Border.all(color: nodeColor('#FFFFFF2E'))
+              : null,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: withGaps(cellKids, 4),
+        ),
+      ));
     }
     if (days.isNotEmpty) {
-      kids.add({'t': 'divider'});
-      kids.add({'t': 'grid', 'cols': 5, 'gap': 4, 'children': days});
+      kids.add(_divider());
+      kids.add(_grid(cols: 5, gap: 4, fill: false, kids: days));
     }
     // h + clip 兜底：钉死可用高度，不会顶穿卡片
-    return {
-      't': 'box',
-      'h': ctx.size.height,
-      'clip': true,
-      'child': {'t': 'col', 'gap': 8, 'children': kids}
-    };
+    return _framed(Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: withGaps(kids, 8),
+    ));
   }
 
   // ---- 后脸：12 小时逐时 + 空气质量/UV 环境指数 ----
-  Map<String, Object?> _buildBack(Map<String, Object?> data, int rows) {
+  Widget _buildBack(Map<String, Object?> data, int rows, Color fg) {
     final fh = (data['forecastHourly'] as Map?)?.cast<String, Object?>() ?? {};
     final aqi = (data['aqi'] as Map?)?.cast<String, Object?>() ?? {};
     final compact = rows <= 2;
-    final kids = <Map<String, Object?>>[];
+    final kids = <Widget>[];
 
     final hTemps =
         (_nest(fh, ['temperature', 'value']) as List?)?.cast<Object?>() ?? [];
@@ -302,43 +347,39 @@ class WeatherWidget extends BuiltinController {
       if (pubTime != null) {
         startDate = DateTime.tryParse('$pubTime') ?? DateTime.now();
       }
-      final cols = <Map<String, Object?>>[];
+      final cols = <Widget>[];
       const hn = 12;
       for (var k = 0; k < hn && k < hTemps.length; k++) {
         final hd = startDate.add(Duration(hours: k));
         final hc = _codeOf(k < hWtrs.length ? hWtrs[k] : null);
-        cols.add({
-          't': 'col',
-          'gap': 3,
-          'cross': 'center',
-          'children': [
-            {'t': 'text', 'v': '${hd.hour}时', 'size': 10, 'opacity': 0.45},
-            {'t': 'icon', 'v': _iconOf(hc), 'size': 14, 'color': _iconColorOf(hc)},
-            {
-              't': 'text',
-              'v': '${_asNum(hTemps[k]).round()}°',
-              'size': 11.5,
-              'weight': 600,
-              'align': 'center'
-            },
-          ]
-        });
+        cols.add(Column(
+          mainAxisSize: MainAxisSize.min,
+          children: withGaps([
+            Text('${hd.hour}时', style: _ts(fg, size: 10, opacity: 0.45)),
+            NodeIcon(
+                name: _iconOf(hc),
+                size: 14,
+                color: nodeColor(_iconColorOf(hc)),
+                animate: ctx.animate),
+            Text('${_asNum(hTemps[k]).round()}°',
+                textAlign: TextAlign.center,
+                style: _ts(fg, size: 11.5, weight: 600)),
+          ], 3),
+        ));
       }
-      kids.add({
-        't': 'text',
-        'v': '未来 ${cols.length} 小时',
-        'size': 11,
-        'opacity': 0.45
-      });
+      kids.add(Text('未来 ${cols.length} 小时',
+          style: _ts(fg, size: 11, opacity: 0.45)));
       // 6 列：12 个小时格子排成 2 行 x 6 列
-      kids.add({'t': 'grid', 'cols': 6, 'gap': 4, 'children': cols});
-      if (!compact) kids.add({'t': 'divider'});
+      kids.add(_grid(cols: 6, gap: 4, fill: false, kids: cols));
+      if (!compact) kids.add(_divider());
     }
 
     // 环境指数：AQI 数值 + 一句话建议 + UV 等级
     {
       final env = <String>[];
-      if (aqi['aqi'] != null && '${aqi['aqi']}' != '') env.add('AQI ${aqi['aqi']}');
+      if (aqi['aqi'] != null && '${aqi['aqi']}' != '') {
+        env.add('AQI ${aqi['aqi']}');
+      }
       if (aqi['suggest'] != null && '${aqi['suggest']}' != '') {
         env.add('${aqi['suggest']}');
       }
@@ -357,98 +398,104 @@ class WeatherWidget extends BuiltinController {
         env.add('UV $uv（$uvLabel）');
       }
       if (env.isNotEmpty) {
-        if (!compact) kids.add({'t': 'divider'});
-        kids.add({
-          't': 'col',
-          'gap': 4,
-          'children': [
+        if (!compact) kids.add(_divider());
+        kids.add(Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
             for (final s in env)
-              {'t': 'text', 'v': s, 'size': 11, 'opacity': 0.5}
-          ]
-        });
+              Text(s, style: _ts(fg, size: 11, opacity: 0.5)),
+          ],
+        ));
       }
     }
 
-    return {
-      't': 'box',
-      'h': ctx.size.height,
-      'clip': true,
-      'child': {'t': 'col', 'gap': 8, 'children': kids}
-    };
+    return _framed(Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: withGaps(kids, 8),
+    ));
   }
 
   // ---- 主渲染 ----
   void _draw() {
     if (_status == 'loading') {
-      ctx.render({
-        't': 'col',
-        'main': 'center',
-        'children': [
-          {'t': 'text', 'v': '正在获取天气…', 'size': 12, 'opacity': 0.45}
-        ]
-      });
+      ctx.renderWidget(Builder(builder: (context) {
+        final fg = DefaultTextStyle.of(context).style.color ?? Colors.white;
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [Text('正在获取天气…', style: _ts(fg, size: 12, opacity: 0.45))],
+        );
+      }));
       return;
     }
     if (_status == 'error') {
-      final retry = ctx.on((_) {
-        _status = 'loading';
-        _draw();
-        _load();
-      });
-      ctx.render({
-        't': 'col',
-        'gap': 10,
-        'main': 'center',
-        'children': [
-          {
-            't': 'row',
-            'gap': 6,
-            'cross': 'center',
-            'children': [
-              {'t': 'box', 'w': 4, 'h': 4, 'radius': 2, 'bg': '#FF9E7D'},
-              {'t': 'text', 'v': '天气不可用', 'size': 12, 'weight': 600},
-            ]
-          },
-          {
-            't': 'text',
-            'v': _error,
-            'size': 10.5,
-            'opacity': 0.5,
-            'maxLines': 3
-          },
-          {
-            't': 'tap',
-            'id': retry,
-            'child': {
-              't': 'box',
-              'pad': [5, 12],
-              'radius': 8,
-              'bg': '#FFFFFF14',
-              'child': {'t': 'text', 'v': '重试', 'size': 11}
-            }
-          },
-        ]
-      });
+      ctx.renderWidget(Builder(builder: (context) {
+        final fg = DefaultTextStyle.of(context).style.color ?? Colors.white;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: withGaps([
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: withGaps([
+                Container(
+                  width: 4,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      color: nodeColor('#FF9E7D'),
+                      borderRadius: BorderRadius.circular(2)),
+                ),
+                Text('天气不可用',
+                    style: _ts(fg, size: 12, weight: 600)),
+              ], 6, horizontal: true),
+            ),
+            Text(_error,
+                textAlign: TextAlign.center,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: _ts(fg, size: 10.5, opacity: 0.5)),
+            TapFeedback(
+              animate: ctx.animate,
+              onTap: () {
+                _status = 'loading';
+                _draw();
+                _load();
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+                decoration: BoxDecoration(
+                  color: nodeColor('#FFFFFF14'),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text('重试', style: _ts(fg, size: 11)),
+              ),
+            ),
+          ], 10),
+        );
+      }));
       return;
     }
 
-    final flipId = ctx.on((_) {
-      _face = _face == 'f' ? 'b' : 'f';
-      _draw();
-    });
+    Widget body(Color fg) {
+      final front = _buildFront(_data!, _loc!, ctx.grid.rows, fg);
+      final back = _buildBack(_data!, ctx.grid.rows, fg);
+      if (!ctx.animate) return front;
+      return FlipSwap(flipKey: _face, front: front, back: back);
+    }
 
-    ctx.render({
-      't': 'tap',
-      'id': flipId,
-      'child': {
-        't': 'flip',
-        'flipKey': _face,
-        'children': [
-          _buildFront(_data!, _loc!, ctx.grid.rows),
-          _buildBack(_data!, ctx.grid.rows),
-        ]
-      }
-    });
+    ctx.renderWidget(Builder(builder: (context) {
+      final fg = DefaultTextStyle.of(context).style.color ?? Colors.white;
+      return TapFeedback(
+        animate: ctx.animate,
+        onTap: () {
+          _face = _face == 'f' ? 'b' : 'f';
+          _draw();
+        },
+        child: body(fg),
+      );
+    }));
   }
 
   // ---- 翻转定时器 ----

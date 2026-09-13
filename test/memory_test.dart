@@ -10,7 +10,7 @@ import 'package:flutter/foundation.dart' show Uint8List;
 import 'package:flutter/material.dart' show Icons;
 import 'package:vectra/widgets/images.dart';
 import 'package:vectra/widgets/morph_icons.dart' show kMorphIconPaths;
-import 'package:vectra/widgets/node.dart' show iconDataFor;
+import 'package:vectra/widgets/kit.dart' show iconDataFor;
 import 'package:vectra/store/store.dart';
 
 void main() {

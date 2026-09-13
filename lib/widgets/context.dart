@@ -49,23 +49,17 @@ class WidgetContext {
   Size size;
   String? themeAccent;
 
-  /// 组件最近一次 render 出来的 UI 树
-  final ValueNotifier<Map<String, Object?>?> tree = ValueNotifier(null);
-
-  /// 原生渲染通道：迁移中的组件直接产出 Flutter Widget。
+  /// 组件最近一次渲染出的 Flutter Widget（原生通道）。
   ///
-  /// JSON 树协议（[tree]）当初为 QuickJS 插件而设；插件系统移除后组件都是
-  /// 编译进核心的 Dart，没必要再经过"建 Map 树 → NodeView 解释"的中转。
-  /// 两条通道并存，卡片侧**优先取这边**——组件逐个迁移，迁移完的组件只调
-  /// [renderWidget]，没迁的继续用 [render]，互不影响。
+  /// 历史上这层还有一条 JSON 树协议（组件产出 Map，NodeView 解释）——
+  /// 当初为 QuickJS 插件而设。插件系统移除后五个组件已全部迁到原生
+  /// 通道，协议与解释器随之删除。
   final ValueNotifier<Widget?> widget = ValueNotifier(null);
 
   /// 动画开关（卡片侧的"动画效果"设置）。由卡片在构建时推入，与
   /// [themeAccent] 同一手法：组件在下次重绘时读到新值。
   bool animate = true;
 
-  final Map<String, void Function(Map<String, Object?>)> _handlers = {};
-  int _handlerSeq = 0;
   final Map<String, Timer> _timers = {};
   int _timerSeq = 0;
   final List<void Function()> _cleanups = [];
@@ -74,28 +68,8 @@ class WidgetContext {
   final Set<Timer> _netTimeouts = {};
   bool _alive = true;
 
-  /// 声明式 UI 里的事件处理器登记：树里只放 id，函数留在这边
-  String on(void Function(Map<String, Object?>) fn) {
-    final id = 'h${++_handlerSeq}';
-    _handlers[id] = fn;
-    return id;
-  }
-
-  /// 事件回到组件（node 渲染层按 id 调进来）
-  void dispatchEvent(String handlerId, Map<String, Object?> payload) {
-    if (!_alive) return;
-    final fn = _handlers[handlerId];
-    if (fn != null) fn(payload);
-  }
-
   /// 卡片销毁后，在途的异步回调（网络请求回来、定时器最后一跳）仍会调用
-  /// draw()/render()——置 dead 后 render 变成空操作，不会写已释放的 notifier。
-  void render(Map<String, Object?> t) {
-    if (!_alive) return;
-    tree.value = t;
-  }
-
-  /// 原生通道渲染：直接给一个 Flutter Widget。与 [render] 同样的死亡守门。
+  /// renderWidget()——置 dead 后变成空操作，不会写已释放的 notifier。
   void renderWidget(Widget w) {
     if (!_alive) return;
     widget.value = w;
@@ -126,10 +100,10 @@ class WidgetContext {
   }
   void onCleanup(void Function() fn) => _cleanups.add(fn);
 
-  /// 卸载：倒序跑 cleanup，再掐掉所有定时器与事件表。
-  /// 之后 render/dispatchEvent 变成空操作（在途回调的兜底）。
+  /// 卸载：倒序跑 cleanup，再掐掉所有定时器。
+  /// 之后 renderWidget 变成空操作（在途回调的兜底）。
   /// 幂等：重复调用只生效一次（配置窗口"按内容构建、切页即销毁"的路径下
-  /// 控制器与卡片可能各喊一次，timer 表已空，绝不能碰已 dispose 的 tree）。
+  /// 控制器与卡片可能各喊一次，timer 表已空，绝不能碰已 dispose 的 notifier）。
   bool _disposed = false;
   void unmount() {
     if (_disposed) return;
@@ -150,8 +124,6 @@ class WidgetContext {
       t.cancel();
     }
     _netTimeouts.clear();
-    _handlers.clear();
-    tree.dispose();
     widget.dispose();
   }
 

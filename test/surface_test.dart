@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vectra/model/card.dart';
-import 'package:vectra/widgets/node.dart';
+import 'package:vectra/widgets/kit.dart';
 import 'package:vectra/model/settings.dart';
 import 'package:vectra/store/store.dart';
 import 'package:vectra/ui/surface.dart';
@@ -405,13 +405,16 @@ void main() {
           state: state,
           store: store,
           buildPluginBody: (card, size) => card.id == 'mover'
-              ? NodeView(
-                  tree: const {
-                    't': 'box',
-                    'w': 200.0,
-                    'child': {'t': 'slider', 'id': 'seek', 'v': 0.0}
-                  },
-                  onEvent: (_, _) {},
+              ? const SizedBox(
+                  width: 200,
+                  child: PluginSlider(
+                    value: 0,
+                    height: 4,
+                    color: Colors.white,
+                    background: Color(0x22FFFFFF),
+                    enabled: true,
+                    onChanged: null,
+                  ),
                 )
               : const SizedBox.shrink(),
         ),

@@ -23,7 +23,7 @@ import '../core/snap.dart' as snap;
 import '../model/card.dart';
 import '../model/settings.dart';
 import '../native/native_bridge.dart';
-import '../widgets/node.dart' show NodePointer;
+import '../widgets/kit.dart' show NodePointer;
 import '../store/store.dart';
 import 'card_view.dart';
 import 'guides.dart';

@@ -26,7 +26,6 @@ import 'package:vectra/model/card.dart';
 import 'package:vectra/widgets/builtin/lrc.dart';
 import 'package:vectra/widgets/builtin/lyrics.dart';
 import 'package:vectra/widgets/context.dart';
-import 'package:vectra/widgets/node.dart';
 import 'package:vectra/widgets/spring_transition.dart';
 import 'package:vectra/store/store.dart';
 
@@ -342,7 +341,8 @@ void main() {
     ctx.unmount();
   });
 
-  testWidgets('节点层：slide 节点按目标偏移做弹簧平移', (tester) async {
+  // SpringSlide 本体行为（原"节点层"测试，协议退役后直接泵 widget）
+  testWidgets('SpringSlide 按目标偏移做弹簧平移', (tester) async {
     var off = 0.0;
     late StateSetter set;
     await tester.pumpWidget(MaterialApp(
@@ -352,13 +352,10 @@ void main() {
           return SizedBox(
             width: 200,
             height: 200,
-            child: NodeView(
-                tree: {
-                  't': 'slide',
-                  'v': off,
-                  'child': {'t': 'text', 'v': '歌词'}
-                },
-                onEvent: (_, _) {}),
+            child: SpringSlide(
+              offset: off,
+              child: const Text('歌词'),
+            ),
           );
         }),
       ),
@@ -376,7 +373,7 @@ void main() {
         reason: '动画结束必须精确到位');
   });
 
-  testWidgets('节点层：连续换句从当前位置接着走，不跳回起点', (tester) async {
+  testWidgets('SpringSlide 连续换句从当前位置接着走，不跳回起点', (tester) async {
     var off = 0.0;
     late StateSetter set;
     await tester.pumpWidget(MaterialApp(
@@ -386,13 +383,10 @@ void main() {
           return SizedBox(
             width: 200,
             height: 200,
-            child: NodeView(
-                tree: {
-                  't': 'slide',
-                  'v': off,
-                  'child': {'t': 'text', 'v': '歌词'}
-                },
-                onEvent: (_, _) {}),
+            child: SpringSlide(
+              offset: off,
+              child: const Text('歌词'),
+            ),
           );
         }),
       ),
@@ -416,20 +410,17 @@ void main() {
     expect(pos().dy, closeTo(-200, 0.5));
   });
 
-  testWidgets('节点层：关闭动画时 slide 直接到位', (tester) async {
-    await tester.pumpWidget(MaterialApp(
+  testWidgets('SpringSlide 关闭动画时直接到位', (tester) async {
+    await tester.pumpWidget(const MaterialApp(
       home: Scaffold(
         body: SizedBox(
           width: 200,
           height: 200,
-          child: NodeView(
-              tree: {
-                't': 'slide',
-                'v': -50.0,
-                'child': {'t': 'text', 'v': '歌词'}
-              },
-              animate: false,
-              onEvent: (_, _) {}),
+          child: SpringSlide(
+            offset: -50,
+            animate: false,
+            child: Text('歌词'),
+          ),
         ),
       ),
     ));

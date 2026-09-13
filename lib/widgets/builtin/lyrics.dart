@@ -16,7 +16,8 @@ import 'package:flutter/material.dart';
 import '../catalog.dart';
 import '../images.dart' show WidgetImages;
 import '../morph_icons.dart' show MorphableIcon;
-import '../node.dart' show PluginSlider, TapFeedback, iconDataFor;
+import '../kit.dart'
+    show PluginSlider, TapFeedback, iconDataFor, nodeColor, nodeGlow;
 import '../node_anim.dart'
     show NodeAnimatedColor, kNodeAnimCurve, kNodeAnimDuration;
 import '../spring_transition.dart' show SpringSlide;
@@ -393,30 +394,6 @@ class LyricsWidget extends BuiltinController {
   // ------------------------------------------------------------------
 
   /// 解析 #RGB / #RRGGBB / #RRGGBBAA（8 位时 alpha 在后，与 node.dart 一致）。
-  Color _c(String hex) {
-    var h = hex.replaceFirst('#', '');
-    if (h.length == 3) {
-      h = h.split('').map((c) => '$c$c').join();
-    }
-    if (h.length == 8) {
-      final rgb = int.parse(h.substring(0, 6), radix: 16);
-      final a = int.parse(h.substring(6, 8), radix: 16);
-      return Color((a << 24) | rgb);
-    }
-    return Color(int.parse(h, radix: 16) | 0xFF000000);
-  }
-
-  /// 两层 shadow 做"贴着笔画"的辉光（与 node.dart 的 _glow 同参数）。
-  List<Shadow> _glow(Color color, double sigma) {
-    final base = color.withValues(alpha: (color.a * 0.9).clamp(0.0, 1.0));
-    return [
-      Shadow(color: base, blurRadius: sigma * 0.6),
-      Shadow(
-          color: base.withValues(alpha: base.a * 0.45),
-          blurRadius: sigma * 1.8),
-    ];
-  }
-
   TextStyle _monoStyle(Color fg) => TextStyle(
         fontSize: 9.5,
         color: fg.withValues(alpha: 0.4),
@@ -613,7 +590,7 @@ class LyricsWidget extends BuiltinController {
       }
       // "正在唱"的这一行带辉光。半径按字号配，光晕必须小于字间距。
       final glow =
-          isCurrent ? _glow(_c(_accent), 9) : const <Shadow>[];
+          isCurrent ? nodeGlow(nodeColor(_accent), 9) : const <Shadow>[];
       final body = Text(
         line.s.isEmpty ? '·' : line.s,
         maxLines: 1,
@@ -647,7 +624,7 @@ class LyricsWidget extends BuiltinController {
               style: TextStyle(
                 fontSize: _lyricSize - 3,
                 color: fg.withValues(alpha: 0.7),
-                shadows: _glow(_c(_accent), 6),
+                shadows: nodeGlow(nodeColor(_accent), 6),
               ),
             ),
           ],

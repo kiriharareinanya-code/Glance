@@ -15,7 +15,6 @@ import '../model/card.dart';
 import '../store/store.dart';
 import '../widgets/catalog.dart';
 import '../widgets/context.dart';
-import '../widgets/node.dart';
 import '../widgets/spec.dart';
 
 class BuiltinPreview extends StatefulWidget {
@@ -132,18 +131,10 @@ class _BuiltinPreviewState extends State<BuiltinPreview> {
           borderRadius: BorderRadius.circular(10),
           child: ColoredBox(
             color: const Color(0x0A000000),
-            // 双通道：原生组件优先，未迁移的回落 JSON 协议。
+            // 原生渲染通道：组件直接产出 Flutter Widget（协议已退役）。
             child: ValueListenableBuilder<Widget?>(
               valueListenable: ctx.widget,
-              builder: (context, native, _) => native ??
-                  ValueListenableBuilder<Map<String, Object?>?>(
-                    valueListenable: ctx.tree,
-                    builder: (context, tree, _) => NodeView(
-                      tree: tree,
-                      onEvent: (_, _) {}, // 预览不响应交互
-                      animate: false,
-                    ),
-                  ),
+              builder: (context, native, _) => native ?? const SizedBox.shrink(),
             ),
           ),
         ),
