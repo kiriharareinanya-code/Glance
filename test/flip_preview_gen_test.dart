@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
 import 'package:flutter/services.dart' show rootBundle, FontLoader;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vectra/plugin/flip_transition.dart';
+import 'package:vectra/widgets/flip_transition.dart';
 
 /// 抓当前帧存成 PNG
 Future<void> _shot(WidgetTester tester, String name) async {

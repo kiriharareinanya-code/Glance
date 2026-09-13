@@ -12,8 +12,8 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 
-class PluginImages {
-  PluginImages._();
+class WidgetImages {
+  WidgetImages._();
 
   /// 最多留几张。超了就丢最早放进来的。
   static const int _capacity = 4;

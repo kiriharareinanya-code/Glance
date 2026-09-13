@@ -19,9 +19,8 @@ import '../core/snap.dart' as snap;
 import '../core/theme.dart';
 import '../model/card.dart';
 import '../native/native_bridge.dart';
-import '../plugin/manifest.dart';
-import '../plugin/plugin_card_body.dart';
-import '../plugin/registry.dart';
+import '../widgets/spec.dart';
+import '../widgets/builtin_card_body.dart';
 import '../store/store.dart';
 import 'panel_app.dart';
 import 'wallpaper.dart';
@@ -32,13 +31,11 @@ class AppRoot extends StatefulWidget {
     super.key,
     required this.state,
     required this.store,
-    required this.registry,
     this.openPanel = false,
   });
 
   final AppState state;
   final Store store;
-  final PluginRegistry registry;
 
   /// 启动即打开面板（--panel），供验证与自检使用
   final bool openPanel;
@@ -304,7 +301,6 @@ class AppRootState extends State<AppRoot> with TrayListener {
     }
   }
 
-
   Future<void> _initTray() async {
     try {
       await trayManager.setIcon('assets/tray.ico');
@@ -335,10 +331,10 @@ class AppRootState extends State<AppRoot> with TrayListener {
   void onTrayIconRightMouseDown() => trayManager.popUpContextMenu();
 
   @override
-  void onTrayMenuItemClick(MenuItem item) async {
+  void onTrayMenuItemClick(MenuItem menuItem) async {
     // 托盘是用户操作里最"没有痕迹"的一类：点完就没了，事后全靠猜。
-    Log.i('tray', '点击菜单项 ${item.key}');
-    switch (item.key) {
+    Log.i('tray', '点击菜单项 ${menuItem.key}');
+    switch (menuItem.key) {
       case 'panel':
         openPanel();
       case 'lock':
@@ -417,7 +413,6 @@ class AppRootState extends State<AppRoot> with TrayListener {
     exit(0);
   }
 
-
   /// 打开设置窗口（任务栏里那个独立窗口），可指定停在哪页/定位到哪张卡片。
   ///
   /// 面板不再画在磁贴这个窗口里，所以这里**不需要**再把磁贴窗口顶到最前、
@@ -488,7 +483,7 @@ class AppRootState extends State<AppRoot> with TrayListener {
     return i == null ? null : mons[i].rect;
   }
 
-  void addCard(PluginManifest plugin) {
+  void addCard(BuiltinSpec plugin) {
     final s = widget.state.settings;
     final size = sizeToPx(plugin.defaultSize, s.gridCell, s.gridGap);
 
@@ -547,7 +542,7 @@ class AppRootState extends State<AppRoot> with TrayListener {
           store: widget.store,
           onCardSecondaryTap: (card) => openPanel(cardId: card.id),
           onCardAnchor: anchorCard,
-          buildPluginBody: (card, size) => PluginCardBody(
+          buildPluginBody: (card, size) => BuiltinCardBody(
             // 卡片 key 只编码"会改变运行时行为"的量：卡片 id、尺寸、
             // 本卡片的设置、插件代码版本。
             //
@@ -559,11 +554,9 @@ class AppRootState extends State<AppRoot> with TrayListener {
             key: ValueKey(
               '${card.id}:${card.size}:'
               '${jsonEncode(card.settings)}:'
-              '${widget.registry.codeVersion}',
             ),
             card: card,
             size: size,
-            registry: widget.registry,
             store: widget.store,
             state: widget.state,
             onRequestSize: (s) {

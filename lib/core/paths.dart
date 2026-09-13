@@ -31,9 +31,6 @@ class AppPaths {
   /// 用户数据根目录：`<exe>\userdata`
   static String get root => p.join(exeDir, 'userdata');
 
-  /// 第三方插件：`<exe>\userdata\plugins\<id>\`
-  static String get pluginsDir => p.join(root, 'plugins');
-
   /// 应用更新安装包的暂存目录：`<exe>\userdata\update\`
   static String get updateDir => p.join(root, 'update');
 

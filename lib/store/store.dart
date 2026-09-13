@@ -35,15 +35,10 @@ class AppState {
   AppState({
     required this.settings,
     required this.cards,
-    List<String>? disabledPlugins,
-  }) : disabledPlugins = disabledPlugins ?? <String>[];
+  });
 
   AppSettings settings;
   List<WidgetCard> cards;
-
-  /// 用 ?? [] 而不是 const []：默认值若是 const 列表，全新安装（还没有配置
-  /// 文件）时任何一次 add 都会在运行时炸「Cannot add to an unmodifiable list」。
-  List<String> disabledPlugins;
 
   /// 插件命名空间的键值存储：pluginData[pluginId][key]。
   /// 内存里仍是一张总表，落盘时按 pluginId 拆成多个文件。
@@ -134,8 +129,6 @@ class Store {
     return AppState(
       settings: settings,
       cards: cards,
-      disabledPlugins:
-          (raw['disabledPlugins'] as List? ?? const []).cast<String>().toList(),
     );
   }
 
@@ -242,7 +235,6 @@ class Store {
       'schema': schemaVersion,
       'settings': state.settings.toJson(),
       'cards': state.cards.map((c) => c.toJson()).toList(),
-      'disabledPlugins': state.disabledPlugins,
     };
     return const JsonEncoder.withIndent('  ').convert(payload);
   }

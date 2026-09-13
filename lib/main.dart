@@ -18,7 +18,7 @@ import 'core/sentry_reporter.dart' show wireSentryReporter;
 import 'core/splash_gate.dart';
 import 'core/updater.dart';
 import 'native/native_bridge.dart';
-import 'plugin/registry.dart';
+import 'widgets/spec.dart';
 import 'store/store.dart';
 import 'ui/app_root.dart';
 import 'ui/panel_app.dart';
@@ -81,15 +81,7 @@ Future<void> _bootstrap(List<String> args) async {
   final state = await store.load();
   final loadMs = boot.elapsedMilliseconds;
 
-  final registry = PluginRegistry(AppPaths.pluginsDir);
-  await registry.scan();
-  final scanMs = boot.elapsedMilliseconds - loadMs;
-  if (registry.errors.isNotEmpty) {
-    registry.errors.forEach((k, v) => Log.e('plugin', '加载失败 $k: $v'));
-  }
-  Log.i('plugin', '已加载 ${registry.list().length} 个: '
-      '${registry.list().map((m) => m.id).join(", ")}');
-  Log.i('app', '启动耗时 读配置 ${loadMs}ms / 扫插件 ${scanMs}ms');
+  Log.i('app', '启动耗时 读配置 ${loadMs}ms / 内置组件 ${kBuiltinSpecs.length} 个');
 
   if (state.cards.isEmpty) {
     state.cards.addAll(defaultLayout());
@@ -155,7 +147,6 @@ Future<void> _bootstrap(List<String> args) async {
   runWidget(_MultiViewRoot(
     state: state,
     store: store,
-    registry: registry,
     openPanel: args.contains('--panel'),
   ));
 }
@@ -169,13 +160,11 @@ class _MultiViewRoot extends StatefulWidget {
   const _MultiViewRoot({
     required this.state,
     required this.store,
-    required this.registry,
     required this.openPanel,
   });
 
   final AppState state;
   final Store store;
-  final PluginRegistry registry;
 
   /// --panel：启动即弹出设置窗口，供不合成键鼠的验证使用
   final bool openPanel;
@@ -248,7 +237,6 @@ class _MultiViewRootState extends State<_MultiViewRoot> {
             appKey: _appKey,
             state: widget.state,
             store: widget.store,
-            registry: widget.registry,
           ),
         ),
       if (_panelView != null)
@@ -256,7 +244,7 @@ class _MultiViewRootState extends State<_MultiViewRoot> {
           key: ValueKey('view:${_panelView!.viewId}'),
           view: _panelView!,
           // 窗口隐藏时挂起整棵内容树：面板里组件库页挂着 5 个真实运行的
-          // 插件预览（QuickJS + 每秒轮询），窗口看不见时它们没有理由活着。
+          // 实时组件预览（每秒轮询），窗口看不见时它们没有理由活着。
           // View 本体保留（native 窗口不能没视图），只是不渲染内容。
           child: ValueListenableBuilder<bool>(
             valueListenable: NativeWindow.visibilityOf(NativeWindow.panel),
@@ -265,7 +253,6 @@ class _MultiViewRootState extends State<_MultiViewRoot> {
                     appKey: _appKey,
                     state: widget.state,
                     store: widget.store,
-                    registry: widget.registry,
                   )
                 : const SizedBox.shrink(),
           ),
@@ -280,12 +267,10 @@ class VectraApp extends StatelessWidget {
     required this.appKey,
     required this.state,
     required this.store,
-    required this.registry,
   });
 
   final AppState state;
   final Store store;
-  final PluginRegistry registry;
   final GlobalKey<AppRootState> appKey;
 
   @override
@@ -302,8 +287,7 @@ class VectraApp extends StatelessWidget {
             key: appKey,
             state: state,
             store: store,
-            registry: registry,
-          ),
+                  ),
       ),
     );
   }

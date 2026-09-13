@@ -23,7 +23,7 @@ import '../core/snap.dart' as snap;
 import '../model/card.dart';
 import '../model/settings.dart';
 import '../native/native_bridge.dart';
-import '../plugin/node.dart' show PluginPointer;
+import '../widgets/node.dart' show NodePointer;
 import '../store/store.dart';
 import 'card_view.dart';
 import 'guides.dart';
@@ -242,7 +242,7 @@ class DesktopSurfaceState extends State<DesktopSurface> {
     // 插件里的滑条之类控件已经接管了这次指针，就不要再拖卡片。
     // 指针事件是从最内层往外派发的，所以这里读到的一定是插件刚置的位。
     // 少了这一条，拖进度条会把整张卡片一起拖走。
-    if (PluginPointer.isGrabbed(e.pointer)) return;
+    if (NodePointer.isGrabbed(e.pointer)) return;
 
     final card = _cardAt(e.localPosition);
     if (card == null) return;

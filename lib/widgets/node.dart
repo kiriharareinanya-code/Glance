@@ -23,10 +23,9 @@ import 'images.dart';
 import 'flip_transition.dart';
 import 'morph_icons.dart';
 import 'node_anim.dart';
-import 'registry.dart';
 
 /// 事件回调：插件在树里声明 {"t":"tap","id":"h1"}，点中时回调 h1
-typedef PluginEvent = void Function(String handlerId, Map<String, Object?> payload);
+typedef NodeEvent = void Function(String handlerId, Map<String, Object?> payload);
 
 /// 插件内部控件正在接管这次指针操作，桌面层不要把它当成"拖动卡片"。
 ///
@@ -36,8 +35,8 @@ typedef PluginEvent = void Function(String handlerId, Map<String, Object?> paylo
 ///
 /// Flutter 的指针事件是**从最内层往外层**依次派发的，所以滑条在自己的
 /// onPointerDown 里置位，外层 Listener 随后就能读到。
-class PluginPointer {
-  PluginPointer._();
+class NodePointer {
+  NodePointer._();
 
   /// 正在被插件控件抓住的指针 id；null 表示没有
   static int? grabbedPointer;
@@ -45,30 +44,26 @@ class PluginPointer {
   static bool isGrabbed(int pointer) => grabbedPointer == pointer;
 }
 
-class PluginView extends StatefulWidget {
-  const PluginView({
+class NodeView extends StatefulWidget {
+  const NodeView({
     super.key,
     required this.tree,
     required this.onEvent,
     this.animate = true,
-    this.registry,
   });
 
   /// 插件返回的 UI 树；null 表示还没渲染出内容
   final Map<String, Object?>? tree;
-  final PluginEvent onEvent;
+  final NodeEvent onEvent;
 
   /// 是否允许内容切换动画（全局设置里可以关）
   final bool animate;
 
-  /// 插件注册表（用于查找自定义节点类型）。null 时只用内置节点。
-  final PluginRegistry? registry;
-
   @override
-  State<PluginView> createState() => _PluginViewState();
+  State<NodeView> createState() => _NodeViewState();
 }
 
-class _PluginViewState extends State<PluginView> {
+class _NodeViewState extends State<NodeView> {
   /// 输入框控制器按节点 id 复用，否则每次重建都会丢失光标与内容
   final Map<String, TextEditingController> _controllers = {};
 
@@ -245,29 +240,6 @@ class _PluginViewState extends State<PluginView> {
       case 'flip':
         return _flip(n, fg);
       default:
-        // 查插件注册的自定义节点类型
-        final nodeType = _str(n['t']);
-        if (widget.registry != null && nodeType != null) {
-          final handler = widget.registry!.registeredNodes[nodeType];
-          if (handler != null) {
-            // v1: 自定义节点目前只显示一个占位符。
-            // 后续接入 QuickJS 调用链后，会调用 handler.render(props) 获取真实 widget。
-            return Container(
-              padding: const EdgeInsets.all(8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.extension_outlined,
-                      size: 14, color: fg.withValues(alpha: 0.5)),
-                  const SizedBox(width: 4),
-                  Text(nodeType,
-                      style: TextStyle(
-                          fontSize: 11, color: fg.withValues(alpha: 0.5))),
-                ],
-              ),
-            );
-          }
-        }
         // 未知节点不该让整张卡片崩掉
         return const SizedBox.shrink();
     }
@@ -637,7 +609,7 @@ class _PluginViewState extends State<PluginView> {
 
   /// 图片节点：{t:'image', key, w, h, radius, fit}
   ///
-  /// 插件只给 key，不给字节。字节由宿主取、解码、缓存（见 PluginImages 的
+  /// 插件只给 key，不给字节。字节由宿主取、解码、缓存（见 WidgetImages 的
   /// 注释：一张封面十几万字节，塞进 UI 树等于每次 render 都序列化一遍）。
   /// key 查不到就画一个占位方块——封面是异步解码的，第一帧必然还没有。
   Widget _image(Map<String, Object?> n, Color fg) {
@@ -648,9 +620,9 @@ class _PluginViewState extends State<PluginView> {
 
     // 监听缓存版本号：图片解码完成时这一帧早就画过了，不重建就永远是占位图
     return ValueListenableBuilder<int>(
-      valueListenable: PluginImages.revision,
+      valueListenable: WidgetImages.revision,
       builder: (context, _, child) {
-        final current = key == null ? null : PluginImages.get(key);
+        final current = key == null ? null : WidgetImages.get(key);
         final Widget child;
         if (current == null) {
           child = Container(
@@ -788,20 +760,20 @@ class _PluginSliderState extends State<_PluginSlider> {
           // 放到 onPointerMove 里就晚了——那时卡片拖拽已经开始了。
           onPointerDown: widget.enabled
               ? (e) {
-                  PluginPointer.grabbedPointer = e.pointer;
+                  NodePointer.grabbedPointer = e.pointer;
                   _update(e.localPosition.dx, width);
                 }
               : null,
           onPointerMove: widget.enabled
               ? (e) {
-                  if (!PluginPointer.isGrabbed(e.pointer)) return;
+                  if (!NodePointer.isGrabbed(e.pointer)) return;
                   _update(e.localPosition.dx, width);
                 }
               : null,
           onPointerUp: widget.enabled
               ? (e) {
-                  if (!PluginPointer.isGrabbed(e.pointer)) return;
-                  PluginPointer.grabbedPointer = null;
+                  if (!NodePointer.isGrabbed(e.pointer)) return;
+                  NodePointer.grabbedPointer = null;
                   final done = _dragging;
                   setState(() => _dragging = null);
                   if (done != null) widget.onChanged?.call(done);
@@ -809,8 +781,8 @@ class _PluginSliderState extends State<_PluginSlider> {
               : null,
           onPointerCancel: widget.enabled
               ? (e) {
-                  if (!PluginPointer.isGrabbed(e.pointer)) return;
-                  PluginPointer.grabbedPointer = null;
+                  if (!NodePointer.isGrabbed(e.pointer)) return;
+                  NodePointer.grabbedPointer = null;
                   setState(() => _dragging = null);
                 }
               : null,
@@ -968,7 +940,6 @@ class _FlipSwapState extends State<_FlipSwap>
 /// 但必须先定位真实渲染的闪白机制——flutter_test 的 toImage 对
 /// TransformLayer 有固有伪影（最小化 SlideTransition 对照实验同样全空白），
 /// 测试环境无法复现/验证真实渲染。换行现在走原地替换。
-
 
 /// 可点元素的按压反馈：按下轻微缩小 + 变淡，松手弹回。
 ///

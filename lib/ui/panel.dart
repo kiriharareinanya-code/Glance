@@ -26,12 +26,11 @@ import '../core/logger.dart';
 import '../core/paths.dart';
 import '../core/theme.dart';
 import 'card_view.dart';
+import '../widgets/spec.dart';
 import '../core/updater.dart';
 import '../model/card.dart';
 import '../model/settings.dart';
 import '../native/native_bridge.dart';
-import '../plugin/manifest.dart';
-import '../plugin/registry.dart';
 import '../store/store.dart';
 import 'panel_app.dart' show panelThemeRevision;
 import 'window_chrome.dart';
@@ -126,7 +125,6 @@ class ControlPanel extends StatefulWidget {
     super.key,
     required this.state,
     required this.store,
-    required this.registry,
     required this.onClose,
     required this.onChanged,
     required this.onAdd,
@@ -144,12 +142,11 @@ class ControlPanel extends StatefulWidget {
 
   final AppState state;
   final Store store;
-  final PluginRegistry registry;
   final VoidCallback onClose;
 
   /// 任何改动后通知外层重建并推送新的命中区
   final VoidCallback onChanged;
-  final void Function(PluginManifest plugin) onAdd;
+  final void Function(BuiltinSpec plugin) onAdd;
   final void Function(WidgetCard card) onRemove;
 
   /// 这种组件还能不能再加（每块屏最多一个）。
@@ -780,7 +777,7 @@ class _ControlPanelState extends State<ControlPanel> {
   // ---------------- 组件库 ----------------
 
   Widget _library() {
-    final plugins = widget.registry.list();
+    final plugins = builtinCatalog();
     return ListView(
       padding: const EdgeInsets.fromLTRB(28, 4, 28, 24),
       children: [
@@ -818,25 +815,10 @@ class _ControlPanelState extends State<ControlPanel> {
               ),
           ],
         ),
-        if (widget.registry.errors.isNotEmpty)
-          _group(
-            title: '加载失败的插件',
-            icon: Icons.error_outline,
-            children: [
-              for (final e in widget.registry.errors.entries)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text('${e.key}\n  ${e.value}',
-                      style: TextStyle(
-                          color: _c.ink38, fontSize: 11, height: 1.4)),
-                ),
-            ],
-          ),
         Padding(
           padding: const EdgeInsets.only(top: 2),
           child: Text(
-            '第三方插件放到：${widget.registry.userDir}\n'
-            '每个插件一个目录，目录名必须与 manifest.json 里的 id 相同。',
+            '组件内置在应用里，随版本一起更新。',
             style: TextStyle(color: _c.ink30, fontSize: 11, height: 1.5),
           ),
         ),
@@ -844,13 +826,11 @@ class _ControlPanelState extends State<ControlPanel> {
     );
   }
 
-  Widget _pluginCard(PluginManifest p) {
+  Widget _pluginCard(BuiltinSpec p) {
     final placed = widget.state.cards.where((c) => c.pluginId == p.id).length;
-    // 两道限制：插件自己声明的 singleton，以及"每块屏最多一个"的全局规则
-    final singleBlocked = p.singleton && placed > 0;
+    // singleton 随清单一并移除；内置组件允许多开，唯一限制是"每块屏最多一个"
     final screenFull = !(widget.canAdd?.call(p.id) ?? true);
-    final blocked = singleBlocked || screenFull;
-    final loaded = widget.registry[p.id];
+    final blocked = screenFull;
     return Container(
       decoration: BoxDecoration(
         color: _c.card,
@@ -869,13 +849,10 @@ class _ControlPanelState extends State<ControlPanel> {
               clipBehavior: Clip.antiAlias,
               child: FittedBox(
                 fit: BoxFit.contain,
-                child: loaded == null
-                    ? const SizedBox.shrink()
-                    : PluginPreview(
-                        key: ValueKey('preview:${p.id}'),
-                        manifest: loaded.manifest,
-                        source: loaded.source,
-                      ),
+                child: BuiltinPreview(
+                  key: ValueKey('preview:${p.id}'),
+                  spec: p,
+                ),
               ),
             ),
           ),
@@ -922,19 +899,6 @@ class _ControlPanelState extends State<ControlPanel> {
                               Text('v${p.version}',
                                   style: TextStyle(
                                       fontSize: 10, color: _c.ink30)),
-                              if (p.source == 'user') ...[
-                                const SizedBox(width: 5),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 4, vertical: 1),
-                                  decoration: BoxDecoration(
-                                    color: _c.badgeBg,
-                                    borderRadius: BorderRadius.circular(4)),
-                                  child: Text('第三方',
-                                      style: TextStyle(
-                                          fontSize: 9, color: _c.accentSoft)),
-                                ),
-                              ],
                             ]),
                             if (p.description.isNotEmpty) ...[
                               const SizedBox(height: 2),
@@ -964,9 +928,7 @@ class _ControlPanelState extends State<ControlPanel> {
                               if (mounted) setState(() {});
                             },
                       child: Text(
-                          singleBlocked
-                              ? '仅一个'
-                              : (screenFull ? '每屏一个' : '添加'),
+                          screenFull ? '每屏一个' : '添加',
                           style: const TextStyle(fontSize: 12)),
                     ),
                   ]),
@@ -995,7 +957,7 @@ class _ControlPanelState extends State<ControlPanel> {
   }
 
   Widget _cardRow(WidgetCard card) {
-    final plugin = widget.registry[card.pluginId]?.manifest;
+    final plugin = builtinSpecById(card.pluginId);
     final expanded = widget.focusCardId == card.id;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1060,7 +1022,7 @@ class _ControlPanelState extends State<ControlPanel> {
     );
   }
 
-  Widget _sizePicker(WidgetCard card, PluginManifest plugin) {
+  Widget _sizePicker(WidgetCard card, BuiltinSpec plugin) {
     return Wrap(
       spacing: 6,
       runSpacing: 6,
@@ -1128,7 +1090,7 @@ class _ControlPanelState extends State<ControlPanel> {
               const SizedBox(height: 2),
               ValueListenableBuilder<int>(
                 valueListenable: CardView.bgRevision,
-                builder: (context, _, __) {
+                builder: (context, _, _) {
                   String status;
                   if (!fileReady) {
                     status = '未设置 · 使用主题材质（云母/毛玻璃）';
@@ -1195,7 +1157,7 @@ class _ControlPanelState extends State<ControlPanel> {
     final key = f['key'] as String;
     final label = f['label'] as String? ?? key;
     final desc = f['desc'] as String?;
-    final plugin = widget.registry[card.pluginId]?.manifest;
+    final plugin = builtinSpecById(card.pluginId);
     final current = card.settings.containsKey(key)
         ? card.settings[key]
         : (plugin?.defaultSettings()[key] ?? f['default']);
@@ -2089,7 +2051,6 @@ class _ControlPanelState extends State<ControlPanel> {
       // 就地替换：AppState 的引用被外层持有，不能换对象，只能换字段
       widget.state.settings = incoming.settings;
       widget.state.cards = incoming.cards;
-      widget.state.disabledPlugins = incoming.disabledPlugins;
 
       await widget.store.saveNow(widget.state);
       Log.i('panel',

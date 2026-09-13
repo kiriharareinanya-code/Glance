@@ -8,17 +8,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart' show Uint8List;
 import 'package:flutter/material.dart' show Icons;
-import 'package:vectra/plugin/images.dart';
-import 'package:vectra/plugin/morph_icons.dart' show kMorphIconPaths;
-import 'package:vectra/plugin/node.dart' show iconDataFor;
+import 'package:vectra/widgets/images.dart';
+import 'package:vectra/widgets/morph_icons.dart' show kMorphIconPaths;
+import 'package:vectra/widgets/node.dart' show iconDataFor;
 import 'package:vectra/store/store.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('封面解码降采样', () {
-    setUp(() => PluginImages.clear());
-    tearDown(() => PluginImages.clear());
+    setUp(() => WidgetImages.clear());
+    tearDown(() => WidgetImages.clear());
 
     /// 造一张 w×h 的纯色 PNG（走真实的 PNG 编码 → 解码链路）
     Future<Uint8List> pngBytes(int w, int h) async {
@@ -36,9 +36,9 @@ void main() {
 
     test('超大原图解码后长边不超过 256（原分辨率一张白占 4~8MB）', () async {
       final bytes = await pngBytes(1200, 800);
-      expect(await PluginImages.decodeAndPut('cover', bytes), isTrue);
+      expect(await WidgetImages.decodeAndPut('cover', bytes), isTrue);
 
-      final img = PluginImages.get('cover')!;
+      final img = WidgetImages.get('cover')!;
       expect(img.width, lessThanOrEqualTo(256),
           reason: '解码必须降采样到显示尺寸量级，不能按原图 1200px 全量驻留');
       expect(img.height, lessThanOrEqualTo(256));
@@ -48,8 +48,8 @@ void main() {
 
     test('小于上限的图不放大', () async {
       final bytes = await pngBytes(64, 64);
-      expect(await PluginImages.decodeAndPut('small', bytes), isTrue);
-      final img = PluginImages.get('small')!;
+      expect(await WidgetImages.decodeAndPut('small', bytes), isTrue);
+      final img = WidgetImages.get('small')!;
       expect(img.width, lessThanOrEqualTo(64));
       expect(img.height, lessThanOrEqualTo(64));
     });
@@ -57,10 +57,10 @@ void main() {
     test('LRU 淘汰依旧生效（容量 4）', () async {
       for (var i = 0; i < 6; i++) {
         final bytes = await pngBytes(64, 64);
-        expect(await PluginImages.decodeAndPut('k$i', bytes), isTrue);
+        expect(await WidgetImages.decodeAndPut('k$i', bytes), isTrue);
       }
-      expect(PluginImages.get('k0'), isNull, reason: '最早的应该被挤出去');
-      expect(PluginImages.get('k5'), isNotNull);
+      expect(WidgetImages.get('k0'), isNull, reason: '最早的应该被挤出去');
+      expect(WidgetImages.get('k5'), isNotNull);
     });
   });
 

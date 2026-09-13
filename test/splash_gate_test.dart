@@ -73,7 +73,7 @@ void main() {
   });
 
   test('加载失败的卡片也算就绪，不能让一个坏插件把幕布挂死', () async {
-    // PluginCardBody 找不到插件时会显示错误框 —— 那已经是它的最终形态了
+    // BuiltinCardBody 找不到插件时会显示错误框 —— 那已经是它的最终形态了
     SplashGate.start(2);
     SplashGate.reportReady('good');
     SplashGate.reportReady('broken-plugin');

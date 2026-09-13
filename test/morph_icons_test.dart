@@ -6,7 +6,7 @@ import 'package:fluent_ui/fluent_ui.dart' hide Icon;
 import 'package:flutter/material.dart' show Icon, Icons;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:iconic_morph/iconic_morph.dart';
-import 'package:vectra/plugin/morph_icons.dart';
+import 'package:vectra/widgets/morph_icons.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

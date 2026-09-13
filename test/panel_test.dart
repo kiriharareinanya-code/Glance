@@ -12,7 +12,6 @@ import 'package:flutter/gestures.dart'
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vectra/model/settings.dart';
-import 'package:vectra/plugin/registry.dart';
 import 'package:vectra/store/store.dart';
 import 'package:vectra/ui/panel.dart';
 
@@ -36,7 +35,6 @@ void main() {
       home: ControlPanel(
         state: state,
         store: store,
-        registry: PluginRegistry(Directory.systemTemp.createTempSync('lw-reg').path),
         initialTab: 2, // 外观页
         onClose: () {},
         onChanged: () => notified++,
@@ -81,7 +79,6 @@ void main() {
               ? ControlPanel(
                   state: state,
                   store: store,
-                  registry: PluginRegistry(Directory.systemTemp.createTempSync('lw-reg').path),
                   initialTab: 2,
                   onClose: () {},
                   onChanged: () => notified++,
@@ -126,8 +123,6 @@ void main() {
       home: ControlPanel(
         state: state,
         store: store,
-        registry:
-            PluginRegistry(Directory.systemTemp.createTempSync('lw-reg').path),
         initialTab: 3, // 「其他」页：日志和启动、备份一样属于运维项
         onClose: () {},
         onChanged: () {},
@@ -176,8 +171,6 @@ void main() {
       home: ControlPanel(
         state: state,
         store: store,
-        registry:
-            PluginRegistry(Directory.systemTemp.createTempSync('lw-reg').path),
         initialTab: 3,
         onClose: () {},
         onChanged: () {},
@@ -213,8 +206,6 @@ void main() {
       home: ControlPanel(
         state: state,
         store: store,
-        registry:
-            PluginRegistry(Directory.systemTemp.createTempSync('lw-reg').path),
         initialTab: 0,
         embedded: false,
         onClose: () {},
@@ -242,6 +233,11 @@ void main() {
     expect(tester.takeException(), isNull, reason: '切换页面之后不该有布局异常');
 
     await tester.pump(const Duration(milliseconds: 400));
+
+    // 组件库页的实时预览挂着真实定时器（时钟秒针/歌词轮询）。框架在销毁
+    // 组件树**之前**就检查 pending Timer——先把树卸掉，让预览正常收尾。
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 
   testWidgets('窗口四周有缩放手柄，按下时把正确的命中码发给 native',
@@ -267,8 +263,6 @@ void main() {
       home: ControlPanel(
         state: state,
         store: store,
-        registry:
-            PluginRegistry(Directory.systemTemp.createTempSync('lw-reg').path),
         initialTab: 0,
         // 真实设置窗口就是这个模式（见 panel_app.dart）；
         // 默认的 embedded=true 是旧的内嵌对话框，那条路径没有独立窗口，
@@ -328,6 +322,10 @@ void main() {
     expect(lastEdge(), 17, reason: '右下角 HTBOTTOMRIGHT');
 
     await tester.pump(const Duration(milliseconds: 400));
+
+    // 同上：组件库页的预览挂着真实定时器，先卸树再让框架做检查
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 
   // ---------------- 设置改动的日志描述 ----------------

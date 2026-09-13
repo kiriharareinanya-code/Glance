@@ -40,7 +40,7 @@ typedef SentryExceptionReporterFn = Future<void> Function(
   bool fatal,
 });
 
-SentryExceptionReporterFn _exceptionReporter = (_, __, {fatal = false}) async {};
+SentryExceptionReporterFn _exceptionReporter = (_, _, {fatal = false}) async {};
 
 void setSentryExceptionReporter(SentryExceptionReporterFn fn) =>
     _exceptionReporter = fn;

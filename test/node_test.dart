@@ -6,16 +6,16 @@ import 'package:flutter/gestures.dart' show PointerDeviceKind, kPrimaryMouseButt
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:iconic_morph/iconic_morph.dart' show IconImage;
-import 'package:vectra/plugin/images.dart';
-import 'package:vectra/plugin/node.dart';
-import 'package:vectra/plugin/node_anim.dart' show kNodeAnimDuration;
+import 'package:vectra/widgets/images.dart';
+import 'package:vectra/widgets/node.dart';
+import 'package:vectra/widgets/node_anim.dart' show kNodeAnimDuration;
 
 void main() {
   Future<void> pump(WidgetTester tester, Map<String, Object?>? tree,
-      {PluginEvent? onEvent, bool animate = true}) async {
+      {NodeEvent? onEvent, bool animate = true}) async {
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
-        body: PluginView(
+        body: NodeView(
           tree: tree,
           animate: animate,
           onEvent: onEvent ?? (_, _) {},
@@ -232,7 +232,7 @@ void main() {
       home: DefaultTextStyle(
         style: const TextStyle(
             fontFamily: 'RoundFont', fontSize: 20, color: Colors.white),
-        child: PluginView(
+        child: NodeView(
           tree: {'t': 'text', 'v': '00:52', 'size': 40},
           onEvent: (_, _) {},
         ),
@@ -274,7 +274,7 @@ void main() {
     Future<void> pumpV(String v) async {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: PluginView(
+          body: NodeView(
             tree: {'t': 'text', 'v': v, 'trans': true},
             onEvent: (_, _) {},
           ),
@@ -300,7 +300,7 @@ void main() {
     Future<void> pumpV(String v) async {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: PluginView(
+          body: NodeView(
             tree: {'t': 'text', 'v': v, 'trans': 'flip'},
             onEvent: (_, _) {},
           ),
@@ -332,7 +332,7 @@ void main() {
     Future<void> pumpV(String v) async {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: PluginView(
+          body: NodeView(
             tree: {'t': 'text', 'v': v, 'trans': 'flip'},
             onEvent: (_, _) {},
             animate: false,
@@ -362,7 +362,7 @@ void main() {
     Future<void> pumpT(String h, String m, String sec) async {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: PluginView(tree: treeOf(h, m, sec), onEvent: (_, _) {}),
+          body: NodeView(tree: treeOf(h, m, sec), onEvent: (_, _) {}),
         ),
       ));
     }
@@ -384,7 +384,7 @@ void main() {
     Future<void> pumpV(String v) async {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: PluginView(
+          body: NodeView(
             tree: {'t': 'text', 'v': v},
             onEvent: (_, _) {},
           ),
@@ -412,7 +412,7 @@ void main() {
   // ---------------- image ----------------
 
   testWidgets('image 节点：key 查不到时画占位，不留白也不崩', (tester) async {
-    PluginImages.clear();
+    WidgetImages.clear();
     await pump(tester, {'t': 'image', 'key': 'smtc:1', 'w': 80.0, 'h': 80.0});
     // 占位是一个音符图标，说明走到了 fallback 而不是空节点
     expect(find.byIcon(Icons.music_note_rounded), findsOneWidget);
@@ -420,10 +420,10 @@ void main() {
   });
 
   testWidgets('image 节点：缓存里有图就画图', (tester) async {
-    PluginImages.clear();
+    WidgetImages.clear();
     final img = await _solidImage(4, 4);
-    PluginImages.put('smtc:7', img);
-    addTearDown(PluginImages.clear);
+    WidgetImages.put('smtc:7', img);
+    addTearDown(WidgetImages.clear);
 
     await pump(tester, {'t': 'image', 'key': 'smtc:7', 'w': 60.0, 'h': 60.0});
     expect(find.byType(RawImage), findsOneWidget);
@@ -432,13 +432,13 @@ void main() {
 
   testWidgets('image 节点：图片解码完成后会自动重画（不需要插件再 render 一次）',
       (tester) async {
-    PluginImages.clear();
-    addTearDown(PluginImages.clear);
+    WidgetImages.clear();
+    addTearDown(WidgetImages.clear);
     await pump(tester, {'t': 'image', 'key': 'smtc:9', 'w': 60.0, 'h': 60.0});
     expect(find.byType(RawImage), findsNothing);
 
     // 模拟"封面异步解码完成"——这一步发生在插件那一帧渲染之后
-    PluginImages.put('smtc:9', await _solidImage(2, 2));
+    WidgetImages.put('smtc:9', await _solidImage(2, 2));
     await tester.pump();
 
     expect(find.byType(RawImage), findsOneWidget,
@@ -446,7 +446,7 @@ void main() {
   });
 
   testWidgets('image 节点：没有 key 也不能崩', (tester) async {
-    PluginImages.clear();
+    WidgetImages.clear();
     await pump(tester, {'t': 'image', 'w': 30.0, 'h': 30.0});
     expect(tester.takeException(), isNull);
   });
@@ -499,7 +499,7 @@ void main() {
     await g.up();
     await tester.pump();
     expect(events, isEmpty, reason: '播放器不支持定位时拖了也不该发命令');
-    expect(PluginPointer.grabbedPointer, isNull, reason: '置灰的滑条不该抢指针');
+    expect(NodePointer.grabbedPointer, isNull, reason: '置灰的滑条不该抢指针');
   });
 
   testWidgets('slider 按下时会声明抢占指针，松手后释放', (tester) async {
@@ -508,18 +508,18 @@ void main() {
       'w': 200.0,
       'child': {'t': 'slider', 'id': 'h1', 'v': 0.0}
     });
-    expect(PluginPointer.grabbedPointer, isNull);
+    expect(NodePointer.grabbedPointer, isNull);
 
     final center = tester.getCenter(find.byType(FractionallySizedBox));
     final g = await tester.startGesture(center,
         kind: PointerDeviceKind.mouse, buttons: kPrimaryMouseButton);
     await tester.pump();
     // 这个标志就是"拖进度条不要把整张卡片拖走"的全部机制
-    expect(PluginPointer.grabbedPointer, isNotNull);
+    expect(NodePointer.grabbedPointer, isNotNull);
 
     await g.up();
     await tester.pump();
-    expect(PluginPointer.grabbedPointer, isNull);
+    expect(NodePointer.grabbedPointer, isNull);
   });
 
   // ---------------- 媒体图标 ----------------
@@ -593,7 +593,7 @@ void main() {
     // row 没写 cross 时按顶端对齐，两个小的看起来就是往上飘。
     Map<String, Object?> tree(String? cross) => {
           't': 'row',
-          if (cross != null) 'cross': cross,
+          'cross': ?cross,
           'children': [
             {'t': 'box', 'w': 40.0, 'h': 40.0, 'child': {'t': 'text', 'v': 'A'}},
             {'t': 'box', 'w': 40.0, 'h': 80.0, 'child': {'t': 'text', 'v': 'B'}},
@@ -619,7 +619,7 @@ void main() {
     Future<void> pumpTree(String key) async {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
-          body: PluginView(
+          body: NodeView(
             tree: {
               't': 'col',
               'children': [
@@ -655,7 +655,7 @@ void main() {
   testWidgets('不带 animKey 的节点不产生切换动画', (tester) async {
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
-        body: PluginView(
+        body: NodeView(
           tree: {
             't': 'col',
             'children': [
@@ -686,7 +686,7 @@ void main() {
                 height: 400,
                 child: ColoredBox(
                   color: const Color(0xFF112233),
-                  child: PluginView(
+                  child: NodeView(
                     tree: {
                       't': 'col',
                       'children': [
@@ -720,9 +720,9 @@ void main() {
               find.text('新').evaluate().isNotEmpty,
           isTrue,
           reason: '第 $i 次 tick 后没有任何文本，是空白帧');
-      // 原地替换不应引入任何淡入淡出过渡（限定 PluginView 内，排除路由动画）
+      // 原地替换不应引入任何淡入淡出过渡（限定 NodeView 内，排除路由动画）
       final fades = find.descendant(
-          of: find.byType(PluginView), matching: find.byType(FadeTransition));
+          of: find.byType(NodeView), matching: find.byType(FadeTransition));
       expect(fades, findsNothing,
           reason: '原地替换不应引入任何淡入淡出过渡');
     }
@@ -738,7 +738,7 @@ void main() {
                 height: 400,
                 child: ColoredBox(
                   color: const Color(0xFF112233),
-                  child: PluginView(
+                  child: NodeView(
                     tree: {
                       't': 'col',
                       'children': [
@@ -827,7 +827,7 @@ void main() {
                 height: 400,
                 child: ColoredBox(
                   color: const Color(0xFF112233),
-                  child: PluginView(tree: tree, onEvent: (_, _) {}),
+                  child: NodeView(tree: tree, onEvent: (_, _) {}),
                 ),
               ),
             ),
@@ -860,7 +860,7 @@ void main() {
                 height: 400,
                 child: ColoredBox(
                   color: const Color(0xFF112233),
-                  child: PluginView(
+                  child: NodeView(
                     tree: {
                       'key': rootKey,
                       't': 'box',

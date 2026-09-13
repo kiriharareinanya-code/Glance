@@ -54,6 +54,26 @@ class Log {
   /// 的调用因此不会丢，也不会炸。
   static _FileSink? _file;
 
+  /// 控制台通道是否还活着。
+  ///
+  /// 发布版双击启动时没有控制台，标准句柄无效。stdout 是异步 sink
+  /// （_StdSink -> _StdConsumer -> 事件循环里的 writeFromSync），写入失败
+  /// 的异常在事件循环里抛出：本地 try/catch 拦不住，会直接冒进
+  /// runZonedGuarded。所以用 stdio 自己的 done 通道接住这个错误，收到就把
+  /// 控制台通道关掉——控制台只是开发期的便利，文件 sink 才是发布版通道。
+  static bool _consoleAlive = true;
+
+  static void _wireConsoleGuard() {
+    if (!_consoleAlive) return;
+    // 吞掉标准流自身的错误，别让它变成"未捕获异常"
+    stdout.done.catchError((Object _) {
+      _consoleAlive = false;
+    });
+    stderr.done.catchError((Object _) {
+      _consoleAlive = false;
+    });
+  }
+
   /// 初始化。在 main() 最前面调一次即可。
   ///
   /// [engine] 决定日志文件名前缀（'main' = 磁贴/面板引擎），
@@ -66,6 +86,7 @@ class Log {
     _level = level;
     _file?.dispose();
     _file = _FileSink(dir, engine);
+    _wireConsoleGuard();
   }
 
   /// 提级到 debug：`--verbose` 启动参数用。随时可调，不用重启。
@@ -96,11 +117,14 @@ class Log {
     final tag = l.label;
     final line = '${_ts(now)} $tag [$module] $message';
     // 控制台两路：错误级走 stderr，其余走 stdout。保持和以前一致的习惯，
-    // 只是统一在这里分流。
-    if (l == LogLevel.error) {
-      stderr.writeln(line);
-    } else {
-      stdout.writeln(line);
+    // 只是统一在这里分流。通道坏了（发布版双击启动，无控制台）就整体跳过，
+    // 文件 sink 照写——见 [_consoleAlive] 的说明。
+    if (_consoleAlive) {
+      if (l == LogLevel.error) {
+        stderr.writeln(line);
+      } else {
+        stdout.writeln(line);
+      }
     }
     _file?.write(line);
     // 错误级同时上报 Sentry。Log 这层只看"是不是 error 级"——

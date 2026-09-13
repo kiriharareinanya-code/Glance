@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vectra/model/card.dart';
-import 'package:vectra/plugin/node.dart';
+import 'package:vectra/widgets/node.dart';
 import 'package:vectra/model/settings.dart';
 import 'package:vectra/store/store.dart';
 import 'package:vectra/ui/surface.dart';
@@ -388,13 +388,12 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
   });
 
-
   testWidgets('拖插件里的滑条不能把整张卡片一起拖走', (tester) async {
     final (state, store) = makeState();
     tester.view.physicalSize = const Size(1920, 1080);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
-    addTearDown(() => PluginPointer.grabbedPointer = null);
+    addTearDown(() => NodePointer.grabbedPointer = null);
 
     final mover = state.cards.firstWhere((c) => c.id == 'mover');
 
@@ -406,7 +405,7 @@ void main() {
           state: state,
           store: store,
           buildPluginBody: (card, size) => card.id == 'mover'
-              ? PluginView(
+              ? NodeView(
                   tree: const {
                     't': 'box',
                     'w': 200.0,
@@ -431,7 +430,7 @@ void main() {
     await g.moveTo(center + const Offset(120, 60));
     await tester.pump();
 
-    // 没有 PluginPointer 那条判断的话，桌面层会把这次拖动当成拖卡片
+    // 没有 NodePointer 那条判断的话，桌面层会把这次拖动当成拖卡片
     expect(mover.x, startX, reason: '拖进度条时卡片不能横向移动');
     expect(mover.y, startY, reason: '拖进度条时卡片不能纵向移动');
 
@@ -443,7 +442,7 @@ void main() {
       (tester) async {
     final (state, store) = makeState();
     await pumpSurface(tester, state, store);
-    addTearDown(() => PluginPointer.grabbedPointer = null);
+    addTearDown(() => NodePointer.grabbedPointer = null);
 
     final mover = state.cards.firstWhere((c) => c.id == 'mover');
     final grab = Offset(mover.x + 118, mover.y + 118);

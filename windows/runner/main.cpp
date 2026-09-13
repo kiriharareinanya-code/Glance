@@ -15,6 +15,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   if (!::AttachConsole(ATTACH_PARENT_PROCESS) && ::IsDebuggerPresent()) {
     CreateAndAttachConsole();
   }
+  // 走到这里如果还没拿到控制台（典型的双击启动），把标准流兜到 NUL，
+  // 否则 Dart 侧写 stdout/stderr 会抛 "句柄无效"。
+  NeutralizeStandardStreams();
 
   // Initialize COM, so that it is available for use in the library and/or
   // plugins.

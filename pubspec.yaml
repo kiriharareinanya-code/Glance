@@ -35,7 +35,6 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  flutter_js: ^0.8.7
   path: ^1.9.1
   http: ^1.6.0
   url_launcher: ^6.3.2
@@ -71,11 +70,6 @@ flutter:
   assets:
     - assets/tray.ico
     - assets/logo.png
-    - assets/plugins/clock/
-    - assets/plugins/calendar/
-    - assets/plugins/todo/
-    - assets/plugins/weather/
-    - assets/plugins/lyrics/
 
   fonts:
     # 时钟专用字体：筑紫B丸新英数（圆体），只给时钟插件用

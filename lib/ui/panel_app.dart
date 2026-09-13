@@ -14,7 +14,6 @@ library;
 import 'package:fluent_ui/fluent_ui.dart';
 
 import '../core/theme.dart';
-import '../plugin/registry.dart';
 import '../store/store.dart';
 import 'app_root.dart';
 import 'panel.dart';
@@ -40,13 +39,11 @@ class PanelApp extends StatelessWidget {
     super.key,
     required this.state,
     required this.store,
-    required this.registry,
     required this.appKey,
   });
 
   final AppState state;
   final Store store;
-  final PluginRegistry registry;
   final GlobalKey<AppRootState> appKey;
 
   @override
@@ -88,7 +85,6 @@ class PanelApp extends StatelessWidget {
                   key: ValueKey('panel:$tab:$cardId'),
                   state: state,
                   store: store,
-                  registry: registry,
                   focusCardId: cardId,
                   initialTab: tab,
                   // 独立窗口里不要遮罩、不要固定尺寸、不要自绘关闭按钮

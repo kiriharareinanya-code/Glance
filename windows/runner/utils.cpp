@@ -21,8 +21,25 @@ void CreateAndAttachConsole() {
   }
 }
 
-std::vector<std::string> GetCommandLineArguments() {
-  // Convert the UTF-16 command line arguments to UTF-8 for the Engine to use.
+void NeutralizeStandardStreams() {
+  // 双击启动时既没有父控制台（AttachConsole 失败），通常也没有调试器，
+  // 于是 libc 的标准句柄保持启动时的无效值。Dart 的 stdout/stderr 写入
+  // 会以 "writeFrom failed (OS Error: 句柄无效。, errno = 6)" 的形式抛出来，
+  // 冒到 runZonedGuarded 里，每次启动都在日志留下一条假错误。
+  //
+  // 接到 NUL 设备即可：写进去是空操作，句柄本身有效，不会再报错。
+  // 已经有可用句柄时（控制台/管道/重定向）不动，保持原有输出。
+  FILE *streams[3] = {stdin, stdout, stderr};
+  for (int fd = 0; fd <= 2; ++fd) {
+    const intptr_t h = _get_osfhandle(fd);
+    if (h != -1 && h != 0) continue;
+    // freopen_s 失败也没什么可做的：日志写失败不该反过来影响启动。
+    FILE *unused = nullptr;
+    freopen_s(&unused, "NUL", (fd == 0) ? "r" : "w", streams[fd]);
+  }
+}
+
+std::vector<std::string> GetCommandLineArguments() {  // Convert the UTF-16 command line arguments to UTF-8 for the Engine to use.
   int argc;
   wchar_t** argv = ::CommandLineToArgvW(::GetCommandLineW(), &argc);
   if (argv == nullptr) {

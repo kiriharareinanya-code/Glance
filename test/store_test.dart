@@ -168,7 +168,6 @@ void main() {
 
       expect(state.cards.length, 1);
       expect(state.settings.theme, 'dark');
-      expect(state.disabledPlugins, ['weather']);
       expect(store.nsGet('lyrics', 'cache'), 'LRC 全文');
       expect(store.nsGet('todo', 'items'), 1);
 
@@ -444,13 +443,11 @@ void main() {
           size: '3x2',
           z: 7,
           settings: {'city': '下陆'}));
-      state.disabledPlugins.add('lyrics');
 
       final restored = store.decodeConfig(store.encodeConfig(state));
 
       expect(restored.settings.theme, 'dark');
       expect(restored.settings.cardRadius, 25);
-      expect(restored.disabledPlugins, ['lyrics']);
       expect(restored.cards.single.id, 'w1');
       expect(restored.cards.single.x, 100);
       expect(restored.cards.single.settings['city'], '下陆');

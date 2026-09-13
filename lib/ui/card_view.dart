@@ -16,7 +16,7 @@ import '../model/card.dart';
 import '../model/settings.dart';
 import 'wallpaper.dart';
 
-/// 自定义背景图的平均亮度缓存（PluginImages 同款模式）：
+/// 自定义背景图的平均亮度缓存（WidgetImages 同款模式）：
 /// path → 0~1。解码是异步的，算完 revision +1 让卡片重建一次。
 /// 只缓存文件路径（一张卡一张图），量级可忽略。
 class _CardBg {
@@ -79,7 +79,7 @@ class CardView extends StatelessWidget {
   final bool editing;
   final Widget child;
 
-  /// 用户数据目录：自定义背景图存放在 <dataDir>/bg/ 下
+  /// 用户数据目录：自定义背景图存放在 `<dataDir>/bg/` 下
   final String dataDir;
 
   /// 面板读取：某张自定义背景图的实测亮度（还没算出来时是 null）。
@@ -276,7 +276,7 @@ class CardView extends StatelessWidget {
                       fit: BoxFit.cover,
                       gaplessPlayback: true,
                       filterQuality: FilterQuality.medium,
-                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      errorBuilder: (_, _, _) => const SizedBox.shrink(),
                     ),
                   ),
                 )
