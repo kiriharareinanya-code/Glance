@@ -600,7 +600,7 @@ class _NodeViewState extends State<NodeView> {
 
   Widget _tap(Map<String, Object?> n, Color fg) {
     final id = _str(n['id']);
-    return _TapFeedback(
+    return TapFeedback(
       animate: widget.animate,
       onTap: id == null ? null : () => widget.onEvent(id, const {}),
       child: _child(n, fg),
@@ -717,7 +717,7 @@ class _NodeViewState extends State<NodeView> {
   Widget _slider(Map<String, Object?> n) {
     final id = _str(n['id']);
     final enabled = n['enabled'] != false && id != null;
-    return _PluginSlider(
+    return PluginSlider(
       value: (_num(n['v']) ?? 0).clamp(0.0, 1.0),
       height: _num(n['h']) ?? 4,
       color: _color(n['color']) ?? const Color(0xFF7CC7FF),
@@ -756,8 +756,8 @@ class _NodeViewState extends State<NodeView> {
 /// 拖拽期间用本地值跟手，松手才把结果回调给插件——插件那边是异步的
 /// （seek 要经过通道到 native 再到播放器），等它回来再更新的话，
 /// 手指在拖、条却一顿一顿地追，手感立刻就散了。
-class _PluginSlider extends StatefulWidget {
-  const _PluginSlider({
+class PluginSlider extends StatefulWidget {
+  const PluginSlider({super.key,
     required this.value,
     required this.height,
     required this.color,
@@ -774,10 +774,10 @@ class _PluginSlider extends StatefulWidget {
   final ValueChanged<double>? onChanged;
 
   @override
-  State<_PluginSlider> createState() => _PluginSliderState();
+  State<PluginSlider> createState() => _PluginSliderState();
 }
 
-class _PluginSliderState extends State<_PluginSlider> {
+class _PluginSliderState extends State<PluginSlider> {
   /// 拖拽中的本地值；null 表示没在拖，显示插件给的值
   double? _dragging;
 
@@ -986,8 +986,8 @@ class _FlipSwapState extends State<_FlipSwap>
 /// 苹果 HIG 的触感语言——"按下去有东西让位给你"。以前 tap 节点按下毫无
 /// 反应，上一曲/下一曲点了像没点上。scale 收着放（0.96）不抢戏：大区域
 /// （整行待办）和小按钮（媒体控制）用同一个量级都不会夸张。
-class _TapFeedback extends StatefulWidget {
-  const _TapFeedback({
+class TapFeedback extends StatefulWidget {
+  const TapFeedback({super.key,
     required this.child,
     required this.animate,
     this.onTap,
@@ -998,10 +998,10 @@ class _TapFeedback extends StatefulWidget {
   final VoidCallback? onTap;
 
   @override
-  State<_TapFeedback> createState() => _TapFeedbackState();
+  State<TapFeedback> createState() => _TapFeedbackState();
 }
 
-class _TapFeedbackState extends State<_TapFeedback> {
+class _TapFeedbackState extends State<TapFeedback> {
   bool _pressed = false;
 
   @override
@@ -1037,7 +1037,7 @@ class _TapFeedbackState extends State<_TapFeedback> {
 /// 图标名 → 字体图标。形变表（morph_icons.dart 的 kMorphIconPaths）里的
 /// 名字也会走到这里作为兜底——两份表的一致性由 test/memory_test.dart 的
 /// morphNamesHaveFontFallback 锁住。
-@visibleForTesting
+
 IconData iconDataFor(String? name) => switch (name) {
       'check' => Icons.check,
       'check_circle' => Icons.check_circle_outline,

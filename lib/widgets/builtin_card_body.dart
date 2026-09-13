@@ -154,35 +154,46 @@ class _BuiltinCardBodyState extends State<BuiltinCardBody> {
     final ctx = _ctx;
     if (ctx == null) return const SizedBox.shrink();
 
-    return ValueListenableBuilder<Map<String, Object?>?>(
-      valueListenable: ctx.tree,
-      builder: (context, tree, _) {
-        final base = _baseContentSize;
-        final scale =
-            (base.width > 0 ? widget.size.width / base.width : 1.0)
-                .clamp(0.3, 3.0);
-        // OverflowBox 让组件按基线尺寸排版（挣脱外层的紧约束），
-        // Transform.scale 再缩到实际大小。两者都参与命中测试，
-        // 点击/滑动手感不变。
-        return Transform.scale(
-          scale: scale,
-          alignment: Alignment.topLeft,
-          child: OverflowBox(
-            alignment: Alignment.topLeft,
-            maxWidth: double.infinity,
-            maxHeight: double.infinity,
-            child: SizedBox(
-              width: base.width,
-              height: base.height,
-              child: NodeView(
+    // 双通道：迁移完的组件走 ctx.widget（原生 Flutter Widget），
+    // 没迁的继续走 ctx.tree（JSON 协议 → NodeView 解释）。widget 非空优先。
+    return ValueListenableBuilder<Widget?>(
+      valueListenable: ctx.widget,
+      builder: (context, native, _) =>
+          ValueListenableBuilder<Map<String, Object?>?>(
+        valueListenable: ctx.tree,
+        builder: (context, tree, _) {
+          // 动画开关在构建时推给组件（原生通道读 ctx.animate；
+          // 与 _pushTheme 推主题色同一手法，下次重绘生效）。
+          ctx.animate = widget.state.settings.animations;
+          final base = _baseContentSize;
+          final scale =
+              (base.width > 0 ? widget.size.width / base.width : 1.0)
+                  .clamp(0.3, 3.0);
+          final content = native ??
+              NodeView(
                 tree: tree,
                 onEvent: ctx.dispatchEvent,
                 animate: widget.state.settings.animations,
+              );
+          // OverflowBox 让组件按基线尺寸排版（挣脱外层的紧约束），
+          // Transform.scale 再缩到实际大小。两者都参与命中测试，
+          // 点击/滑动手感不变。
+          return Transform.scale(
+            scale: scale,
+            alignment: Alignment.topLeft,
+            child: OverflowBox(
+              alignment: Alignment.topLeft,
+              maxWidth: double.infinity,
+              maxHeight: double.infinity,
+              child: SizedBox(
+                width: base.width,
+                height: base.height,
+                child: content,
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

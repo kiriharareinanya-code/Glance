@@ -11,9 +11,15 @@ library;
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/material.dart';
 
 import '../catalog.dart';
+import '../images.dart' show WidgetImages;
+import '../morph_icons.dart' show MorphableIcon;
+import '../node.dart' show PluginSlider, TapFeedback, iconDataFor;
+import '../node_anim.dart'
+    show NodeAnimatedColor, kNodeAnimCurve, kNodeAnimDuration;
+import '../spring_transition.dart' show SpringSlide;
 import 'lrc.dart';
 
 class LyricsWidget extends BuiltinController {
@@ -26,9 +32,9 @@ class LyricsWidget extends BuiltinController {
   late String _accent = '#7CC7FF';
 
   // ---- 界面尺寸：按卡片高度缩放 ----
-  static const _pad = 12;
+  static const double _pad = 12;
   static const _textBlock = 70;
-  static const _artGap = 8;
+  static const double _artGap = 8;
   late double _artSize;
   late double _lyricSize;
   /// 每行的**实际**高度。滚动模型下所有行等高，没有"当前行更高"这回事。
@@ -48,9 +54,6 @@ class LyricsWidget extends BuiltinController {
   bool _songHasTrans = false;
   /// 当前行是否有译文（用于辉光/调试）。
   bool _hasTrans = false;
-  /// 歌词槽位总数 = 可见行数 + 2（滚动时上下各多铺一行，防止边缘露白）。
-  /// handler 按这个数注册。
-  late int _slotCount;
 
   static const _ctrlSide = 26;
   static const _ctrlMain = 34;
@@ -66,74 +69,32 @@ class LyricsWidget extends BuiltinController {
   static const int _idleGrace = 3000;
   String _lastPaint = '';
   int _lastPos = 0;
-  /// 当前渲染的歌词列表**窗口顶端**在整首歌里的行号（0 基）。列表式布局
-  /// 下它就是"槽位 1（预滚行的下一行）显示的那一行"，点击映射靠它。
+  /// 当前渲染的歌词列表**窗口顶端**在整首歌里的行号（0 基）。
   int _windowBase = 0;
   bool _dead = false;
 
-  final List<String> _hLine = [];
-
   // ------------------------------------------------------------------
-  // 事件处理器
+  // 交互（原生通道：点击直接闭包调 ctx.mediaControl，不再经 id 事件表）
   // ------------------------------------------------------------------
 
-  void _registerHandlers() {
-    _hPrev = ctx.on((_) => ctx.mediaControl('prev'));
-    _hToggle = ctx.on((_) => ctx.mediaControl('toggle'));
-    _hNext = ctx.on((_) => ctx.mediaControl('next'));
-    _hSeek = ctx.on((p) {
-      final media = _media;
-      if (media == null || (media['duration'] as num? ?? 0) <= 0) return;
-      _lastPos = 0; // 定位是大跳，先解除单调保护
-      final dur = (media['duration'] as num).toInt();
-      ctx.mediaControl('seek',
-          posMs: ((num.tryParse('${p['value']}') ?? 0) * dur).round());
-    });
-    // 点某一行歌词跳到那一句。槽位数 = 可见行数 + 2，而可见行数会随
-    // 「这首歌有没有译文」在单行/双语之间变（双语行高更大 → 行数更少）。
-    // 与其在 mount 时赌一个上限，不如**按需增长**：要用到第 n 个槽位就
-    // 保证它已经注册好。见 _handlerFor。
-    _hLine.clear();
-    for (var i = 0; i < _slotCount; i++) {
-      _addLineHandler(i);
-    }
+  void _prev() => ctx.mediaControl('prev');
+  void _toggle() => ctx.mediaControl('toggle');
+  void _next() => ctx.mediaControl('next');
+
+  /// 进度条定位。dur 无效时忽略（与旧 handler 的守门一致）。
+  void _seekFraction(num fraction) {
+    final media = _media;
+    if (media == null || (media['duration'] as num? ?? 0) <= 0) return;
+    _lastPos = 0; // 定位是大跳，先解除单调保护
+    final dur = (media['duration'] as num).toInt();
+    ctx.mediaControl('seek', posMs: (fraction * dur).round());
   }
 
-  /// 给第 [slot] 个歌词槽位注册点击处理器（幂等）。
-  ///
-  /// 每行对应一个 handle：点它就把播放位置跳到那一句。列表式模型下数组
-  /// **从第 0 行起铺**，所以槽位号就是真实行号，映射是恒等的
-  /// （见 [_slotLineIndex]）。
-  void _addLineHandler(int slot) {
-    _hLine.add(ctx.on((_) {
-      final idx = _slotLineIndex(slot);
-      if (idx != null) {
-        _lastPos = 0;
-        ctx.mediaControl('seek', posMs: _lyrics[idx].t);
-      }
-    }));
-  }
-
-  /// 槽位号 → 它在整首歌里的行号。空槽位（越界）返回 null。
-  ///
-  /// 布局里数组从第 0 行铺到窗口底部，**下标即行号**，所以这里是恒等映射。
-  /// 之所以仍走函数：一旦将来改回"滑动窗口重取"的取法，映射就要跟着改，
-  /// 留一个单一改动点比散在两处安全。
-  int? _slotLineIndex(int slot) {
-    if (slot < 0 || slot >= _lyrics.length) return null;
-    return slot;
-  }
-
-  /// 取第 [slot] 个槽位的处理器 id，数量不够就现补。
-  ///
-  /// 这是「行高会变」带来的必然结果：可见行数不是常量，写死一个上限
-  /// 迟早会有点不中的行（实测 RangeError）。现补的成本就是一次 ctx.on，
-  /// 只在行数变多时才发生。
-  String _handlerFor(int slot) {
-    while (_hLine.length <= slot) {
-      _addLineHandler(_hLine.length);
-    }
-    return _hLine[slot];
+  /// 点某一行歌词跳到那一句。
+  void _seekTo(int lineIndex) {
+    if (lineIndex < 0 || lineIndex >= _lyrics.length) return;
+    _lastPos = 0;
+    ctx.mediaControl('seek', posMs: _lyrics[lineIndex].t);
   }
 
   // ------------------------------------------------------------------
@@ -313,7 +274,6 @@ class LyricsWidget extends BuiltinController {
     if (cached is List && cached.isNotEmpty) {
       _lyrics = [for (final e in cached.cast<Map>()) LrcLine.fromJson(e.cast<String, Object?>())];
       _lyricState = 'ok';
-      _ensureSlotHandlers();
       _paint(true);
       return;
     }
@@ -332,21 +292,7 @@ class LyricsWidget extends BuiltinController {
       _lyrics = [];
       _lyricState = 'none';
     }
-    _ensureSlotHandlers();
     _paint(true);
-  }
-
-  /// 把行点击 handler 备到「这首歌的总行数」。
-  ///
-  /// 列表式布局的槽位号就是真实行号，数组会铺到窗口底部，所以槽位数会
-  /// 随歌长增长。mount 时还没有歌词（只知道可见行数），歌词到位后才知道
-  /// 有多少行——这里补一次。多出的部分幂等，[ _handlerFor] 也只补不删。
-  void _ensureSlotHandlers() {
-    final want = _maxSlotCount();
-    if (want > _slotCount) _slotCount = want;
-    for (var i = _hLine.length; i < _slotCount; i++) {
-      _addLineHandler(i);
-    }
   }
 
   /// 一次性清掉旧版留在键值存储里的歌词缓存（lru 记账时代的遗留）
@@ -439,68 +385,77 @@ class LyricsWidget extends BuiltinController {
     ].join('\u0001');
     if (!force && sig == _lastPaint) return;
     _lastPaint = sig;
-    ctx.render(_view(pos, idx));
+    ctx.renderWidget(_root(pos, idx));
   }
 
   // ------------------------------------------------------------------
-  // 视图
+  // 视图（原生通道：直接产出 Flutter Widget，不再经 JSON 树 / NodeView）
   // ------------------------------------------------------------------
 
-  Map<String, Object?> _txt(String v, num size, String? color, num? opacity,
-      [Map<String, Object?>? extra]) {
-    final n = <String, Object?>{
-      't': 'text',
-      'v': v,
-      'size': size,
-      'color': ?color,
-      'opacity': ?opacity,
-    };
-    if (extra != null) n.addAll(extra);
-    return n;
+  /// 解析 #RGB / #RRGGBB / #RRGGBBAA（8 位时 alpha 在后，与 node.dart 一致）。
+  Color _c(String hex) {
+    var h = hex.replaceFirst('#', '');
+    if (h.length == 3) {
+      h = h.split('').map((c) => '$c$c').join();
+    }
+    if (h.length == 8) {
+      final rgb = int.parse(h.substring(0, 6), radix: 16);
+      final a = int.parse(h.substring(6, 8), radix: 16);
+      return Color((a << 24) | rgb);
+    }
+    return Color(int.parse(h, radix: 16) | 0xFF000000);
   }
 
-  Map<String, Object?> _iconBtn(
-      String name, String handler, num size, bool enabled, int box) {
-    final icon = {
-      't': 'icon',
-      'v': name,
-      'size': size,
-      'color': enabled ? '#FFFFFF' : '#7A7A7A'
-    };
-    final cell = {'t': 'box', 'w': box, 'h': box, 'center': true, 'child': icon};
-    return enabled
-        ? {'t': 'tap', 'id': handler, 'child': cell}
-        : cell;
+  /// 两层 shadow 做"贴着笔画"的辉光（与 node.dart 的 _glow 同参数）。
+  List<Shadow> _glow(Color color, double sigma) {
+    final base = color.withValues(alpha: (color.a * 0.9).clamp(0.0, 1.0));
+    return [
+      Shadow(color: base, blurRadius: sigma * 0.6),
+      Shadow(
+          color: base.withValues(alpha: base.a * 0.45),
+          blurRadius: sigma * 1.8),
+    ];
   }
 
-  Map<String, Object?> _idleView() {
-    return {
-      // key 固定 'idle'：与播放视图不同，停播/开播切换时整卡交叉淡入
-      'key': 'idle',
-      't': 'box',
-      'pad': _pad,
-      'center': true,
-      'child': {
-        't': 'col',
-        'gap': 8,
-        'cross': 'center',
-        'children': [
-          {
-            't': 'icon',
-            'v': 'music',
-            'size': 26,
-            'color': '#FFFFFF',
-            'opacity': 0.25
-          },
-          _txt('没有正在播放的音乐', 12, null, 0.45),
-          _txt('支持 SMTC 的播放器都能读到（网易云 / QQ 音乐 / Spotify / 浏览器）',
-              10, null, 0.25, {
-            'align': 'center',
-            'maxLines': 2
-          }),
-        ]
-      }
-    };
+  TextStyle _monoStyle(Color fg) => TextStyle(
+        fontSize: 9.5,
+        color: fg.withValues(alpha: 0.4),
+        fontFeatures: const [FontFeature.tabularFigures()],
+      );
+
+  Widget _idleView(Color fg) {
+    // JSON 版的 box center → 整卡内容居中
+    return Padding(
+      padding: const EdgeInsets.all(_pad),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            MorphableIcon(
+              name: 'music',
+              size: 26,
+              color: Colors.white.withValues(alpha: 0.25),
+              animate: false,
+              fallback: iconDataFor('music'),
+            ),
+            const SizedBox(height: 8),
+            Text('没有正在播放的音乐',
+                style:
+                    TextStyle(fontSize: 12, color: fg.withValues(alpha: 0.45))),
+            const SizedBox(height: 8),
+            Text(
+              '支持 SMTC 的播放器都能读到（网易云 / QQ 音乐 / Spotify / 浏览器）',
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style:
+                  TextStyle(fontSize: 10, color: fg.withValues(alpha: 0.25)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   /// 刷新当前行是否有译文，并据此决定这一首歌用哪种行高。
@@ -565,26 +520,7 @@ class LyricsWidget extends BuiltinController {
     return 72;
   }
 
-  /// 槽位数的**上限**（mount 时先备一批 handler 用）。
-  ///
-  /// 行高会随「这首歌有没有译文」在单行/双语之间切换，可见行数也跟着变。
-  /// **单行行高更小 → 可见行数更多 → 需要更多槽位**，所以上限要按单行算。
-  ///
-  /// 列表式布局下数组**从第 0 行铺到窗口底**，槽位数 = 真实行号，
-  /// 所以歌曲越长槽位越多——这就是要把 [_lyrics] 长度也纳入的原因：
-  /// 只按可见行数备的话，长歌播到后半段会一路现补 handler（每次一次
-  /// `ctx.on`），虽然正确但没必要。运行时若仍不够，[_handlerFor] 兜底。
-  int _maxSlotCount() {
-    final avail = _availHeight();
-    var n = (avail / _lineSingle).floor();
-    if (n < 3) n = 3;
-    if (n > 20) n = 20;
-    final byRows = n + 4;
-    // 已经有这首歌的歌词时，直接按总行数备齐（最多到歌词本身的行数）。
-    return _lyrics.length > byRows ? _lyrics.length : byRows;
-  }
-
-  /// 歌词列表区（列表式滚动 + 弹簧换句）。
+  /// 歌词列表区（列表式滚动 + 弹簧换句，原生 Widget 版）。
   ///
   /// ## 两个约束互相拉扯，这是本题的核心矛盾
   ///
@@ -620,10 +556,10 @@ class LyricsWidget extends BuiltinController {
   /// 代价：数组铺的行数随进度增长（40 行的歌最多铺 40 行）。这是必要的——
   /// 数组长度和偏移变量只能二选一，而要弹簧就必须让偏移动。子节点是
   /// `Text`，Flutter 会按位置 diff 复用，换句只重建一两个槽位。
-  Map<String, Object?> _lyricArea(int idx) {
+  Widget _lyricArea(int idx, Color fg) {
     _syncLineHeights(idx);
     final lh = _lineContext;
-    // 取景框高度 = 外层 flex 实际给到的可用高度。
+    // 取景框高度 = 外层 Expanded 实际给到的可用高度。
     final viewport = _availHeight();
     // 列表最顶端多铺一行（预滚行）：换句时它从上方滑进来，边缘不会露白；
     // 下方也多铺一行，滑动时从下方顶进来。
@@ -649,7 +585,7 @@ class LyricsWidget extends BuiltinController {
     // 上限收到总行数：末尾时不再往后铺空行。
     final lastNeeded = top + bodyRows + preRoll + 1;
     final rowCount = lastNeeded > _lyrics.length ? _lyrics.length : lastNeeded;
-    final rows = <Map<String, Object?>>[];
+    final rows = <Widget>[];
     for (var i = 0; i < rowCount; i++) {
       final li = i;
       final line = _lyrics[li];
@@ -676,207 +612,323 @@ class LyricsWidget extends BuiltinController {
         wt = 400;
       }
       // "正在唱"的这一行带辉光。半径按字号配，光晕必须小于字间距。
-      final glowMain = isCurrent
-          ? <String, Object?>{'glow': _accent, 'glowSigma': 9}
-          : <String, Object?>{};
-      final body = _txt(line.s.isEmpty ? '·' : line.s, sz, null, op, {
-        'maxLines': 1,
-        'weight': wt,
-        ...glowMain,
-      });
+      final glow =
+          isCurrent ? _glow(_c(_accent), 9) : const <Shadow>[];
+      final body = Text(
+        line.s.isEmpty ? '·' : line.s,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: sz.toDouble(),
+          fontWeight: wt == 700 ? FontWeight.w700 : FontWeight.w400,
+          color: fg.withValues(alpha: op),
+          shadows: glow,
+        ),
+      );
       // 当前行有译文 → 正文 + 译文叠两行**垂直居中**地放进这一行的
-      // 高度预算里。整首歌的开窗行高（_lineContext）在 _syncLineHeights
-      // 里已经按"有没有译文"选好，所以这里正文 + 译文一定放得下，不会
-      // 再出现 RenderFlex 溢出（以前硬塞进单行高度，实测溢出 12px）。
+      // 高度预算里。整首歌的行高（_lineContext）在 _syncLineHeights 里
+      // 已经按"有没有译文"选好，所以这里正文 + 译文一定放得下。
       //
       // 非当前行**不显示译文**，但行高仍是双语的——单行正文用 center
       // 居中，视觉上落在行中间，换句时不会有"忽然跳高"的抖动。
-      final Map<String, Object?> cell;
+      final Widget cell;
       if (isCurrent && line.tr.isNotEmpty) {
-        cell = {
-          't': 'col',
-          'gap': 1,
-          'cross': 'start',
-          'main': 'center',
-          'children': [
+        cell = Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             body,
-            _txt(line.tr, _lyricSize - 3, null, 0.7, {
-              'maxLines': 1,
-              'glow': _accent,
-              'glowSigma': 6,
-            })
-          ]
-        };
+            const SizedBox(height: 1),
+            Text(
+              line.tr,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: _lyricSize - 3,
+                color: fg.withValues(alpha: 0.7),
+                shadows: _glow(_c(_accent), 6),
+              ),
+            ),
+          ],
+        );
       } else {
-        cell = {
-          't': 'col',
-          'gap': 0,
-          'main': 'center',
-          'children': [body]
-        };
+        cell = Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          // JSON 协议里 col 的 cross 默认是 start——漏了这行文字会被
+          // 水平居中，各行左边缘错开（真实渲染测试抓到的）。
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [body],
+        );
       }
-      // 每行钉死在同一高度预算内（滚动模型的前提）。槽位号 = 行号（数组
-      // 从 0 起，没有平移），handler 因此可以静态注册、不必随窗口变。
-      rows.add({
-        't': 'tap',
-        'id': _handlerFor(i),
-        'child': {
-          't': 'box',
-          'h': lh,
-          // 不裁切：行高已按"有没有译文"选好，正文+译文放得下；
-          // 裁切反而会在字体行高略有出入时把文字裁掉一两像素。
-          'pad': [4, 0],
-          'child': cell
-        }
-      });
+      // 每行钉死在同一高度预算内（滚动模型的前提）。宽度撑满取景框，
+      // 让整行（不只文字部分）可点。
+      rows.add(TapFeedback(
+        animate: ctx.animate,
+        onTap: () => _seekTo(i),
+        child: SizedBox(
+          height: lh.toDouble(),
+          width: double.infinity,
+          child: Padding(
+            // 不裁切：行高已按"有没有译文"选好，正文+译文放得下；
+            // 裁切反而会在字体行高略有出入时把文字裁掉一两像素。
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: cell,
+          ),
+        ),
+      ));
     }
-    // 取景框高度 = 实际可用高度（外层 flex 给多少就用多少），
-    // clip 掉滑动时探出边缘的行。
+    // 取景框高度 = 实际可用高度（外层 Expanded 给多少就用多少），
+    // ClipRect 裁掉滑动时探出边缘的行。
     //
     // 内层行堆总高 = rowCount × 行高 ≥ 取景框高 + 1 行，所以不会露白；
-    // 多出来的部分被 clip 裁掉，正是取景框该干的事。
+    // 多出来的部分被裁掉，正是取景框该干的事。OverflowBox 放开高度约束
+    // （行堆天然比取景框高），宽度由外面的 SizedBox 收紧。
     //
     // 偏移 = -(top × 行高)：**绝对滚动量**，随换句单调增长 → 弹簧有东西
     // 可动（这正是"弹簧效果"的来源）；末尾 top 冻结 → 偏移不变，内容
     // 确实没动，当前行在框内下移。
-    return {
-      't': 'box',
-      'h': viewport,
-      'clip': true,
-      'child': {
-        't': 'slide',
-        'v': -(top * lh).toDouble(),
-        'child': {
-          't': 'col',
-          'gap': 0,
-          'children': rows,
-        }
-      }
-    };
+    return SizedBox(
+      height: viewport,
+      width: double.infinity,
+      child: ClipRect(
+        child: OverflowBox(
+          minHeight: 0,
+          maxHeight: double.infinity,
+          alignment: Alignment.topCenter,
+          child: SpringSlide(
+            offset: -(top * lh).toDouble(),
+            animate: ctx.animate,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: rows,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
-  Map<String, Object?> _lyricPlaceholder() {
+  Widget _lyricPlaceholder(Color fg) {
     final msg = _lyricState == 'loading' ? '正在找歌词…' : '没找到这首歌的歌词';
-    return {
+    return SizedBox(
       // 高度必须和真有歌词时一致（取景框高度），否则切歌时整块跳一下。
-      't': 'box',
-      'center': true,
-      'h': _availHeight(),
-      'child': _txt(msg, 12, null, 0.35)
-    };
+      height: _availHeight(),
+      width: double.infinity,
+      child: Center(
+        child: Text(msg,
+            style:
+                TextStyle(fontSize: 12, color: fg.withValues(alpha: 0.35))),
+      ),
+    );
   }
 
-  Map<String, Object?> _view(int pos, int idx) {
+  /// 根入口：解析环境前景色（等价 NodeView 的 fg 下传），再按根 key
+  /// （_viewKey，歌名|歌手）做整卡交叉淡入——与 NodeView 根节点的处理
+  /// 同参数。字体红线：这里不给任何 Text 指定 fontFamily，全部继承
+  /// 卡片环境的全局字体。
+  Widget _root(int pos, int idx) {
+    return Builder(builder: (context) {
+      final fg = DefaultTextStyle.of(context).style.color ?? Colors.white;
+      final content = DefaultTextStyle.merge(
+        style: const TextStyle(fontSize: 13, decoration: TextDecoration.none),
+        child: _view(pos, idx, fg),
+      );
+      if (!ctx.animate) return content;
+      return AnimatedSwitcher(
+        duration: kNodeAnimDuration,
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, anim) => FadeTransition(
+          opacity: anim,
+          child: SlideTransition(
+            position: Tween(begin: const Offset(0, 0.04), end: Offset.zero)
+                .animate(anim),
+            child: child,
+          ),
+        ),
+        child: KeyedSubtree(key: ValueKey(_viewKey), child: content),
+      );
+    });
+  }
+
+  Widget _view(int pos, int idx, Color fg) {
     final media = _media;
-    if (media == null || media['available'] != true) return _idleView();
+    if (media == null || media['available'] != true) return _idleView(fg);
 
     final playing = media['status'] == 4;
     final dur = (media['duration'] as num?)?.toInt() ?? 0;
 
-    final left = {
-      't': 'col',
-      'gap': 8,
-      'cross': 'start',
-      'children': [
-        {
-          't': 'image',
-          'key': '${media['artKey'] ?? ''}',
-          'w': _artSize,
-          'h': _artSize,
-          'radius': 10
-        },
-        {
-          't': 'col',
-          'gap': 1,
-          'children': [
-            _txt('${media['title'] ?? '未知曲目'}', 13, null, 0.95,
-                {'maxLines': 1, 'weight': 600}),
-            _txt('${media['artist'] ?? '未知艺术家'}', 11, null, 0.5,
-                {'maxLines': 1}),
-          ]
-        }
-      ]
-    };
+    final left = SizedBox(
+      width: _artSize,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _cover('${media['artKey'] ?? ''}', fg),
+          const SizedBox(height: _artGap),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${media['title'] ?? '未知曲目'}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    fontSize: 13,
+                    color: fg.withValues(alpha: 0.95),
+                    fontWeight: FontWeight.w600),
+              ),
+              Text(
+                '${media['artist'] ?? '未知艺术家'}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 11, color: fg.withValues(alpha: 0.5)),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
 
-    final controls = {
-      't': 'row',
-      'gap': 10,
-      'main': 'center',
-      'cross': 'center',
-      'children': [
-        _iconBtn('prev', _hPrev, _ctrlSide, media['canPrev'] == true, _ctrlBox),
-        _iconBtn(playing ? 'pause' : 'play', _hToggle, _ctrlMain,
+    final controls = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _iconBtn('prev', _prev, _ctrlSide, media['canPrev'] == true, _ctrlBox),
+        const SizedBox(width: 10),
+        _iconBtn(
+            playing ? 'pause' : 'play',
+            _toggle,
+            _ctrlMain,
             playing ? media['canPause'] == true : media['canPlay'] == true,
             _ctrlBox),
-        _iconBtn('next', _hNext, _ctrlSide, media['canNext'] == true, _ctrlBox),
-      ]
-    };
+        const SizedBox(width: 10),
+        _iconBtn('next', _next, _ctrlSide, media['canNext'] == true, _ctrlBox),
+      ],
+    );
 
-    final bar = {
-      't': 'col',
-      'gap': 2,
-      'children': [
-        {
-          't': 'slider',
-          'id': _hSeek,
-          'h': 3,
-          'v': dur > 0 ? pos / dur : 0,
-          'color': '#FFFFFF',
-          'bg': '#FFFFFF33', // RRGGBBAA，alpha 在后
+    final bar = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        PluginSlider(
+          value: dur > 0 ? (pos / dur).clamp(0.0, 1.0) : 0,
+          height: 3,
+          color: Colors.white,
+          background: const Color(0x33FFFFFF), // RRGGBBAA，alpha 在后
           // 播放器不支持定位时置灰
-          'enabled': media['canSeek'] == true && dur > 0,
-        },
-        {
-          't': 'row',
-          'main': 'between',
-          'children': [
-            _txt(Lrc.fmt(pos), 9.5, null, 0.4, {'mono': true}),
-            _txt(Lrc.fmt(dur), 9.5, null, 0.4, {'mono': true}),
-          ]
-        }
-      ]
-    };
+          enabled: media['canSeek'] == true && dur > 0,
+          onChanged: _seekFraction,
+        ),
+        const SizedBox(height: 2),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(Lrc.fmt(pos), style: _monoStyle(fg)),
+            Text(Lrc.fmt(dur), style: _monoStyle(fg)),
+          ],
+        ),
+      ],
+    );
 
-    final right = {
-      't': 'col',
-      'gap': 6,
-      'children': [
-        controls,
-        bar,
-        // 换行/换词原地替换内容：不传 animKey（该动画已因闪白禁用）
-        {
-          't': 'flex',
-          'f': 1,
-          'child': _lyrics.isNotEmpty
-              ? _lyricArea(idx)
-              : _lyricPlaceholder()
-        }
-      ]
-    };
+    // 撑满卡片高度，让 Expanded 有确定的高度预算（歌词区吃掉剩余部分）。
+    final right = SizedBox(
+      height: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          controls,
+          const SizedBox(height: 6),
+          bar,
+          const SizedBox(height: 6),
+          Expanded(
+            child: _lyrics.isNotEmpty
+                ? _lyricArea(idx, fg)
+                : _lyricPlaceholder(fg),
+          ),
+        ],
+      ),
+    );
 
-    return {
-      // key 挂「歌名|歌手」：切歌时整卡交叉淡入，不含时长（时长从 0 刷新
-      // 到正常值不会触发第二次整卡过渡）
-      'key': _viewKey,
-      't': 'box',
-      'pad': _pad,
-      'child': {
-        't': 'row',
-        'gap': 14,
-        'cross': 'start',
-        'children': [
-          {'t': 'box', 'w': _artSize, 'child': left},
-          {'t': 'flex', 'f': 1, 'child': right},
-        ]
-      }
-    };
+    return Padding(
+      padding: const EdgeInsets.all(_pad),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          left,
+          const SizedBox(width: 14),
+          Expanded(child: right),
+        ],
+      ),
+    );
   }
 
-  // ---- 事件处理器 id（树里引用的）----
-  late final String _hPrev;
-  late final String _hToggle;
-  late final String _hNext;
-  late final String _hSeek;
+  /// 封面：监听图片缓存版本号（解码完成时这一帧早就画过了，不重建就
+  /// 永远是占位图），换歌时占位图 → 封面交叉淡入。
+  Widget _cover(String key, Color fg) {
+    return ValueListenableBuilder<int>(
+      valueListenable: WidgetImages.revision,
+      builder: (context, _, _) {
+        final img = key.isEmpty ? null : WidgetImages.get(key);
+        final Widget raw = img == null
+            ? Container(
+                width: _artSize,
+                height: _artSize,
+                color: const Color(0x14FFFFFF),
+                alignment: Alignment.center,
+                child: Icon(Icons.music_note_rounded,
+                    size: _artSize * 0.32,
+                    color: fg.withValues(alpha: 0.25)),
+              )
+            : ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: RawImage(
+                  image: img,
+                  width: _artSize,
+                  height: _artSize,
+                  fit: BoxFit.cover,
+                  filterQuality: FilterQuality.medium,
+                ),
+              );
+        if (!ctx.animate) return raw;
+        return AnimatedSwitcher(
+          duration: kNodeAnimDuration,
+          switchInCurve: kNodeAnimCurve,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (c, anim) =>
+              FadeTransition(opacity: anim, child: c),
+          child: KeyedSubtree(key: ValueKey(key), child: raw),
+        );
+      },
+    );
+  }
+
+  Widget _iconBtn(
+      String name, VoidCallback onTap, num size, bool enabled, num box) {
+    final icon = NodeAnimatedColor(
+      color: enabled ? Colors.white : const Color(0xFF7A7A7A),
+      animate: ctx.animate,
+      builder: (context, color) => MorphableIcon(
+        name: name,
+        size: size.toDouble(),
+        color: color,
+        animate: ctx.animate,
+        fallback: iconDataFor(name),
+      ),
+    );
+    final cell = SizedBox(
+      width: box.toDouble(),
+      height: box.toDouble(),
+      child: Center(child: icon),
+    );
+    if (!enabled) return cell;
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: TapFeedback(animate: ctx.animate, onTap: onTap, child: cell),
+    );
+  }
 
   @override
   void mount() {
@@ -907,18 +959,12 @@ class LyricsWidget extends BuiltinController {
     final metrics = lineMetrics[lyricSize] ?? (21, 37);
     _lineSingle = metrics.$1 + 10;
     _lineBilingual = metrics.$2 + 10;
-    // 实际行高在 _lyricArea 里按「这首歌有没有译文」现算（见 _refreshLineContext），
+    // 实际行高在 _lyricArea 里按「这首歌有没有译文」现算，
     // 这里先给单行值，保证 mount 阶段的行数预算有意义。
     _lineContext = _lineSingle;
 
-    // 行槽位：先按**上限**备一批 handler。行高会随「这首歌有没有译文」在
-    // 单行/双语之间切换，可见行数随之变化；按单行（行高最小 → 行数最多）
-    // 备齐就不会有点不中的行。运行时若还不够，_handlerFor 会现补。
-    _slotCount = _maxSlotCount();
-
-    _registerHandlers();
     _lyrics = [];
-    ctx.render(_idleView());
+    ctx.renderWidget(_root(0, -1));
     _purgeLegacyCache();
     _tick();
     ctx.interval(_tick, 100);
@@ -966,12 +1012,6 @@ class LyricsWidget extends BuiltinController {
   }
 
   @visibleForTesting
-  int get debugMaxSlotCount => _maxSlotCount();
-
-  @visibleForTesting
-  int get debugSlotCount => _slotCount;
-
-  @visibleForTesting
   int get debugWindowBase => _windowBase;
 
   @visibleForTesting
@@ -981,36 +1021,23 @@ class LyricsWidget extends BuiltinController {
   void debugSetLyrics(List<LrcLine> lines) {
     _lyrics = lines;
     _lyricState = 'ok';
-    // 槽位号即行号，测试里注进来的行数可能比 mount 时备的多，补一次。
-    _ensureSlotHandlers();
   }
 
-  /// 直接渲染"有歌词"的那个分支，绕过 _media 空态检查。
-  /// 测试关心的是歌词区布局，不是 SMTC 有没有歌。
-  @visibleForTesting
-  void debugPaint(int idx) {
-    ctx.render({
-      't': 'box',
-      'pad': _pad,
-      'child': _lyrics.isNotEmpty ? _lyricArea(idx) : _lyricPlaceholder(),
-    });
-  }
-
-  /// 渲染**完整的播放视图**（含封面/控制条/进度条/歌词区）。
+  /// 测试钩子：构建**完整的播放视图**（含封面/控制条/进度条/歌词区），
+  /// 直接返回 Widget——测试自己 pump，完全不经过 ctx 通道。
   ///
-  /// 和 debugPaint 的区别很关键：只渲染歌词区会得到一个"没有头部"的树，
-  /// 歌词当然贴着顶——那样量出来的坐标不能反映真实布局（曾因此误判）。
-  /// 要验证"歌词是否落在控制条下方、有没有溢出卡片"，必须用这个。
+  /// 相比旧的 debugPaintFull（往 ctx.render 里塞 JSON 树）少了一整类坑：
+  /// 不再依赖"宿主监听 tree 重建"，快照反模式无从发生。
   ///
-  /// 两条使用前提，缺一个都量不到真东西：
-  ///   1. 先 `_dead = true` 掐掉 _tick：测试里没有 native，定时采样会把
+  /// 与真实渲染的差别只有两处，都是测试环境所必需的：
+  ///   1. `_dead = true` 掐掉 _tick：测试里没有 native，定时采样会把
   ///      `_media` 清成 null，视图就退回 idle（曾因此量到 idle 的几何）。
-  ///   2. 宿主必须**监听 `ctx.tree`**（如 ValueListenableBuilder）来重建
-  ///      NodeView。若像早期那样把 `ctx.tree.value!` 当快照塞给
-  ///      NodeView，后续所有 render 都不会反映到屏幕上——测得的是
-  ///      mount 时的 idle 树，"歌词全空"是假象（曾因此白查一轮）。
+  ///   2. `_media` 用假快照顶上，绕过 SMTC 空态检查。
+  ///
+  /// 只渲染歌词区（不带头部）的旧 debugPaint 已删：没有头部的树量出来
+  /// 的坐标不反映真实布局（曾因此误判），统一用完整视图。
   @visibleForTesting
-  void debugPaintFull(int idx) {
+  Widget debugBuildFull(int idx) {
     _dead = true;
     _media = {
       'available': true,
@@ -1026,6 +1053,6 @@ class LyricsWidget extends BuiltinController {
       'canSeek': true,
       'artKey': '',
     };
-    ctx.render(_view(idx * 1000, idx));
+    return _root(idx * 1000, idx);
   }
 }

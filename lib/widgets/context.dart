@@ -52,6 +52,18 @@ class WidgetContext {
   /// 组件最近一次 render 出来的 UI 树
   final ValueNotifier<Map<String, Object?>?> tree = ValueNotifier(null);
 
+  /// 原生渲染通道：迁移中的组件直接产出 Flutter Widget。
+  ///
+  /// JSON 树协议（[tree]）当初为 QuickJS 插件而设；插件系统移除后组件都是
+  /// 编译进核心的 Dart，没必要再经过"建 Map 树 → NodeView 解释"的中转。
+  /// 两条通道并存，卡片侧**优先取这边**——组件逐个迁移，迁移完的组件只调
+  /// [renderWidget]，没迁的继续用 [render]，互不影响。
+  final ValueNotifier<Widget?> widget = ValueNotifier(null);
+
+  /// 动画开关（卡片侧的"动画效果"设置）。由卡片在构建时推入，与
+  /// [themeAccent] 同一手法：组件在下次重绘时读到新值。
+  bool animate = true;
+
   final Map<String, void Function(Map<String, Object?>)> _handlers = {};
   int _handlerSeq = 0;
   final Map<String, Timer> _timers = {};
@@ -81,6 +93,12 @@ class WidgetContext {
   void render(Map<String, Object?> t) {
     if (!_alive) return;
     tree.value = t;
+  }
+
+  /// 原生通道渲染：直接给一个 Flutter Widget。与 [render] 同样的死亡守门。
+  void renderWidget(Widget w) {
+    if (!_alive) return;
+    widget.value = w;
   }
 
   // ---- 定时器：真实 Timer，卸载时统一回收 ----
@@ -134,6 +152,7 @@ class WidgetContext {
     _netTimeouts.clear();
     _handlers.clear();
     tree.dispose();
+    widget.dispose();
   }
 
   // ---- 宿主能力（原 PluginHost 的能力层，语义一字未改）----

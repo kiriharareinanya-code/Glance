@@ -84,6 +84,9 @@ class _BuiltinPreviewState extends State<BuiltinPreview> {
     );
 
     final controller = createBuiltinController(widget.spec.id, ctx);
+    // 预览是静态缩略图：动画全关（原生通道读 ctx.animate，JSON 通道
+    // 由下面 NodeView 的 animate:false 承接）。
+    ctx.animate = false;
     try {
       controller.mount();
     } catch (_) {
@@ -129,13 +132,18 @@ class _BuiltinPreviewState extends State<BuiltinPreview> {
           borderRadius: BorderRadius.circular(10),
           child: ColoredBox(
             color: const Color(0x0A000000),
-            child: ValueListenableBuilder<Map<String, Object?>?>(
-              valueListenable: ctx.tree,
-              builder: (context, tree, _) => NodeView(
-                tree: tree,
-                onEvent: (_, _) {}, // 预览不响应交互
-                animate: false,
-              ),
+            // 双通道：原生组件优先，未迁移的回落 JSON 协议。
+            child: ValueListenableBuilder<Widget?>(
+              valueListenable: ctx.widget,
+              builder: (context, native, _) => native ??
+                  ValueListenableBuilder<Map<String, Object?>?>(
+                    valueListenable: ctx.tree,
+                    builder: (context, tree, _) => NodeView(
+                      tree: tree,
+                      onEvent: (_, _) {}, // 预览不响应交互
+                      animate: false,
+                    ),
+                  ),
             ),
           ),
         ),
