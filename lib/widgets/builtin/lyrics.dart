@@ -11,6 +11,8 @@ library;
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
+
 import '../catalog.dart';
 import 'lrc.dart';
 
@@ -30,12 +32,21 @@ class LyricsWidget extends BuiltinController {
   late double _artSize;
   late double _lyricSize;
   late int _lineContext;
+  /// 当前行的高度。**不是固定值**：开启「显示翻译」时只有当前行真的带
+  /// 译文才占双语高度，否则回到单行高度——否则这一行会凭空多出约 28px
+  /// 空白（曾是这样：_lineCurrent 一律按 bilingual 算）。
   late int _lineCurrent;
+  /// 有译文时的当前行高度（mount 时按字号算好，渲染时直接取用）
+  late int _lineCurrentTrans;
   late int _lyricLines;
 
   static const _ctrlSide = 26;
   static const _ctrlMain = 34;
   static const _ctrlBox = 42;
+
+  /// 歌词区上方（按钮 + 进度条 + 时间行 + 间隔）占用的固定高度。
+  /// mount() 与 _visibleLines() 必须用同一个值，否则行数预算和实际渲染打架。
+  static const _headerBlock = 88;
 
   // ---- 运行时状态 ----
   Map<String, Object?>? _media; // 最近一次「有歌在放」的 SMTC 快照
@@ -433,18 +444,49 @@ class LyricsWidget extends BuiltinController {
     };
   }
 
+  /// 按"当前行到底有没有译文"决定当前行高度。
+  ///
+  /// 这是消除空白的核心：以前 _lineCurrent 只要开了「显示翻译」就恒等于
+  /// 双语高度，而网易云绝大多数歌没有 tlyric——于是几乎每一行都空出
+  /// 一行译文的格子。现在没有译文就收回单行高度，多出来的空间让
+  /// _lyricArea 多显示几行歌词。
+  void _syncLineHeights(int idx) {
+    final wantTrans = _settings['trans'] == true &&
+        idx >= 0 &&
+        idx < _lyrics.length &&
+        _lyrics[idx].tr.isNotEmpty;
+    _lineCurrent = wantTrans ? _lineCurrentTrans : _lineContext;
+  }
+
+  /// 当前预算下最多能放几行。译文行占得高，行数就少一行。
+  int _visibleLines() {
+    final avail = _h - _pad * 2 - _headerBlock;
+    // 当前行占 _lineCurrent，其余行各占 _lineContext
+    var n = ((avail - _lineCurrent) / _lineContext).floor() + 1;
+    if (n < 1) n = 1;
+    // 反正 handler 是按上限注册的；这里只影响一次画多少行
+    final cap = _hLine.isEmpty ? 20 : _hLine.length;
+    if (n > cap) n = cap;
+    if (n > 20) n = 20;
+    return n;
+  }
+
   Map<String, Object?> _lyricArea(int idx) {
+    // 先按实际有无译文定当前行高度，再据此决定能显示几行——
+    // 没有译文时这一行省下的高度立刻变成"多显示一行歌词"
+    _syncLineHeights(idx);
+    final lines = _visibleLines();
     // 当前行偏上显示：上方约 1/3、下方 2/3
-    final before = ((_lyricLines - 1) / 3).floor().clamp(0, _lyricLines);
+    final before = ((lines - 1) / 3).floor().clamp(0, lines);
     var base = idx < 0 ? 0 : idx - before;
-    if (base > _lyrics.length - _lyricLines) {
-      base = _lyrics.length - _lyricLines;
+    if (base > _lyrics.length - lines) {
+      base = _lyrics.length - lines;
     }
     if (base < 0) base = 0;
     _windowBase = base;
 
     final rows = <Map<String, Object?>>[];
-    for (var i = 0; i < _lyricLines; i++) {
+    for (var i = 0; i < lines; i++) {
       final li = base + i;
       if (li >= _lyrics.length) {
         rows.add({
@@ -487,10 +529,14 @@ class LyricsWidget extends BuiltinController {
       final glowTr = isCurrent
           ? <String, Object?>{'glow': _accent, 'glowSigma': 6}
           : <String, Object?>{};
+      // 只有"正在唱"的这一行用弹簧过渡换词：它单独占一行高度、位置固定，
+      // 弹进来不会牵连别的行。上下文行是原地替换（换行时整列本来就在
+      // 整体平移，再给每行加过渡会显得乱且叠影）。
       final body = _txt(line.s.isEmpty ? '·' : line.s, sz, null, op, {
         'maxLines': 1,
         'weight': wt,
         ...glowMain,
+        if (isCurrent) 'trans': 'spring',
       });
       // 译文只在"正在唱"的这一行显示：上下文行的透明度下译文看不清
       final cell = (isCurrent && line.tr.isNotEmpty)
@@ -525,10 +571,11 @@ class LyricsWidget extends BuiltinController {
   Map<String, Object?> _lyricPlaceholder() {
     final msg = _lyricState == 'loading' ? '正在找歌词…' : '没找到这首歌的歌词';
     return {
-      // 高度必须和真有歌词时一致，否则切歌时整块跳一下
+      // 高度必须和真有歌词时一致，否则切歌时整块跳一下。
+      // 按当前实际行高算（有译文则当前行更高），和 _visibleLines 同一套预算。
       't': 'box',
       'center': true,
-      'h': _lineCurrent + _lineContext * (_lyricLines - 1),
+      'h': _lineCurrent + _lineContext * (_visibleLines() - 1),
       'child': _txt(msg, 12, null, 0.35)
     };
   }
@@ -674,18 +721,23 @@ class LyricsWidget extends BuiltinController {
     final metrics = lineMetrics[lyricSize] ?? (21, 37);
     // 只有"正在唱"的行值得占双语高度；上下文行只留单行高度
     final lineContext = metrics.$1 + 10;
-    final lineCurrent =
-        (_settings['trans'] == true ? metrics.$2 : metrics.$1) + 10;
+    // 双语高度先算好备用；当前行最终占多高由 _syncLineHeights() 按
+    // "这一行到底有没有译文"决定，不再无条件预留。
+    final lineCurrentTrans = metrics.$2 + 10;
     _lineContext = lineContext;
-    _lineCurrent = lineCurrent;
+    _lineCurrentTrans = lineCurrentTrans;
 
     // 行数按实际剩余高度算：右列上半部分（按钮 + 进度条 + 时间）实测 73，
-    // 加 12 的间隔与容错。
-    final avail = _h - _pad * 2 - 76 - 12;
-    var lyricLines = ((avail - lineCurrent) / lineContext).floor() + 1;
+    // 加 12 的间隔与容错，合计 _headerBlock。
+    final avail = _h - _pad * 2 - _headerBlock;
+    // 预算按"单行"算：这是最省的情形，能容下最多行数。真出现译文时
+    // 当前行变高，多的行会被裁掉一两个——比事先按双语预留、导致
+    // 没译文时整片留白要好得多。
+    var lyricLines = ((avail - lineContext) / lineContext).floor() + 1;
     if (lyricLines < 1) lyricLines = 1;
     if (lyricLines > 20) lyricLines = 20;
     _lyricLines = lyricLines;
+    _lineCurrent = lineContext;
 
     _registerHandlers();
     _lyrics = [];
@@ -703,4 +755,34 @@ class LyricsWidget extends BuiltinController {
 
   @override
   void onSettingsChange() {}
+
+  // ------------------------------------------------------------------
+  // 测试探针：让布局契约可被断言，而不是靠肉眼看截图
+  // ------------------------------------------------------------------
+
+  @visibleForTesting
+  int get debugLineCurrent => _lineCurrent;
+
+  @visibleForTesting
+  int get debugLineContext => _lineContext;
+
+  @visibleForTesting
+  int get debugVisibleLines => _visibleLines();
+
+  @visibleForTesting
+  void debugSetLyrics(List<LrcLine> lines) {
+    _lyrics = lines;
+    _lyricState = 'ok';
+  }
+
+  /// 直接渲染"有歌词"的那个分支，绕过 _media 空态检查。
+  /// 测试关心的是歌词区布局，不是 SMTC 有没有歌。
+  @visibleForTesting
+  void debugPaint(int idx) {
+    ctx.render({
+      't': 'box',
+      'pad': _pad,
+      'child': _lyrics.isNotEmpty ? _lyricArea(idx) : _lyricPlaceholder(),
+    });
+  }
 }
