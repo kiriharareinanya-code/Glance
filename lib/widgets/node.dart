@@ -11,8 +11,8 @@
 ///   - 根节点 `key`：整卡内容切换时交叉淡入（日历翻月把 key 设成 "2026-8"；
 ///     歌词切歌把 key 设成歌名|歌手）
 ///   - `flip` 节点：3D X 轴翻转（从下往上），带淡入淡出
-///   - text 节点 `trans`：`true` 交叉淡入 / `'flip'` 机械翻页 /
-///     `'spring'` 弹簧滑入（歌词换词）
+///   - `slide` 节点：纵向弹簧滚动（歌词换句时整列歌词平移到下一句）
+///   - text 节点 `trans`：`true` 交叉淡入 / `'flip'` 机械翻页
 ///   - 节点 `animKey`：**已禁用**（真实渲染下换行动画闪白，见 _child 注释），
 ///     字段保留在协议里兼容旧插件，宿主不再产生动画
 library;
@@ -242,6 +242,16 @@ class _NodeViewState extends State<NodeView> {
         return _slider(n);
       case 'flip':
         return _flip(n, fg);
+      case 'slide':
+        // 纵向弹簧滚动：{t:'slide', 'v': 目标像素偏移, child}。
+        // 歌词换句靠它把整列歌词平移到下一句，而不是每行原地换词。
+        // 只做 Transform.translate，不裁剪、不叠透明度——平移不改绘制
+        // 内容，不会触发当年那个闪白机制（见 _child 注释）。
+        return SpringSlide(
+          offset: _num(n['v']) ?? 0,
+          animate: widget.animate,
+          child: _child(n, fg),
+        );
       default:
         // 未知节点不该让整张卡片崩掉
         return const SizedBox.shrink();
@@ -393,10 +403,9 @@ class _NodeViewState extends State<NodeView> {
     // 固定位置的值才声明 trans，过渡才不会在别处复活闪白。
     // AnimatedSwitcher 对内容没变的重绘不会重播——key 相同直接复用。
     // trans 是布尔开关，别用 _str 读（它只认 String，bool 永远落空）
-    // trans 有三种模式：
+    // trans 有两种模式：
     //   true     交叉淡入 + 轻微上移（通用，适合日期/星期这类文字）
     //   'flip'   机械翻页（时钟数字用，见 flip_transition.dart）
-    //   'spring' 弹簧滑入（歌词当前行换词用，见 spring_transition.dart）
     if (n['trans'] == 'flip') {
       return AnimatedDefaultTextStyle(
         duration: kNodeAnimDuration,
@@ -406,19 +415,6 @@ class _NodeViewState extends State<NodeView> {
         child: FlipTransition(
           value: _str(n['v']) ?? '',
           textBuilder: buildText,
-        ),
-      );
-    }
-    if (n['trans'] == 'spring') {
-      return AnimatedDefaultTextStyle(
-        duration: kNodeAnimDuration,
-        curve: kNodeAnimCurve,
-        style: resolved,
-        softWrap: true,
-        child: SpringTransition(
-          value: _str(n['v']) ?? '',
-          animate: widget.animate,
-          child: text,
         ),
       );
     }
