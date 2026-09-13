@@ -1,13 +1,18 @@
 /// 歌词卡片的滚动布局与换句动画约定。
 ///
-/// 三个回归点：
+/// 回归点：
 ///   1. **等高行**：滚动模型要求所有行一样高，否则滑动时行距会抖。
-///      译文不再撑高行，而是压成小字叠在正文下面。
 ///   2. **滚动偏移**：换句时整列歌词平移 `-(窗口起点 × 行高)`，由 'slide'
 ///      节点做弹簧过渡——不是每行原地换词（那样没有位移，看起来是"跳"）。
 ///   3. **译文空白**：以前只要开「显示翻译」当前行就恒占双语高度，而
-///      网易云多数歌没有 tlyric，导致整片留白。现在行高统一，不再有
-///      这个空白。
+///      网易云多数歌没有 tlyric，导致整片留白。现在只有这首歌**确实有
+///      译文**时才用双语行高，否则一点都不留。
+///   4. **横向铺满**：`clip:true` 的盒子会在孩子外面套 ClipPath，传下去
+///      的是**松宽度约束**——内层 Column 会缩到最宽文字的宽度，整块歌词
+///      塌成左边一条细缝，看起来"一片空白"（真实 bug）。裁切盒必须自己
+///      把宽度撑满。
+///   5. **不溢出**：取景框高度必须 ≥ 内层行堆的总高，否则 RenderFlex
+///      报溢出（实测 38~60px）并且滚动时边缘露白。
 library;
 
 import 'dart:io';
@@ -158,7 +163,7 @@ void main() {
         reason: '偏移必须等于 -(窗口起点 × 行高)，滑动才对得上位置');
   });
 
-  test('槽位数 = 可见行数 + 2（滚动时上下各多铺一行）', () {
+  test('槽位数按双语的极端情况备齐（行高切换时也够用）', () {
     final (w, ctx) = mountLyrics(
         size: const Size(300, 340), settings: const {'trans': false});
     addTearDown(() {
@@ -167,10 +172,14 @@ void main() {
     w.debugSetLyrics(lines(12));
     w.debugPaint(3);
 
-    expect(w.debugSlotCount, w.debugVisibleLines + 2);
+    // handler 按上限注册：行高会在单行/双语间切换，双语时可见行数最少，
+    // 按它备齐就不会有点不中的行
+    expect(w.debugSlotCount, w.debugMaxSlotCount);
+    expect(w.debugMaxSlotCount, greaterThanOrEqualTo(w.debugVisibleLines + 2),
+        reason: '双语行高更大 → 可见行数更少，槽位上限必须覆盖单行时更多的那种');
   });
 
-  test('开了翻译但当前行没有译文时，不预留任何空白', () {
+  test('开了翻译但整首歌都没有译文时，不留任何双语空白', () {
     final (w, ctx) = mountLyrics(
         size: const Size(300, 340), settings: const {'trans': true});
     addTearDown(() {
@@ -180,9 +189,112 @@ void main() {
     w.debugPaint(0);
 
     expect(w.debugHasTrans, isFalse, reason: '这行没有译文');
+    expect(w.debugSongHasTrans, isFalse, reason: '整首歌都没有译文');
     final hs = rowHeights(ctx.tree.value!);
     expect(hs.toSet().length, 1);
-    expect(hs.first, w.debugLineContext, reason: '无译文就没有双语预留');
+    expect(hs.first, w.debugLineSingle,
+        reason: '整首歌没译文时行高应取单行值，不留双语空白');
+  });
+
+  test('整首歌有译文时，行高统一取双语值', () {
+    final (w, ctx) = mountLyrics(
+        size: const Size(300, 340), settings: const {'trans': true});
+    addTearDown(() {
+      ctx.unmount();
+    });
+    w.debugSetLyrics(lines(10, trans: '译文'));
+    w.debugPaint(0);
+
+    expect(w.debugSongHasTrans, isTrue);
+    final hs = rowHeights(ctx.tree.value!);
+    expect(hs.toSet().length, 1, reason: '所有行必须等高，译文不能只撑高当前行');
+    expect(hs.first, w.debugLineBilingual);
+  });
+
+  testWidgets('真实渲染：歌词占满可用宽度，不被 ClipPath 挤成细缝', (tester) async {
+    final (w, ctx) = mountLyrics(size: const Size(300, 340));
+    w.debugSetLyrics([
+      for (var i = 0; i < 12; i++) LrcLine(t: i * 1000, s: '第$i行歌词内容'),
+    ]);
+    w.debugPaintFull(4);
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: SizedBox(
+            width: 300,
+            height: 340,
+            child: NodeView(tree: ctx.tree.value!, onEvent: (_, _) {}),
+          ),
+        ),
+      ),
+    ));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.text('第4行歌词内容'), findsOneWidget,
+        reason: '当前行必须真的画在屏幕上（不能整块空白）');
+
+    // 横向铺满的判据：找行盒子（tap 的直接子 box），它应当铺满右侧列。
+    // 文字本身宽度不等于行宽（Text 只占自己那几个字），所以量行盒子。
+    final rowBoxes = find
+        .ancestor(
+            of: find.text('第5行歌词内容'),
+            matching: find.byType(AnimatedContainer))
+        .evaluate()
+        .map((e) => (e.renderObject as RenderBox).size.width)
+        .toList();
+    // 祖先链里最宽的那个就是铺满列宽的行盒子
+    final rowW = rowBoxes.reduce((a, b) => a > b ? a : b);
+    expect(rowW, greaterThan(150),
+        reason: '行盒子必须铺满右侧列（松约束下会塌成 ~48px，看起来是空白），'
+            '实际祖先链宽度=$rowBoxes');
+
+    // 所有可见歌词行应当左对齐在同一条竖线上（说明它们同宽、没有被
+    // 各自文字宽度带偏）
+    final l4 = tester.getTopLeft(find.text('第4行歌词内容')).dx;
+    final l5 = tester.getTopLeft(find.text('第5行歌词内容')).dx;
+    expect(l5, closeTo(l4, 0.5),
+        reason: '各行左边缘必须对齐（塌陷时每行宽度不同会错开）');
+
+    expect(tester.takeException(), isNull,
+        reason: '取景框高度必须容得下所有行，不能 RenderFlex 溢出');
+
+    // 必须先 unmount 再结束：mount 里开的 100ms interval 还在跑，
+    // 留到 testWidgets 的末尾校验会报 "A Timer is still pending"。
+    ctx.unmount();
+  });
+
+  testWidgets('真实渲染：整首歌有译文时不溢出（双语行高）', (tester) async {
+    final (w, ctx) = mountLyrics(
+        size: const Size(300, 340), settings: const {'trans': true});
+    w.debugSetLyrics([
+      for (var i = 0; i < 12; i++)
+        LrcLine(t: i * 1000, s: '第$i行歌词内容', tr: '第$i行翻译文字'),
+    ]);
+    w.debugPaintFull(4);
+
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: SizedBox(
+            width: 300,
+            height: 340,
+            child: NodeView(tree: ctx.tree.value!, onEvent: (_, _) {}),
+          ),
+        ),
+      ),
+    ));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.text('第4行歌词内容'), findsOneWidget);
+    expect(find.text('第4行翻译文字'), findsOneWidget,
+        reason: '当前行的译文必须显示出来');
+    expect(tester.takeException(), isNull,
+        reason: '正文 + 译文必须放得进双语行高，不能溢出');
+
+    ctx.unmount();
   });
 
   testWidgets('节点层：slide 节点按目标偏移做弹簧平移', (tester) async {

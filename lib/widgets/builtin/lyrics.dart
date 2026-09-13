@@ -31,10 +31,22 @@ class LyricsWidget extends BuiltinController {
   static const _artGap = 8;
   late double _artSize;
   late double _lyricSize;
-  /// 每行固定高度。滚动模型下所有行等高，没有"当前行更高"这回事。
+  /// 每行的**实际**高度。滚动模型下所有行等高，没有"当前行更高"这回事。
+  ///
+  /// 取值看这首歌**有没有译文**：
+  ///   - 有译文 → 用双语高度（正文 + 译文），行行都留得下译文；
+  ///   - 没译文 → 用单行高度，不浪费一行空白。
+  /// 这是关键：以前只要开了「显示翻译」就恒定按双语留高，而网易云多数
+  /// 歌根本没有 tlyric，整块歌词上方就空出一大片（用户截图反馈的问题）。
+  /// 现在按"这首歌到底有没有译文"决定，没有就一点都不留。
   late int _lineContext;
-  late int _lyricLines;
-  /// 当前行是否有译文（译文叠在正文下方，不撑高行）。
+  /// 单行高度（无译文时用）
+  late int _lineSingle;
+  /// 双语高度（正文 + 译文叠两行）
+  late int _lineBilingual;
+  /// 这首歌是否**存在**译文（任一行有即算）。决定行高取单行还是双语。
+  bool _songHasTrans = false;
+  /// 当前行是否有译文（用于辉光/调试）。
   bool _hasTrans = false;
   /// 歌词槽位总数 = 可见行数 + 2（滚动时上下各多铺一行，防止边缘露白）。
   /// handler 按这个数注册。
@@ -79,20 +91,40 @@ class LyricsWidget extends BuiltinController {
       ctx.mediaControl('seek',
           posMs: ((num.tryParse('${p['value']}') ?? 0) * dur).round());
     });
-    // 点某一行歌词跳到那一句。槽位数是可见行数 + 2（滚动时上下各多铺
-    // 一行），handler 按上限备齐。
+    // 点某一行歌词跳到那一句。槽位数 = 可见行数 + 2，而可见行数会随
+    // 「这首歌有没有译文」在单行/双语之间变（双语行高更大 → 行数更少）。
+    // 与其在 mount 时赌一个上限，不如**按需增长**：要用到第 n 个槽位就
+    // 保证它已经注册好。见 _handlerFor。
     _hLine.clear();
     for (var i = 0; i < _slotCount; i++) {
-      final slot = i;
-      _hLine.add(ctx.on((_) {
-        // 槽位 slot 显示的是 _windowBase + slot - 1 号行（往上多铺了一行）
-        final idx = _windowBase + slot - 1;
-        if (idx >= 0 && idx < _lyrics.length) {
-          _lastPos = 0;
-          ctx.mediaControl('seek', posMs: _lyrics[idx].t);
-        }
-      }));
+      _addLineHandler(i);
     }
+  }
+
+  /// 给第 [slot] 个歌词槽位注册点击处理器（幂等）。
+  ///
+  /// 每行对应一个 handle：点它就把播放位置跳到那一句。槽位映射
+  /// 「槽位 slot 显示 _windowBase + slot - 1 号行」（往上多铺了一行）。
+  void _addLineHandler(int slot) {
+    _hLine.add(ctx.on((_) {
+      final idx = _windowBase + slot - 1;
+      if (idx >= 0 && idx < _lyrics.length) {
+        _lastPos = 0;
+        ctx.mediaControl('seek', posMs: _lyrics[idx].t);
+      }
+    }));
+  }
+
+  /// 取第 [slot] 个槽位的处理器 id，数量不够就现补。
+  ///
+  /// 这是「行高会变」带来的必然结果：可见行数不是常量，写死一个上限
+  /// 迟早会有点不中的行（实测 RangeError）。现补的成本就是一次 ctx.on，
+  /// 只在行数变多时才发生。
+  String _handlerFor(int slot) {
+    while (_hLine.length <= slot) {
+      _addLineHandler(_hLine.length);
+    }
+    return _hLine[slot];
   }
 
   // ------------------------------------------------------------------
@@ -447,29 +479,51 @@ class LyricsWidget extends BuiltinController {
     };
   }
 
-  /// 按"当前行到底有没有译文"决定当前行高度。
+  /// 刷新当前行是否有译文，并据此决定这一首歌用哪种行高。
   ///
-  /// 滚动模型下**所有行等高**（不然滚动时行距会抖），所以译文改用叠字
-  /// 压进同一行，不再撑高。这个方法现在只维护 `_hasTrans`（当前行有
-  /// 无译文），供调试与将来需要区分时使用。
+  /// **滚动模型下所有行必须等高**（否则换句时行距会抖），所以不能"只有
+  /// 当前行更高"。折中办法是按**这首歌整体有没有译文**决定：
+  ///   - 有译文 → 全篇用双语高度（行行都容得下正文 + 译文）；
+  ///   - 没译文 → 全篇用单行高度，不留任何空白。
+  ///
+  /// 这正是用户截图反馈的那个问题：以前只要开了「显示翻译」就恒定按双语
+  /// 留高，而网易云大多数歌没有 tlyric，正文上方就空出一大片。
   void _syncLineHeights(int idx) {
     _hasTrans = _settings['trans'] == true &&
         idx >= 0 &&
         idx < _lyrics.length &&
         _lyrics[idx].tr.isNotEmpty;
+    final wantTrans = _settings['trans'] == true &&
+        _lyrics.any((l) => l.tr.isNotEmpty);
+    _songHasTrans = wantTrans;
+    _lineContext = wantTrans ? _lineBilingual : _lineSingle;
   }
 
-  /// 歌词区能放下几行（**一律按单行高度算**）。
+  /// 歌词区能放下几行（按**当前实际行高**算）。
   ///
-  /// 滚动模型要求每行等高：如果当前行因为带译文而变高，滚动时行与行的
-  /// 间距就会忽大忽小，看起来是"抖"而不是"滚"。所以译文改用**叠字**的
-  /// 方式挤在同一行高度内（字号小一点），不再撑高行。
+  /// **预留两行**：滚动时上下各多铺一行（slots = 可见 + 2），这两行必须
+  /// 也在取景框里——否则内层 Column 会比取景框高，触发 RenderFlex 溢出
+  /// （实测 38~60px），滑动过程中还会在上/下边缘露白。
   int _visibleLines() {
     final avail = _h - _pad * 2 - _headerBlock;
-    var n = (avail / _lineContext).floor();
+    // 先按"含预铺两行"的总行数反推可见行数：n + 2 行要能塞进 avail
+    var n = (avail / _lineContext).floor() - 2;
+    if (n < 1) n = 1;
+    if (n > 16) n = 16;
+    return n;
+  }
+
+  /// 槽位数的**上限**（mount 时先备一批 handler 用）。
+  ///
+  /// 行高会随「这首歌有没有译文」在单行/双语之间切换，可见行数也跟着变。
+  /// **单行行高更小 → 可见行数更多 → 需要更多槽位**，所以上限要按单行算。
+  /// 运行时若仍不够，[_handlerFor] 会现补，这里只是省掉常见的几次补注册。
+  int _maxSlotCount() {
+    final avail = _h - _pad * 2 - _headerBlock;
+    var n = (avail / _lineSingle).floor() - 2;
     if (n < 1) n = 1;
     if (n > 18) n = 18;
-    return n;
+    return n + 2;
   }
 
   Map<String, Object?> _lyricArea(int idx) {
@@ -531,40 +585,64 @@ class LyricsWidget extends BuiltinController {
         'weight': wt,
         ...glowMain,
       });
-      // 译文只在"正在唱"的这一行显示，且**不撑高行**——压成小字叠在
-      // 正文下面一点点，整行仍占 _lineContext。滚动时行距才是一致的。
-      final cell = (isCurrent && line.tr.isNotEmpty)
-          ? {
-              't': 'col',
-              'gap': 0,
-              'children': [
-                body,
-                _txt(line.tr, _lyricSize - 4, null, 0.7, {
-                  'maxLines': 1,
-                  'glow': _accent,
-                  'glowSigma': 6,
-                })
-              ]
-            }
-          : body;
+      // 当前行有译文 → 正文 + 译文叠两行**垂直居中**地放进这一行的
+      // 高度预算里。整首歌的开窗行高（_lineContext）在 _syncLineHeights
+      // 里已经按"有没有译文"选好，所以这里正文 + 译文一定放得下，不会
+      // 再出现 RenderFlex 溢出（以前硬塞进单行高度，实测溢出 12px）。
+      //
+      // 非当前行**不显示译文**，但行高仍是双语的——单行正文用 center
+      // 居中，视觉上落在行中间，换句时不会有"忽然跳高"的抖动。
+      final Map<String, Object?> cell;
+      if (isCurrent && line.tr.isNotEmpty) {
+        cell = {
+          't': 'col',
+          'gap': 1,
+          'cross': 'start',
+          'main': 'center',
+          'children': [
+            body,
+            _txt(line.tr, _lyricSize - 3, null, 0.7, {
+              'maxLines': 1,
+              'glow': _accent,
+              'glowSigma': 6,
+            })
+          ]
+        };
+      } else {
+        cell = {
+          't': 'col',
+          'gap': 0,
+          'main': 'center',
+          'children': [body]
+        };
+      }
       // 每行钉死在同一高度预算内（滚动模型的前提）
       rows.add({
         't': 'tap',
-        'id': _hLine[i],
+        'id': _handlerFor(i),
         'child': {
           't': 'box',
           'h': _lineContext,
-          'clip': true,
+          // 不裁切：行高已按"有没有译文"选好，正文+译文放得下；
+          // 裁切反而会在字体行高略有出入时把文字裁掉一两像素。
           'pad': [4, 0],
           'child': cell
         }
       });
     }
-    // 外层的固定高度 + clip 很关键：滑动时内容会超出这块区域（往上平移
-    // 会把顶部行推出边界、往下留出空白槽），不裁就会画到卡片外面去。
+    // 外层固定高度 + clip：滑动要有"取景框"。
+    //
+    // 高度**必须等于内层 Column 的总高**（slots × 行高）。因为外面套着
+    // flex（Expanded），取景框拿到的是**紧约束**——写多少都会被拉伸成
+    // 剩余空间的高度；如果内层 Column 比它高，RenderFlex 就会溢出。
+    // 所以让 n+2 行刚好等于 flex 剩下的空间（见 _visibleLines 已扣掉 2）。
+    final boxH = _lineContext * slots;
     return {
       't': 'box',
-      'h': _lineContext * lines,
+      'h': boxH,
+      // 只裁**滑动方向**的多余部分。取景框本身高度 = 内容高度，正常
+      // 情况下没有可裁的东西；clip 留着是为了连续换句时中途的过冲位移
+      // 不会把内容画出框外。
       'clip': true,
       'child': {
         't': 'slide',
@@ -581,11 +659,10 @@ class LyricsWidget extends BuiltinController {
   Map<String, Object?> _lyricPlaceholder() {
     final msg = _lyricState == 'loading' ? '正在找歌词…' : '没找到这首歌的歌词';
     return {
-      // 高度必须和真有歌词时一致，否则切歌时整块跳一下。
-      // 滚动模型下每行等高，直接用 行高 × 可见行数。
+      // 高度必须和真有歌词时一致（slots 行），否则切歌时整块跳一下。
       't': 'box',
       'center': true,
-      'h': _lineContext * _visibleLines(),
+      'h': _lineContext * (_visibleLines() + 2),
       'child': _txt(msg, 12, null, 0.35)
     };
   }
@@ -729,13 +806,16 @@ class LyricsWidget extends BuiltinController {
       15.5: (25, 45),
     };
     final metrics = lineMetrics[lyricSize] ?? (21, 37);
-    // 滚动模型下每行等高，所以行高**只取单行值**。译文不再撑高行，
-    // 而是压成小字叠在同一行里（见 _lyricArea 的 cell）。
-    _lineContext = metrics.$1 + 10;
+    _lineSingle = metrics.$1 + 10;
+    _lineBilingual = metrics.$2 + 10;
+    // 实际行高在 _lyricArea 里按「这首歌有没有译文」现算（见 _refreshLineContext），
+    // 这里先给单行值，保证 mount 阶段的行数预算有意义。
+    _lineContext = _lineSingle;
 
-    // 行槽位：可见行数 + 2（滚动时上下各多铺一行）
-    _lyricLines = _visibleLines();
-    _slotCount = _lyricLines + 2;
+    // 行槽位：先按**上限**备一批 handler。行高会随「这首歌有没有译文」在
+    // 单行/双语之间切换，可见行数随之变化；按单行（行高最小 → 行数最多）
+    // 备齐就不会有点不中的行。运行时若还不够，_handlerFor 会现补。
+    _slotCount = _maxSlotCount();
 
     _registerHandlers();
     _lyrics = [];
@@ -762,7 +842,19 @@ class LyricsWidget extends BuiltinController {
   int get debugLineContext => _lineContext;
 
   @visibleForTesting
+  int get debugLineSingle => _lineSingle;
+
+  @visibleForTesting
+  int get debugLineBilingual => _lineBilingual;
+
+  @visibleForTesting
+  bool get debugSongHasTrans => _songHasTrans;
+
+  @visibleForTesting
   int get debugVisibleLines => _visibleLines();
+
+  @visibleForTesting
+  int get debugMaxSlotCount => _maxSlotCount();
 
   @visibleForTesting
   int get debugSlotCount => _slotCount;
@@ -788,5 +880,33 @@ class LyricsWidget extends BuiltinController {
       'pad': _pad,
       'child': _lyrics.isNotEmpty ? _lyricArea(idx) : _lyricPlaceholder(),
     });
+  }
+
+  /// 渲染**完整的播放视图**（含封面/控制条/进度条/歌词区）。
+  ///
+  /// 和 debugPaint 的区别很关键：只渲染歌词区会得到一个"没有头部"的树，
+  /// 歌词当然贴着顶——那样量出来的坐标不能反映真实布局（曾因此误判）。
+  /// 要验证"歌词是否落在控制条下方、有没有溢出卡片"，必须用这个。
+  ///
+  /// 注意先 `_dead = true` 掐掉 _tick：测试里没有 native，定时采样会把
+  /// `_media` 清成 null，视图就退回 idle 了（曾因此量到 idle 的几何）。
+  @visibleForTesting
+  void debugPaintFull(int idx) {
+    _dead = true;
+    _media = {
+      'available': true,
+      'title': '测试曲目',
+      'artist': '测试歌手',
+      'duration': 240000,
+      'position': idx * 1000,
+      'status': 4,
+      'canPrev': true,
+      'canPlay': true,
+      'canPause': true,
+      'canNext': true,
+      'canSeek': true,
+      'artKey': '',
+    };
+    ctx.render(_view(idx * 1000, idx));
   }
 }

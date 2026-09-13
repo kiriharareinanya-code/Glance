@@ -520,7 +520,20 @@ class _NodeViewState extends State<NodeView> {
             ? null
             : Border.all(color: _color(n['border']) ?? Colors.white24, width: 1),
       ),
-      child: n['child'] == null ? null : _child(n, fg),
+      // 关键：clipBehavior 会在孩子外面套一层 ClipPath，而 ClipPath 传下去的
+      // 是**松约束**（0<=w<=可用宽）。外层 Column 是 MainAxisSize.min +
+      // crossAxisAlignment.start，拿到松约束就缩到自己最宽那行文字的宽度
+      // （实测歌词取景框塌成 85.5px、单行塌成 48.8px），整块歌词被挤成
+      // 左侧一条细缝，看起来就是"歌词区一片空白"。
+      //
+      // 所以裁切盒必须自己把**横向约束收紧**：给个 infinity 宽的 SizedBox，
+      // 让孩子的宽度确定下来（高度仍由盒子的 h 决定）。只对 clip 盒生效，
+      // 不影响其它节点的原有布局。
+      child: n['child'] == null
+          ? null
+          : (n['clip'] == true
+              ? SizedBox(width: double.infinity, child: _child(n, fg))
+              : _child(n, fg)),
     );
     // 渐变遮罩：顶部和底部淡出，让滚出视口的内容自然消失。
     // fade 是遮罩渐变的相对高度比例（0~0.5），默认 0.15。
