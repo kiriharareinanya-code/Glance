@@ -66,6 +66,8 @@ class LyricsWidget extends BuiltinController {
   static const int _idleGrace = 3000;
   String _lastPaint = '';
   int _lastPos = 0;
+  /// 当前渲染的歌词列表**窗口顶端**在整首歌里的行号（0 基）。列表式布局
+  /// 下它就是"槽位 1（预滚行的下一行）显示的那一行"，点击映射靠它。
   int _windowBase = 0;
   bool _dead = false;
 
@@ -99,16 +101,26 @@ class LyricsWidget extends BuiltinController {
 
   /// 给第 [slot] 个歌词槽位注册点击处理器（幂等）。
   ///
-  /// 每行对应一个 handle：点它就把播放位置跳到那一句。槽位映射
-  /// 「槽位 slot 显示 _windowBase + slot - 1 号行」（往上多铺了一行）。
+  /// 每行对应一个 handle：点它就把播放位置跳到那一句。槽位映射见
+  /// [_slotLineIndex]——列表式模型下第 slot 个槽位显示的是
+  /// `_windowBase - 预滚行 + slot` 号行，且预滚行数会随 base 变化。
   void _addLineHandler(int slot) {
     _hLine.add(ctx.on((_) {
-      final idx = _windowBase + slot - 1;
-      if (idx >= 0 && idx < _lyrics.length) {
+      final idx = _slotLineIndex(slot);
+      if (idx != null) {
         _lastPos = 0;
         ctx.mediaControl('seek', posMs: _lyrics[idx].t);
       }
     }));
+  }
+
+  /// 槽位号 → 它在整首歌里的行号。空槽位（越界）返回 null。
+  int? _slotLineIndex(int slot) {
+    // 必须和 _lyricArea 里的布局用同一套算法，否则点第 3 行会跳到第 4 行。
+    // 布局里：槽位 i 对应行 (top - preRoll + i)，preRoll = 1。
+    final li = _windowBase - 1 + slot;
+    if (li < 0 || li >= _lyrics.length) return null;
+    return li;
   }
 
   /// 取第 [slot] 个槽位的处理器 id，数量不够就现补。
@@ -495,14 +507,17 @@ class LyricsWidget extends BuiltinController {
     _lineContext = wantTrans ? _lineBilingual : _lineSingle;
   }
 
-  /// 歌词区能放下的**完整**行数（不含预铺的两行）。
+  /// 歌词区能放下的**完整**行数（取景框里看得见的行数，不含预滚/预铺行）。
   ///
   /// 预算 = 卡片高 − 上下内边距 − 头部（按钮/进度条/时间）实际占高。
-  /// 一行高度就取 [lineH]，能整除多少行就用多少行。
+  /// 一行高度就取 [_lineContext]，能整除多少行就用多少行。
   ///
-  /// **不要给"预铺行"另占预算**：预铺的两行本来就画在取景框外（被裁掉），
+  /// **不要给"预铺行"另占预算**：预铺行本来就画在取景框外（被裁掉），
   /// 它们只是滑动过程中用来填边缘的，不参与"看得见几行"的预算。上一版在
   /// 这里多减 2，5x2 的小卡片直接只剩 1~2 行，等于不能用。
+  ///
+  /// 布局本身用的是 [floor]（见 [_lyricArea] 的 `lines`），这里保持同一
+  /// 口径，测试断言"可见行数"才有意义。
   int _visibleLines() {
     final avail = _availHeight();
     var n = (avail / _lineContext).floor();
@@ -548,38 +563,73 @@ class LyricsWidget extends BuiltinController {
     return n + 4;
   }
 
+  /// 歌词列表区（列表式滚动）。
+  ///
+  /// ## 为什么是"列表"而不是"取景框 + 绝对位移"
+  ///
+  /// 旧实现把**整段歌词**当成一张长卷，用 `v = -(base × 行高)` 把长卷推到
+  /// 当前句的位置。行数组每次都从 `base` 重新生成，于是**偏移被算了两遍**：
+  /// 数组已经"从 base 开始"，偏移又按 base 平移一次。歌越往后 base 越大，
+  /// 整列就被推得越远——推到歌曲后半段，整列早就飞出取景框上方，
+  /// 屏幕上就是"歌词逐渐消失"（实测 idx=36 时行的 y≈-734，卡片在 182~418）。
+  ///
+  /// 列表式模型把这两件事分开：
+  ///   - **数组负责"取哪几行"**：按一个滑动的窗口取行；
+  ///   - **位移负责"对齐"**：偏移量 = 「窗口顶端距列表顶端几行」× 行高。
+  ///
+  /// 关键在于**偏移只随"还能不能再往下滑"变化**，不随当前行号增长：
+  ///   - 歌曲中段：窗口按 1/3 锚点取，当前行稳定地落在取景框 1/3 处；
+  ///   - 歌曲尾部：列表已到底，偏移**冻结**在上限（不再增大），当前行
+  ///     自然在取景框里往下走，最后停在靠下的位置。
+  ///
+  /// 无论哪种情况，**当前行永远在取景框内**，不会再"越滚越远到消失"。
+  ///
+  /// 列表本身等高（滚动模型的前提），每行高度 [_lineContext] 已按
+  /// 「这首歌有没有译文」选好。
   Map<String, Object?> _lyricArea(int idx) {
     _syncLineHeights(idx);
-    final lines = _visibleLines();
-    // 当前句放在可见区的偏上位置：上方约 1/3、下方 2/3
-    final anchor = ((lines - 1) / 3).floor().clamp(0, lines - 1);
-    // 当前行在"整段歌词"里的下标；idx<0（前奏）时锚在第一行
-    final cur = idx < 0 ? 0 : idx;
-    // 窗口起点：让 cur 落在 anchor 号槽位里
-    var base = cur - anchor;
-    if (base > _lyrics.length - lines) base = _lyrics.length - lines;
-    if (base < 0) base = 0;
-    _windowBase = base;
-
-    // 槽位 i 显示第 (base + i - 1) 行——往上多铺一行（滑动时填上边缘）。
-    // 需要铺满的高度 = 取景框 + 上下各一行（滑动过程中要盖住边缘）。
-    //
-    // **取景框高度取"实际可用高度"而不是 lineH × 行数**：可用高度往往
-    // 不是行高的整数倍（608x236 卡片：avail=140、lineH=31 → 4.5 行），
-    // 写 lineH×4 会留一条缝、写 lineH×5 会溢出。取 avail 本身、行数按
-    // "盖得住"算，缝和溢出就都没了。
+    final lh = _lineContext;
+    // 取景框高度 = 外层 flex 实际给到的可用高度。
     final viewport = _availHeight();
-    final needRows = (viewport / _lineContext).ceil() + 2;
-    final slots = needRows;
+    // 列表最顶端多铺一行（预滚行）：换句时它从上方滑进来，边缘不会露白；
+    // 下方也多铺一行，滑动时从下方顶进来。
+    const preRoll = 1;
+    final bodyRows = (viewport / lh).ceil();
+    final slots = bodyRows + preRoll + 1;
+
+    // 当前行在整首歌里的下标；idx<0（前奏）时锚在第一行。
+    final cur = idx < 0 ? 0 : idx;
+    // 可见区里当前行的目标位置：偏上 1/3（上方留 1 行、下方留更多），
+    // 这样"这句在唱"的分量感最足，也方便读到后面的句子。
+    final lines = (viewport / lh).floor();
+    final anchor = ((lines - 1) / 3).floor().clamp(0, 3);
+    // 窗口顶端（0 基）：让当前行落在第 anchor 个可见行里。
+    var top = cur - anchor;
+    // 窗口下界：不能越过"最后一行落在最后一个可见行"的位置。到底之后
+    // 就**冻结**——这正是末尾时偏移不再增长、当前行在框内下移的原因。
+    final maxTop = _lyrics.length - lines;
+    if (maxTop >= 0 && top > maxTop) top = maxTop;
+    if (top < 0) top = 0;
+    _windowBase = top;
+
+    // 列出数组：槽位 0 是预滚行 top-1，槽位 i 对应行 (top - preRoll + i)。
+    // 偏移 = 预滚行数 × 行高：恰好把预滚行顶出取景框，让 top 行落在框顶。
+    final firstIdx = top - preRoll;
+    // 列表尾部收在最后一行的下一槽位为止，避免在末尾铺一堆空盒把
+    // 偏移算得不准（下方缺内容时不需要那么多槽位）。
+    final tail = _lyrics.length + preRoll;
     final rows = <Map<String, Object?>>[];
     for (var i = 0; i < slots; i++) {
-      final li = base + i - 1;
+      final li = firstIdx + i;
       if (li < 0 || li >= _lyrics.length) {
-        rows.add({'t': 'box', 'h': _lineContext});
+        // 预滚槽位（li<0）与末尾补位（li>=len）都画等高空盒，保证
+        // 偏移 = -行高 始终成立，不依赖"刚好铺满"。
+        rows.add({'t': 'box', 'h': lh});
+        if (li >= _lyrics.length && li >= tail) break;
         continue;
       }
       final line = _lyrics[li];
-      final dist = (li - idx).abs();
+      final dist = (li - cur).abs();
       final isCurrent = dist == 0;
       // 焦点层级：越远越淡
       double op;
@@ -641,13 +691,14 @@ class LyricsWidget extends BuiltinController {
           'children': [body]
         };
       }
-      // 每行钉死在同一高度预算内（滚动模型的前提）
+      // 每行钉死在同一高度预算内（滚动模型的前提）。槽位号传给 handler：
+      // 点第 i 个槽位 = 点它显示的那一行（firstIdx + i）。
       rows.add({
         't': 'tap',
         'id': _handlerFor(i),
         'child': {
           't': 'box',
-          'h': _lineContext,
+          'h': lh,
           // 不裁切：行高已按"有没有译文"选好，正文+译文放得下；
           // 裁切反而会在字体行高略有出入时把文字裁掉一两像素。
           'pad': [4, 0],
@@ -655,21 +706,22 @@ class LyricsWidget extends BuiltinController {
         }
       });
     }
-    // 取景框：高度 = 实际可用高度（外面 flex 给多少就用多少），
+    // 取景框高度 = 实际可用高度（外层 flex 给多少就用多少），
     // clip 掉滑动时探出边缘的行。
     //
-    // 内层行堆的总高 = slots × 行高 ≥ 取景框高（needRows 按 ceil 算），
-    // 所以**不会**出现"内容比框矮"的露白，也**不会**出现溢出：
-    // 多余的部分被 clip 裁掉，正是取景框该干的事。
+    // 内层行堆的总高始终 ≥ 取景框高 + 1 行，所以不会露白；多出来的部分
+    // 被 clip 裁掉，正是取景框该干的事。
+    //
+    // 偏移 = -(预滚行数 × 行高)：**只与"窗口顶端在列表里的位置"有关**，
+    // 与当前行号无关。歌曲中段 top 随当前行增长（内容滚动），到底后 top
+    // 冻结（内容不动、当前行在框内下移），两种情形当前行都在框中。
     return {
       't': 'box',
       'h': viewport,
       'clip': true,
       'child': {
-        // 整列平移：把 base 号行推到取景框顶。滑动时给弹簧，静止时靠
-        // SpringSlide 的 AlwaysStoppedAnimation 直接贴在目标位置。
         't': 'slide',
-        'v': -(base * _lineContext).toDouble(),
+        'v': -(preRoll * lh).toDouble(),
         'child': {
           't': 'col',
           'gap': 0,
@@ -911,8 +963,13 @@ class LyricsWidget extends BuiltinController {
   /// 歌词当然贴着顶——那样量出来的坐标不能反映真实布局（曾因此误判）。
   /// 要验证"歌词是否落在控制条下方、有没有溢出卡片"，必须用这个。
   ///
-  /// 注意先 `_dead = true` 掐掉 _tick：测试里没有 native，定时采样会把
-  /// `_media` 清成 null，视图就退回 idle 了（曾因此量到 idle 的几何）。
+  /// 两条使用前提，缺一个都量不到真东西：
+  ///   1. 先 `_dead = true` 掐掉 _tick：测试里没有 native，定时采样会把
+  ///      `_media` 清成 null，视图就退回 idle（曾因此量到 idle 的几何）。
+  ///   2. 宿主必须**监听 `ctx.tree`**（如 ValueListenableBuilder）来重建
+  ///      NodeView。若像早期那样把 `ctx.tree.value!` 当快照塞给
+  ///      NodeView，后续所有 render 都不会反映到屏幕上——测得的是
+  ///      mount 时的 idle 树，"歌词全空"是假象（曾因此白查一轮）。
   @visibleForTesting
   void debugPaintFull(int idx) {
     _dead = true;

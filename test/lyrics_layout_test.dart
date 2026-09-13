@@ -93,6 +93,45 @@ void main() {
     return hit;
   }
 
+  /// 取景框里第 (当前行 - 窗口起点 + 预滚行) 个槽位是否真的画着东西。
+  ///
+  /// 列表式布局：槽位 i 对应行 `窗口起点 - 1 + i`（预滚 1 行）。当前行
+  /// [idx] 的槽位 = `idx - 窗口起点 + 1`。若该槽位存在且孩子的文字节点
+  /// 不是空盒（h 盒但没有 text），就说明当前行确实被画进了可见区。
+  bool currentSlotHasText(Map<String, Object?> tree, int idx, int windowBase) {
+    final slot = idx - windowBase + 1;
+    if (slot < 0) return false;
+    final slide = findSlide(tree);
+    if (slide == null) return false;
+    final child = slide['child'];
+    if (child is! Map) return false;
+    final kids = child['children'];
+    if (kids is! List) return false;
+    if (slot >= kids.length) return false;
+    final row = kids[slot];
+    if (row is! Map) return false;
+    final box = row['child'];
+    if (box is! Map) return false;
+    final cell = box['child'];
+    if (cell is! Map) return false;
+    // 槽位里必须有真正的 text 节点（空盒没有）。
+    bool hasText(Object? n) {
+      if (n is Map) {
+        if (n['t'] == 'text') return true;
+        for (final v in n.values) {
+          if (hasText(v)) return true;
+        }
+      } else if (n is List) {
+        for (final v in n) {
+          if (hasText(v)) return true;
+        }
+      }
+      return false;
+    }
+
+    return hasText(cell);
+  }
+
   /// 收集歌词行盒子的高度
   List<int> rowHeights(Map<String, Object?> tree) {
     final out = <int>[];
@@ -142,7 +181,7 @@ void main() {
     expect(hs.first, w.debugLineContext, reason: '行高应取单行值，译文不撑高行');
   });
 
-  test('换句时整列平移 -(窗口起点 × 行高)', () {
+  test('列表式滚动：偏移恒为 -行高（预滚一行），与当前行号无关', () {
     final (w, ctx) = mountLyrics(
         size: const Size(300, 340), settings: const {'trans': false});
     addTearDown(() {
@@ -153,14 +192,48 @@ void main() {
     w.debugPaint(0);
     var slide = findSlide(ctx.tree.value!);
     expect(slide, isNotNull, reason: '歌词区必须包在 slide 节点里');
-    expect(slide!['v'], 0, reason: '第一行偏移应为 0');
+    // 列表式模型：数组从「当前行上一行」开始（预滚行），只需把这一行推出去，
+    // 所以偏移恒为 -行高，**不随当前行号增长**。
+    expect(slide!['v'], -w.debugLineContext.toDouble(),
+        reason: '第一行时偏移应为 -行高（推掉预滚行）');
 
     w.debugPaint(5);
     slide = findSlide(ctx.tree.value!);
     final base = w.debugWindowBase;
     expect(base, greaterThan(0), reason: '到第 5 行窗口应该已经前移');
-    expect(slide!['v'], -(base * w.debugLineContext).toDouble(),
-        reason: '偏移必须等于 -(窗口起点 × 行高)，滑动才对得上位置');
+    expect(slide!['v'], -w.debugLineContext.toDouble(),
+        reason: '列表式滚动偏移恒定，绝不能是 -(窗口起点 × 行高)'
+            '——那个旧公式把偏移算了两遍，歌曲后段整列会飞出取景框（实测 y≈-734）');
+  });
+
+  // ↓ 用户真实反馈的回归：歌词在歌曲后半段"逐渐消失"。
+  //   真因：旧实现的偏移 = -(base × 行高)，而行数组本身也已经从 base 开始取，
+  //   偏移被算了两遍；base 越大整列被推得越远，到歌曲后段整列都在取景框上方。
+  test('歌曲任意位置（含最后一行）当前行都必须留在取景框内', () {
+    const card = Size(608, 236);
+    final (w, ctx) =
+        mountLyrics(size: card, settings: const {'trans': false});
+    final total = 40;
+    w.debugSetLyrics([
+      for (var i = 0; i < total; i++) LrcLine(t: i * 1000, s: 'L$i'),
+    ]);
+
+    for (final idx in [0, 1, 5, 12, 20, 30, 36, 38, total - 1]) {
+      w.debugPaintFull(idx);
+      final tree = ctx.tree.value!;
+      final slide = findSlide(tree);
+      expect(slide, isNotNull, reason: 'idx=$idx 时应能找到 slide 节点');
+      // 不变量：偏移必须是一个"把预滚行推出去"的小量（0 或 -行高），
+      // 绝不能随当前行号变成 -700 这种大数。
+      final v = (slide!['v'] as num).toDouble();
+      expect(v.abs(), lessThanOrEqualTo(w.debugLineContext.toDouble() + 0.01),
+          reason: 'idx=$idx 的偏移 $v 过大——整列会被推出取景框（旧 bug 的形态）');
+      // 当前行必须真的在取景框里：取景框只铺了 slots 行，检查当前行
+      // 对应的槽位存在且不是空盒。
+      expect(currentSlotHasText(tree, idx, w.debugWindowBase), isTrue,
+          reason: 'idx=$idx 时当前行没能出现在列表的可见槽位里');
+    }
+    ctx.unmount();
   });
 
   test('槽位数按单行（行数最多的极端）备齐，运行时还会现补', () {
