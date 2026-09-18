@@ -915,6 +915,19 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
     }
   }
 
+  // 磁贴不跟着"显示桌面"一起最小化。
+  //
+  // 任务栏右下角那个按钮和 Win+D 干的是同一件事：给所有顶层窗口发一条
+  // WM_SYSCOMMAND(SC_MINIMIZE)。磁贴窗口是盖住整个虚拟屏的置底窗口，一最小化
+  // 整块磁贴就没了，还得从托盘里翻出来才看得见——反馈 Fb0004 说的就是
+  // "小组件为什么会跟随右下角最小化按钮一起最小化"。
+  //
+  // 这里把这条命令吞掉：磁贴本来就在所有窗口之下，并不挡人看桌面。
+  // 托盘菜单里主动"隐藏磁贴"走的是自己的通道，不是 SC_MINIMIZE，不受影响。
+  if (message == WM_SYSCOMMAND && (wparam & 0xFFF0) == SC_MINIMIZE) {
+    return 0;
+  }
+
   // Give Flutter, including plugins, an opportunity to handle window messages.
   if (flutter_controller_) {
     std::optional<LRESULT> result =

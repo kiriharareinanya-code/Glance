@@ -44,6 +44,75 @@ int Scaled(int logical, UINT dpi) {
   return MulDiv(logical, static_cast<int>(dpi), 96);
 }
 
+// 拖动窗口到屏幕边缘时的吸附目标。只在 view_window.cpp 内部用。
+enum SnapTarget {
+  kSnapNone = 0,
+  kSnapMaximize = 1,
+  kSnapLeft = 2,
+  kSnapRight = 3,
+};
+
+// ---- 窗口尺寸记忆（反馈 Fb0031）----
+//
+// "修改设置窗口大小后关闭，重新打开会回到初始状态"——建窗口时只认 spec 里的
+// 默认尺寸，从来没记过用户拉过的。存在 HKCU 下：它属于这台机器的偏好，
+// 不该跟着便携版 userdata 一起被整个文件夹拷走。
+constexpr wchar_t kWindowSizeRegPath[] = L"Software\\Glance\\WindowSizes";
+
+void SaveWindowSize(const std::string& key, int width, int height) {
+  HKEY hk = nullptr;
+  if (RegCreateKeyExW(HKEY_CURRENT_USER, kWindowSizeRegPath, 0, nullptr,
+                      REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr, &hk,
+                      nullptr) != ERROR_SUCCESS) {
+    return;
+  }
+  const std::wstring name(key.begin(), key.end());
+  wchar_t buf[32];
+  swprintf_s(buf, L"%dx%d", width, height);
+  RegSetValueExW(hk, name.c_str(), 0, REG_SZ,
+                 reinterpret_cast<const BYTE*>(buf),
+                 (static_cast<DWORD>(wcslen(buf)) + 1) * sizeof(wchar_t));
+  RegCloseKey(hk);
+}
+
+bool LoadWindowSize(const std::string& key, int* width, int* height) {
+  HKEY hk = nullptr;
+  if (RegOpenKeyExW(HKEY_CURRENT_USER, kWindowSizeRegPath, 0, KEY_READ, &hk) !=
+      ERROR_SUCCESS) {
+    return false;
+  }
+  const std::wstring name(key.begin(), key.end());
+  wchar_t buf[32] = {};
+  DWORD len = sizeof(buf);
+  const LONG r = RegQueryValueExW(hk, name.c_str(), nullptr, nullptr,
+                                  reinterpret_cast<LPBYTE>(buf), &len);
+  RegCloseKey(hk);
+  if (r != ERROR_SUCCESS) return false;
+  int w = 0, h = 0;
+  if (swscanf_s(buf, L"%dx%d", &w, &h) != 2) return false;
+  *width = w;
+  *height = h;
+  return true;
+}
+
+// 把窗口摆到吸附目标上（拖动结束时调用）。最大化交给系统，左右半屏自己算。
+void ApplySnapTo(HWND hwnd, int target) {
+  HMONITOR mon = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+  MONITORINFO mi{};
+  mi.cbSize = sizeof(mi);
+  if (!GetMonitorInfo(mon, &mi)) return;
+  if (target == kSnapMaximize) {
+    ShowWindow(hwnd, SW_MAXIMIZE);
+    return;
+  }
+  const int full = mi.rcWork.right - mi.rcWork.left;
+  const int half = full / 2;
+  const int x = (target == kSnapLeft) ? mi.rcWork.left : mi.rcWork.left + half;
+  SetWindowPos(hwnd, nullptr, x, mi.rcWork.top, half,
+               mi.rcWork.bottom - mi.rcWork.top,
+               SWP_NOZORDER | SWP_NOACTIVATE);
+}
+
 // 无边框窗口的圆角。Win11 用 DWM 圆角（dwm_round_ok_ 时**不要**区域裁剪——
 // SetWindowRgn 会把 DWM 的圆角盖掉，两者不能共存）；Win10 用区域裁剪模拟。
 // 最大化时铺满屏幕不留圆角。SetWindowRgn 成功后 region 归系统所有。
@@ -132,8 +201,42 @@ LRESULT ViewWindow::Handle(HWND hwnd, UINT msg, WPARAM w, LPARAM l) {
     case WM_ENTERSIZEMOVE:
       in_size_move_ = true;
       return 0;
+    // 拖动窗口按光标位置判吸附目标（反馈 Fb0011）。
+    //
+    // 无边框窗口用的是 WS_POPUP，没有 WS_THICKFRAME，系统的 Aero Snap 不生效：
+    // 拖到屏幕顶部/左边/右边什么都不会发生。这里自己按光标落点判，真正的摆放
+    // 留到 WM_EXITSIZEMOVE——拖动中途改窗口位置会和系统的移动循环打架。
+    // 返回 0 = 我们没有改动 WM_MOVING 给的 RECT，系统继续按原样拖。
+    case WM_MOVING: {
+      if (IsZoomed(hwnd)) return 0;
+      POINT pt{};
+      if (!GetCursorPos(&pt)) return 0;
+      HMONITOR mon = MonitorFromPoint(pt, MONITOR_DEFAULTTONEAREST);
+      MONITORINFO mi{};
+      mi.cbSize = sizeof(mi);
+      if (!GetMonitorInfo(mon, &mi)) return 0;
+      // 判定带用物理像素（和光标同一套坐标）。顶部做得薄：只有明确往顶上怼
+      // 才最大化；左右放宽一点，贴边分屏是高频操作。
+      constexpr int kTopEdge = 8;
+      constexpr int kSideEdge = 24;
+      if (pt.y <= mi.rcWork.top + kTopEdge) {
+        snap_pending_ = kSnapMaximize;
+      } else if (pt.x <= mi.rcWork.left + kSideEdge) {
+        snap_pending_ = kSnapLeft;
+      } else if (pt.x >= mi.rcWork.right - kSideEdge) {
+        snap_pending_ = kSnapRight;
+      } else {
+        snap_pending_ = kSnapNone;
+      }
+      return 0;
+    }
     case WM_EXITSIZEMOVE: {
       in_size_move_ = false;
+      // 先落吸附，再补圆角：吸附会改窗口尺寸，顺序反了圆角就按旧尺寸裁。
+      if (snap_pending_ != kSnapNone) {
+        ApplySnapTo(hwnd, snap_pending_);
+        snap_pending_ = kSnapNone;
+      }
       // 拖动期间区域是按 bRedraw=FALSE 设的，松手后补一次带重绘的，
       // 保证圆角最终是干净的
       if (!dwm_round_ok_) {
@@ -141,6 +244,13 @@ LRESULT ViewWindow::Handle(HWND hwnd, UINT msg, WPARAM w, LPARAM l) {
         GetClientRect(hwnd, &rc);
         ApplyRoundedRegion(hwnd, rc.right - rc.left, rc.bottom - rc.top,
                            !IsZoomed(hwnd), TRUE);
+      }
+      // 记下最终尺寸（反馈 Fb0031）。最大化/最小化时不记——那是状态不是尺寸。
+      // WS_POPUP 没有非客户区，客户区尺寸就是窗口尺寸。
+      if (!IsZoomed(hwnd) && !IsIconic(hwnd)) {
+        RECT rc{};
+        GetClientRect(hwnd, &rc);
+        SaveWindowSize(key_, rc.right - rc.left, rc.bottom - rc.top);
       }
       return 0;
     }
@@ -237,10 +347,21 @@ int64_t ViewWindow::Create(int64_t engine_id) {
   // WM_NCHITTEST 失效（见 flutter_window.cpp 的实测记录），缩放边缘根本点不到
   // —— 只换来一圈丑边框，没有缩放收益，所以直接不缩放，砍掉它。
   const UINT dpi = GetDpiForSystem();
-  const int w = Scaled(spec_.width, dpi);
-  const int h = Scaled(spec_.height, dpi);
   RECT wa{};
   SystemParametersInfoW(SPI_GETWORKAREA, 0, &wa, 0);
+  int w = Scaled(spec_.width, dpi);
+  int h = Scaled(spec_.height, dpi);
+  // 恢复上次拉过的尺寸（反馈 Fb0031：改完大小、关掉再开又回到初始尺寸）。
+  // 存的是物理像素。两个前提：还合乎最小尺寸，且塞得进当前工作区——
+  // 换到更小的显示器之后，上次那个尺寸会整个跑出屏幕。
+  int saved_w = 0, saved_h = 0;
+  if (LoadWindowSize(key_, &saved_w, &saved_h) &&
+      saved_w >= Scaled(spec_.min_width, dpi) &&
+      saved_h >= Scaled(spec_.min_height, dpi) &&
+      saved_w <= wa.right - wa.left && saved_h <= wa.bottom - wa.top) {
+    w = saved_w;
+    h = saved_h;
+  }
   const int x = wa.left + ((wa.right - wa.left) - w) / 2;
   const int y = wa.top + ((wa.bottom - wa.top) - h) / 2;
 
