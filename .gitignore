@@ -27,3 +27,4 @@ flutter_*.log
 # 面板（WinUI3）的构建与依赖缓存：.wasdk 是下载下来的 NuGet 包，panel/build 是构建产物
 .wasdk/
 panel/build/
+panel/obj/
