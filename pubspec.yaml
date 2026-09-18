@@ -70,6 +70,9 @@ flutter:
   assets:
     - assets/tray.ico
     - assets/logo.png
+    # 组件库的静态概览图。由 tools/gen_previews.py 离线生成后提交进仓库，
+    # 运行时只用 Image.asset 读，不再把组件真跑起来（见 ui/panel_preview.dart）。
+    - assets/previews/
 
   fonts:
     # 时钟专用字体：筑紫B丸新英数（圆体），只给时钟插件用
