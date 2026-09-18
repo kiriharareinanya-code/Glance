@@ -282,11 +282,18 @@ class FlipSwap extends StatefulWidget {
     required this.flipKey,
     required this.front,
     required this.back,
+    this.duration = const Duration(milliseconds: 600),
   });
 
   final String flipKey;
   final Widget front;
   final Widget back;
+
+  /// 翻面（正面 ←→ 背面）动画时长。
+  ///
+  /// 以前写死 600ms。天气卡把自动停留从 8s 拉到 30s 之后，600ms 的翻转
+  /// 相对整段节奏显得很急促，所以开放出来让调用方按自己的节奏给。
+  final Duration duration;
 
   @override
   State<FlipSwap> createState() => _FlipSwapState();
@@ -295,7 +302,7 @@ class FlipSwap extends StatefulWidget {
 class _FlipSwapState extends State<FlipSwap>
     with SingleTickerProviderStateMixin {
   late final AnimationController _ctrl = AnimationController(
-    duration: const Duration(milliseconds: 600),
+    duration: widget.duration,
     vsync: this,
   );
 

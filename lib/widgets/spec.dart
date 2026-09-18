@@ -74,6 +74,13 @@ const List<BuiltinSpec> kBuiltinSpecs = [
         'step': 5,
         'default': 30
       },
+      {
+        'key': 'flipAuto',
+        'type': 'boolean',
+        'label': '自动翻页',
+        'desc': '每 30 秒在实况与逐时预报之间翻一次；关掉后只剩点击手动翻',
+        'default': true
+      },
     ],
   ),
   BuiltinSpec(

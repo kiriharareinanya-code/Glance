@@ -8,7 +8,14 @@
 ///   - 天气代码按 MIUI 内置表映射中文描述与图标。
 ///
 /// 前脸：当前温度 + 体感/湿度/风/UV 徽章 + 5 天预报；
-/// 后脸：12 小时逐时预报 + 空气质量/UV 环境指数。每 8 秒自动翻转。
+/// 后脸：12 小时逐时预报 + 空气质量/UV 环境指数。
+///
+/// 自动翻转的节奏（反馈"翻页太快、看不过来"）：
+///   - 停留时长从 8s 拉到 [kFlipDwell]（30s），翻面动画 [kFlipAnim] 也从
+///     600ms 放慢到 900ms——以前"咔"一下就换脸，内容还没读就到背面了；
+///   - 手动干预优先：点一下立刻翻面并**重排计时**（[_.flipManual]），
+///     鼠标停在卡片上不自动翻（[_.setHover]），这样停在某一面看多久都行；
+///   - 设置里可以彻底关掉自动翻转（flipAuto=false），只靠点击切换。
 library;
 
 import 'dart:convert';
@@ -17,6 +24,12 @@ import '../catalog.dart';
 import '../kit.dart'
     show FlipSwap, NodeIcon, TapFeedback, nodeColor, nodeWeight, withGaps;
 import 'package:flutter/material.dart';
+
+/// 自动翻面后停留多久（毫秒）。原来写死 8000，反馈说太快。
+const int kFlipDwell = 30000;
+
+/// 翻面动画时长。原来 600ms，跟着停留时长一起放慢，观感更"轻"。
+const Duration kFlipAnim = Duration(milliseconds: 900);
 
 class _Loc {
   _Loc(this.name, this.cityId, this.lat, this.lon);
@@ -36,6 +49,16 @@ class WeatherWidget extends BuiltinController {
   String _face = 'f'; // flipKey：'f' = 正面，'b' = 背面
   String? _flipTimer;
   String? _refreshTimer;
+
+  /// 鼠标是否停在卡片上。停着就不自动翻——正在看逐时预报的时候
+  /// 被翻回正面是很恼人的事。
+  bool _hover = false;
+
+  /// 用户是否手动干预过（点过一下）。
+  ///
+  /// 手动之后**跳过一次**自动翻转：点了「切到背面」马上又被计时器翻回来
+  /// 会让人以为点击丢了。下一次计时到点后自动恢复轮转。
+  bool _manualHold = false;
 
   // 小米天气代码表：代码 -> [中文描述, 图标]
   static const Map<int, List<String>> _code = {
@@ -83,7 +106,9 @@ class WeatherWidget extends BuiltinController {
       if (_data != null && _loc != null) {
         _status = 'ok';
         _draw();
-        _startFlipTimer();
+        // 走 _restartFlipTimer 而不是 _startFlipTimer：它内部会先看
+        // "自动翻页"开关有没有被关掉（flipAuto=false 时不排计时）。
+        _restartFlipTimer();
       }
     }
     _load();
@@ -95,34 +120,56 @@ class WeatherWidget extends BuiltinController {
     });
   }
 
-  /// 城市改了下次刷新生效
-  @override
-  void onSettingsChange() {}
-
   // ---- 前脸：当前天气 + 5 天预报（原生 Widget）----
 
-  Widget _grid(
-      {required int cols,
-      required double gap,
-      required bool fill,
-      required List<Widget> kids}) {
-    // 与旧 grid 节点逐行对应：fill 让各行均分可用高度（放在 flex 里
-    // 不开这个的话，网格会缩在顶部，卡片放大后中间留一大块空白）。
-    final rows = <Widget>[];
-    for (var i = 0; i < kids.length; i += cols) {
-      final slice = kids.sublist(i, (i + cols).clamp(0, kids.length));
+  /// 按列数平分宽度的网格。
+  ///
+  /// 反馈"窄的时候不该硬塞一排"：卡片被拉窄（或用户在设置里把网格单元调小、
+  /// 又把卡片放到小屏上）时，5 天预报 / 12 小时逐时这种"固定列数"的排布
+  /// 会把每格挤成几十像素，字都糊在一起。所以这里加一道窄宽降级：
+  ///
+  ///   - 先算「一格至少 [minCell] 宽」能塞下几列，取 `cols` 与该值的较小者；
+  ///   - 剩余放不下的格子**换行另起一排**（自动换行），而不是被压扁；
+  ///   - 列数降到 1 时（极窄）自然变成从上到下的垂直堆叠，和手机端一致。
+  ///
+  /// [fill] 仍然只让"原始列数未变"的情形均分高度——换行后行数变多，
+  /// 再均分会把上下间距撑得很怪。
+  Widget _grid({
+    required int cols,
+    required double gap,
+    required bool fill,
+    required List<Widget> kids,
+    double minCell = 44,
+  }) {
+    // 可用宽度来自卡片真实尺寸（ctx.size 已刨掉卡片内边距，见 surface.dart）
+    final avail = ctx.size.width;
+    final effective = <Widget>[];
+    // 先按 minCell 约束把列数降下来，最少 1 列（= 纯垂直堆叠）
+    var c = cols;
+    while (c > 1 &&
+        (avail - gap * (c - 1)) / c < minCell) {
+      c--;
+    }
+    final wrapped = c != cols;
+
+    for (var i = 0; i < kids.length; i += c) {
+      final slice = kids.sublist(i, (i + c).clamp(0, kids.length));
       final cells = <Widget>[];
-      for (var j = 0; j < cols; j++) {
+      for (var j = 0; j < c; j++) {
         if (j > 0 && gap > 0) cells.add(SizedBox(width: gap));
         cells.add(Expanded(
             child: j < slice.length ? slice[j] : const SizedBox.shrink()));
       }
-      if (rows.isNotEmpty && gap > 0) rows.add(SizedBox(height: gap));
-      rows.add(fill ? Expanded(child: Row(children: cells)) : Row(children: cells));
+      if (effective.isNotEmpty && gap > 0) {
+        effective.add(SizedBox(height: gap));
+      }
+      final row = Row(children: cells);
+      // 换行后不再均分高度：行数多了，均分反而把内容拉散
+      effective.add(fill && !wrapped ? Expanded(child: row) : row);
     }
     return Column(
-      mainAxisSize: fill ? MainAxisSize.max : MainAxisSize.min,
-      children: rows,
+      mainAxisSize: fill && !wrapped ? MainAxisSize.max : MainAxisSize.min,
+      children: effective,
     );
   }
 
@@ -169,56 +216,73 @@ class WeatherWidget extends BuiltinController {
     final fd = (data['forecastDaily'] as Map?)?.cast<String, Object?>() ?? {};
     final compact = rows <= 2;
     final curCode = _codeOf(cur['weather']);
+    // 窄宽度自适应：卡片被压窄时把温度字号和图标一起收一号，否则
+    // 「48px 数字 + 40px 图标 + 间隔」会超出可用宽度（Row 直接溢出）。
+    final narrow = ctx.size.width < 210;
+    final bigSize = narrow ? 34.0 : 48.0;
+    final iconBox = narrow ? 30.0 : 40.0;
     final kids = <Widget>[
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: withGaps([
-              Row(
-                children: withGaps([
-                  Container(
-                    width: 4,
-                    height: 4,
-                    decoration: BoxDecoration(
-                        color: nodeColor('#7CC7FF'),
-                        borderRadius: BorderRadius.circular(2)),
-                  ),
-                  Text(loc.name, style: _ts(fg, size: 13, opacity: 0.55)),
-                ], 6, horizontal: true),
-              ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('${_nest(cur, ['temperature', 'value']) ?? '--'}',
-                      style: _ts(fg, size: 48, weight: 300, mono: true)),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 2, top: 4),
-                    child: Text('°', style: _ts(fg, size: 22, weight: 300, opacity: 0.5)),
-                  ),
-                ],
-              ),
-            ], 3),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: withGaps([
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: withGaps([
+                    Container(
+                      width: 4,
+                      height: 4,
+                      decoration: BoxDecoration(
+                          color: nodeColor('#7CC7FF'),
+                          borderRadius: BorderRadius.circular(2)),
+                    ),
+                    // 城市名可能比可用宽度长（"内蒙古自治区锡林郭勒盟"那种），
+                    // 弹性 + 省略号，别把整行顶破
+                    Flexible(
+                      child: Text(loc.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: _ts(fg, size: 13, opacity: 0.55)),
+                    ),
+                  ], 6, horizontal: true),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('${_nest(cur, ['temperature', 'value']) ?? '--'}',
+                        style: _ts(fg, size: bigSize, weight: 300, mono: true)),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 2, top: 4),
+                      child: Text('°',
+                          style: _ts(fg, size: 22, weight: 300, opacity: 0.5)),
+                    ),
+                  ],
+                ),
+              ], 3),
+            ),
           ),
+          const SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
             children: withGaps([
               Container(
-                width: 40,
-                height: 40,
+                width: iconBox,
+                height: iconBox,
                 decoration: BoxDecoration(
                   color: nodeColor('${_iconColorOf(curCode)}26'),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(iconBox / 2),
                 ),
                 child: Center(
                   child: NodeIcon(
                       name: _iconOf(curCode),
-                      size: 22,
+                      size: narrow ? 17 : 22,
                       color: nodeColor(_iconColorOf(curCode)),
                       animate: ctx.animate),
                 ),
@@ -245,8 +309,13 @@ class WeatherWidget extends BuiltinController {
       detail.add({'icon': 'sun', 'v': 'UV $uv'});
     }
     if (detail.isNotEmpty) {
-      kids.add(Row(
-        children: withGaps([
+      // 徽章行改用 Wrap：卡片窄的时候"体感 26° / 湿度 62% / 风速 8km/h / UV 3"
+      // 四个胶囊并排会溢出（Row 直接报 overflow 黄条）。Wrap 放不下就自动
+      // 折到下一行，和手机端小组件的行为一致。
+      kids.add(Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        children: [
           for (final it in detail)
             Container(
               padding:
@@ -256,6 +325,7 @@ class WeatherWidget extends BuiltinController {
                 borderRadius: BorderRadius.circular(9),
               ),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: withGaps([
                   NodeIcon(
                       name: it['icon']!,
@@ -266,7 +336,7 @@ class WeatherWidget extends BuiltinController {
                 ], 4, horizontal: true),
               ),
             ),
-        ], 6, horizontal: true),
+        ],
       ));
     }
 
@@ -482,29 +552,105 @@ class WeatherWidget extends BuiltinController {
       final front = _buildFront(_data!, _loc!, ctx.grid.rows, fg);
       final back = _buildBack(_data!, ctx.grid.rows, fg);
       if (!ctx.animate) return front;
-      return FlipSwap(flipKey: _face, front: front, back: back);
+      // 翻面动画跟着停留时长一起放慢（kFlipAnim）：600ms 配上 8s 停留
+      // 显得很急，900ms 配 30s 停留才像"翻页"而不是"闪一下"。
+      return FlipSwap(
+        flipKey: _face,
+        front: front,
+        back: back,
+        duration: kFlipAnim,
+      );
     }
 
     ctx.renderWidget(Builder(builder: (context) {
       final fg = DefaultTextStyle.of(context).style.color ?? Colors.white;
-      return TapFeedback(
-        animate: ctx.animate,
-        onTap: () {
-          _face = _face == 'f' ? 'b' : 'f';
-          _draw();
-        },
-        child: body(fg),
+      // MouseRegion 负责"停住就不翻"，TapFeedback 负责"点一下立刻翻"。
+      // 两层都只是旁路信号，不改变卡片本身的命中区。
+      return MouseRegion(
+        onEnter: (_) => setHover(true),
+        onExit: (_) => setHover(false),
+        child: TapFeedback(
+          animate: ctx.animate,
+          onTap: flipManual,
+          child: body(fg),
+        ),
       );
     }));
   }
 
+  // ---- 翻转节奏 ----
+
+  /// 手动翻到另一面。点击与"下一面"按钮都走这里。
+  ///
+  /// 翻完**重排计时**：不重排的话手动翻过去可能 1 秒后又被自动翻回来，
+  /// 用户会觉得"点了没用"。
+  void flipManual() {
+    _manualHold = true;
+    _face = _face == 'f' ? 'b' : 'f';
+    _draw();
+    _restartFlipTimer();
+  }
+
+  /// 悬停状态变化。进入悬停时挂起自动翻转（不取消重排，退出后重新计时）。
+  void setHover(bool on) {
+    if (_hover == on) return;
+    _hover = on;
+    if (on) {
+      // 停住：先把待触发的计时撤掉，不然鼠标一停就正好翻走
+      if (_flipTimer != null) {
+        ctx.clearTimer(_flipTimer!);
+        _flipTimer = null;
+      }
+    } else {
+      _restartFlipTimer();
+    }
+  }
+
+  /// 自动翻转开关（设置项 flipAuto，默认开）。
+  bool get _autoFlip => ctx.settings['flipAuto'] != false;
+
+  void _restartFlipTimer() {
+    if (_flipTimer != null) {
+      ctx.clearTimer(_flipTimer!);
+      _flipTimer = null;
+    }
+    if (!_autoFlip) return;
+    _startFlipTimer();
+  }
+
   // ---- 翻转定时器 ----
+  //
+  // 反馈"翻转太快"：停留从 8s 提到 kFlipDwell（30s）。到点时的判定仍然是
+  // "翻到另一面"，而不是翻回正面——两面都有值得看的内容，一路轮着转才是
+  // 本来想要的行为。
   void _startFlipTimer() {
     if (_flipTimer != null) ctx.clearTimer(_flipTimer!);
+    if (!_autoFlip) return;
     _flipTimer = ctx.interval(() {
+      // 悬停中不翻：等鼠标走开时 _restartFlipTimer 会重新计时
+      if (_hover) return;
+      // 刚被手动翻过，这一拍让给用户：清掉标记，等下一拍再自动翻。
+      // 只跳过一拍而不是一直挂起——"手动暂停"由 flipAuto 开关和悬停负责，
+      // 这里只要不打架就行。
+      if (_manualHold) {
+        _manualHold = false;
+        return;
+      }
       _face = _face == 'f' ? 'b' : 'f';
       _draw();
-    }, 8000);
+    }, kFlipDwell);
+  }
+
+  /// 设置面板里改了"自动翻页"开关，立即生效（不用等下次刷新重挂载）
+  @override
+  void onSettingsChange() {
+    if (_autoFlip) {
+      if (_flipTimer == null) _startFlipTimer();
+    } else if (_flipTimer != null) {
+      ctx.clearTimer(_flipTimer!);
+      _flipTimer = null;
+    }
+    _draw();
   }
 
   void _fail(String msg) {
