@@ -13,7 +13,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../catalog.dart';
+import '../plugin_api.dart';
 import '../images.dart' show WidgetImages;
 import '../morph_icons.dart' show MorphableIcon;
 import '../kit.dart'
@@ -23,7 +23,47 @@ import '../node_anim.dart'
 import '../spring_transition.dart' show SpringSlide;
 import 'lrc.dart';
 
-class LyricsWidget extends BuiltinController {
+const kLyricsManifest = PluginManifest(
+  id: 'lyrics',
+  name: '歌词',
+  version: '1.0.0',
+  description: '读系统正在播放的音乐，显示封面、进度与滚动歌词',
+  icon: '🎵',
+  sizes: ['4x2', '5x2', '6x2', '5x3', '6x3', '6x4', '7x4', '8x4'],
+  defaultSize: '5x3',
+  settings: [
+    {
+      'key': 'source',
+      'type': 'select',
+      'label': '歌词来源',
+      'desc': '网易云中文歌覆盖更好；LRCLIB 是开放歌词库，欧美歌更全',
+      'options': [
+        {'value': 'auto', 'label': '网易云优先，找不到再试 LRCLIB'},
+        {'value': 'netease', 'label': '只用网易云'},
+        {'value': 'lrclib', 'label': '只用 LRCLIB'},
+      ],
+      'default': 'auto'
+    },
+    {
+      'key': 'trans',
+      'type': 'boolean',
+      'label': '显示翻译',
+      'desc': '只有网易云有翻译，且不是每首歌都有',
+      'default': false
+    },
+    {
+      'key': 'credits',
+      'type': 'boolean',
+      'label': '显示制作人员名单',
+      'desc': '网易云歌词开头那几行「作词/作曲/编曲」，关掉更清爽',
+      'default': false
+    },
+  ],
+);
+
+PluginController lyricsPlugin(WidgetContext ctx) => LyricsWidget(ctx);
+
+class LyricsWidget extends PluginController {
   LyricsWidget(super.ctx);
 
   late Map<String, Object?> _settings;

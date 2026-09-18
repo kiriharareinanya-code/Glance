@@ -26,7 +26,8 @@ import '../core/logger.dart';
 import '../core/paths.dart';
 import '../core/theme.dart';
 import 'card_view.dart';
-import '../widgets/spec.dart';
+import '../widgets/plugin_api.dart';
+import '../widgets/registry.dart';
 import '../core/updater.dart';
 import '../model/card.dart';
 import '../model/settings.dart';
@@ -146,7 +147,7 @@ class ControlPanel extends StatefulWidget {
 
   /// 任何改动后通知外层重建并推送新的命中区
   final VoidCallback onChanged;
-  final void Function(BuiltinSpec plugin) onAdd;
+  final void Function(PluginManifest plugin) onAdd;
   final void Function(WidgetCard card) onRemove;
 
   /// 这种组件还能不能再加（每块屏最多一个）。
@@ -777,7 +778,7 @@ class _ControlPanelState extends State<ControlPanel> {
   // ---------------- 组件库 ----------------
 
   Widget _library() {
-    final plugins = builtinCatalog();
+    final plugins = pluginCatalog();
     return ListView(
       padding: const EdgeInsets.fromLTRB(28, 4, 28, 24),
       children: [
@@ -826,7 +827,7 @@ class _ControlPanelState extends State<ControlPanel> {
     );
   }
 
-  Widget _pluginCard(BuiltinSpec p) {
+  Widget _pluginCard(PluginManifest p) {
     final placed = widget.state.cards.where((c) => c.pluginId == p.id).length;
     // singleton 随清单一并移除；内置组件允许多开，唯一限制是"每块屏最多一个"
     final screenFull = !(widget.canAdd?.call(p.id) ?? true);
@@ -957,7 +958,7 @@ class _ControlPanelState extends State<ControlPanel> {
   }
 
   Widget _cardRow(WidgetCard card) {
-    final plugin = builtinSpecById(card.pluginId);
+    final plugin = pluginById(card.pluginId);
     final expanded = widget.focusCardId == card.id;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1022,7 +1023,7 @@ class _ControlPanelState extends State<ControlPanel> {
     );
   }
 
-  Widget _sizePicker(WidgetCard card, BuiltinSpec plugin) {
+  Widget _sizePicker(WidgetCard card, PluginManifest plugin) {
     return Wrap(
       spacing: 6,
       runSpacing: 6,
@@ -1157,7 +1158,7 @@ class _ControlPanelState extends State<ControlPanel> {
     final key = f['key'] as String;
     final label = f['label'] as String? ?? key;
     final desc = f['desc'] as String?;
-    final plugin = builtinSpecById(card.pluginId);
+    final plugin = pluginById(card.pluginId);
     final current = card.settings.containsKey(key)
         ? card.settings[key]
         : (plugin?.defaultSettings()[key] ?? f['default']);

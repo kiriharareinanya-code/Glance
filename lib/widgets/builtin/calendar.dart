@@ -4,13 +4,36 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../catalog.dart';
+import '../plugin_api.dart';
 import '../kit.dart'
     show NodeIcon, TapFeedback, nodeColor, nodeWeight, withGaps;
 import '../node_anim.dart' show kNodeAnimDuration;
 import 'lunar.dart';
 
-class CalendarWidget extends BuiltinController {
+const kCalendarManifest = PluginManifest(
+  id: 'calendar',
+  name: '日历',
+  version: '3.0.0',
+  description: '月历，带农历、二十四节气与节假日',
+  icon: '📅',
+  sizes: ['3x3', '4x3', '4x4', '5x4', '5x5'],
+  defaultSize: '4x4',
+  settings: [
+    {'key': 'lunar', 'type': 'boolean', 'label': '显示农历', 'default': true},
+    {
+      'key': 'festival',
+      'type': 'boolean',
+      'label': '显示节假日',
+      'desc': '节日与二十四节气会顶替农历日显示',
+      'default': true
+    },
+    {'key': 'mondayFirst', 'type': 'boolean', 'label': '周一作为一周开始', 'default': true},
+  ],
+);
+
+PluginController calendarPlugin(WidgetContext ctx) => CalendarWidget(ctx);
+
+class CalendarWidget extends PluginController {
   CalendarWidget(super.ctx);
 
   late DateTime _today;

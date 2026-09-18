@@ -13,10 +13,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../catalog.dart';
 import '../flip_transition.dart' show FlipTransition;
 import '../kit.dart'
     show NodeIcon, TapFeedback, nodeColor, nodeWeight, withGaps;
+import '../plugin_api.dart';
 
 // ---------------------------------------------------------------------------
 // 时钟：每秒重绘一次。
@@ -31,7 +31,23 @@ import '../kit.dart'
 //     分钟用细体，靠字重梯度做出层次。
 // ---------------------------------------------------------------------------
 
-class ClockWidget extends BuiltinController {
+const kClockManifest = PluginManifest(
+  id: 'clock',
+  name: '时钟',
+  version: '2.0.0',
+  description: '数字时钟与日期',
+  icon: '🕐',
+  sizes: ['2x2', '3x2', '3x3', '4x2'],
+  defaultSize: '2x2',
+  settings: [
+    {'key': 'seconds', 'type': 'boolean', 'label': '显示秒', 'default': false},
+    {'key': 'hour24', 'type': 'boolean', 'label': '24 小时制', 'default': true},
+  ],
+);
+
+PluginController clockPlugin(WidgetContext ctx) => ClockWidget(ctx);
+
+class ClockWidget extends PluginController {
   ClockWidget(super.ctx);
 
   String? _timer;
@@ -231,7 +247,22 @@ class ClockWidget extends BuiltinController {
 // 待办：清单，数据按实例存（每张卡片一份）。
 // ---------------------------------------------------------------------------
 
-class TodoWidget extends BuiltinController {
+const kTodoManifest = PluginManifest(
+  id: 'todo',
+  name: '待办',
+  version: '2.0.0',
+  description: '清单，数据存在本地',
+  icon: '✓',
+  sizes: ['2x3', '3x3', '3x4', '4x4'],
+  defaultSize: '2x3',
+  settings: [
+    {'key': 'hideDone', 'type': 'boolean', 'label': '隐藏已完成', 'default': false},
+  ],
+);
+
+PluginController todoPlugin(WidgetContext ctx) => TodoWidget(ctx);
+
+class TodoWidget extends PluginController {
   TodoWidget(super.ctx);
 
   List<Map<String, Object?>> items = [];

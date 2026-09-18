@@ -19,7 +19,7 @@ import '../core/snap.dart' as snap;
 import '../core/theme.dart';
 import '../model/card.dart';
 import '../native/native_bridge.dart';
-import '../widgets/spec.dart';
+import '../widgets/plugin_api.dart';
 import '../widgets/builtin_card_body.dart';
 import '../store/store.dart';
 import 'panel_app.dart';
@@ -483,7 +483,7 @@ class AppRootState extends State<AppRoot> with TrayListener {
     return i == null ? null : mons[i].rect;
   }
 
-  void addCard(BuiltinSpec plugin) {
+  void addCard(PluginManifest plugin) {
     final s = widget.state.settings;
     final size = sizeToPx(plugin.defaultSize, s.gridCell, s.gridGap);
 

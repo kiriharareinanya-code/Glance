@@ -13,9 +13,8 @@ import '../model/card.dart';
 import '../store/store.dart';
 import '../ui/card_view.dart';
 import '../ui/wallpaper.dart';
-import 'catalog.dart';
-import 'context.dart';
-import 'spec.dart';
+import 'plugin_api.dart';
+import 'registry.dart';
 
 class BuiltinCardBody extends StatefulWidget {
   const BuiltinCardBody({
@@ -40,7 +39,7 @@ class BuiltinCardBody extends StatefulWidget {
 }
 
 class _BuiltinCardBodyState extends State<BuiltinCardBody> {
-  BuiltinController? _controller;
+  PluginController? _controller;
   WidgetContext? _ctx;
 
   /// 挂载阶段抛出的异常（理论上不该发生，兜一个底）
@@ -98,7 +97,7 @@ class _BuiltinCardBodyState extends State<BuiltinCardBody> {
   }
 
   void _boot() {
-    final spec = builtinSpecById(widget.card.pluginId);
+    final spec = pluginById(widget.card.pluginId);
     if (spec == null) {
       setState(() => _loadError = '未知组件「${widget.card.pluginId}」');
       // 也算"到最终形态了"，得让启动幕布知道
@@ -121,7 +120,7 @@ class _BuiltinCardBodyState extends State<BuiltinCardBody> {
       themeAccent: _themeAccentHex(),
     );
 
-    final controller = createBuiltinController(spec.id, ctx);
+    final controller = createPluginController(spec.id, ctx);
     try {
       controller.mount();
     } catch (e) {
@@ -185,7 +184,7 @@ class _BuiltinCardBodyState extends State<BuiltinCardBody> {
 
   /// 卡片上显示的名字
   String get _displayName =>
-      builtinSpecById(widget.card.pluginId)?.name ??
+      pluginById(widget.card.pluginId)?.name ??
       widget.card.pluginId;
 
   /// 前景色跟着卡片走。写死白色的话，浅色壁纸配浅色云母时整个错误框都看不见

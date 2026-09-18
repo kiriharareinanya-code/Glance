@@ -18,7 +18,7 @@ import 'core/sentry_reporter.dart' show wireSentryReporter;
 import 'core/splash_gate.dart';
 import 'core/updater.dart';
 import 'native/native_bridge.dart';
-import 'widgets/spec.dart';
+import 'widgets/registry.dart';
 import 'store/store.dart';
 import 'ui/app_root.dart';
 import 'ui/panel_app.dart';
@@ -81,7 +81,7 @@ Future<void> _bootstrap(List<String> args) async {
   final state = await store.load();
   final loadMs = boot.elapsedMilliseconds;
 
-  Log.i('app', '启动耗时 读配置 ${loadMs}ms / 内置组件 ${kBuiltinSpecs.length} 个');
+  Log.i('app', '启动耗时 读配置 ${loadMs}ms / 内置组件 ${kPlugins.length} 个');
 
   if (state.cards.isEmpty) {
     state.cards.addAll(defaultLayout());

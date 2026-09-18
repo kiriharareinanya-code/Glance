@@ -13,21 +13,20 @@ import 'package:path/path.dart' as p;
 import '../core/grid.dart';
 import '../model/card.dart';
 import '../store/store.dart';
-import '../widgets/catalog.dart';
-import '../widgets/context.dart';
-import '../widgets/spec.dart';
+import '../widgets/plugin_api.dart';
+import '../widgets/registry.dart';
 
 class BuiltinPreview extends StatefulWidget {
   const BuiltinPreview({super.key, required this.spec});
 
-  final BuiltinSpec spec;
+  final PluginManifest spec;
 
   @override
   State<BuiltinPreview> createState() => _BuiltinPreviewState();
 }
 
 class _BuiltinPreviewState extends State<BuiltinPreview> {
-  BuiltinController? _controller;
+  PluginController? _controller;
   WidgetContext? _ctx;
   PxSize _px = const PxSize(200, 200);
   bool _ready = false;
@@ -82,7 +81,7 @@ class _BuiltinPreviewState extends State<BuiltinPreview> {
       size: Size(px.w.toDouble(), px.h.toDouble()),
     );
 
-    final controller = createBuiltinController(widget.spec.id, ctx);
+    final controller = createPluginController(widget.spec.id, ctx);
     // 预览是静态缩略图：动画全关（原生通道读 ctx.animate，JSON 通道
     // 由下面 NodeView 的 animate:false 承接）。
     ctx.animate = false;

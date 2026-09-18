@@ -13,7 +13,7 @@ library;
 
 import 'dart:convert';
 
-import '../catalog.dart';
+import '../plugin_api.dart';
 import '../kit.dart'
     show FlipSwap, NodeIcon, TapFeedback, nodeColor, nodeWeight, withGaps;
 import 'package:flutter/material.dart';
@@ -26,7 +26,37 @@ class _Loc {
   final double lon;
 }
 
-class WeatherWidget extends BuiltinController {
+const kWeatherManifest = PluginManifest(
+  id: 'weather',
+  name: '天气',
+  version: '2.0.0',
+  description: 'Open-Meteo，无需 API key',
+  icon: '☀',
+  sizes: ['3x2', '3x3', '4x2', '4x3'],
+  defaultSize: '3x2',
+  settings: [
+    {
+      'key': 'city',
+      'type': 'text',
+      'label': '城市',
+      'desc': '留空则按 IP 自动定位',
+      'default': ''
+    },
+    {
+      'key': 'refreshMin',
+      'type': 'number',
+      'label': '刷新间隔（分钟）',
+      'min': 5,
+      'max': 180,
+      'step': 5,
+      'default': 30
+    },
+  ],
+);
+
+PluginController weatherPlugin(WidgetContext ctx) => WeatherWidget(ctx);
+
+class WeatherWidget extends PluginController {
   WeatherWidget(super.ctx);
 
   String _status = 'loading';
