@@ -404,21 +404,31 @@ class CalendarWidget extends BuiltinController {
       ], 2),
     );
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          width: 38,
-          height: 38,
-          decoration: BoxDecoration(
-            color: isToday
-                ? nodeColor(_accent)
-                : (marked ? nodeColor('#FFFFFF18') : null),
-            borderRadius: BorderRadius.circular(19),
+    // 格子原来是死钉 38x38 的：列宽由外层 Expanded 均分，卡片一窄（2x2 那种）
+    // 每列只有 24px 左右，7 列 × 38 直接超出可用宽度，Row 溢出之后日期数字
+    // 和农历文字各站一边——反馈 Fb0012 的"中文全部靠边站了、文字错位"就是这么
+    // 来的。改成"取列宽但不超过 38"的正方形，格子缩小时内容跟着缩放。
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 38, maxHeight: 38),
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: Container(
+            decoration: BoxDecoration(
+              color: isToday
+                  ? nodeColor(_accent)
+                  : (marked ? nodeColor('#FFFFFF18') : null),
+              borderRadius: BorderRadius.circular(19),
+            ),
+            child: Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: inner,
+              ),
+            ),
           ),
-          child: Center(child: inner),
         ),
-      ],
+      ),
     );
   }
 }

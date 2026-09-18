@@ -564,6 +564,56 @@ class WeatherWidget extends BuiltinController {
     ];
   }
 
+  // ---- 自动定位 ----
+  //
+  // 免费 IP 定位没有一家能长期独扛：ipapi.co 额度用尽、或者看到脚本 UA 时
+  // 直接回 403（用户截图里那句"自动定位失败：HTTP 403"就是它），ipwho.is
+  // 偶尔抽风。所以排一张降级表依次试，谁先给出坐标就用谁——宁可多花一次
+  // 请求，也别让整张天气卡因为一家服务罢工而歇菜。
+  static const List<String> _ipSources = [
+    'https://ipapi.co/json/',
+    'https://ipwho.is/',
+    'http://ip-api.com/json/?fields=status,lat,lon,city&lang=zh-CN',
+  ];
+
+  /// 免费定位服务普遍把"非浏览器 UA"当爬虫拒之门外，这一条比换源还关键。
+  static const Map<String, Object?> _ipHeaders = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+        'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+  };
+
+  /// 依次问各家定位服务，返回第一个能凑齐 {纬度, 经度, 城市名} 的结果。
+  Future<({double lat, double lon, String city})?> _ipLocate() async {
+    for (final u in _ipSources) {
+      Map<String, Object?> r;
+      try {
+        r = await ctx.httpGetJSON(u, headers: _ipHeaders);
+      } catch (_) {
+        continue;
+      }
+      if (r['ok'] != true) continue;
+      final hit = _pickIp((r['data'] as Map?)?.cast<String, Object?>());
+      if (hit != null) return hit;
+    }
+    return null;
+  }
+
+  /// 各家字段名不统一，这里一次对齐成同一种形状：
+  /// ipapi.co / ipwho.is 用 latitude|longitude，ip-api 用 lat|lon。
+  ({double lat, double lon, String city})? _pickIp(Map<String, Object?>? d) {
+    if (d == null) return null;
+    double? num2(Object? v) =>
+        v is num ? v.toDouble() : (v is String ? double.tryParse(v) : null);
+    final lat = num2(d['latitude'] ?? d['lat']);
+    final lon = num2(d['longitude'] ?? d['lon']);
+    // 城市名兜底：city 三家都有；ip-api 在拿不到市时才回 regionName（省名）
+    final city = '${d['city'] ?? d['regionName'] ?? ''}'.trim();
+    if (lat == null || lon == null || city.isEmpty) return null;
+    return (lat: lat, lon: lon, city: city);
+  }
+
   Future<_Loc?> _resolveLocation() async {
     final city = '${ctx.settings['city'] ?? ''}'.trim();
     if (city.isNotEmpty) {
@@ -580,29 +630,18 @@ class WeatherWidget extends BuiltinController {
       }
       return _Loc(hit['name']!, hit['cityId']!, coord[0], coord[1]);
     }
-    // 自动定位：ipapi 拿经纬度和城市名（英文/拼音），再用拼音搜城市码
-    final r = await ctx.httpGetJSON('https://ipapi.co/json/');
-    if (r['ok'] != true) {
-      _fail('自动定位失败：${r['error']}（可在设置里手填城市）');
+    // 自动定位：IP 归属地拿经纬度和城市名，再拿城市名去天气网换城市码
+    final d = await _ipLocate();
+    if (d == null) {
+      _fail('自动定位失败（可在设置里手填城市）');
       return null;
     }
-    final d = (r['data'] as Map?)?.cast<String, Object?>() ?? {};
-    if (d['latitude'] is! num) {
-      _fail('定位没返回坐标，请手填城市');
-      return null;
-    }
-    final cityName = '${d['city'] ?? ''}';
-    if (cityName.isEmpty) {
-      _fail('定位没拿到城市名，请手填城市');
-      return null;
-    }
-    final hit = await _searchCity(Uri.encodeComponent(cityName));
+    final hit = await _searchCity(Uri.encodeComponent(d.city));
     if (hit == null) {
-      _fail('定位到的「$cityName」查不到城市码，请手填城市');
+      _fail('定位到的「${d.city}」查不到城市码，请手填城市');
       return null;
     }
-    return _Loc(hit['name']!, hit['cityId']!,
-        (d['latitude'] as num).toDouble(), (d['longitude'] as num).toDouble());
+    return _Loc(hit['name']!, hit['cityId']!, d.lat, d.lon);
   }
 
   Future<void> _load() async {
