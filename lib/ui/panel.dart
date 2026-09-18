@@ -91,10 +91,6 @@ class _PanelColors {
   Color get iconTile =>
       light ? Color(0x0F000000) : Color(0x0FFFFFFF);
 
-  /// 预览区底色（本来就是近黑，浅色下加深到看得见边框里的内容）
-  Color get previewBg =>
-      light ? Color(0x12000000) : Color(0x08000000);
-
   /// 主题蓝：深色用亮蓝、浅色用深蓝，保证同样的对比度。
   /// 主色（选中态底色/描边/文字高亮），深浅色下观感一致但深浅相反。
   Color get accent => light ? Color(0xFF1565C0) : Color(0xFF7CC7FF);
@@ -173,6 +169,15 @@ class _ControlPanelState extends State<ControlPanel> {
 
   /// 顶部搜索框：内容与焦点
   final TextEditingController _searchCtrl = TextEditingController();
+
+  /// 每页一个滚动控制器。中键自动滚动要推位置（见 [_onAutoScrollMove]），
+  /// 必须自己持有；按 tab 缓存，换页回来还在原来的位置。
+  final Map<int, ScrollController> _pageScroll = {};
+
+  /// 中键自动滚动状态（Windows 资源管理器/浏览器里那个行为）。
+  bool _autoScrolling = false;
+  Offset? _autoScrollOrigin;
+  double _autoScrollBase = 0;
   final FocusNode _searchFocus = FocusNode();
   String _query = '';
 
@@ -279,6 +284,9 @@ class _ControlPanelState extends State<ControlPanel> {
     }
     _searchCtrl.dispose();
     _searchFocus.dispose();
+    for (final c in _pageScroll.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -405,33 +413,44 @@ class _ControlPanelState extends State<ControlPanel> {
   /// 且时长相同，旧页文字会几乎全程挂在新页上——"切换时字体留存过久"
   /// 就是对称交叉淡变留下的残影，缩短 reverseDuration 并加速退场解决。
   Widget _pageSwitcher() {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 200),
-      reverseDuration: const Duration(milliseconds: 100),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      transitionBuilder: (child, animation) {
-        // 透明度线性（时长由 duration/reverseDuration 控制）；缓动曲线只给
-        // 位移。旧页退场时如果透明度也走 easeOutCubic，反向播放会在接近
-        // 完全不透明处滞留到最后一刻——"字体留存"就是这么来的。
-        final slide = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-        );
-        return FadeTransition(
-          opacity: animation,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 0.012),
-              end: Offset.zero,
-            ).animate(slide),
-            child: child,
-          ),
-        );
-      },
-      child: KeyedSubtree(
-        key: ValueKey('page:$_tab'),
-        child: _currentPage(),
+    // 窗口最右边 6px 铺着缩放手柄（见 window_chrome.dart 的 resizeHandles，
+    // behavior: opaque），而 Flutter 默认把滚动条**紧贴 viewport 边缘**——整条
+    // 被手柄盖住，只有贴边那 1~2px 能点到，反馈里"滚动条根本点不到"就是它。
+    // 这里让滚动条往里收 10px 并加粗，彻底离开手柄的地盘。
+    return ScrollbarTheme(
+      data: ScrollbarThemeData(
+        crossAxisMargin: 10,
+        thickness: 10,
+        radius: const Radius.circular(5),
+      ),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 200),
+        reverseDuration: const Duration(milliseconds: 100),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          // 透明度线性（时长由 duration/reverseDuration 控制）；缓动曲线只给
+          // 位移。旧页退场时如果透明度也走 easeOutCubic，反向播放会在接近
+          // 完全不透明处滞留到最后一刻——"字体留存"就是这么来的。
+          final slide = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+          );
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 0.012),
+                end: Offset.zero,
+              ).animate(slide),
+              child: child,
+            ),
+          );
+        },
+        child: KeyedSubtree(
+          key: ValueKey('page:$_tab'),
+          child: _currentPage(),
+        ),
       ),
     );
   }
@@ -689,20 +708,79 @@ class _ControlPanelState extends State<ControlPanel> {
 
   /// 内容页的标准骨架：大标题 + 可滚动内容（Win11 设置那种 28px 页题）
   Widget _pageFrame(String title, Widget content) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(32, 20, 32, 10),
-          child: Text(title,
-              style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w600,
-                  color: _c.ink)),
-        ),
-        Expanded(child: content),
-      ],
+    // 把这一页的 controller 塞进 PrimaryScrollController：页里的 ListView
+    // 没显式给 controller，会自己吃下这一个，外面就能拿它推位置。
+    return PrimaryScrollController(
+      controller: _pageScroll.putIfAbsent(_tab, ScrollController.new),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32, 20, 32, 10),
+            child: Text(title,
+                style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                    color: _c.ink)),
+          ),
+          // 中键自动滚动的拾取层：包在页面内容外面。translucent 保证指针事件
+          // 照常往下传给 ListView，正常滚动和点击都不受影响。
+          Expanded(
+            child: MouseRegion(
+              cursor: _autoScrolling
+                  ? SystemMouseCursors.grabbing
+                  : MouseCursor.defer,
+              child: Listener(
+                behavior: HitTestBehavior.translucent,
+                onPointerDown: _onAutoScrollDown,
+                onPointerMove: _onAutoScrollMove,
+                onPointerUp: _onAutoScrollEnd,
+                onPointerCancel: _onAutoScrollEnd,
+                child: content,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  // ---------------- 中键自动滚动 ----------------
+
+  /// 中键按下：记下起点和当时的滚动位置，进入自动滚动。
+  ///
+  /// 反馈 Fb0007 —— 提反馈的人滚轮是坏的，页面只能靠中键拖着翻，
+  /// 滚动条又点不到。所以补一个 Windows 上很常见但这里一直缺的自动滚动。
+  /// 4 = Flutter 的 kMiddleButton（buttons 位掩码）。
+  void _onAutoScrollDown(PointerDownEvent e) {
+    if ((e.buttons & 4) == 0) return;
+    final ctrl = _pageScroll[_tab];
+    if (ctrl == null || !ctrl.hasClients) return;
+    setState(() {
+      _autoScrolling = true;
+      _autoScrollOrigin = e.position;
+      _autoScrollBase = ctrl.position.pixels;
+    });
+  }
+
+  void _onAutoScrollMove(PointerMoveEvent e) {
+    if (!_autoScrolling || _autoScrollOrigin == null) return;
+    final ctrl = _pageScroll[_tab];
+    if (ctrl == null || !ctrl.hasClients) return;
+    final dy = e.position.dy - _autoScrollOrigin!.dy;
+    // 鼠标往下拖 = 内容往上走 = 视口位置变大，和 Windows 自动滚动同向。
+    // 1.8 倍是手感值：1:1 太黏，太大容易飘。
+    final target = _autoScrollBase + dy * 1.8;
+    ctrl.jumpTo(target.clamp(
+        ctrl.position.minScrollExtent, ctrl.position.maxScrollExtent));
+  }
+
+  void _onAutoScrollEnd(PointerEvent e) {
+    if (!_autoScrolling) return;
+    setState(() {
+      _autoScrolling = false;
+      _autoScrollOrigin = null;
+    });
   }
 
   // ---------------- 标题栏（无边框窗口专用） ----------------
@@ -803,6 +881,10 @@ class _ControlPanelState extends State<ControlPanel> {
                           ? 2
                           : 1;
                   return GridView.count(
+                    // 必须显式关掉：它是嵌在页面 ListView 里的，默认 primary
+                    // 为 true 时会去抢上面那个 PrimaryScrollController，和外层
+                    // ListView 抢同一个 position 直接报错。
+                    primary: false,
                     crossAxisCount: cols,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -843,15 +925,18 @@ class _ControlPanelState extends State<ControlPanel> {
         children: [
           // 真实实时预览：插件真的在跑。占据卡片上方、高度随卡片宽度走
           Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(color: _c.previewBg),
-              clipBehavior: Clip.antiAlias,
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: BuiltinPreview(
-                  key: ValueKey('preview:${p.id}'),
-                  spec: p,
+            // 以前这里垫一层 previewBg 灰底，跟预览本体自己那层淡底叠在一起，
+            // 在浅色卡片上就是反馈说的"预览外面那个灰框"。去掉外层，预览直接
+            // 坐在卡片底色上，边界交给组件自己画；ClipRect 保证超框内容仍然裁掉。
+            child: ClipRect(
+              child: SizedBox(
+                width: double.infinity,
+                child: FittedBox(
+                  fit: BoxFit.contain,
+                  child: BuiltinPreview(
+                    key: ValueKey('preview:${p.id}'),
+                    spec: p,
+                  ),
                 ),
               ),
             ),
@@ -869,18 +954,9 @@ class _ControlPanelState extends State<ControlPanel> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: _c.iconTile,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(p.icon,
-                            style: const TextStyle(fontSize: 17)),
-                      ),
-                      const SizedBox(width: 9),
+                      // 反馈 Fb0005：预览本身就在把组件真实跑起来，旁边再挂一个
+                      // 大 emoji 图标是重复信息，还挤掉了标题行的可用宽度。删掉，
+                      // 整行留给组件名和描述。
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1429,8 +1505,13 @@ class _ControlPanelState extends State<ControlPanel> {
               ),
             ),
             const SizedBox(height: 6),
+            // 反馈 Fb0039：莫奈开着时这一整排是禁用的（点上去没反应），
+            // 但页面上什么都不说，看起来就像取色器"冻住了"。把话说清楚。
             Text(
-              '点击预设色块切换；点"自定义"打开取色器，支持色轮/滑块/Hex 输入。',
+              _s.autoColorFromWallpaper
+                  ? '莫奈取色开着的时候，底色由壁纸算出来，下面这些色块和'
+                      '"自定义"都不生效——想自己定底色，先关掉上面那个开关。'
+                  : '点击预设色块切换；点"自定义"打开取色器，支持色轮/滑块/Hex 输入。',
               style: TextStyle(fontSize: 10, color: _c.ink30, height: 1.5),
             ),
           ],
@@ -1448,11 +1529,24 @@ class _ControlPanelState extends State<ControlPanel> {
         ),
         Padding(
           padding: const EdgeInsets.only(top: 2),
-          child: Text(
-            '磁贴常驻在所有窗口之下，只有露出桌面时才看得见。\n'
-            '用户数据：${widget.store.dir}\n'
-            '（就在程序目录里，整个文件夹拷走即完整迁移）',
-            style: TextStyle(fontSize: 11, color: _c.ink30, height: 1.5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '磁贴常驻在所有窗口之下，只有露出桌面时才看得见。',
+                style: TextStyle(fontSize: 11, color: _c.ink30, height: 1.5),
+              ),
+              const SizedBox(height: 10),
+              Text('用户数据目录',
+                  style: TextStyle(fontSize: 11, color: _c.ink38)),
+              const SizedBox(height: 6),
+              _pathLine(widget.store.dir),
+              const SizedBox(height: 6),
+              Text(
+                '就在程序目录里，整个文件夹拷走即完整迁移。',
+                style: TextStyle(fontSize: 11, color: _c.ink30, height: 1.5),
+              ),
+            ],
           ),
         ),
       ],
@@ -2154,16 +2248,36 @@ class _ControlPanelState extends State<ControlPanel> {
         color: _c.cardBorder.withValues(alpha: 0.35),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Text(
-        path,
-        style: TextStyle(
-          fontSize: 11,
-          color: _c.ink70,
-          height: 1.4,
-          fontFeatures: const [FontFeature.tabularFigures()],
+      // 长路径以前是直接折行，混在说明文字里显得很乱（反馈里红框圈的就是
+      // 那一段）。改成单行 + 中间省略：盘符和末级目录名是两头有信息量的
+      // 部分，中段那串用户名/版本目录才是可以牺牲的。悬停给出完整路径。
+      child: Tooltip(
+        message: path,
+        child: Text(
+          _elideMiddle(path, 56),
+          maxLines: 1,
+          softWrap: false,
+          overflow: TextOverflow.clip,
+          style: TextStyle(
+            fontSize: 11,
+            color: _c.ink70,
+            height: 1.4,
+            fontFeatures: const [FontFeature.tabularFigures()],
+          ),
         ),
       ),
     );
+  }
+
+  /// 按字符数做中间省略。路径基本是 ASCII，配合等宽数字字体，按字符估宽够用。
+  /// 按 rune 切而不是按下标切：用户名带中文时 `substring` 会把字符劈成两半，
+  /// 末尾留一个问号形的替换符，比超宽还难看。
+  static String _elideMiddle(String s, int max) {
+    final chars = s.runes.map(String.fromCharCode).toList();
+    if (chars.length <= max) return s;
+    final head = (max - 1) ~/ 2;
+    final tail = max - 1 - head;
+    return '${chars.take(head).join()}…${chars.skip(chars.length - tail).join()}';
   }
 
   Widget _aboutRow(String label, String value, {bool monospace = false}) {

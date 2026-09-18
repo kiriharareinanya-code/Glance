@@ -5,12 +5,11 @@
 /// 不碰真实 pluginData；离开组件库页时随 widget 销毁，定时器一起回收。
 library;
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
 import '../core/grid.dart';
+import '../core/paths.dart';
 import '../model/card.dart';
 import '../store/store.dart';
 import '../widgets/catalog.dart';
@@ -31,6 +30,7 @@ class _BuiltinPreviewState extends State<BuiltinPreview> {
   WidgetContext? _ctx;
   PxSize _px = const PxSize(200, 200);
   bool _ready = false;
+  bool _failed = false;
 
   @override
   void initState() {
@@ -54,10 +54,16 @@ class _BuiltinPreviewState extends State<BuiltinPreview> {
     if (!mounted) return;
     _px = px;
 
-    // 隔离宿主：临时目录的 Store + 一张假卡片。预览的 storage 读写落在
-    // 临时目录里，不会进真实 pluginData；http / 媒体状态是真能力（要的就是真预览）。
-    final store = Store(p.join(
-        Directory.systemTemp.path, 'vectra-preview', widget.spec.id));
+    // 隔离宿主：一张假卡片 + 自己的 Store 目录。预览的 storage 落在
+    // `userdata/preview-cache/<组件 id>/` 下，不碰真实 pluginData；
+    // http / 媒体状态是真能力（要的就是真预览）。
+    //
+    // 早先这里挂的是 `Directory.systemTemp`——切走组件库页再回来，预览整个
+    // 重挂一次，拿到的又是全新空缓存，组件只好再拉一遍数据（反馈 Fb0008：
+    // "为什么页面每次切回组件列表……卡片都会重新加载获取一次信息"）。
+    // 换成固定目录后，组件自己写的 cache（天气卡就是这么缓存的）能命中。
+    final store =
+        Store(p.join(AppPaths.root, 'preview-cache', widget.spec.id));
     // 关键：必须等 load() 回来。它会扫描 plugindata/ 下的 `.json.broken-*`
     // 残留并 rename，那些是真实文件 I/O；不等就是让元素在挂载中被回收，
     // ctx 的定时器随之失去 owner（测试里表现为"树销毁后仍有 pending Timer"）。
@@ -89,6 +95,13 @@ class _BuiltinPreviewState extends State<BuiltinPreview> {
     try {
       controller.mount();
     } catch (_) {
+      // mount 炸了以前是"静默 return"：_ready 永远是 false，界面就永久停在
+      // 沙漏上——反馈里那句"预览预览了个寂寞"多半就是这个。改成记一笔失败，
+      // 顺手把半挂上去的控制器收干净，别留孤儿定时器。
+      try {
+        controller.unmount();
+      } catch (_) {}
+      if (mounted) setState(() => _failed = true);
       return;
     }
     if (!mounted) {
@@ -104,6 +117,25 @@ class _BuiltinPreviewState extends State<BuiltinPreview> {
 
   @override
   Widget build(BuildContext context) {
+    if (_failed) {
+      // 明确的失败占位：比一个永远转不完的沙漏诚实
+      return const SizedBox(
+        width: 200,
+        height: 200,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.visibility_off_rounded,
+                  size: 20, color: Colors.white24),
+              SizedBox(height: 6),
+              Text('预览不可用',
+                  style: TextStyle(fontSize: 11, color: Colors.white38)),
+            ],
+          ),
+        ),
+      );
+    }
     if (!_ready) {
       // 首帧就换成一个不会被打断的骨架：mount() 是异步的，等 store.load()
       // 回来时元素可能已经被滚出视口回收——那种情况下 ctx 挂着真定时器却
