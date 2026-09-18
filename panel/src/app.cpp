@@ -163,7 +163,9 @@ struct PanelUi {
   mux::Window window_;
   winrt::Microsoft::UI::Dispatching::DispatcherQueue queue_{nullptr};
 
-  muxc::NavigationView nav_;
+  // 自绘左侧导航（不用 NavigationView，原因见 Build 里的注释）
+  muxc::StackPanel nav_rail_;
+  std::vector<muxc::Button> nav_buttons_;
   muxc::ScrollViewer scroller_;
   muxc::StackPanel content_;      // 当前页面的内容容器
   muxc::Grid title_bar_;
@@ -226,20 +228,51 @@ struct PanelUi {
     queue_ = window_.DispatcherQueue();
     ApplyThemeToWindow();
 
-    nav_ = muxc::NavigationView();
-    nav_.IsSettingsVisible(false);
-    nav_.IsBackButtonVisible(
-        muxc::NavigationViewBackButtonVisible::Collapsed);
-    nav_.PaneDisplayMode(muxc::NavigationViewPaneDisplayMode::Left);
-    nav_.OpenPaneLength(196);
-    nav_.IsPaneToggleButtonVisible(false);
+        // 左侧导航是自绘的一列按钮，**不用 NavigationView**：
+    // 它 1.8 的默认模板会去找 TabViewButtonBackground 这类资源，而运行时那个键
+    // 不存在，模板一展开就抛异常把整个面板带走（实测，日志里能看到）。
+    // 自绘既躲开这个坑，也更接近 Win11 设置页"左窄栏 + 右内容"的观感。
+    nav_rail_ = muxc::StackPanel();
+    nav_rail_.Spacing(2);
+    nav_rail_.Padding(mux::ThicknessHelper::FromLengths(8, 10, 8, 10));
+    nav_rail_.Width(190);
+    nav_rail_.Background(ui::Brush(ui::theme().window_bg));
 
-    nav_.MenuItems().Append(NavItem(L"\uE8F1", L"组件库", L"gallery"));
-    nav_.MenuItems().Append(NavItem(L"\uE8A5", L"已放置", L"cards"));
-    nav_.MenuItems().Append(NavItem(L"\uE790", L"外观", L"appearance"));
-    nav_.MenuItems().Append(NavItem(L"\uE7C4", L"布局", L"layout"));
-    nav_.MenuItems().Append(NavItem(L"\uE713", L"其他", L"other"));
-    nav_.MenuItems().Append(NavItem(L"\uE946", L"关于", L"about"));
+    struct NavDef {
+      const wchar_t* glyph;
+      const wchar_t* label;
+      Page page;
+    };
+    const NavDef defs[] = {
+        {L"", L"组件库", Page::Gallery},
+        {L"", L"已放置", Page::Cards},
+        {L"", L"外观", Page::Appearance},
+        {L"", L"布局", Page::Layout},
+        {L"", L"其他", Page::Other},
+        {L"", L"关于", Page::About},
+    };
+    for (const auto& def : defs) {
+      auto button = muxc::Button();
+      button.HorizontalAlignment(mux::HorizontalAlignment::Stretch);
+      button.HorizontalContentAlignment(mux::HorizontalAlignment::Left);
+      button.BorderThickness(mux::ThicknessHelper::FromUniformLength(0));
+      button.CornerRadius(mux::CornerRadiusHelper::FromUniformRadius(6));
+      button.Padding(mux::ThicknessHelper::FromLengths(12, 8, 12, 8));
+      button.Background(ui::Brush(ui::theme().card_bg, 0x00));
+      muxc::StackPanel row;
+      row.Orientation(muxc::Orientation::Horizontal);
+      row.Spacing(10);
+      row.Children().Append(ui::Glyph(def.glyph, 16));
+      row.Children().Append(ui::Text(def.label, 14, ui::theme().text));
+      button.Content(row);
+      const Page target = def.page;
+      button.Click([this, target](const auto&, const auto&) {
+        page_ = target;
+        RenderPage();
+      });
+      nav_buttons_.push_back(button);
+      nav_rail_.Children().Append(button);
+    }
 
     scroller_ = muxc::ScrollViewer();
     scroller_.VerticalScrollBarVisibility(
@@ -250,24 +283,6 @@ struct PanelUi {
     content_.Spacing(16);
     content_.Padding(mux::ThicknessHelper::FromLengths(28, 8, 28, 28));
     scroller_.Content(content_);
-    nav_.Content(scroller_);
-
-    // 导航项加完就选中第一项：NavigationView 默认不会自己选，
-    // 不选的话右侧内容区一开始是空的
-    nav_.SelectedItem(nav_.MenuItems().GetAt(0));
-
-    nav_.SelectionChanged([this](const auto&, const auto& args) {
-      const auto item = args.SelectedItem().try_as<muxc::NavigationViewItem>();
-      if (!item) return;
-      const std::string tag = ToUtf8(unbox_value_or<hstring>(item.Tag(), L""));
-      if (tag == "gallery") page_ = Page::Gallery;
-      else if (tag == "cards") page_ = Page::Cards;
-      else if (tag == "appearance") page_ = Page::Appearance;
-      else if (tag == "layout") page_ = Page::Layout;
-      else if (tag == "other") page_ = Page::Other;
-      else if (tag == "about") page_ = Page::About;
-      RenderPage();
-    });
 
     // 自绘标题栏：48 高的空白区域当拖拽区，标题写在左边
     title_bar_ = muxc::Grid();
@@ -304,8 +319,20 @@ struct PanelUi {
     root.Background(ui::Brush(ui::theme().window_bg));
     muxc::Grid::SetRow(title_bar_, 0);
     root.Children().Append(title_bar_);
-    muxc::Grid::SetRow(nav_, 1);
-    root.Children().Append(nav_);
+
+    // 第二行：左导航栏 + 右内容
+    auto body = muxc::Grid();
+    body.ColumnDefinitions().Append(muxc::ColumnDefinition{});
+    auto left_col = muxc::ColumnDefinition{};
+    left_col.Width(
+        mux::GridLengthHelper::FromValueAndType(0, mux::GridUnitType::Auto));
+    body.ColumnDefinitions().Append(left_col);
+    muxc::Grid::SetColumn(nav_rail_, 0);
+    body.Children().Append(nav_rail_);
+    muxc::Grid::SetColumn(scroller_, 1);
+    body.Children().Append(scroller_);
+    muxc::Grid::SetRow(body, 1);
+    root.Children().Append(body);
 
     window_.Content(root);
     window_.ExtendsContentIntoTitleBar(true);
@@ -434,9 +461,28 @@ struct PanelUi {
   void Done() {
     if (--pending_ > 0) return;
     if (pending_ < 0) pending_ = 0;
+    const bool first_time = !first_load_done_;
     first_load_done_ = true;
     UpdateStatus();
     RenderPage();
+    // --selftest：数据齐了就把每一页都建一遍，逐页记成败。
+    // 手动点六个页面没法自动化，这个开关让"每页都能画"变成日志里的一行行结论。
+    if (first_time && panel::startup().selftest) SelfTestAllPages();
+  }
+
+  void SelfTestAllPages() {
+    const Page all[] = {Page::Gallery, Page::Cards,   Page::Appearance,
+                        Page::Layout,  Page::Other,   Page::About};
+    const Page keep = page_;
+    for (Page target : all) {
+      page_ = target;
+      RenderPage();
+      panel::LogLine("I [selftest] 页面 " + std::to_string(static_cast<int>(target)) +
+                     " 已构建，控件数 " + std::to_string(content_.Children().Size()));
+    }
+    page_ = keep;
+    RenderPage();
+    panel::LogLine("I [selftest] 六页全部走完");
   }
 
   void UpdateStatus() {
@@ -463,21 +509,33 @@ struct PanelUi {
       return;
     }
 
+    // 每一页单独兜住：某个控件在这版 WinUI 里缺主题资源时只损失那一页，
+    // 不至于把整个面板带走（TabViewButtonBackground 那类问题就是这么暴露的）。
     switch (page_) {
-      case Page::Gallery: BuildGallery(); break;
-      case Page::Cards: BuildCards(); break;
+      case Page::Gallery:
+        panel::Guard("page.gallery", [&] { BuildGallery(); });
+        break;
+      case Page::Cards:
+        panel::Guard("page.cards", [&] { BuildCards(); });
+        break;
       case Page::Appearance:
-        BuildSettingsSection("appearance", "外观",
-                             "主题、字体、卡片外观");
+        panel::Guard("page.appearance", [&] {
+          BuildSettingsSection("appearance", "外观", "主题、字体、卡片外观");
+        });
         break;
       case Page::Layout:
-        BuildSettingsSection("layout", "布局",
-                             "网格与卡片尺寸的摆放规则");
+        panel::Guard("page.layout", [&] {
+          BuildSettingsSection("layout", "布局", "网格与卡片尺寸的摆放规则");
+        });
         break;
       case Page::Other:
-        BuildSettingsSection("update", "其他", "更新与启动行为");
+        panel::Guard("page.other", [&] {
+          BuildSettingsSection("update", "其他", "更新与启动行为");
+        });
         break;
-      case Page::About: BuildAbout(); break;
+      case Page::About:
+        panel::Guard("page.about", [&] { BuildAbout(); });
+        break;
     }
   }
 
@@ -895,7 +953,7 @@ struct PanelUi {
 
   void ConfirmQuit() {
     auto dialog = muxc::ContentDialog();
-    dialog.XamlRoot(nav_.XamlRoot());
+    dialog.XamlRoot(window_.Content().XamlRoot());
     dialog.Title(box_value(hstring(L"退出 Glance？")));
     dialog.Content(box_value(
         hstring(L"磁贴会一起关闭，之后可以从开始菜单重新启动。")));
@@ -980,7 +1038,7 @@ void App::OnLaunched(const LaunchActivatedEventArgs&) {
 
   // XAML 自己的回调路径（布局、事件分发）里抛出的异常不会经过我们的 try/catch，
   // 默认结果是 fail-fast：进程带着 0xC000027B 消失，什么都不留。
-  // 这里接住它、记下来，并且不让它掀掉整个面板——设置界面画残了也好过没有。
+  // 先把它接住，后面所有诊断才有日志可看——这条钩子正是当初挖出资源问题的原因。
   Application::Current().UnhandledException(
       [](const IInspectable&, const UnhandledExceptionEventArgs& args) {
         panel::Guard("xaml", [&] {
@@ -990,12 +1048,39 @@ void App::OnLaunched(const LaunchActivatedEventArgs&) {
         });
       });
 
-  // WinUI3 控件的主题资源（颜色/圆角/模板）都在 XamlControlsResources 里。
-  // 有 App.xaml 的项目靠 XAML 自动挂上；我们是纯代码 UI，必须自己挂——
-  // 否则控件的模板一展开就报 "Cannot find a Resource with the Name/Key ..."。
-  Application::Current().Resources().MergedDictionaries().Append(
-      muxc::XamlControlsResources());
+  // 诊断开关（--minimal / --minimal-xcr）：只开一个空窗口 + 一个 TextBlock，
+  // 用来分辨"资源问题是整个进程级别的"还是"某个控件引出来的"。
+  if (panel::startup().minimal) {
+    panel::LogLine("I [diag] 最小窗口模式");
+    if (panel::startup().minimal_with_resources) {
+      // 保留这个诊断分支：以后升级 WASDK 时用它复验"手动挂资源字典"是否已经可用
+      panel::Guard("xcr", [&] {
+        Application::Current().Resources().MergedDictionaries().Append(
+            muxc::XamlControlsResources());
+        panel::LogLine("I [diag] 已挂 XamlControlsResources");
+      });
+    }
+    auto w = mux::Window();
+    auto panel = muxc::StackPanel();
+    panel.Children().Append(ui::Text(L"最小窗口", 20, ui::theme().text));
+    panel.Children().Append(
+        ui::Text(L"资源查找正常（没崩）", 13, ui::theme().text_dim));
+    w.Content(panel);
+    w.Title(L"Glance 设置（诊断）");
+    w.Activate();
+    panel::LogLine("I [diag] 最小窗口已显示");
+    Start(socket_path_, token_);
+    return;
+  }
 
+  // 注意：**不要**手动挂 XamlControlsResources。
+  //
+  // 实测（--minimal / --minimal-xcr 两个诊断开关就是为这件事留的）：
+  //   · 只开空窗口 + TextBlock → 一切正常，控件主题资源由框架自己提供；
+  //   · 再手动 Append 一个 XamlControlsResources → 它自己构造时就抛
+  //     Cannot find a resource with the given key: AcrylicBackgroundFillColorDefaultBrush
+  //     （WASDK 1.8 里那个键已经不在它包含的字典里了）。
+  // 也就是说这个类型在这版里是给老写法准备的，纯代码 UI 不需要它。
   auto window = mux::Window();
   ui_ = std::make_unique<PanelUi>(this, window);
   panel::Guard("build", [&] { ui_->Build(980, 700); });

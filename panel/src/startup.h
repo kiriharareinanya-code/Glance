@@ -11,6 +11,13 @@ namespace panel {
 struct StartupInfo {
   std::string socket_path;
   std::string token;
+  // 诊断用：只开一个空窗口 + 一个 TextBlock，不建导航与任何设置控件。
+  // 用来分辨"资源问题是整个进程级别的"还是"某个控件引出来的"。
+  bool minimal = false;
+  // 诊断用：最小窗口上再挂 XamlControlsResources
+  bool minimal_with_resources = false;
+  // 诊断用：数据到位后把每一页都建一遍，逐页记录成败（验证面板各页是否都能画）
+  bool selftest = false;
 };
 
 inline StartupInfo& startup_storage() {

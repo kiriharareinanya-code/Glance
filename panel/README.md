@@ -6,97 +6,96 @@ Glance 设置面板的原生实现：C++/WinUI3，**独立进程**，通过 Unix
 ## 怎么建
 
 ```bash
-# 依赖会自动从 NuGet 镜像下到仓库根的 .wasdk/（已 gitignore）
+# 用 VS 生成工具自带的 cmake 配置（PATH 里没有的话见下面的路径）
 cmake -S panel -B panel/build -G "Visual Studio 17 2022" -A x64
 cmake --build panel/build --config Release
 ```
 
-找不到 `cmake` 的话，VS 生成工具自带的那个在：
+cmake 在 VS 生成工具里的位置：
 
 ```
 C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\
   Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe
 ```
 
-构建产物：
-- `panel/build/Release/panel.exe`（+ 必须同目录的 `Microsoft.WindowsAppRuntime.Bootstrap.dll`）
-- 同时会**自动装到核心旁边** `build/windows/x64/runner/Release/panel/panel.exe`——
-  核心找面板的顺序就是 `<核心目录>/panel/panel.exe`，装好之后托盘的"设置"就会用它。
+构建入口是 `panel/CMakeLists.txt`，真正干活的是 **`panel/panel.vcxproj`**
+（官方 WinUI3 C++ 工程文件），由 CMake 转手调用 MSBuild。产物：
 
-运行时要求：机器上装了 **Windows App Runtime 1.8**（`Get-AppxPackage *WindowsAppRuntime*`）。
-没有的话面板会弹窗提示装运行时。
+- `panel/build/Release/panel.exe`（框架依赖：只要 `Microsoft.WindowsAppRuntime.Bootstrap.dll`
+  + `panel.pri` 在它旁边就行，其余 DLL 由机器上装的 Windows App Runtime 提供）
+- 构建结束会**自动装到核心旁边** `build/windows/x64/runner/Release/panel/`——
+  核心找面板的顺序就是 `<核心目录>/panel/panel.exe`，装好之后托盘的"设置"就用它。
+
+依赖：`Microsoft.WindowsAppSDK.{Base,Foundation,InteractiveExperiences,WinUI,Runtime}`
++ `Microsoft.Web.WebView2` + `Microsoft.Windows.CppWinRT`，版本钉死在 vcxproj 里。
+NuGet 源见 `panel/nuget.config`（本地 `.wasdk/feed` 优先，其次国内镜像）。
+
+运行时要求：机器上装着 **Windows App Runtime 1.8**（`Get-AppxPackage *WindowsAppRuntime*`）。
 
 ## 它长什么样
 
-NavigationView 六个页面，**没有一个页面硬编码设置项**：
+左侧自绘导航 + 右侧内容，六个页面**没有一个硬编码设置项**：
 
 | 页面 | 数据来源 |
 |---|---|
-| 组件库 | `plugins.list`（点"添加"→ `cards.add`） |
+| 组件库 | `plugins.list`（点"添加"→ `cards.add`；没空闲屏时按钮置灰） |
 | 已放置 | `cards.list`（改尺寸 / 移除 / 每张卡自己的设置项） |
 | 外观 · 布局 · 其他 | `settings.schema` 的分组（boolean→开关，number→数字框，select→下拉，color→取色器，text→文本框） |
 | 关于 | `app.info` + 打开数据目录 + 退出核心 |
 
 核心加一个设置项或一个插件，**这里一行都不用改**。
 
-## 这个构建为什么要自己搭
+## 诊断开关（排查这类问题很有用）
 
-机器上只有 VS 生成工具（没有 IDE），而且这是 Flutter 工程里的一个独立小项目，
-所以没有走 WinUI3 默认的 .vcxproj + NuGet 那套。CMake 里做的事，逐条对应
-MSBuild 官方 targets 的等价物：
+面板是 GUI 子系统，没有控制台，出问题就是"窗口一闪没了"。所以它自己写日志
+（`panel.log`，在 exe 同目录，写不进去就退到 `%TEMP%`），并提供了几个开关：
 
-| 官方 targets 做的 | 这里怎么做的 |
+| 开关 | 用途 |
 |---|---|
-| 下 NuGet 包 | `wasdk_package()`：下载到 `.wasdk/feed/`、解包到 `.wasdk/pkgs/` |
-| 生成 C++/WinRT 投射头 | 直接调 Windows SDK 的 `cppwinrt.exe`（输入是 WinUI/IX/Foundation/WebView2 的 WinMD） |
-| Windows App Runtime 启动 | 编 `WindowsAppRuntimeAutoInitializer.cpp` + `MddBootstrapAutoInitializer.cpp` + `UndockedRegFreeWinRT-AutoInitializer.cpp` |
+| `--minimal` | 只开一个空窗口 + TextBlock，不连核心、不建任何控件 |
+| `--minimal-xcr` | 上面这个 + 手动挂 `XamlControlsResources`（用来复验这件事能不能做） |
+| `--selftest` | 数据到位后把六个页面逐个建一遍，逐页记日志（验证"每页都能画"） |
 
-## 踩过的坑（都写在代码注释里）
+`--minimal` / `--minimal-xcr` 这一对就是当初挖出资源问题的那把刀：前者永远正常、
+后者必崩，所以问题一定在"手动挂资源字典"这件事上，而不是整个进程的资源环境。
 
-1. **`cppwinrt` 要一次给全 WinMD**：只给 `Microsoft.UI.Xaml.winmd` 会报
-   `Type 'Microsoft.UI.Dispatching.DispatcherQueue' could not be found`，
-   补一个又冒下一个。真正的集合是：WinUI 2 个 + InteractiveExperiences 3 个
-   （`Microsoft.UI/Foundation/Graphics.winmd`，取 `metadata/10.0.18362.0/`）+
-   Foundation 20 个 + WebView2 1 个。
-2. **`Microsoft.WindowsAppRuntime.dll` 不能静态导入**：它在框架包里，进程启动
-   那一刻动态依赖还没建立、按名字找不到它。必须开
-   `MICROSOFT_WINDOWSAPPSDK_UNDOCKEDREGFREEWINRT_AUTO_INITIALIZE_LOADLIBRARY`，
-   改成 bootstrap 之后再 `LoadLibrary`。
-3. **`WindowsAppSDK-VersionInfo.h` 只在 Runtime 包里**（不在 WinUI/Foundation/Base
-   里），自动初始化源文件要 `#include` 它。
-4. **C++/WinRT 投射头要一个个显式 include**：少了
-   `Windows.Foundation.Collections.h` 会报"必须首先定义此函数"这种看不出因果的错。
-5. **`TextBlock`/`Control` 在 `Controls` 命名空间**，`UIElement`/`FrameworkElement`
-   在 `Microsoft.UI.Xaml`——混了就是一堆 "缺少类型说明符"。
-6. `shellapi.h`/`dwmapi.h` 必须排在 `windows.h` 后面；`afunix.h` 必须排在
-   `winsock2.h` 后面。
-7. **纯代码 UI 要自己挂 `XamlControlsResources`**（有 App.xaml 的项目是 XAML
-   代劳的），否则控件模板一展开就找不到主题资源。
-8. 面板必须自己写日志（GUI 子系统没控制台），并把 XAML 的
-   `Application.UnhandledException` 接住——不然崩了是"窗口一闪没了"，现场不留。
+## 踩过的坑（按踩到的顺序）
 
-## 当前状态：**卡在最后一步**
+### 构建方式
 
-已经跑通：
-- 编译链接通过，exe 能启动；
-- Windows App Runtime bootstrap 成功；
-- **连上核心、完成 hello 握手**（核心日志有 `[panel] 面板已握手（v1）`）；
-- 主题检测（跟随系统深浅色）、日志、异常兜底都在工作。
+1. **`WindowsAppSDKSelfContained` 默认为 true**（用拆分包而不是聚合包
+   `Microsoft.WindowsAppSDK` 时）。自包含模式要求应用自己携带整套框架文件 +
+   合并好的资源索引，缺了后者就会在创建控件时报找不到主题资源。
+   解决：显式 `<WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>`，
+   并加一条 `Microsoft.WindowsAppSDK.Runtime` 的引用（框架依赖模式的硬性要求，
+   Base.targets 会检查）。
+2. **WebView2 的 WinMD 要直接引用 `Microsoft.Web.WebView2` 包**：它是 WinUI 的
+   传递依赖，而传递依赖的 `build/` 资产不会导入，于是 C++/WinRT 投射生成报
+   `Type 'Microsoft.Web.WebView2.Core.CoreWebView2' could not be found`。
+3. **`NuGetTargetMoniker` / `NuGetRuntimeIdentifier` 必须显式写**：C++ 工程不会
+   自动填，缺了 NuGet 的解析任务就抛"序列不包含任何元素"（完全看不出因果）。
+4. XML 注释里**不能出现 `--`**（我写了 `cmake --build`，MSBuild 直接判清单非法）。
+5. 链接要带 `dwmapi`（深色边框）、`shell32`（打开数据目录）、`ws2_32`（UDS）、
+   `windowsapp`。
 
-**没跑通**：创建 WinUI 控件时 XAML 找不到主题资源：
+### 运行时：两个真正让面板"窗口一闪没了"的原因
 
-```
-E [xaml] 未处理异常：Cannot find a resource with the given key: AcrylicBackgroundFillColorDefaultBrush.
-```
+6. **不要手动挂 `XamlControlsResources`**。WinUI 1.8 里它构造时自己就会抛
+   `Cannot find a resource with the given key: AcrylicBackgroundFillColorDefaultBrush`
+   （那个键已经不在它包含的字典里了）。纯代码 UI 不需要它——框架自己提供控件主题资源。
+   这是最初 `TabViewButtonBackground` / `AcrylicBackgroundFillColorDefaultBrush`
+   两个"找不到资源"的真正来源，害我先去怀疑了构建系统（换成官方 vcxproj 也没用，
+   因为根因不在那里）。
+7. **`NavigationView` 在这版运行时里不能用**：它的默认模板引用
+   `TabViewButtonBackground`，运行时那个键不存在，模板一展开就抛异常把进程带走。
+   所以左侧导航是**自绘**的一列按钮（见 `Build()`），顺带更接近 Win11 设置页的观感。
 
-（挂 `XamlControlsResources` 之前是 `TabViewButtonBackground`，同一个病。）
+### 排查手法（值得复用）
 
-已经排除：应用自己的 `resources.pri`（用 makepri 生成过，无效）、把框架的
-`Microsoft.UI.Xaml.Controls.pri` 与 `Microsoft.ui.xaml.resources.*.dll` 拷到 exe
-旁边（无效）。**说明这不是"文件不在"，而是框架资源要经过 MSBuild targets 建立的
-那套资源/清单注册链路**——手搓 CMake 到这一步成本已经不划算。
-
-两条出路（见仓库提交记录里的讨论）：
-- **A. 面板改用官方 .vcxproj + PackageReference**（仍由 CMake 的构建命令驱动调用，
-  这样 PRI 生成、应用清单、XamlControlsResources 的注册全交给微软的 targets）；
-- B. 继续在 CMake 里手搓应用清单 + PRI 合并（不确定性高）。
+- **给 GUI 进程写日志文件**，并把 `Application::Current().UnhandledException`
+  接住（`args.Message()`）——XAML 自己的回调路径里抛的异常不经过普通 try/catch，
+  默认结果就是 fail-fast（退出码 `0xC000027B`），什么都不留。第 6、7 条就是这条
+  钩子打印出来的。
+- **把 UI 构建分块加护栏**（每页一个 `Guard`）：一页的控件缺资源只损失那一页，
+  不至于整个面板打不开。
+- **二分**：`--minimal` vs `--minimal-xcr` 一次就把范围从"整个进程"缩到"一个类型"。

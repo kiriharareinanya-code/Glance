@@ -38,6 +38,14 @@ int WINAPI wWinMain(HINSTANCE, HINSTANCE, PWSTR, int) {
         info.socket_path = panel::Utf8FromWide(argv[++i]);
       } else if (arg == L"--token" && i + 1 < argc) {
         info.token = panel::Utf8FromWide(argv[++i]);
+      } else if (arg == L"--minimal") {
+        // 诊断开关：只开一个空窗口。配合面板日志用来定位资源问题出在哪一层。
+        info.minimal = true;
+      } else if (arg == L"--minimal-xcr") {
+        info.minimal = true;
+        info.minimal_with_resources = true;
+      } else if (arg == L"--selftest") {
+        info.selftest = true;
       }
     }
     ::LocalFree(argv);

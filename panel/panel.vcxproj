@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  WinUI3 面板的官方工程文件。
+
+  为什么要用它，而不是继续手搓 CMake：XAML 的主题资源、控件模板、应用清单、
+  PRI（资源索引）都由 WindowsAppSDK 的 MSBuild targets 在构建期建立。手搓 CMake
+  把编译、bootstrap、与核心握手都跑通了，但资源查找这一步始终失败（完整排查
+  记录见 README）——那部分不该由使用者复刻。
+
+  构建入口仍然是仓库里的 CMake（panel/CMakeLists.txt 会转手调用 VS 生成工具
+  自带的 MSBuild）。这样做一是与核心（Flutter 那套 CMake）保持同一种用法，
+  二是直接敲 MSBuild 在这台机器上会被安全策略拦。
+
+  WindowsPackageType=None 表示解包式：不需要 MSIX 打包，直接跑 exe 就行，
+  由 WASDK 的自动初始化（MddBootstrapInitialize）建立与 Windows App Runtime
+  的动态依赖。
+-->
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8E5C1F2A-3B7D-4E60-9C1A-5D2B7F8E4A31}</ProjectGuid>
+    <RootNamespace>GlancePanel</RootNamespace>
+    <ProjectName>panel</ProjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsPackageType>None</WindowsPackageType>
+    <AppxPackage>false</AppxPackage>
+    <CppWinRTOptimized>true</CppWinRTOptimized>
+    <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
+    <CppWinRTGenerateWindowsMetadata>false</CppWinRTGenerateWindowsMetadata>
+    <MinimalCoreWin>true</MinimalCoreWin>
+    <!--
+      NuGet 的解析任务（ResolveNuGetPackageAssets）靠这两个属性去 project.assets.json
+      里挑目标框架。C++ 工程不会自动填，缺了它就抛"序列不包含任何元素"这种
+      完全看不出因果的错（实测）。
+    -->
+    <NuGetTargetMoniker>native,Version=v0.0</NuGetTargetMoniker>
+    <NuGetRuntimeIdentifier>win-x64</NuGetRuntimeIdentifier>
+    <!--
+      必须显式关掉自包含：用拆分包（而不是聚合包 Microsoft.WindowsAppSDK）时
+      MicrosoftWindowsAppSDKPackageDir 为空，Base.targets 会把
+      WindowsAppSDKSelfContained 默认设成 true。自包含模式要求应用自己携带
+      整套框架文件 + 合并好的资源索引，缺了后者就会在创建控件时报
+      Cannot find a resource with the given key ...（实测踩过）。
+      关掉后走"框架依赖"：靠机器上装的 Windows App Runtime 1.8。
+    -->
+    <WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseDebugLibraries>false</UseDebugLibraries>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props"
+            Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')"
+            Label="LocalAppDataPlatform" />
+  </ImportGroup>
+
+  <PropertyGroup>
+    <OutDir Condition="'$(PanelOutDir)' != ''">$(PanelOutDir)\</OutDir>
+    <IntDir Condition="'$(PanelIntDir)' != ''">$(PanelIntDir)\</IntDir>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <!--
+        dwmapi：窗口边框跟随深浅色；shell32：打开数据目录；
+        ws2_32：UDS 用 WinSock；windowsapp：WinRT + 常用 Win32 的伞库。
+      -->
+      <AdditionalDependencies>dwmapi.lib;shell32.lib;ws2_32.lib;windowsapp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\app.cpp" />
+    <ClCompile Include="src\ipc.cpp" />
+    <ClCompile Include="src\log.cpp" />
+    <ClCompile Include="src\ui.cpp" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ClInclude Include="src\app.h" />
+    <ClInclude Include="src\ipc.h" />
+    <ClInclude Include="src\json.h" />
+    <ClInclude Include="src\log.h" />
+    <ClInclude Include="src\startup.h" />
+    <ClInclude Include="src\text.h" />
+    <ClInclude Include="src\ui.h" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      WebView2 包里 build/Common.targets 加了这条（把 winmd 交给编译器与 C++/WinRT
+      投射生成），但那个文件对原生 C++ 工程不生效。它的写法就是直接 Include 路径，
+      RAR 见到 .winmd 会标成 WinMDFile，随后被 C++/WinRT 的 targets 收集。
+      少了它：Type 'Microsoft.Web.WebView2.Core.CoreWebView2' could not be found。
+    -->
+    <Reference Include="$(NuGetPackageRoot)microsoft.web.webview2\1.0.3179.45\lib\Microsoft.Web.WebView2.Core.winmd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CppWinRT" Version="2.0.250303.1" />
+    <PackageReference Include="Microsoft.WindowsAppSDK.Base" Version="1.8.250831001" />
+    <PackageReference Include="Microsoft.WindowsAppSDK.Foundation" Version="1.8.250906002" />
+    <PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="1.8.250906004" />
+    <PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="1.8.250906003" />
+    <!--
+      框架依赖模式（SelfContained=false）必须引用 Runtime 包，否则 Base.targets 直接
+      报错：A framework package dependent Windows App SDK app requires a package
+      reference to Microsoft.WindowsAppSDK.Runtime。它就是"运行时从哪儿来"的声明。
+    -->
+    <PackageReference Include="Microsoft.WindowsAppSDK.Runtime" Version="1.8.251003001" />
+    <!--
+      WinUI 的传递依赖，但要**直接**列出来：它自己的 build/Common.targets 会把
+      Microsoft.Web.WebView2.Core.winmd 注册成 Reference，而传递依赖的 build 资产
+      不会导入。少了这一步，C++/WinRT 投射生成会失败：
+      Type 'Microsoft.Web.WebView2.Core.CoreWebView2' could not be found。
+    -->
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
+  </ItemGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>
