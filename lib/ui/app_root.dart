@@ -4,6 +4,7 @@
 /// 所以这个窗口现在只干一件事：画磁贴、沉在 Z 序最底、只在卡片上接收输入。
 library;
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
@@ -11,6 +12,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:tray_manager/tray_manager.dart';
 
+import '../core/app_version.dart';
 import '../core/grid.dart';
 import '../core/logger.dart';
 import '../core/monitor.dart';
@@ -18,8 +20,13 @@ import '../core/paths.dart';
 import '../core/snap.dart' as snap;
 import '../core/theme.dart';
 import '../model/card.dart';
+import '../model/settings.dart';
 import '../native/native_bridge.dart';
+import '../panel/core_host.dart';
+import '../panel/protocol.dart';
+import '../panel/service.dart';
 import '../widgets/plugin_api.dart';
+import '../widgets/registry.dart';
 import '../widgets/builtin_card_body.dart';
 import '../store/store.dart';
 import 'panel_app.dart';
@@ -48,6 +55,20 @@ class AppRootState extends State<AppRoot> with TrayListener {
   /// 直接拿到桌面层，用于确定性地重推命中区
   final GlobalKey<DesktopSurfaceState> _surfaceKey = GlobalKey();
 
+  /// 面板 IPC 端点：原生 WinUI3 面板（独立进程）通过它读写本进程的状态。
+  /// 起不来也只是少一条改设置的路，核心照常跑（service.start 内部兜底）。
+  late final PanelService panelService = PanelService(_CoreHost(this));
+
+  /// 最近一次见到的显示器集合。面板要画"这张卡在哪块屏"。
+  List<MonitorRect> get monitors => _lastMonitors;
+
+  /// 落盘 + 让磁贴按新状态重建。
+  /// 面板（原生或 Flutter）改完东西之后调它，避免"改了但界面还是旧的"。
+  void persist() {
+    widget.store.save(widget.state);
+    if (mounted) setState(() => _revision++);
+  }
+
   /// 改了它就会让所有卡片重建（尺寸/圆角等全局设置变化时需要）
   /// 布局对账信号：只负责让 build 重新执行（卡片位置/显示器变化后
   /// 重算命中区等）。不再参与卡片 key——卡片重建的触发条件见
@@ -66,6 +87,7 @@ class AppRootState extends State<AppRoot> with TrayListener {
   void initState() {
     super.initState();
     trayManager.addListener(this);
+    unawaited(panelService.start());
     // 显示器插拔：native 已重摆窗口，这里迁移卡片、刷壁纸
     NativeBridge.onDisplayChanged(_onDisplayChanged);
     // 深浅色：读系统主题，切换时卡片文字自动翻转
@@ -81,6 +103,7 @@ class AppRootState extends State<AppRoot> with TrayListener {
   @override
   void dispose() {
     trayManager.removeListener(this);
+    unawaited(panelService.stop());
     Wallpaper.stop();
     super.dispose();
   }
@@ -418,9 +441,17 @@ class AppRootState extends State<AppRoot> with TrayListener {
   /// 面板不再画在磁贴这个窗口里，所以这里**不需要**再把磁贴窗口顶到最前、
   /// 也不需要临时放开窗口区域——过去那套 setPanelMode 正是磁贴被顶到浏览器
   /// 上面去的根源，现在整块删掉了。
-  void openPanel({String? cardId, int? tab}) {
+  Future<void> openPanel({String? cardId, int? tab}) async {
     panelCardRequest.value = cardId;
     panelTabRequest.value = tab ?? (cardId != null ? 1 : 0);
+    // 原生面板（WinUI3，独立进程）优先。它还不存在时回落到 Flutter 面板——
+    // 迁移期不能出现"点设置没反应"的空窗；panel.exe 一旦放到 exe 同目录，
+    // 下次点设置就自动走它，这条回落分支随后可以删掉。
+    if (await panelService.launchOrActivate()) {
+      Log.i('app',
+          '打开原生设置面板${cardId == null ? "" : "（定位卡片 $cardId）"}');
+      return;
+    }
     Log.i('app',
         '打开设置窗口${cardId == null ? "" : "（定位卡片 $cardId）"}');
     NativeWindow.panel.show();
@@ -439,6 +470,10 @@ class AppRootState extends State<AppRoot> with TrayListener {
     // 面板能改卡片尺寸和网格大小，两者都会挪动卡片中心，家要跟着刷新
     _anchorAll();
     setState(() => _revision++);
+    // Flutter 面板刚改完的可能是设置也可能是卡片：两个事件都推一次，
+    // 让连着的原生面板/CLI 立刻看到新状态。
+    panelService.broadcast(PanelEvent.settingsChanged);
+    panelService.broadcast(PanelEvent.cardsChanged);
   }
 
   // ---------------- 卡片增删 ----------------
@@ -573,4 +608,115 @@ class AppRootState extends State<AppRoot> with TrayListener {
       ],
     );
   }
+}
+
+
+/// [CoreHost] 在应用上的实现：把面板要的能力接到真实状态与既有方法上。
+///
+/// 刻意做成薄薄一层——它不实现任何业务规则，只是把"域操作"转发到
+/// AppRootState 已有的方法（addCard / removeCard / anchorCard / quitAndExit…）。
+/// 这样面板协议与界面逻辑之间没有第二套真相。
+class _CoreHost implements CoreHost {
+  _CoreHost(this.state);
+
+  final AppRootState state;
+
+  @override
+  String get appVersion => appVersionNumeric;
+
+  @override
+  String get displayVersion => kVersionDisplay;
+
+  @override
+  String get userDataDir => AppPaths.root;
+
+  @override
+  AppSettings get settings => state.widget.state.settings;
+
+  @override
+  List<WidgetCard> get cards => state.widget.state.cards;
+
+  @override
+  List<Map<String, Object?>> get displays => [
+        for (final m in state.monitors)
+          {'id': m.id, 'x': m.x, 'y': m.y, 'w': m.w, 'h': m.h},
+      ];
+
+  @override
+  bool canAddPlugin(String pluginId) => state.canAddPlugin(pluginId);
+
+  @override
+  WidgetCard? addCard(String pluginId) {
+    final manifest = pluginById(pluginId);
+    if (manifest == null) return null;
+    state.addCard(manifest);
+    state.panelService.broadcast(PanelEvent.cardsChanged);
+    return state.widget.state.cards.isEmpty
+        ? null
+        : state.widget.state.cards.last;
+  }
+
+  @override
+  bool removeCard(String id) {
+    for (final c in state.widget.state.cards) {
+      if (c.id == id) {
+        state.removeCard(c);
+        state.panelService.broadcast(PanelEvent.cardsChanged);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @override
+  bool resizeCard(String id, String size) {
+    for (final c in state.widget.state.cards) {
+      if (c.id == id) {
+        c.size = size;
+        // 尺寸变了中心也就变了，家要跟着刷新（否则下次布局变化会按旧中心
+        // 把卡片钉回去，看起来像自己挪了半个身位）
+        state.anchorCard(c);
+        state.persist();
+        state.panelService.broadcast(PanelEvent.cardsChanged);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @override
+  bool setCardSetting(String id, String key, Object? value) {
+    for (final c in state.widget.state.cards) {
+      if (c.id == id) {
+        c.settings[key] = value;
+        state.persist();
+        // 卡片的 key 里含 settings，persist 触发的重建会让插件按新设置
+        // 重新 mount（见 builtin_card_body 的 key 注释）
+        state.panelService.broadcast(PanelEvent.cardsChanged);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @override
+  void onSettingsChanged(Iterable<String> keys) {
+    state.persist();
+    state.panelService.broadcast(PanelEvent.settingsChanged);
+  }
+
+  @override
+  Map<String, Object?> wallpaperInfo() {
+    final c = Wallpaper.dominantColor.value;
+    return {
+      'source': Wallpaper.source.value,
+      'dominant': c == null
+          ? null
+          : '#${c.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}',
+      'brightness': Wallpaper.brightness.value,
+    };
+  }
+
+  @override
+  Future<void> quit() => state.quitAndExit();
 }

@@ -67,6 +67,21 @@ class PluginManifest {
   Map<String, Object?> defaultSettings() => {
         for (final f in settings) f['key'] as String: f['default'],
       };
+
+  /// 给外部（面板 / IPC）的 JSON 描述。
+  ///
+  /// 面板拿这份描述就能渲染组件库卡片与设置控件——**不认识任何具体插件**。
+  /// 这是"控制面板与程序解耦"最关键的一处：面板只消费描述。
+  Map<String, Object?> describe() => {
+        'id': id,
+        'name': name,
+        'version': version,
+        'description': description,
+        'icon': icon,
+        'sizes': sizes,
+        'defaultSize': defaultSize,
+        'settings': settings,
+      };
 }
 
 /// 插件控制器契约：mount / unmount / onSettingsChange。
