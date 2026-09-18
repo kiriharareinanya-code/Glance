@@ -12,8 +12,11 @@ import 'package:flutter/material.dart';
 import '../core/snap.dart';
 
 
-/// 辅助线的粗细（逻辑像素）
-const double kGuideThickness = 2;
+/// 辅助线的粗细（逻辑像素）。
+///
+/// 反馈里一致嫌 2px 太抢眼——辅助线是"对齐时瞥一眼"的东西，不该比卡片边框
+/// 还粗。压到 1px，颜色不变（亮蓝，暗壁纸下依然看得见），存在感降下来。
+const double kGuideThickness = 1;
 
 class GuidesLayer extends StatelessWidget {
   const GuidesLayer({super.key, required this.guides});

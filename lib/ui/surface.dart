@@ -338,10 +338,41 @@ class DesktopSurfaceState extends State<DesktopSurface> {
       );
     }
 
+    // 磁贴不许互相覆盖——反馈原文就是"多个小组件之间可以覆…"。候选落点
+    // 若压在别的卡片上，就**分轴退回**：能走的那一轴继续跟手，被挡的那一轴
+    // 保持原位。比整体退回原地方便得多，手感接近 2D 平台游戏的贴墙滑动。
+    var nx = r.x;
+    var ny = r.y;
+    bool overlapped(double x, double y) {
+      final t = snap.Rect(x, y, size.w, size.h);
+      for (final o in others) {
+        if (t.x < o.right && t.right > o.x && t.y < o.bottom && t.bottom > o.y) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // 前置条件"当前位置没叠着"很关键：旧布局、或者上次拖动中途强退留下的
+    // 重叠，必须放行，否则这张卡永远拖不出来。挡重叠是为了"别叠出新的"，
+    // 不是把已经叠着的锁死。
+    if (!overlapped(card.x, card.y) && overlapped(nx, ny)) {
+      if (!overlapped(nx, card.y)) {
+        ny = card.y; // 只有横向能走
+      } else if (!overlapped(card.x, ny)) {
+        nx = card.x; // 只有纵向能走
+      } else {
+        nx = card.x;
+        ny = card.y; // 两个方向都被挡，这次原地不动
+      }
+    }
+    final stuck = nx != r.x || ny != r.y;
+
     setState(() {
-      card.x = r.x;
-      card.y = r.y;
-      _guides = r.guides;
+      card.x = nx;
+      card.y = ny;
+      // 位置被挡回去时，原来算出来的对齐线已经不成立了，别再画
+      _guides = stuck ? const [] : r.guides;
       _moved = true;
     });
     // 这里刻意不调 _pushRegion()：区域已整窗放开，拖拽结束时再恢复
@@ -389,7 +420,13 @@ class DesktopSurfaceState extends State<DesktopSurface> {
   /// 其它卡片、以及松手之后，都用缓动过渡。
   Duration _animDuration(WidgetCard card) {
     if (!_settings.animations) return Duration.zero;
-    if (_dragCard?.id == card.id) return Duration.zero;
+    // 拖拽期间**所有**卡片一律零时长，不只是被拖的那张。
+    //
+    // 反馈 Fb0025：拖拽时 UI 会晃动。被拖的卡片是跟手的（零时长），旁边的
+    // 卡片却在用 260ms 缓动慢慢挪位——一动一静放在一起，整屏看起来就在颤。
+    // 拖拽时把其它卡片的动画也掐掉，画面就干净了。想要彻底关掉这个动效的
+    // 话，设置里那个"动画效果（拖拽缓动与插件内容切换）"开关一直都在。
+    if (_dragCard != null) return Duration.zero;
     return const Duration(milliseconds: 260);
   }
 
