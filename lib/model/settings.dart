@@ -27,6 +27,7 @@ class AppSettings {
     this.autoForegroundFromWallpaper = false,
     this.autoDownloadUpdate = false,
     this.updateSource = 'auto',
+    this.sidebarWidth = kSidebarWidthDefault,
   });
 
   /// 网格单元边长（逻辑像素）
@@ -94,6 +95,14 @@ class AppSettings {
   /// 应用更新检查的源：auto（Unisphere → GitHub 依次降级）/ unisphere / github。
   String updateSource;
 
+  /// 设置窗口左侧栏的宽度（逻辑像素）。
+  ///
+  /// 侧栏以前是写死 256，"拖不动"就是它。现在由面板里的分隔线拖拽改变，
+  /// 落手时写进这里；下次开窗口按这个宽度还原。夹取范围见 panel.dart 的
+  /// `_sideMin` / `_sideMax`，这里存的是原值，读的时候再夹一次，
+  /// 防止手改配置文件塞进一个把内容区挤没的数。
+  double sidebarWidth;
+
   Map<String, Object?> toJson() => {
         'gridCell': gridCell,
         'gridGap': gridGap,
@@ -113,6 +122,7 @@ class AppSettings {
         'autoForegroundFromWallpaper': autoForegroundFromWallpaper,
         'autoDownloadUpdate': autoDownloadUpdate,
         if (updateSource != 'auto') 'updateSource': updateSource,
+        if (sidebarWidth != kSidebarWidthDefault) 'sidebarWidth': sidebarWidth,
       };
 
   static AppSettings fromJson(Map<String, Object?> j) => AppSettings(
@@ -135,5 +145,10 @@ class AppSettings {
             j['autoForegroundFromWallpaper'] as bool? ?? false,
         autoDownloadUpdate: j['autoDownloadUpdate'] as bool? ?? false,
         updateSource: j['updateSource'] as String? ?? 'auto',
+        sidebarWidth: (j['sidebarWidth'] as num?)?.toDouble() ??
+            kSidebarWidthDefault,
       );
 }
+
+/// 侧栏默认宽度。历史上写死 256，这里保持同一个数，老用户升级后观感不变。
+const double kSidebarWidthDefault = 256;

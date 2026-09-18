@@ -128,12 +128,17 @@ class ClockWidget extends BuiltinController {
         ),
       );
 
-      final stacked = ctx.grid.rows >= 3;
+      // 竖排（时在上、分在下）的两种触发条件：
+      //   1. 卡片本身够高（3 行），横排的时分数字会显得空空荡荡；
+      //   2. **宽度不够**——卡片被压窄时横排的「HH:MM:SS 时段」一行放不下，
+      //      改成上下堆叠才不会溢出。这正是"窄的时候该像手机端那样竖着堆"。
+      final stacked = ctx.grid.rows >= 3 || ctx.size.width < 190;
 
       if (stacked) {
         // 140：两行堆叠总高实测 238px，3x3 卡片能给的内容高度约 296px，
         // 扣掉日期行和间距还有 30px+ 的余量。
-        const stackSize = 140.0;
+        // 窄卡片下再收一档，免得两行数字把宽度顶穿。
+        final stackSize = ctx.size.width < 190 ? 104.0 : 140.0;
         final minuteRow = <Widget>[
           _flipDigit(_two(now.minute), stackSize, 300, accent, lh: 0.85),
         ];
@@ -168,6 +173,8 @@ class ClockWidget extends BuiltinController {
         );
       }
 
+      // 横排走不到窄卡片（上面 stacked 已经把 width<190 接走了），
+      // 所以这里按格数选字号就够了。
       final big = ctx.grid.cols >= 3 ? 58.0 : 44.0;
       // 时:分拆成三个独立节点：小时粗体+默认色，冒号 0.35 透明度弱化成分隔符，
       // 分钟用细体 + ACCENT 上色收尾。
@@ -407,22 +414,32 @@ class TodoWidget extends BuiltinController {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                children: withGaps([
-                  Container(
-                    width: 4,
-                    height: 4,
-                    decoration: BoxDecoration(
-                        color: nodeColor('#7CE38B'),
-                        borderRadius: BorderRadius.circular(2)),
-                  ),
-                  Text('待办',
-                      style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: fg)),
-                ], 7, horizontal: true),
+              // 窄卡片下标题要能压缩：不加 Flexible 的话「待办」标题 +
+              // 「N 项未完成」徽章会一起顶穿卡片（Row overflow）。
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: withGaps([
+                    Container(
+                      width: 4,
+                      height: 4,
+                      decoration: BoxDecoration(
+                          color: nodeColor('#7CE38B'),
+                          borderRadius: BorderRadius.circular(2)),
+                    ),
+                    Flexible(
+                      child: Text('待办',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: fg)),
+                    ),
+                  ], 7, horizontal: true),
+                ),
               ),
+              const SizedBox(width: 6),
               Container(
                 padding:
                     const EdgeInsets.symmetric(vertical: 2, horizontal: 7),

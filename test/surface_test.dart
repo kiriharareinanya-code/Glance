@@ -311,7 +311,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
   });
 
-  testWidgets('拖拽中的卡片位置动画时长必须为 0，其余卡片走缓动', (tester) async {
+  testWidgets('拖拽期间所有卡片位置动画时长必须为 0，松手后恢复缓动', (tester) async {
     final (state, store) = makeState();
     await pumpSurface(tester, state, store);
     final mover = state.cards.firstWhere((c) => c.id == 'mover');
@@ -328,16 +328,25 @@ void main() {
         .toList();
     expect(positioned.length, 2);
     // 被拖的那张：左边等于它的新 x，时长必须是 0
-    final dragged =
-        positioned.firstWhere((p) => p.left == mover.x);
+    final dragged = positioned.firstWhere((p) => p.left == mover.x);
     expect(dragged.duration, Duration.zero,
         reason: '拖拽中加动画会让卡片落后于指针，手感立刻就散');
-    // 另一张没被拖，应该有缓动时长
+    // 反馈 Fb0025：**跟着动的那张**（吸附回正、被拉回可视区）如果仍走 260ms
+    // 缓动，就会落后于被拖的卡片一步，看上去像整屏在抖。拖拽会话期间其余
+    // 卡片一起零时长，松手后再恢复缓动。
     final other = positioned.firstWhere((p) => p.left != mover.x);
-    expect(other.duration.inMilliseconds, greaterThan(0));
+    expect(other.duration, Duration.zero,
+        reason: '拖拽期间其余卡片也必须零时长，否则会出现"颤动"');
 
     await g.up();
     await tester.pump(const Duration(milliseconds: 400));
+
+    // 松手后恢复缓动：拖拽会话结束，位置变化又该有过渡了
+    final after = tester
+        .widgetList<AnimatedPositioned>(find.byType(AnimatedPositioned))
+        .toList();
+    expect(after.every((p) => p.duration > Duration.zero), isTrue,
+        reason: '松手后卡片位置变化的缓动要回来，否则落位会很生硬');
   });
 
   testWidgets('关掉动画开关后所有卡片时长都是 0', (tester) async {

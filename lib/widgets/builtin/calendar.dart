@@ -276,9 +276,13 @@ class CalendarWidget extends BuiltinController {
         bg: nodeColor('#8FD6A022'),
       ));
     }
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: withGaps(parts, 8, horizontal: true),
+    // 窄卡片下这几个 chip/文字并排会顶穿卡片（Row 报 overflow 黄条）。
+    // 用 Wrap 让它按需换行，宽的时候观感和原来完全一致。
+    return Wrap(
+      spacing: 8,
+      runSpacing: 6,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: parts,
     );
   }
 

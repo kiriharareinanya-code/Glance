@@ -384,20 +384,103 @@ class _ControlPanelState extends State<ControlPanel> {
   ];
 
   Widget _navigation() {
-    // Win11 设置布局：左侧固定宽度侧栏（品牌卡 + 导航列表 + 底部固定项），
-    // 中间一条发丝分隔线，右侧内容区只建当前选中页。
+    // Win11 设置布局：左侧侧栏（品牌卡 + 导航列表 + 底部固定项），中间一条
+    // 分隔线（兼拖拽手柄），右侧内容区只建当前选中页。
+    //
+    // 侧栏宽度以前写死 256，反馈里"侧边栏拖不动"就是它——那条 1px 分隔线
+    // 只是个装饰 Container，没有任何指针处理，拖上去自然毫无反应。现在把
+    // 分隔线换成有热区的拖拽手柄（见 [_sidebarResizer]），宽度交给 [_sideW]。
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _sidebar(),
-        Container(width: 1, color: _c.chipBg),
+        _sidebarResizer(),
         Expanded(child: _pageSwitcher()),
       ],
     );
   }
 
-  /// 当前页内容。按需懒构建——以前每次 setState 会把 5 个页面（含组件库
-  /// 那些实时跑的插件预览）全构建一遍，只挂一页也是白费力气。
+  // ---------------- 侧栏拖拽调宽 ----------------
+
+  /// 侧栏宽度的上下限（逻辑像素）。
+  ///
+  /// 下限 180：再窄的话「外观」「已放置」这些两字标签加上缩进就贴边了。
+  /// 上限 420：接近内容区一半，再宽就把设置项挤成细条，不如直接不拖。
+  static const double _sideMin = 180;
+  static const double _sideMax = 420;
+
+  /// 手柄自身的可点宽度。视觉上仍然是 1px 发丝线，但热区给到 7px——
+  /// 1px 的线用鼠标去精确瞄准是折磨，[MouseRegion] 的 cursor 会提示这里能拖。
+  static const double _sideHandleHit = 7;
+
+  /// 侧栏当前宽度。拖动期间直接改它并 setState，落手时写进设置持久化。
+  late double _sideW = _s.sidebarWidth.clamp(_sideMin, _sideMax);
+
+  /// 拖动会话的起点：按下时的指针 x 与当时的侧栏宽度。
+  /// 用「起点 + 位移」而不是「指针 - 窗口左边」——后者在拖动中窗口若被
+  /// 系统移动会整体漂移，手感会突然跳一下。
+  double? _sideDragStartX;
+  double _sideDragStartW = 0;
+
+  void _onSideDragStart(DragStartDetails d) {
+    _sideDragStartX = d.globalPosition.dx;
+    _sideDragStartW = _sideW;
+  }
+
+  void _onSideDragUpdate(DragUpdateDetails d) {
+    final x0 = _sideDragStartX;
+    if (x0 == null) return;
+    final next = (_sideDragStartW + (d.globalPosition.dx - x0))
+        .clamp(_sideMin, _sideMax);
+    if (next == _sideW) return;
+    setState(() => _sideW = next);
+  }
+
+  void _onSideDragEnd(DragEndDetails d) {
+    _sideDragStartX = null;
+    // 落手才写盘：拖动过程中每帧都存一次会把磁盘刷成筛子
+    _s.sidebarWidth = _sideW;
+    widget.onChanged();
+  }
+
+  /// 双击手柄复位到默认宽度（和拖拽条双击还原一个习惯）
+  void _resetSideWidth() {
+    setState(() => _sideW = kSidebarWidthDefault);
+    _s.sidebarWidth = _sideW;
+    widget.onChanged();
+  }
+
+  /// 拖拽手柄：1px 发丝线 + 左右各 3px 热区，悬停/拖动时整条亮起主色。
+  ///
+  /// 用 [GestureDetector] 的横向拖拽而不是 [Listener] 原始指针：
+  /// 横向 DragGestureRecognizer 会和内容区的纵向滚动竞争，方向判定后
+  /// 只有真正横拖才被这里吃掉，垂直滚动照常穿透到下面的列表。
+  Widget _sidebarResizer() {
+    final hot = _sideDragStartX != null;
+    return MouseRegion(
+      cursor: SystemMouseCursors.resizeLeftRight,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onHorizontalDragStart: _onSideDragStart,
+        onHorizontalDragUpdate: _onSideDragUpdate,
+        onHorizontalDragEnd: _onSideDragEnd,
+        onDoubleTap: _resetSideWidth,
+        child: SizedBox(
+          width: _sideHandleHit,
+          child: Center(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 120),
+              width: hot ? 2 : 1,
+              color: hot ? _c.accentBorder : _c.chipBg,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// 当前页内容。按需懒构建——以前每次 setState 会把 5 个页面全构建一遍，
+  /// 只挂一页也是白费力气。
   Widget _currentPage() => switch (_tab) {
         0 => _pageFrame('组件库', _library()),
         1 => _pageFrame('已放置', _placed()),
@@ -457,7 +540,8 @@ class _ControlPanelState extends State<ControlPanel> {
 
   Widget _sidebar() {
     return SizedBox(
-      width: 256,
+      // 宽度由拖拽手柄控制（见 [_sidebarResizer]），双击手柄可复位
+      width: _sideW,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -871,15 +955,31 @@ class _ControlPanelState extends State<ControlPanel> {
                         style: TextStyle(color: _c.ink30, fontSize: 12))),
               )
             else
-              // 列数随内容宽度走：宽了 3 列、窄了 2 列、再窄 1 列，
-              // 不写死（写死 2 列时窄窗口会把卡片挤成细条）
+              // 列数随内容宽度走：宽了 3 列、窄了 2 列、再窄 1 列。
+              //
+              // 1 列（窄窗口）时不走 GridView 而是退化成**纵向列表**：
+              // 单列时 aspectRatio 会把卡片按"一个正方形"定高，卡片被拉到
+              // 很宽很矮，预览区被压成一条缝；列表形态每张卡片按自己需要
+              // 的高度排布，和手机端"从上到下依次堆叠"是同一个意思。
               LayoutBuilder(
                 builder: (context, box) {
-                  final cols = box.maxWidth > 920
-                      ? 3
-                      : box.maxWidth > 520
-                          ? 2
-                          : 1;
+                  if (box.maxWidth <= 520) {
+                    return Column(
+                      children: [
+                        for (var i = 0; i < plugins.length; i++) ...[
+                          if (i > 0) const SizedBox(height: 14),
+                          // 列表形态给固定高度：卡片内部是"预览吃掉剩余 +
+                          // 信息区定高 112"，外面不给高度就无从算起。
+                          SizedBox(
+                            height: 300,
+                            width: double.infinity,
+                            child: _pluginCard(plugins[i]),
+                          ),
+                        ],
+                      ],
+                    );
+                  }
+                  final cols = box.maxWidth > 920 ? 3 : 2;
                   return GridView.count(
                     // 必须显式关掉：它是嵌在页面 ListView 里的，默认 primary
                     // 为 true 时会去抢上面那个 PrimaryScrollController，和外层
@@ -923,19 +1023,26 @@ class _ControlPanelState extends State<ControlPanel> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 真实实时预览：插件真的在跑。占据卡片上方、高度随卡片宽度走
+          // 静态概览图（不再是实时预览）。占卡片上方，高度随卡片宽度走。
+          //
+          // 以前这里垫一层 previewBg 灰底，跟预览本体自己那层淡底叠在一起，
+          // 在浅色卡片上就是反馈说的"预览外面那个灰框"。去掉外层，图直接
+          // 坐在卡片底色上；ClipRect 保证超框内容仍然裁掉。
+          //
+          // 图本身自带整块深色底（就是组件在桌面上的样子），所以这里不再
+          // 画任何背景——四周留白由 FittedBox 的 contain 缩放产生。
           Expanded(
-            // 以前这里垫一层 previewBg 灰底，跟预览本体自己那层淡底叠在一起，
-            // 在浅色卡片上就是反馈说的"预览外面那个灰框"。去掉外层，预览直接
-            // 坐在卡片底色上，边界交给组件自己画；ClipRect 保证超框内容仍然裁掉。
             child: ClipRect(
               child: SizedBox(
                 width: double.infinity,
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: BuiltinPreview(
-                    key: ValueKey('preview:${p.id}'),
-                    spec: p,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 4),
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: BuiltinPreview(
+                      key: ValueKey('preview:${p.id}'),
+                      spec: p,
+                    ),
                   ),
                 ),
               ),
@@ -1365,6 +1472,28 @@ class _ControlPanelState extends State<ControlPanel> {
               _s.animations = v;
               _commit();
             }),
+            // 侧栏宽度也能在这里调：鼠标拖那条分隔线是主要方式（见
+            // [_sidebarResizer]），但拖到一半想精确还原/微调时，滑块或
+            // 下面的"重置"更省事——两个入口改的是同一个值。
+            _slider('侧栏宽度', _sideW, _sideMin, _sideMax, 4, (v) {
+              setState(() => _sideW = v);
+              _s.sidebarWidth = v;
+              _commit();
+            }, suffix: 'px'),
+            Row(children: [
+              Expanded(
+                child: Text('也可以直接拖动侧栏右侧的分隔线，双击该分隔线可复位。',
+                    style: TextStyle(fontSize: 11, color: _c.ink38)),
+              ),
+              HyperlinkButton(
+                onPressed: () {
+                  setState(() => _sideW = kSidebarWidthDefault);
+                  _s.sidebarWidth = kSidebarWidthDefault;
+                  _commit();
+                },
+                child: const Text('重置', style: TextStyle(fontSize: 12)),
+              ),
+            ]),
           ],
         ),
         _group(

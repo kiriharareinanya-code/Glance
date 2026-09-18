@@ -38,6 +38,10 @@ class LyricsWidget extends BuiltinController {
   static const double _artGap = 8;
   late double _artSize;
   late double _lyricSize;
+
+  /// 窄卡片模式：宽度不足以横排「封面 + 歌词」时切到上下堆叠，并收紧
+  /// 各处的固定尺寸。由 mount() 按 ctx.size.width 判定（见那里的注释）。
+  bool _narrow = false;
   /// 每行的**实际**高度。滚动模型下所有行等高，没有"当前行更高"这回事。
   ///
   /// 取值看这首歌**有没有译文**：
@@ -831,14 +835,63 @@ class LyricsWidget extends BuiltinController {
 
     return Padding(
       padding: const EdgeInsets.all(_pad),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          left,
-          const SizedBox(width: 14),
-          Expanded(child: right),
-        ],
-      ),
+      // 宽卡片：封面在左、歌词在右（横向并排）。
+      // 窄卡片：改成上下堆叠——封面 + 曲目信息在上，控件与歌词在下。
+      // 这是"容器宽度不足时像手机端那样从上到下依次堆叠"的直接落点：
+      // 硬并排的话封面会吃掉大半宽度，右侧歌词只剩一条缝。
+      child: _narrow
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 窄模式下封面横过来放：封面 + 曲目文字一行，省地方
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: _artSize,
+                      height: _artSize,
+                      child: _cover('${media['artKey'] ?? ''}', fg),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${media['title'] ?? '未知曲目'}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: fg.withValues(alpha: 0.95),
+                                fontWeight: FontWeight.w600),
+                          ),
+                          Text(
+                            '${media['artist'] ?? '未知艺术家'}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: fg.withValues(alpha: 0.5)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Expanded(child: right),
+              ],
+            )
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                left,
+                const SizedBox(width: 14),
+                Expanded(child: right),
+              ],
+            ),
     );
   }
 
@@ -918,6 +971,13 @@ class LyricsWidget extends BuiltinController {
     var artSize =
         min(_h - _pad * 2 - _textBlock - _artGap, (_w * 0.24).round());
     if (artSize < 52) artSize = 52;
+    // 窄卡片（宽度不够横排）时把封面再收一档，并让封面列整体缩到 40%：
+    // 否则「封面 + 14px 间隔 + 播放控件」这一横排会顶穿卡片。
+    _narrow = _w < 300;
+    if (_narrow) {
+      artSize = min(artSize, 68);
+      if (artSize < 44) artSize = 44;
+    }
     _artSize = artSize.toDouble();
 
     final lyricSize = _h >= 380
