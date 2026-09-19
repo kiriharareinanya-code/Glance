@@ -16,7 +16,7 @@ import 'package:flutter/material.dart';
 import '../catalog.dart';
 import '../flip_transition.dart' show FlipTransition;
 import '../kit.dart'
-    show NodeIcon, TapFeedback, nodeColor, nodeWeight, withGaps;
+    show HoverIconBtn, NodeIcon, TapFeedback, nodeColor, nodeWeight, withGaps;
 
 // ---------------------------------------------------------------------------
 // 时钟：每秒重绘一次。
@@ -247,12 +247,48 @@ class TodoWidget extends BuiltinController {
   TextEditingController? _inputCtrl;
   bool _drawn = false;
 
+  /// 正在展开日期编辑条的待办 id（null = 没有展开的）。
+  String? _editingId;
+
+  /// 'yyyy-MM-dd' 格式化（补零，跨月/跨年步进后仍可稳定解析）。
+  static String _fmtDay(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  static DateTime _midnight(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  static DateTime? _parseDate(Object? due) {
+    if (due is! String) return null;
+    final p = due.split('-');
+    if (p.length != 3) return null;
+    final y = int.tryParse(p[0]);
+    final m = int.tryParse(p[1]);
+    final d = int.tryParse(p[2]);
+    if (y == null || m == null || d == null) return null;
+    return DateTime(y, m, d);
+  }
+
+  /// due 距今天数：0=今天、1=明天、负数=已过 N 天。
+  static int? _daysFromToday(Object? due) {
+    final d = _parseDate(due);
+    if (d == null) return null;
+    return d.difference(_midnight(DateTime.now())).inDays;
+  }
+
   @override
   void mount() {
     ctx.onCleanup(() {
       _inputCtrl?.dispose();
       _inputCtrl = null;
     });
+    // 跨过午夜把倒计时徽章翻面（今天 → 超1天），与日历同款 60s 检查。
+    var dayStamp = DateTime.now().day;
+    ctx.interval(() {
+      final now = DateTime.now();
+      if (now.day != dayStamp) {
+        dayStamp = now.day;
+        if (_drawn) draw();
+      }
+    }, 60000);
     // 先画一次空的，别让卡片在加载期间是空白
     draw();
     final saved = ctx.storageGetLocal('items', <Object?>[]);
@@ -281,69 +317,230 @@ class TodoWidget extends BuiltinController {
 
   Widget _row(Map<String, Object?> item, Color fg) {
     final done = item['done'] == true;
+    final editing = _editingId == item['id'];
+    final days = _daysFromToday(item['due']);
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 6),
       decoration: BoxDecoration(
         color: nodeColor(done ? '#FFFFFF08' : '#FFFFFF12'),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Row(
-        children: withGaps([
-          TapFeedback(
-            animate: ctx.animate,
-            onTap: () {
-              item['done'] = !(item['done'] == true);
-              _save();
-              draw();
-            },
-            child: NodeIcon(
-              name: done ? 'check_circle' : 'circle',
-              size: 16,
-              color: nodeColor(done ? '#7CE38B' : '#FF7A7A'),
-              animate: ctx.animate,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              '${item['text']}',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 13,
-                color: fg.withValues(alpha: done ? 0.4 : 0.95),
-                decoration:
-                    done ? TextDecoration.lineThrough : TextDecoration.none,
-              ),
-            ),
-          ),
-          TapFeedback(
-            animate: ctx.animate,
-            onTap: () {
-              items = items
-                  .where((x) => x['id'] != item['id'])
-                  .map((e) => e)
-                  .toList();
-              _save();
-              draw();
-            },
-            child: Container(
-              width: 18,
-              height: 18,
-              decoration: BoxDecoration(
-                color: nodeColor('#D9000000'),
-                borderRadius: BorderRadius.circular(9),
-              ),
-              child: Center(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: withGaps([
+              TapFeedback(
+                animate: ctx.animate,
+                onTap: () {
+                  item['done'] = !(item['done'] == true);
+                  _save();
+                  draw();
+                },
                 child: NodeIcon(
-                  name: 'close',
-                  size: 12,
-                  color: Colors.white,
+                  name: done ? 'check_circle' : 'circle',
+                  size: 16,
+                  color: nodeColor(done ? '#7CE38B' : '#FF7A7A'),
                   animate: ctx.animate,
                 ),
               ),
+              Expanded(
+                child: Text(
+                  '${item['text']}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: fg.withValues(alpha: done ? 0.4 : 0.95),
+                    decoration:
+                        done ? TextDecoration.lineThrough : TextDecoration.none,
+                  ),
+                ),
+              ),
+              // 倒计时徽章：完成态和编辑态不显示（编辑条里有完整日期信息）
+              if (!done && !editing && days != null) _dueBadge(days),
+              // 日历图标 = 加日期入口：点一下落"今天"并展开步进条，再点收起
+              HoverIconBtn(
+                icon: 'calendar',
+                size: 14,
+                color: editing ? nodeColor('#7CE38B') : fg,
+                animate: ctx.animate,
+                idleAlpha: editing ? 1.0 : 0.55,
+                hitW: 20,
+                hitH: 20,
+                onTap: () {
+                  if (editing) {
+                    _editingId = null;
+                  } else {
+                    _editingId = '${item['id']}';
+                    if (item['due'] == null) {
+                      item['due'] = _fmtDay(DateTime.now());
+                      _save();
+                    }
+                  }
+                  draw();
+                },
+              ),
+              TapFeedback(
+                animate: ctx.animate,
+                onTap: () {
+                  items = items
+                      .where((x) => x['id'] != item['id'])
+                      .map((e) => e)
+                      .toList();
+                  if (_editingId == item['id']) _editingId = null;
+                  _save();
+                  draw();
+                },
+                child: Container(
+                  width: 18,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: nodeColor('#D9000000'),
+                    borderRadius: BorderRadius.circular(9),
+                  ),
+                  child: Center(
+                    child: NodeIcon(
+                      name: 'close',
+                      size: 12,
+                      color: Colors.white,
+                      animate: ctx.animate,
+                    ),
+                  ),
+                ),
+              ),
+            ], 8, horizontal: true),
+          ),
+          if (editing) ...[
+            const SizedBox(height: 5),
+            _dueEditor(item, fg),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// 倒计时徽章：今天/明天 accent 绿、剩N天中性、超N天暖红（中文惯例：
+  /// 临近=提示、过期=警示，颜色跟内容语义走而不是跟着主题走）。
+  Widget _dueBadge(int days) {
+    final String text;
+    final String bgHex;
+    final String fgHex;
+    if (days == 0 || days == 1) {
+      text = days == 0 ? '今天' : '明天';
+      bgHex = '#7CE38B26';
+      fgHex = '#7CE38B';
+    } else if (days > 1) {
+      text = '剩$days天';
+      bgHex = '#FFFFFF14';
+      fgHex = '#FFFFFF9E';
+    } else {
+      text = '超${-days}天';
+      bgHex = '#FF7A7A26';
+      fgHex = '#FF7A7A';
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+      decoration: BoxDecoration(
+        color: nodeColor(bgHex),
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Text(text,
+          style: TextStyle(fontSize: 10.5, color: nodeColor(fgHex))),
+    );
+  }
+
+  /// 行内日期步进条（磁贴窗口 region 外是穿透的，弹不出日期选择器，
+  /// 所以用 [−]/[+] 按天步进 + 点日期回今天的行内交互）。
+  Widget _dueEditor(Map<String, Object?> item, Color fg) {
+    final d = _parseDate(item['due']) ?? _midnight(DateTime.now());
+    final days = d.difference(_midnight(DateTime.now())).inDays;
+    final dateText = '${d.month}月${d.day}日';
+    final relText = days == 0
+        ? '今天'
+        : days == 1
+            ? '明天'
+            : days > 1
+                ? '剩$days天'
+                : '超${-days}天';
+
+    void step(int delta) {
+      item['due'] = _fmtDay(d.add(Duration(days: delta)));
+      _save();
+      draw();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
+      decoration: BoxDecoration(
+        color: nodeColor('#FFFFFF0A'),
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Row(
+        children: withGaps([
+          _stepBtn('minus', () => step(-1), fg),
+          // 点日期文字 = 回到今天
+          TapFeedback(
+            animate: ctx.animate,
+            onTap: () {
+              item['due'] = _fmtDay(DateTime.now());
+              _save();
+              draw();
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              child: Text('$dateText · $relText',
+                  style:
+                      TextStyle(fontSize: 12, color: fg.withValues(alpha: 0.9))),
             ),
           ),
-        ], 8, horizontal: true),
+          _stepBtn('add', () => step(1), fg),
+          const Spacer(),
+          // 清除日期并收起编辑条
+          TapFeedback(
+            animate: ctx.animate,
+            onTap: () {
+              item.remove('due');
+              _editingId = null;
+              _save();
+              draw();
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: NodeIcon(
+                name: 'close',
+                size: 12,
+                color: fg.withValues(alpha: 0.4),
+                animate: ctx.animate,
+              ),
+            ),
+          ),
+        ], 6, horizontal: true),
+      ),
+    );
+  }
+
+  /// 步进小圆钮（[−]/[+]）。
+  Widget _stepBtn(String icon, VoidCallback action, Color fg) {
+    return TapFeedback(
+      animate: ctx.animate,
+      onTap: action,
+      child: Container(
+        width: 22,
+        height: 22,
+        decoration: BoxDecoration(
+          color: nodeColor('#FFFFFF14'),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Center(
+          child: NodeIcon(
+            name: icon,
+            size: 14,
+            color: fg.withValues(alpha: 0.75),
+            animate: ctx.animate,
+          ),
+        ),
       ),
     );
   }
