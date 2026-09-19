@@ -28,7 +28,25 @@ constexpr const char kChannelName[] = "vectra/native";
 // 揭幕兜底：从窗口创建起最多等这么久，就算 Dart 没报"全部就绪"也把磁贴
 // 显示出来。比 splash 自己的 4 秒超时留得宽一点，正常情况轮不到它。
 constexpr UINT_PTR kRevealFallbackTimer = 2;
+
+// 磁贴被最小化后的自恢复消息。RegisterWindowMessage 保证全局唯一，
+// 不会和 Flutter engine 或其它组件的 WM_USER 区间撞上。
+const UINT kTileRestoreMessage = RegisterWindowMessageW(L"Glance.TileRestore");
 constexpr UINT kRevealFallbackMs = 8000;
+
+// 桌面带看门狗（KeepAboveDesktopBand）。
+//
+// 实测（Z 序逐位测量）："显示桌面"（Win+D / 任务栏右下角按钮）根本不最小化
+// 磁贴——磁贴是 WS_EX_TOOLWINDOW，不在 shell 的最小化名单里；shell 真正干的
+// 是把桌面带（Progman/WorkerW，壁纸+图标那一层）抬到底层窗口之上，壁纸和
+// 图标直接把磁贴盖住，看起来就像"被最小化"了。之前两版修复（拦
+// WM_SYSCOMMAND、WM_SIZE 自恢复）全是冲着这个不存在的最小化去的，自然无效。
+//
+// 对策是让磁贴"跟桌面走"：定时器盯着 Z 序，一旦桌面带跑到磁贴上面（说明
+// 用户按了显示桌面），就把磁贴抬回桌面带正上方——磁贴属于桌面层，桌面露出
+// 来的时候它也应该在。正常状态下桌面带在最底，定时器什么都不做。
+constexpr UINT_PTR kDesktopBandWatchTimer = 4;
+constexpr UINT kDesktopBandWatchMs = 200;
 
 // 开机自启走 HKCU 的 Run 键：不需要管理员权限，也不用装计划任务。
 constexpr const wchar_t kRunKeyPath[] =
@@ -151,6 +169,33 @@ void ApplyWindowRegion(HWND hwnd, const std::vector<HitRect>& rects) {
   }
   // SetWindowRgn 成功后由系统接管 combined 的生命周期，不能再 DeleteObject
   SetWindowRgn(hwnd, combined, TRUE);
+}
+
+// 桌面带看门狗（详见 kDesktopBandWatchTimer 处的注释）。
+// 返回 true 表示这次真的抬了一下（供日志判断）。
+bool KeepAboveDesktopBand(HWND hwnd) {
+  if (!IsWindowVisible(hwnd) || IsIconic(hwnd)) return false;
+  const HWND band = FindDesktopBand();
+  if (!band || band == hwnd) return false;
+  // 从 Z 序顶往下数，先碰到谁谁在上面：先碰到桌面带 = 桌面被"显示"了，
+  // 磁贴正被壁纸+图标盖着。先碰到磁贴 = 位置正常，什么都不用做。
+  bool band_above = false;
+  for (HWND it = ::GetWindow(::GetDesktopWindow(), GW_CHILD); it;
+       it = ::GetWindow(it, GW_HWNDNEXT)) {
+    if (it == hwnd) break;
+    if (it == band) {
+      band_above = true;
+      break;
+    }
+  }
+  if (!band_above) return false;
+  // 把磁贴插到桌面带正上方。SetWindowPos 的 hwndInsertAfter 语义是
+  // "新位置上面挨着的那个窗口"，所以要传桌面带现在的上邻；桌面带已经
+  // 在最顶时传 nullptr（= HWND_TOP）。WM_WINDOWPOSCHANGING 里认得这个
+  // 插入位置并放行，其余来源的 Z 改动照旧被压回底部。
+  const HWND above_band = ::GetWindow(band, GW_HWNDPREV);
+  return ::SetWindowPos(hwnd, above_band, 0, 0, 0, 0,
+                        SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE) != FALSE;
 }
 
 // Dart 每次卡片位置变化时推下一批矩形；C++ 侧只负责存和查，不做业务判断。
@@ -839,6 +884,10 @@ bool FlutterWindow::OnCreate() {
   // KillTimer 是杀不掉的 —— 实测揭幕之后兜底照样触发了一次。
   SetTimer(hwnd, kRevealFallbackTimer, kRevealFallbackMs, nullptr);
 
+  // 桌面带看门狗，程序全生命周期都开着：磁贴必须跟桌面待在一起，"显示
+  // 桌面"时也不能被壁纸和图标盖住（见 kDesktopBandWatchTimer 注释）。
+  SetTimer(hwnd, kDesktopBandWatchTimer, kDesktopBandWatchMs, nullptr);
+
   // Flutter can complete the first frame before the "show window" callback is
   // registered. The following call ensures a frame is pending to ensure the
   // window is shown. It is a no-op if the first frame hasn't completed yet.
@@ -863,6 +912,14 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
   if (message == WM_TIMER && wparam == kRevealFallbackTimer) {
     Log("等待卡片就绪超时，直接显示磁贴");
     RevealTiles();
+    return 0;
+  }
+
+  // 桌面带看门狗：磁贴必须跟桌面待在一起
+  if (message == WM_TIMER && wparam == kDesktopBandWatchTimer) {
+    if (KeepAboveDesktopBand(hwnd)) {
+      Log("显示桌面：磁贴已抬回桌面带之上");
+    }
     return 0;
   }
 
@@ -915,15 +972,30 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
     }
   }
 
-  // 磁贴不跟着"显示桌面"一起最小化。
+  // 磁贴不响应任何形式的最小化（双保险，别删）。
   //
-  // 任务栏右下角那个按钮和 Win+D 干的是同一件事：给所有顶层窗口发一条
-  // WM_SYSCOMMAND(SC_MINIMIZE)。磁贴窗口是盖住整个虚拟屏的置底窗口，一最小化
-  // 整块磁贴就没了，还得从托盘里翻出来才看得见——反馈 Fb0004 说的就是
-  // "小组件为什么会跟随右下角最小化按钮一起最小化"。
+  // 实测："显示桌面"（Win+D / 任务栏右下角按钮）不走这两条——它根本不最小化
+  // 磁贴，而是把桌面带抬上来盖住磁贴，那头由桌面带看门狗负责（见
+  // kDesktopBandWatchTimer 注释）。这里拦的是真正会最小化磁贴的路径：
+  // WM_SYSCOMMAND(SC_MINIMIZE) 覆盖 Win+M / 托盘"全部最小化"之类的消息来源；
+  // WM_SIZE(SIZE_MINIMIZED) 兜住任何绕过消息直接 ShowWindow 压最小化的调用，
+  // Post 一条恢复消息把窗口弹回来。磁贴是盖住桌面的置底装饰层，被最小化等于
+  // 整块消失——它就不该有"最小化"这个状态。
   //
-  // 这里把这条命令吞掉：磁贴本来就在所有窗口之下，并不挡人看桌面。
-  // 托盘菜单里主动"隐藏磁贴"走的是自己的通道，不是 SC_MINIMIZE，不受影响。
+  // Post 而不是在 WM_SIZE 里直接恢复：处理 WM_SIZE 的过程中改自己的显示
+  // 状态是重入，交给消息队列的下一拍做更稳。
+  if (message == WM_SIZE && wparam == SIZE_MINIMIZED) {
+    PostMessage(hwnd, kTileRestoreMessage, 0, 0);
+    return 0;
+  }
+  if (message == kTileRestoreMessage) {
+    if (IsIconic(hwnd)) {
+      // SHOWNOACTIVATE：恢复但不抢焦点——"显示桌面"之后焦点应该还留在
+      // 用户原来那个窗口上，磁贴弹回来不该把前台抢走。
+      ShowWindow(hwnd, SW_SHOWNOACTIVATE);
+    }
+    return 0;
+  }
   if (message == WM_SYSCOMMAND && (wparam & 0xFFF0) == SC_MINIMIZE) {
     return 0;
   }

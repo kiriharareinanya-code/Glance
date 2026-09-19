@@ -6,6 +6,7 @@
 
 #include "hit_region.h"
 #include "resource.h"
+#include "utils.h"
 
 namespace {
 
@@ -265,9 +266,30 @@ Win32Window::MessageHandler(HWND hwnd,
       //
       // 这里原先还要看 HitRegion 的 keep_top —— 那是控制面板画在磁贴窗口里时
       // 用来临时置顶的例外。面板搬进任务栏里的独立窗口后不再需要，例外已删。
+      //
+      // 唯一的例外是桌面带看门狗（FlutterWindow 的定时器）：实测"显示桌面"
+      // （Win+D / 任务栏右下角按钮）并不最小化磁贴——磁贴是 WS_EX_TOOLWINDOW，
+      // 不在 shell 的目标名单里；shell 真正干的事是把桌面带（Progman/WorkerW，
+      // 壁纸+图标那一层）抬到底层窗口之上，壁纸和图标直接把磁贴盖住，看起来
+      // 就像"被最小化"了。看门狗发现桌面带跑到磁贴上面时，会调
+      //   SetWindowPos(磁贴, 桌面带现在的上邻窗口)
+      // 把磁贴抬回桌面带正上方，让它跟桌面待在一起（系统小工具的待遇）。
+      // 这条调用传进来的插入位置就是"桌面带的上邻"，放行；其余一律压回底部。
       auto* pos = reinterpret_cast<WINDOWPOS*>(lparam);
-      pos->hwndInsertAfter = force_bottom_ ? HWND_BOTTOM : HWND_TOPMOST;
-      pos->flags &= ~SWP_NOZORDER;
+      HWND above_band = nullptr;
+      if (force_bottom_) {
+        const HWND band = FindDesktopBand();
+        if (band) above_band = ::GetWindow(band, GW_HWNDPREV);
+      }
+      const bool lifting_above_band =
+          above_band != nullptr && pos->hwndInsertAfter == above_band;
+      if (force_bottom_ && !lifting_above_band) {
+        pos->hwndInsertAfter = HWND_BOTTOM;
+        pos->flags &= ~SWP_NOZORDER;
+      } else if (!force_bottom_) {
+        pos->hwndInsertAfter = HWND_TOPMOST;
+        pos->flags &= ~SWP_NOZORDER;
+      }
       break;  // 继续交给 DefWindowProc，用改过的 WINDOWPOS
     }
 

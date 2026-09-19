@@ -84,3 +84,24 @@ std::string Utf8FromUtf16(const wchar_t* utf16_string) {
   }
   return utf8_string;
 }
+
+HWND FindDesktopBand() {
+  // 桌面图标层（SHELLDLL_DefView）绝大多数时候挂在 Progman 下；装了
+  // Wallpaper Engine 这类动态壁纸软件后，shell 会把图标层挪进一个 WorkerW。
+  // 磁贴要"贴着桌面走"，认的就是承载图标层的这个顶层窗口。
+  const HWND progman = ::FindWindowW(L"Progman", nullptr);
+  if (progman && ::FindWindowExW(progman, nullptr, L"SHELLDLL_DefView", nullptr)) {
+    return progman;
+  }
+  HWND worker = nullptr;
+  while (true) {
+    worker = ::FindWindowExW(nullptr, worker, L"WorkerW", nullptr);
+    if (!worker) break;
+    if (::FindWindowExW(worker, nullptr, L"SHELLDLL_DefView", nullptr)) {
+      return worker;
+    }
+  }
+  // 兜底：没找到图标层就认 Progman（壁纸总画在它身上）；它也可能是 nullptr，
+  // 调用方自行跳过这一拍。
+  return progman;
+}
