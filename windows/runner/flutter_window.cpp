@@ -421,10 +421,11 @@ void HandleMethodCall(
     return;
   }
 
-  // ---- 次级窗口（设置 / 插件市场）----
+  // ---- 次级窗口（设置）----
   //
   // 这几条都带一个 key 参数指明操作哪个窗口。窗口的实现是共用的
   // （见 view_window.h），这里只负责把 key 换成窗口对象。
+  // 插件市场窗口的预留已删（从未有过入口）。
   if (call.method_name() == "createView") {
     // Dart 把自己的 engineId 报上来，这边据此在**同一个引擎**上再开一个视图。
     // 之所以要 Dart 报：C++ 拿不到 flutter::FlutterEngine 内部那个

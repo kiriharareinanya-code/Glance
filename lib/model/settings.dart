@@ -70,7 +70,9 @@ class AppSettings {
   /// 只管设置窗口和侧边栏——卡片的文字明暗跟壁纸走（见 card_view）。
   String theme;
 
-  /// 插件市场服务器地址。空串表示用内置的默认地址（见 kMarketBaseUrl）。
+  /// 更新检查的自定义下载源（Unisphere）。空串表示用内置的默认地址
+  /// （见 kMarketBaseUrl；名字里的 market 是插件市场时代的遗留，键名
+  /// 保持不变以免动到已落盘的用户配置）。
   ///
   /// 留这个口子是为了指向自建/本地跑的 Unisphere（比如 http://localhost:8787），
   /// 换服务器不用重新编译。

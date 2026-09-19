@@ -2187,7 +2187,7 @@ class _ControlPanelState extends State<ControlPanel> {
           ]),
           const SizedBox(height: 6),
           Text(
-            '自动 = 先问 Unisphere（与插件市场同源），连不上再试 GitHub Releases。\n'
+            '自动 = 先问 Unisphere，连不上再试 GitHub Releases。\n'
             '更新装到程序所在目录，userdata 里的卡片和设置原样保留。',
             style: TextStyle(fontSize: 11, color: _c.ink38, height: 1.5),
           ),
