@@ -72,6 +72,11 @@ List<Shadow> nodeGlow(Color color, double sigma) {
 /// morphNamesHaveFontFallback 锁住。
 IconData iconDataFor(String? name) => switch (name) {
       'check' => Icons.check,
+      // 组件库/已放置页的组件图标（spec.icon 走这里）：待办用清单而不是
+      // 单个 ✓——单勾语义上是"完成"，清单才是"待办"本身
+      'checklist' => Icons.checklist_rounded,
+      'clock' => Icons.access_time_rounded,
+      'calendar' => Icons.calendar_month_outlined,
       'check_circle' => Icons.check_circle_outline,
       'circle' => Icons.circle_outlined,
       'close' => Icons.close,
@@ -382,6 +387,12 @@ class _FlipSwapState extends State<FlipSwap>
 /// 苹果 HIG 的触感语言——"按下去有东西让位给你"。以前 tap 节点按下毫无
 /// 反应，上一曲/下一曲点了像没点上。scale 收着放（0.96）不抢戏：大区域
 /// （整行待办）和小按钮（媒体控制）用同一个量级都不会夸张。
+///
+/// [onTap] 是标准 tap 语义。曾经有过 onPress（onTapDown 即触发），想靠它
+/// 躲开"按下微滑被吞"——被真机和测试双双证伪：识别器一旦超过鼠标 slop
+/// （精确指针仅 1px）被拒，onTapDown 压根不会发出，"按下即触发"落空，
+/// 日历翻月"点了没反应"的反馈正是这么来的。小按钮一律走 [onTap]——
+/// 真机验证可靠（待办勾选、日历标题回今天都走这条路）。
 class TapFeedback extends StatefulWidget {
   const TapFeedback({
     super.key,
@@ -393,6 +404,8 @@ class TapFeedback extends StatefulWidget {
   final Widget child;
   final bool animate;
   final VoidCallback? onTap;
+
+  bool get _hasAction => onTap != null;
 
   @override
   State<TapFeedback> createState() => _TapFeedbackState();
@@ -407,12 +420,12 @@ class _TapFeedbackState extends State<TapFeedback> {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTapDown:
-          widget.onTap == null ? null : (_) => setState(() => _pressed = true),
+          widget._hasAction ? (_) => setState(() => _pressed = true) : null,
       onTapUp:
-          widget.onTap == null ? null : (_) => setState(() => _pressed = false),
-      onTapCancel: widget.onTap == null
-          ? null
-          : () => setState(() => _pressed = false),
+          widget._hasAction ? (_) => setState(() => _pressed = false) : null,
+      onTapCancel: widget._hasAction
+          ? () => setState(() => _pressed = false)
+          : null,
       onTap: widget.onTap,
       child: AnimatedScale(
         scale: pressed ? 0.96 : 1.0,
@@ -425,7 +438,75 @@ class _TapFeedbackState extends State<TapFeedback> {
           duration: widget.animate
               ? const Duration(milliseconds: 130)
               : Duration.zero,
+          curve: Curves.easeOutCubic,
           child: widget.child,
+        ),
+      ),
+    );
+  }
+}
+
+/// 图标小按钮：静止态收敛、悬停全亮 + click 光标。
+///
+/// 日历翻月、待办加日期这类小控件——不可见就等于不存在（箭头 45% 透明度
+/// 时用户红框吐槽"看不见"）。静止 0.8 读得清又不抢画面；悬停/按下全亮 +
+/// 手型光标，确认"这是个能点的东西"。
+class HoverIconBtn extends StatefulWidget {
+  const HoverIconBtn({
+    super.key,
+    required this.icon,
+    required this.size,
+    required this.color,
+    required this.animate,
+    required this.onTap,
+    this.idleAlpha = 0.8,
+    this.hoverAlpha = 1.0,
+    this.hitW,
+    this.hitH,
+  });
+
+  final String icon;
+  final double size;
+
+  /// 基色（不含透明度，透明度由 idle/hover 档控制）。
+  final Color color;
+  final bool animate;
+  final VoidCallback onTap;
+  final double idleAlpha;
+  final double hoverAlpha;
+
+  /// 热区尺寸；缺省按图标尺寸外扩一点。
+  final double? hitW;
+  final double? hitH;
+
+  @override
+  State<HoverIconBtn> createState() => _HoverIconBtnState();
+}
+
+class _HoverIconBtnState extends State<HoverIconBtn> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: TapFeedback(
+        animate: widget.animate,
+        onTap: widget.onTap,
+        child: SizedBox(
+          width: widget.hitW ?? widget.size + 12,
+          height: widget.hitH ?? widget.size + 6,
+          child: Center(
+            child: NodeIcon(
+              name: widget.icon,
+              size: widget.size,
+              color: widget.color
+                  .withValues(alpha: _hover ? widget.hoverAlpha : widget.idleAlpha),
+              animate: widget.animate,
+            ),
+          ),
         ),
       ),
     );

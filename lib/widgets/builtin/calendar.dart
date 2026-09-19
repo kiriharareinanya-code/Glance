@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../catalog.dart';
 import '../kit.dart'
-    show NodeIcon, TapFeedback, nodeColor, nodeWeight, withGaps;
+    show HoverIconBtn, TapFeedback, nodeColor, nodeWeight, withGaps;
 import '../node_anim.dart' show kNodeAnimDuration;
 import 'lunar.dart';
 
@@ -16,6 +16,10 @@ class CalendarWidget extends BuiltinController {
   late DateTime _today;
   late int _viewYear;
   late int _viewMonth; // 0-11
+
+  /// 点选的日期；null = 未选中。翻月保留（翻去了别的月份时 chip 会把
+  /// 日期一并写上），点标题（回今天）或再点同格清除。
+  DateTime? _selected;
 
   static const _accent = '#29B6F6'; // 今天的圆底
   static const _holiday = '#FF8A6B'; // 法定节假日
@@ -140,33 +144,55 @@ class CalendarWidget extends BuiltinController {
                   opacity: weekendCols.contains(i) ? 0.8 : 0.62)),
       ];
 
+      // spaceBetween 把箭头推到右缘，左侧一组用一个 Flexible 兜底：空间
+      // 充足时完全收拢、观感与从前一致；选中 chip 出现时窄卡片也不至溢出
+      // （Row 溢出黄条的老毛病）。以前是 Flexible + Spacer 各占 flex:1
+      // 平分剩余空间，chip 一出现标题就被截成"2026…"。
       final header = Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          TapFeedback(
-            animate: ctx.animate,
-            onTap: () {
-              _viewYear = _today.year;
-              _viewMonth = _today.month - 1;
-              draw();
-            },
-            child: Row(
-              children: withGaps([
-                Text('$_viewYear年${_viewMonth + 1}月',
-                    style: _ts(fg, size: 17, weight: 600)),
-                offMonth
-                    ? _chip(Text('今天',
-                        style: _ts(fg, size: 10, opacity: 0.78)))
-                    : const SizedBox.shrink(),
-              ], 6, horizontal: true),
+          Flexible(
+            child: TapFeedback(
+              animate: ctx.animate,
+              onTap: () {
+                _selected = null;
+                _viewYear = _today.year;
+                _viewMonth = _today.month - 1;
+                draw();
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: withGaps([
+                  Flexible(
+                    child: Text('$_viewYear年${_viewMonth + 1}月',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: _ts(fg, size: 17, weight: 600)),
+                  ),
+                  offMonth
+                      ? _chip(Text('今天',
+                          style: _ts(fg, size: 10, opacity: 0.78)))
+                      : const SizedBox.shrink(),
+                  if (_selected != null) _selectionChip(fg),
+                ], 6, horizontal: true),
+              ),
             ),
           ),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: withGaps([
-              TapFeedback(
+              // 翻月按钮：悬停全亮 + click 光标。曾经用 onPress（按下即翻），
+              // 但真手微抖超过 slop 后识别器被拒、onPress 从不触发——
+              // "上下翻用不了"的反馈即此；改回标准 onTap（松手触发）。
+              HoverIconBtn(
+                icon: 'up',
+                size: 20,
+                color: fg,
                 animate: ctx.animate,
+                idleAlpha: 0.8,
+                hitW: 34,
+                hitH: 26,
                 onTap: () {
                   _viewMonth--;
                   if (_viewMonth < 0) {
@@ -175,20 +201,15 @@ class CalendarWidget extends BuiltinController {
                   }
                   draw();
                 },
-                child: SizedBox(
-                  width: 26,
-                  height: 22,
-                  child: Center(
-                    child: NodeIcon(
-                        name: 'up',
-                        size: 20,
-                        color: nodeColor('#FFFFFF66'),
-                        animate: ctx.animate),
-                  ),
-                ),
               ),
-              TapFeedback(
+              HoverIconBtn(
+                icon: 'down',
+                size: 20,
+                color: fg,
                 animate: ctx.animate,
+                idleAlpha: 0.8,
+                hitW: 34,
+                hitH: 26,
                 onTap: () {
                   _viewMonth++;
                   if (_viewMonth > 11) {
@@ -197,17 +218,6 @@ class CalendarWidget extends BuiltinController {
                   }
                   draw();
                 },
-                child: SizedBox(
-                  width: 26,
-                  height: 22,
-                  child: Center(
-                    child: NodeIcon(
-                        name: 'down',
-                        size: 20,
-                        color: nodeColor('#FFFFFF66'),
-                        animate: ctx.animate),
-                  ),
-                ),
               ),
             ], 2, horizontal: true),
           ),
@@ -256,6 +266,44 @@ class CalendarWidget extends BuiltinController {
       final fg = DefaultTextStyle.of(context).style.color ?? Colors.white;
       return body(fg);
     }));
+  }
+
+  /// [d] 距今天的天数（负数 = 已过）。按自然日对齐，避免时刻干扰。
+  int _daysFrom(DateTime d) => DateTime(d.year, d.month, d.day)
+      .difference(DateTime(_today.year, _today.month, _today.day))
+      .inDays;
+
+  /// 选中日期的倒计时 chip（显示在标题旁）。
+  ///
+  /// 日期在当前 42 格视图里时只说天数（格子上的圈负责指认是哪天）；
+  /// 翻去了别的月份看不到圈，就把日期一并写上。配色沿用待办徽章的
+  /// 语义：今天/明天绿、未来中性、已过红。
+  Widget _selectionChip(Color fg) {
+    final d = _selected!;
+    final diff = _daysFrom(d);
+    final inView = d.year == _viewYear && d.month == _viewMonth + 1;
+
+    final String label;
+    final Color tint;
+    final Color textColor;
+    if (diff == 0) {
+      label = '今天';
+      textColor = nodeColor('#7CE38B');
+      tint = nodeColor('#7CE38B26');
+    } else if (diff > 0) {
+      label = inView ? '剩$diff天' : '${d.month}月${d.day}日 · 剩$diff天';
+      textColor = fg.withValues(alpha: 0.82);
+      tint = const Color(0x14FFFFFF);
+    } else {
+      label =
+          inView ? '已过${-diff}天' : '${d.month}月${d.day}日 · 已过${-diff}天';
+      textColor = nodeColor('#FF7A7A');
+      tint = nodeColor('#FF7A7A26');
+    }
+    return _chip(
+      Text(label, style: _ts(fg, size: 11, color: textColor)),
+      bg: tint,
+    );
   }
 
   /// 今日一行：农历全称 + 干支生肖
@@ -412,22 +460,45 @@ class CalendarWidget extends BuiltinController {
     // 每列只有 24px 左右，7 列 × 38 直接超出可用宽度，Row 溢出之后日期数字
     // 和农历文字各站一边——反馈 Fb0012 的"中文全部靠边站了、文字错位"就是这么
     // 来的。改成"取列宽但不超过 38"的正方形，格子缩小时内容跟着缩放。
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 38, maxHeight: 38),
-        child: AspectRatio(
-          aspectRatio: 1,
-          child: Container(
-            decoration: BoxDecoration(
-              color: isToday
-                  ? nodeColor(_accent)
-                  : (marked ? nodeColor('#FFFFFF18') : null),
-              borderRadius: BorderRadius.circular(19),
-            ),
-            child: Center(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: inner,
+    //
+    // 点选：整格都是热区（TapFeedback 的 opaque GestureDetector 盖满
+    // Expanded 分到的整格面积，圈只是视觉中心）。再点同格 = 取消选中。
+    final isSelected = !isToday &&
+        _selected != null &&
+        _selected!.year == y &&
+        _selected!.month == m &&
+        _selected!.day == day;
+    return TapFeedback(
+      animate: ctx.animate,
+      onTap: () {
+        final same = _selected != null &&
+            _selected!.year == y &&
+            _selected!.month == m &&
+            _selected!.day == day;
+        _selected = same ? null : DateTime(y, m, day);
+        draw();
+      },
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 38, maxHeight: 38),
+          child: AspectRatio(
+            aspectRatio: 1,
+            child: Container(
+              decoration: BoxDecoration(
+                color: isToday
+                    ? nodeColor(_accent)
+                    : (marked ? nodeColor('#FFFFFF18') : null),
+                borderRadius: BorderRadius.circular(19),
+                // 选中圈：只描边不填充，不抢今天的实心圆
+                border: isSelected
+                    ? Border.all(color: fg.withValues(alpha: 0.85), width: 1.5)
+                    : null,
+              ),
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: inner,
+                ),
               ),
             ),
           ),
