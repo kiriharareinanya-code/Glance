@@ -148,6 +148,7 @@ class _WindowButtonState extends State<WindowButton> {
           onTap: widget.onTap,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 120),
+            curve: Curves.easeOutCubic,
             width: 44,
             height: 44,
             decoration: BoxDecoration(

@@ -53,6 +53,7 @@ class NodeAnimatedColor extends StatefulWidget {
 class _NodeAnimatedColorState extends State<NodeAnimatedColor>
     with SingleTickerProviderStateMixin {
   late AnimationController _ac;
+  late CurvedAnimation _curved;
   late ColorTween _tween;
   late Color _shown;
 
@@ -61,13 +62,17 @@ class _NodeAnimatedColorState extends State<NodeAnimatedColor>
     super.initState();
     _shown = widget.color;
     _ac = AnimationController(vsync: this, duration: widget.duration);
+    // 曲线必须真正参与插值：早期版本在这里直接 _tween.evaluate(_ac)，
+    // controller 的原始线性值喂进去了，kNodeAnimCurve 定义了却没接上——
+    // 插件层的颜色过渡实际全是线性。evaluate 一律走 CurvedAnimation。
+    _curved = CurvedAnimation(parent: _ac, curve: widget.curve);
     _tween = ColorTween(begin: _shown, end: _shown);
   }
 
   @override
   void didUpdateWidget(NodeAnimatedColor old) {
     super.didUpdateWidget(old);
-    if (widget.color == old.color) return;
+    if (widget.color == old.color && widget.curve == old.curve) return;
     if (!widget.animate) {
       _shown = widget.color;
       return;
@@ -75,6 +80,10 @@ class _NodeAnimatedColorState extends State<NodeAnimatedColor>
     // 从"现在实际显示的颜色"出发，而不是从上一个目标出发——连点时
     // 不会出现颜色跳回再追过去
     _tween = ColorTween(begin: _shown, end: widget.color);
+    // curve 变了要重建 CurvedAnimation（它持有旧 curve 的引用）
+    if (widget.curve != old.curve) {
+      _curved = CurvedAnimation(parent: _ac, curve: widget.curve);
+    }
     _ac
       ..duration = widget.duration
       ..forward(from: 0);
@@ -95,8 +104,8 @@ class _NodeAnimatedColorState extends State<NodeAnimatedColor>
     return AnimatedBuilder(
       animation: _ac,
       builder: (context, _) {
-        // ColorTween.lerp 在动画中途给出当前插值色
-        _shown = _tween.evaluate(_ac) ?? widget.color;
+        // ColorTween.lerp 在动画中途给出当前插值色（已过 easeOutCubic 曲线）
+        _shown = _tween.evaluate(_curved) ?? widget.color;
         return widget.builder(context, _shown);
       },
     );
