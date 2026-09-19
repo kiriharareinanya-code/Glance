@@ -161,15 +161,26 @@ class _BuiltinCardBodyState extends State<BuiltinCardBody> {
     final scale = (base.width > 0 ? widget.size.width / base.width : 1.0)
         .clamp(0.3, 3.0);
     // OverflowBox 让组件按基线尺寸排版（挣脱外层的紧约束），
-    // Transform.scale 再缩到实际大小。两者都参与命中测试，
-    // 点击/滑动手感不变。
-    return Transform.scale(
-      scale: scale,
+    // Transform.scale 再缩到实际大小。
+    //
+    // 两个盒子的**嵌套顺序**是拿真机命中日志换来的教训：
+    //
+    // ❌ Transform > OverflowBox：OverflowBox 自身被紧约束钉成内容区宽 W，
+    //    却活在 Transform 的缩放坐标系里——命中时它 size.contains 检查的
+    //    是"缩放后的 W"，而绘制范围是足宽 W。scale < 1（用户网格单元
+    //    小于 112 基线）时右侧 (1-scale)×W 一条内容"画得见、点不着"，
+    //    日历翻月箭头"点了没反应"正是它。
+    // ✅ OverflowBox > Transform：OverflowBox 在未缩放坐标系自检（整个
+    //    内容区都放行），缩放坐标系里的第一道 size.contains 落在真正按
+    //    基线排版的 SizedBox 上——命中边界与绘制边界同为 scale×base，
+    //    完全重合。绘制结果与旧顺序一字不差。
+    return OverflowBox(
       alignment: Alignment.topLeft,
-      child: OverflowBox(
+      maxWidth: double.infinity,
+      maxHeight: double.infinity,
+      child: Transform.scale(
+        scale: scale,
         alignment: Alignment.topLeft,
-        maxWidth: double.infinity,
-        maxHeight: double.infinity,
         child: SizedBox(
           width: base.width,
           height: base.height,
