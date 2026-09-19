@@ -22,6 +22,10 @@ class BuiltinSpec {
   final String name;
   final String version;
   final String description;
+
+  /// 组件图标：kit.dart iconDataFor 的语义名（'clock'/'sun'/'checklist'…）。
+  /// 控制面板用 Icon 渲染——以前存 emoji 字符（'✓'/'🕐'），字形缺失时会
+  /// 被字体兜底画成空心方框，看起来就像"正方形图标"。
   final String icon;
   final List<String> sizes;
   final String defaultSize;
@@ -41,7 +45,7 @@ const List<BuiltinSpec> kBuiltinSpecs = [
     name: '时钟',
     version: '2.0.0',
     description: '数字时钟与日期',
-    icon: '🕐',
+    icon: 'clock',
     sizes: ['2x2', '3x2', '3x3', '4x2'],
     defaultSize: '2x2',
     settings: [
@@ -53,8 +57,8 @@ const List<BuiltinSpec> kBuiltinSpecs = [
     id: 'weather',
     name: '天气',
     version: '2.0.0',
-    description: 'Open-Meteo，无需 API key',
-    icon: '☀',
+    description: '小米天气，实况与 5 日预报',
+    icon: 'sun',
     sizes: ['3x2', '3x3', '4x2', '4x3'],
     defaultSize: '3x2',
     settings: [
@@ -88,7 +92,7 @@ const List<BuiltinSpec> kBuiltinSpecs = [
     name: '待办',
     version: '2.0.0',
     description: '清单，数据存在本地',
-    icon: '✓',
+    icon: 'checklist',
     sizes: ['2x3', '3x3', '3x4', '4x4'],
     defaultSize: '2x3',
     settings: [
@@ -100,7 +104,7 @@ const List<BuiltinSpec> kBuiltinSpecs = [
     name: '日历',
     version: '3.0.0',
     description: '月历，带农历、二十四节气与节假日',
-    icon: '📅',
+    icon: 'calendar',
     sizes: ['3x3', '4x3', '4x4', '5x4', '5x5'],
     defaultSize: '4x4',
     settings: [
@@ -120,7 +124,7 @@ const List<BuiltinSpec> kBuiltinSpecs = [
     name: '歌词',
     version: '1.0.0',
     description: '读系统正在播放的音乐，显示封面、进度与滚动歌词',
-    icon: '🎵',
+    icon: 'music',
     sizes: ['4x2', '5x2', '6x2', '5x3', '6x3', '6x4', '7x4', '8x4'],
     defaultSize: '5x3',
     settings: [

@@ -9,11 +9,15 @@ import 'dart:io';
 import 'package:fluent_ui/fluent_ui.dart';
 import 'package:flutter/gestures.dart'
     show PointerDeviceKind, kPrimaryMouseButton;
+import 'package:flutter/material.dart' show Icons;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vectra/model/card.dart';
 import 'package:vectra/model/settings.dart';
 import 'package:vectra/store/store.dart';
 import 'package:vectra/ui/panel.dart';
+import 'package:vectra/widgets/kit.dart' show iconDataFor;
+import 'package:vectra/widgets/spec.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -326,6 +330,55 @@ void main() {
     // 同上：组件库页的预览挂着真实定时器，先卸树再让框架做检查
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
+  });
+
+  // ---------------- 组件图标与描述 ----------------
+  //
+  // spec.icon 曾经存 emoji 字符（'✓'/'🕐'），控制面板用 Text 渲染——
+  // 字体缺字形时 ✓ 被兜底画成空心方框，用户看到的就是"正方形图标"。
+  // 现在存 iconDataFor 的语义名、面板用 Icon 渲染，这几条守住不再退化。
+  group('组件图标与描述', () {
+    test('每个内置组件的 icon 都命中真图标，不许落到方框兜底', () {
+      for (final s in kBuiltinSpecs) {
+        expect(iconDataFor(s.icon), isNot(Icons.square_outlined),
+            reason: '${s.id}(${s.name}) 的图标 "${s.icon}" 落到了方框兜底——'
+                '要么名字拼错，要么忘了在 iconDataFor 里补条目');
+      }
+    });
+
+    test('天气描述与数据来源同步（现在的小米天气）', () {
+      final weather = kBuiltinSpecs.firstWhere((s) => s.id == 'weather');
+      expect(weather.description, contains('小米天气'),
+          reason: '实现已换成小米天气 API，组件库磁贴的描述不能还写旧来源');
+      expect(weather.description, isNot(contains('Open-Meteo')));
+    });
+
+    testWidgets('已放置页的组件行用真图标渲染（不再依赖 emoji 字形）',
+        (tester) async {
+      final state = AppState(settings: AppSettings(), cards: [
+        WidgetCard(
+            id: 'todo-1', pluginId: 'todo', x: 0, y: 0, size: '2x3', z: 1),
+      ]);
+      final store = Store(Directory.systemTemp.createTempSync('lw-panel7').path);
+
+      await tester.pumpWidget(FluentApp(
+        home: ControlPanel(
+          state: state,
+          store: store,
+          initialTab: 1, // 已放置页
+          onClose: () {},
+          onChanged: () {},
+          onAdd: (_) {},
+          onRemove: (_) {},
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.checklist_rounded), findsOneWidget,
+          reason: '待办行应该显示清单图标');
+      expect(find.text('✓'), findsNothing,
+          reason: 'emoji 字符直接进 Text 的旧渲染不该再出现');
+    });
   });
 
   // ---------------- 设置改动的日志描述 ----------------

@@ -14,6 +14,7 @@ library;
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:fluent_ui/fluent_ui.dart';
@@ -26,6 +27,7 @@ import '../core/logger.dart';
 import '../core/paths.dart';
 import '../core/theme.dart';
 import 'card_view.dart';
+import '../widgets/kit.dart' show iconDataFor;
 import '../widgets/spec.dart';
 import '../core/updater.dart';
 import '../model/card.dart';
@@ -304,9 +306,13 @@ class _ControlPanelState extends State<ControlPanel> {
 
     // 搜索结果浮层挂在 body 上层的 Stack 里，从标题栏正下方弹出。
     // 放在 Column 外面（Positioned），弹出时不把内容往下顶。
+    //
+    // 最底下垫的是亚克力层（见 [_acrylicBackdrop]）：设置窗口的背景不再是
+    // panel_app 给的那块实色，而是模糊桌面 + 主题 tint，Windows 设置那种质感。
     final layered = Stack(
       fit: StackFit.expand,
       children: [
+        if (!widget.embedded) _acrylicBackdrop(),
         body,
         ...[
           if (!widget.embedded) _searchResultsPanel() ?? const SizedBox.shrink(),
@@ -470,6 +476,7 @@ class _ControlPanelState extends State<ControlPanel> {
           child: Center(
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 120),
+              curve: Curves.easeOutCubic,
               width: hot ? 2 : 1,
               color: hot ? _c.accentBorder : _c.chipBg,
             ),
@@ -502,9 +509,27 @@ class _ControlPanelState extends State<ControlPanel> {
     // 这里让滚动条往里收 10px 并加粗，彻底离开手柄的地盘。
     return ScrollbarTheme(
       data: ScrollbarThemeData(
+        // Win11 设置同款：平时 4px 细线（常显），hover/拖住加粗到 10px 好抓。
+        //
+        // 反馈说滚动条"判定不好、会突然伸出来一下"——那是 fluent 滚动条的
+        // hover 态默认值在搞事：hoveringThickness 默认 16（比静止粗 6px），
+        // hoveringCrossAxisMargin / hoveringMainAxisMargin 默认 0（条向外跳
+        // 10px、两端还各伸长一截），expandContractAnimationDuration 默认
+        // Duration.zero（跳变不带动画）。滚动条的热区是"厚度+两侧边距"共
+        // 20px 宽的右缘竖条，鼠标扫过右缘（外观页一整排滑块就在边上）它就
+        // 瞬间加粗外跳，看起来像"突然伸出来"。把三个 hovering* 钉成与静止
+        // 同值（厚度除外）+ 给展开动画 120ms，hover 只加粗、不挪窝不变长。
+        thickness: 4,
+        hoveringThickness: 10,
         crossAxisMargin: 10,
-        thickness: 10,
+        hoveringCrossAxisMargin: 10,
+        mainAxisMargin: 2,
+        hoveringMainAxisMargin: 2,
         radius: const Radius.circular(5),
+        hoveringRadius: const Radius.circular(5),
+        minThumbLength: 48,
+        expandContractAnimationDuration: const Duration(milliseconds: 120),
+        contractDelay: const Duration(milliseconds: 200),
       ),
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
@@ -534,6 +559,47 @@ class _ControlPanelState extends State<ControlPanel> {
           key: ValueKey('page:$_tab'),
           child: _currentPage(),
         ),
+      ),
+    );
+  }
+
+  /// 面板窗口的亚克力底。
+  ///
+  /// native 的 WCA 亚克力在这台 Win10 上渲染成整窗透明、还拖慢合成
+  /// （view_window.cpp 里有实测记录），所以走磁贴卡片同一套路：拿
+  /// [Wallpaper.image] 那张**预模糊的桌面截图**铺满窗口最底层，上面压一层
+  /// 主题色 tint——模糊桌面 + 半透明着色，观感就是 Windows 设置那种
+  /// Mica/亚克力方向。壁纸还没就绪时退回纯 tint，不会闪出一帧透明。
+  ///
+  /// tint 的不透明度刻意压得很高（壁纸只透出一成多一点）：透太多会跟卡片
+  /// 底色抢，文字对比度也保不住。桌面壁纸一换（Wallpaper.image 是
+  /// ValueNotifier），这里的背景就跟着变，和真亚克力"透出桌面"的语义一致。
+  Widget _acrylicBackdrop() {
+    final tint = _c.light ? const Color(0xE9F3F3F6) : const Color(0xEA171B1B);
+    return Positioned.fill(
+      child: ValueListenableBuilder<ui.Image?>(
+        valueListenable: Wallpaper.image,
+        builder: (context, img, _) {
+          if (img == null) return ColoredBox(color: tint);
+          return ClipRect(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // cover：等比铺满、超出裁掉，别把壁纸拉变形
+                FittedBox(
+                  fit: BoxFit.cover,
+                  clipBehavior: Clip.hardEdge,
+                  child: SizedBox(
+                    width: img.width.toDouble(),
+                    height: img.height.toDouble(),
+                    child: RawImage(image: img, fit: BoxFit.fill),
+                  ),
+                ),
+                ColoredBox(color: tint),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -955,43 +1021,35 @@ class _ControlPanelState extends State<ControlPanel> {
                         style: TextStyle(color: _c.ink30, fontSize: 12))),
               )
             else
-              // 列数随内容宽度走：宽了 3 列、窄了 2 列、再窄 1 列。
+              // 统一磁贴：概览图全部按同一块 4x4 画布渲染（见
+              // panel_preview.dart 的 kPreviewGrid），预览区因此统一成 1:1——
+              // 时钟、天气、日历摆在一起终于一样大，字体缩放基准也一致。
               //
-              // 1 列（窄窗口）时不走 GridView 而是退化成**纵向列表**：
-              // 单列时 aspectRatio 会把卡片按"一个正方形"定高，卡片被拉到
-              // 很宽很矮，预览区被压成一条缝；列表形态每张卡片按自己需要
-              // 的高度排布，和手机端"从上到下依次堆叠"是同一个意思。
+              // 布局用 Wrap 而不是 GridView：列宽由容器宽度决定（3/2/1 列），
+              // 磁贴高度 = 预览区（随列宽走、单列时封顶）+ 信息区定高。
+              // 单列时磁贴太宽，预览区若不封顶，图会被撑得离谱。
               LayoutBuilder(
                 builder: (context, box) {
-                  if (box.maxWidth <= 520) {
-                    return Column(
-                      children: [
-                        for (var i = 0; i < plugins.length; i++) ...[
-                          if (i > 0) const SizedBox(height: 14),
-                          // 列表形态给固定高度：卡片内部是"预览吃掉剩余 +
-                          // 信息区定高 112"，外面不给高度就无从算起。
-                          SizedBox(
-                            height: 300,
-                            width: double.infinity,
-                            child: _pluginCard(plugins[i]),
-                          ),
-                        ],
-                      ],
-                    );
-                  }
-                  final cols = box.maxWidth > 920 ? 3 : 2;
-                  return GridView.count(
-                    // 必须显式关掉：它是嵌在页面 ListView 里的，默认 primary
-                    // 为 true 时会去抢上面那个 PrimaryScrollController，和外层
-                    // ListView 抢同一个 position 直接报错。
-                    primary: false,
-                    crossAxisCount: cols,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisSpacing: 14,
-                    mainAxisSpacing: 14,
-                    childAspectRatio: 1.22,
-                    children: [for (final p in plugins) _pluginCard(p)],
+                  final cols = box.maxWidth > 920
+                      ? 3
+                      : box.maxWidth > 520
+                          ? 2
+                          : 1;
+                  const gap = 14.0;
+                  const infoH = 104.0;
+                  final tileW = (box.maxWidth - (cols - 1) * gap) / cols;
+                  // 预览区边长 ≈ 列宽（方形）；只有单列超宽时封顶
+                  final previewH = tileW.clamp(220.0, 420.0);
+                  Widget tile(BuiltinSpec p) => SizedBox(
+                        width: tileW,
+                        height: previewH + infoH,
+                        child: _pluginCard(p),
+                      );
+
+                  return Wrap(
+                    spacing: gap,
+                    runSpacing: gap,
+                    children: [for (final p in plugins) tile(p)],
                   );
                 },
               ),
@@ -1013,113 +1071,129 @@ class _ControlPanelState extends State<ControlPanel> {
     // singleton 随清单一并移除；内置组件允许多开，唯一限制是"每块屏最多一个"
     final screenFull = !(widget.canAdd?.call(p.id) ?? true);
     final blocked = screenFull;
-    return Container(
-      decoration: BoxDecoration(
-        color: _c.card,
-        borderRadius: BorderRadius.circular(_kRadius),
-        border: Border.all(color: _c.cardBorder),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 静态概览图（不再是实时预览）。占卡片上方，高度随卡片宽度走。
-          //
-          // 以前这里垫一层 previewBg 灰底，跟预览本体自己那层淡底叠在一起，
-          // 在浅色卡片上就是反馈说的"预览外面那个灰框"。去掉外层，图直接
-          // 坐在卡片底色上；ClipRect 保证超框内容仍然裁掉。
-          //
-          // 图本身自带整块深色底（就是组件在桌面上的样子），所以这里不再
-          // 画任何背景——四周留白由 FittedBox 的 contain 缩放产生。
-          Expanded(
-            child: ClipRect(
-              child: SizedBox(
-                width: double.infinity,
+    return _TileHover(
+      child: Container(
+        decoration: BoxDecoration(
+          color: _c.card,
+          borderRadius: BorderRadius.circular(_kRadius),
+          border: Border.all(color: _c.cardBorder),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 预览井：比卡片底色深/浅一档的"展台"，概览图坐在正中——
+            // 图自带底色和发丝描边（见 BuiltinPreview），和井底自然分层，
+            // 轮廓清晰又不会像被硬贴上去。
+            Expanded(
+              child: ColoredBox(
+                color: _c.light
+                    ? const Color(0x08000000)
+                    : const Color(0x2E000000),
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 4),
-                  child: FittedBox(
-                    fit: BoxFit.contain,
-                    child: BuiltinPreview(
-                      key: ValueKey('preview:${p.id}'),
-                      spec: p,
+                  padding: const EdgeInsets.all(14),
+                  child: ClipRect(
+                    child: SizedBox.expand(
+                      child: FittedBox(
+                        fit: BoxFit.contain,
+                        child: BuiltinPreview(
+                          key: ValueKey('preview:${p.id}'),
+                          spec: p,
+                          light: _c.light,
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          // 信息区固定高度：以前用 Expanded 均分，预览把信息挤到只剩一行，
-          // 按钮都贴边了；改成"预览吃掉剩余高度 + 信息区定高"，任何卡片
-          // 宽度下信息排布都一致
-          SizedBox(
-            height: 112,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // 反馈 Fb0005：预览本身就在把组件真实跑起来，旁边再挂一个
-                      // 大 emoji 图标是重复信息，还挤掉了标题行的可用宽度。删掉，
-                      // 整行留给组件名和描述。
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(children: [
-                              Flexible(
-                                child: Text(p.name,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: _c.ink)),
-                              ),
-                              const SizedBox(width: 5),
-                              Text('v${p.version}',
-                                  style: TextStyle(
-                                      fontSize: 10, color: _c.ink30)),
-                            ]),
-                            if (p.description.isNotEmpty) ...[
-                              const SizedBox(height: 2),
-                              Text(p.description,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      fontSize: 10.5, color: _c.ink38)),
-                            ],
-                          ],
+            // 信息区定高：预览区吃掉剩余高度，任何卡片宽度下信息排布一致
+            SizedBox(
+              height: 104,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: Text(p.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: _c.ink)),
+                        ),
+                        const SizedBox(width: 6),
+                        // 版本做成小胶囊徽章：元信息的"身份"一眼可辨，
+                        // 也不会和标题抢视觉重量
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: _c.chipBg,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Text('v${p.version}',
+                              style: TextStyle(
+                                  fontSize: 9.5,
+                                  height: 1.15,
+                                  color: _c.ink54)),
+                        ),
+                      ],
+                    ),
+                    if (p.description.isNotEmpty) ...[
+                      const SizedBox(height: 3),
+                      Text(p.description,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              fontSize: 11, color: _c.ink38)),
+                    ],
+                    const Spacer(),
+                    Row(children: [
+                      if (placed > 0)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 7, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: _c.accentBg,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Text('已放置 $placed',
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  height: 1.2,
+                                  color: _c.accentSoft)),
+                        ),
+                      const Spacer(),
+                      Tooltip(
+                        message: screenFull
+                            ? '该组件每块屏幕最多放置一个'
+                            : '添加到桌面',
+                        child: FilledButton(
+                          onPressed: blocked
+                              ? null
+                              : () {
+                                  widget.onAdd(p);
+                                  // 导航项标题上有已放置数量，添加后要刷新
+                                  if (mounted) setState(() {});
+                                },
+                          child: Text(
+                              screenFull ? '每屏一个' : '添加',
+                              style: const TextStyle(fontSize: 12)),
                         ),
                       ),
-                    ],
-                  ),
-                  const Spacer(),
-                  Row(children: [
-                    if (placed > 0)
-                      Text('已放置 $placed',
-                          style: TextStyle(fontSize: 11, color: _c.ink30)),
-                    const Spacer(),
-                    FilledButton(
-                      onPressed: blocked
-                          ? null
-                          : () {
-                              widget.onAdd(p);
-                              // 导航项标题上有已放置数量，添加后要刷新
-                              if (mounted) setState(() {});
-                            },
-                      child: Text(
-                          screenFull ? '每屏一个' : '添加',
-                          style: const TextStyle(fontSize: 12)),
-                    ),
-                  ]),
-                ],
+                    ]),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1164,8 +1238,10 @@ class _ControlPanelState extends State<ControlPanel> {
                   borderRadius: BorderRadius.circular(9),
                 ),
                 alignment: Alignment.center,
-                child: Text(plugin?.icon ?? '▢',
-                    style: TextStyle(fontSize: 18)),
+                // spec.icon 是 iconDataFor 的语义名，用 Icon 渲染——
+                // 以前直接 Text(emoji)，'✓' 这类符号字形缺失就成方框
+                child: Icon(iconDataFor(plugin?.icon),
+                    size: 18, color: _c.ink),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -2521,6 +2597,51 @@ class _ControlPanelState extends State<ControlPanel> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 组件库磁贴的悬停反馈：整卡上浮 2px + 落影加深。
+///
+/// Win11 设置卡片/商店卡片都有这一层"浮起来"的暗示，告诉用户这张卡是
+/// 一个整体。悬停态放在独立 widget 里，每个磁贴自己管理自己的 hover，
+/// 不用在面板 State 里维护一张 hovered-id 表。动画用 easeOutCubic +
+/// 180ms，与面板其余交互动画同一节奏。
+class _TileHover extends StatefulWidget {
+  const _TileHover({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_TileHover> createState() => _TileHoverState();
+}
+
+class _TileHoverState extends State<_TileHover> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        transform: Matrix4.translationValues(0, _hover ? -2 : 0, 0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(_kRadius),
+          boxShadow: [
+            // 深色主题下黑影几乎不可见——那就让它不可见，不额外发明
+            // 发光效果；浅色主题的落影才是这层反馈的主场
+            if (_hover)
+              const BoxShadow(
+                  color: Color(0x2E000000),
+                  blurRadius: 14,
+                  offset: Offset(0, 6)),
+          ],
+        ),
+        child: widget.child,
       ),
     );
   }
