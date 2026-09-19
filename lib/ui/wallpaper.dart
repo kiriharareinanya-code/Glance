@@ -5,12 +5,12 @@
 /// （DWMWA_SYSTEMBACKDROP_TYPE 是灰的，SetWindowCompositionAttribute 的
 /// 亚克力是黑的），实测两条都不行。
 ///
-/// 磁贴常驻所有窗口之下、紧贴桌面，背后唯一的东西就是桌面本身。所以做法是：
-/// 把桌面抓一帧、模糊一次、烘焙成离屏图，每张卡片按自己的屏幕位置取那一块。
-///
-/// 优先抓**桌面窗口的实际像素**而不是读注册表里的壁纸文件——后者只对静态壁纸
-/// 成立，Wallpaper Engine 这类是自己画一个窗口挂在桌面层，注册表那张图根本不是
-/// 屏幕上显示的东西。抓不到时才退回读文件。
+/// 来源优先读**壁纸文件**（注册表 → TranscodedWallpaper 缓存）：Mica 语义
+/// 上"壁纸"就该是那张图本身。以前优先抓桌面窗口（PrintWindow Progman），
+/// 实测会把**桌面图标一起拍进来**——图标层画在 Progman 里，模糊之后设置
+/// 窗口的背景上就浮着一排彩色图标鬼影。读不到文件时才退回抓屏（Wallpaper
+/// Engine 这类动态壁纸也会把当前壁纸写进注册表，一般都能覆盖到；抓屏只
+/// 适合最后兜底，代价是图标一起被拍进来）。
 library;
 
 import 'dart:async';
@@ -106,14 +106,14 @@ class Wallpaper {
       if (w <= 0 || h <= 0) return;
 
       final swCap = Stopwatch()..start();
-      var from = '桌面捕获';
-      src = await _captureDesktop(w, h);
+      var from = '壁纸文件';
+      src = await _decodeWallpaperFile(w);
+      if (src == null) {
+        from = '桌面捕获';
+        src = await _captureDesktop(w, h);
+      }
       swCap.stop();
       lastCaptureMs = swCap.elapsedMilliseconds;
-      if (src == null) {
-        from = '壁纸文件（桌面捕获失败）';
-        src = await _decodeWallpaperFile(w);
-      }
       if (src == null) {
         source.value = '失败：既抓不到桌面，也读不到壁纸文件';
         // 两条路都走不通是反常的——要么 DWM 出了问题，要么壁纸文件被删了。
