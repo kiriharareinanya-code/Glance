@@ -148,10 +148,10 @@ ViewWindow* ViewWindow::ForKey(const std::string& key) {
 
   ViewWindowSpec spec{};
   if (key == "panel") {
-    spec = {L"VectraPanelWindow", L"Vectra 设置", 900, 640, 720, 520};
+    spec = {L"VectraPanelWindow", L"Glance 设置", 900, 640, 720, 520};
   } else if (key == "market") {
     // 市场要同时放下卡片网格和详情页，比设置窗口宽一点
-    spec = {L"VectraMarketWindow", L"Vectra 插件市场", 1000, 680, 760, 540};
+    spec = {L"VectraMarketWindow", L"Glance 插件市场", 1000, 680, 760, 540};
   } else {
     return nullptr;
   }

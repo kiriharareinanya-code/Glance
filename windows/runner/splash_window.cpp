@@ -185,7 +185,7 @@ DWORD WINAPI SplashWindow::ThreadMain(LPVOID param) {
   //                   在任务栏里闪一下反而像出了什么毛病。
   self->hwnd_ = CreateWindowExW(
       WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW,
-      kClassName, L"Vectra", WS_POPUP, x, y, self->w_px_, self->h_px_, nullptr,
+      kClassName, L"Glance", WS_POPUP, x, y, self->w_px_, self->h_px_, nullptr,
       nullptr, self->instance_, self);
 
   if (!self->hwnd_) {
@@ -395,7 +395,7 @@ void SplashWindow::Render() {
       Gdiplus::SolidBrush brush(pal.title);
       Gdiplus::RectF box(0.0f, 128.0f * s, static_cast<float>(w_px_),
                          40.0f * s);
-      g.DrawString(L"Vectra", -1, &font, box, &center, &brush);
+      g.DrawString(L"Glance", -1, &font, box, &center, &brush);
     }
 
     // ---- 副标题 ----
