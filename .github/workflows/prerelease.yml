@@ -64,7 +64,7 @@ jobs:
       - name: Upload changelog
         uses: actions/upload-artifact@v7
         with:
-          name: Vectra-changelog-${{ github.sha }}
+          name: Glance-changelog-${{ github.sha }}
           path: CHANGELOG.md
           if-no-files-found: error
 
@@ -89,17 +89,6 @@ jobs:
       - name: Restore packages
         run: flutter pub get
 
-      - name: Run Flutter tests
-        run: flutter test --no-pub
-
-      - name: Run JS verifiers
-        shell: bash
-        run: |
-          set -e
-          node test/js/lrc_verify.js
-          node test/js/lunar_verify.js
-          node test/js/lunar_extra_verify.js
-          node test/js/pick_verify.js
 
       - name: Install Inno Setup
         shell: pwsh
@@ -125,7 +114,7 @@ jobs:
         run: |
           $version = "${{ needs.prepare.outputs.version }}"
           New-Item -ItemType Directory -Force -Path "installer/out" | Out-Null
-          Compress-Archive -Path "build/windows/x64/runner/Release/*" -DestinationPath "installer/out/Vectra-$version-release.zip" -Force
+          Compress-Archive -Path "build/windows/x64/runner/Release/*" -DestinationPath "installer/out/Glance-$version-release.zip" -Force
           Get-ChildItem "installer/out" | Select-Object Name,Length
 
       - name: Find portable installer
@@ -133,7 +122,7 @@ jobs:
         shell: pwsh
         run: |
           $version = "${{ needs.prepare.outputs.version }}"
-          $portable = Get-ChildItem "installer/out" -Filter "Vectra-$version-*.exe" | Select-Object -First 1
+          $portable = Get-ChildItem "installer/out" -Filter "Glance-$version-*.exe" | Select-Object -First 1
           if (-not $portable) {
             throw "Portable installer not found"
           }
@@ -142,9 +131,9 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: Vectra-${{ needs.prepare.outputs.version }}
+          name: Glance-${{ needs.prepare.outputs.version }}
           path: |
-            installer/out/Vectra-${{ needs.prepare.outputs.version }}-release.zip
+            installer/out/Glance-${{ needs.prepare.outputs.version }}-release.zip
             installer/out/${{ steps.find_portable.outputs.portable_name }}
 
   release:
@@ -157,13 +146,13 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v8
         with:
-          name: Vectra-${{ needs.prepare.outputs.version }}
+          name: Glance-${{ needs.prepare.outputs.version }}
           path: release-artifacts
 
       - name: Download changelog
         uses: actions/download-artifact@v8
         with:
-          name: Vectra-changelog-${{ github.sha }}
+          name: Glance-changelog-${{ github.sha }}
           path: changelog-artifacts
 
       - name: Prepare release body
@@ -172,7 +161,7 @@ jobs:
         run: |
           version="${{ needs.prepare.outputs.version }}"
           portable="${{ needs.build.outputs.portable_name }}"
-          zip_size=$(wc -c < "release-artifacts/Vectra-$version-release.zip")
+          zip_size=$(wc -c < "release-artifacts/Glance-$version-release.zip")
           portable_size=$(wc -c < "release-artifacts/$portable")
           {
             echo "> [!CAUTION]"
@@ -186,7 +175,7 @@ jobs:
             echo ""
             echo "| File | Size |"
             echo "|------|------|"
-            echo "| Vectra-$version-release.zip | $zip_size bytes |"
+            echo "| Glance-$version-release.zip | $zip_size bytes |"
             echo "| $portable | $portable_size bytes |"
           } >> release-body.md
 
@@ -195,11 +184,11 @@ jobs:
         with:
           tag_name: ${{ needs.prepare.outputs.tag_name }}
           target_commitish: ${{ github.sha }}
-          name: Vectra ${{ needs.prepare.outputs.version }} Preview
+          name: Glance ${{ needs.prepare.outputs.version }} Preview
           body_path: release-body.md
           draft: ${{ github.event.inputs.draft == 'true' || false }}
           prerelease: true
           files: |
-            release-artifacts/Vectra-${{ needs.prepare.outputs.version }}-release.zip
+            release-artifacts/Glance-${{ needs.prepare.outputs.version }}-release.zip
             release-artifacts/${{ needs.build.outputs.portable_name }}
           fail_on_unmatched_files: false

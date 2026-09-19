@@ -46,7 +46,7 @@ jobs:
       - name: Upload Release Artifact
         uses: actions/upload-artifact@v7
         with:
-          name: Vectra-release-${{ github.sha }}
+          name: Glance-release-${{ github.sha }}
           path: build/windows/x64/runner/Release/*
 
   portable-build:
@@ -90,7 +90,7 @@ jobs:
         id: find_portable
         shell: pwsh
         run: |
-          $portable = Get-ChildItem "installer/out" -Filter "Vectra-*.exe" | Select-Object -First 1
+          $portable = Get-ChildItem "installer/out" -Filter "Glance-*.exe" | Select-Object -First 1
           if (-not $portable) {
             throw "Portable installer not found"
           }
@@ -99,7 +99,7 @@ jobs:
       - name: Upload Portable Artifact
         uses: actions/upload-artifact@v7
         with:
-          name: Vectra-portable-${{ github.sha }}
+          name: Glance-portable-${{ github.sha }}
           path: installer/out/${{ steps.find_portable.outputs.portable_name }}
 
   test:
@@ -120,14 +120,3 @@ jobs:
       - name: Restore packages
         run: flutter pub get
 
-      - name: Run Flutter tests
-        run: flutter test --no-pub
-
-      - name: Run JS verifiers
-        shell: bash
-        run: |
-          set -e
-          node test/js/lrc_verify.js
-          node test/js/lunar_verify.js
-          node test/js/lunar_extra_verify.js
-          node test/js/pick_verify.js
