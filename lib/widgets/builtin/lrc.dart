@@ -2,8 +2,8 @@
 ///
 /// 从 assets/plugins/lyrics/lrc.js 逐行移植。里面全是边界条件：一行多个
 /// 时间戳、毫秒 2 位还是 3 位、[ti:]/[ar:] 这类元信息、时间戳乱序、空行。
-/// 这些错了不会崩，只会让歌词错半拍，肉眼很难发现——所以 key 的断言
-/// 在 test/lrc_test.dart 里兜着（对应旧仓库的 test/js/lrc_verify.js）。
+/// 这些错了不会崩，只会让歌词错半拍，肉眼很难发现——改动时对照旧
+/// lrc.js 的用例逐条过一遍。
 library;
 
 import 'dart:math';

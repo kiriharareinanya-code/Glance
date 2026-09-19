@@ -4,8 +4,7 @@
 /// 像素换算：w = cols*cell + (cols-1)*gap，行同理。
 /// cell / gap 是全局设置，改一次所有组件等比缩放。
 ///
-/// 本文件从 Electron 版 src/shared/grid.mjs 1:1 移植，行为必须完全一致，
-/// 对应单测同样照搬（test/grid_test.dart）。
+/// 本文件从 Electron 版 src/shared/grid.mjs 1:1 移植，行为保持一致。
 library;
 
 const int kDefaultCell = 112;

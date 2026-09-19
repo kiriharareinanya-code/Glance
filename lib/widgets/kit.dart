@@ -68,8 +68,7 @@ List<Shadow> nodeGlow(Color color, double sigma) {
 }
 
 /// 图标名 → 字体图标。形变表（morph_icons.dart 的 kMorphIconPaths）里的
-/// 名字也会走到这里作为兜底——两份表的一致性由 test/memory_test.dart 的
-/// morphNamesHaveFontFallback 锁住。
+/// 名字也会走到这里作为兜底——两份表的名字保持一致，别一边改了另一边漏。
 IconData iconDataFor(String? name) => switch (name) {
       'check' => Icons.check,
       // 组件库/已放置页的组件图标（spec.icon 走这里）：待办用清单而不是
