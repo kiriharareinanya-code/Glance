@@ -1074,12 +1074,13 @@ class LyricsWidget extends BuiltinController {
   /// 只渲染歌词区（不带头部）的旧 debugPaint 已删：没有头部的树量出来
   /// 的坐标不反映真实布局（曾因此误判），统一用完整视图。
   @visibleForTesting
-  Widget debugBuildFull(int idx) {
+  Widget debugBuildFull(int idx,
+      {String title = '测试曲目', String artist = '测试歌手'}) {
     _dead = true;
     _media = {
       'available': true,
-      'title': '测试曲目',
-      'artist': '测试歌手',
+      'title': title,
+      'artist': artist,
       'duration': 240000,
       'position': idx * 1000,
       'status': 4,
