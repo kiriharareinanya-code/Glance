@@ -8,6 +8,7 @@
 #include "cards/card_factory.h"
 #include "cards/card_spec.h"
 #include "platform/log.h"
+#include "platform/autostart.h"
 #include "platform/desktop_band.h"
 #include "render/backdrop.h"
 #include "platform/private_fonts.h"
@@ -514,6 +515,10 @@ void App::OnTrayCommand(int command) {
       // 重建卡片后重新贴底：否则可能停在重建瞬间的 Z 序位置
       window_.Show();
       needs_frame_ = true;
+      break;
+
+    case kTrayAutostart:
+      SetAutostartEnabled(!IsAutostartEnabled());
       break;
 
     case kTrayExit:

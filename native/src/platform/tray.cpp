@@ -2,6 +2,7 @@
 
 #include <shellapi.h>
 
+#include "platform/autostart.h"
 #include "platform/log.h"
 
 namespace glance {
@@ -108,6 +109,8 @@ void Tray::ShowMenu() {
   AppendMenuW(menu, MF_STRING, kTrayToggleTiles,
               tiles_visible_ ? L"隐藏磁贴" : L"显示磁贴");
   AppendMenuW(menu, MF_STRING, kTrayReload, L"重载布局");
+  AppendMenuW(menu, IsAutostartEnabled() ? MF_CHECKED : MF_UNCHECKED,
+              kTrayAutostart, L"开机自启");
   AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
   AppendMenuW(menu, MF_STRING, kTrayExit, L"退出 Glance");
 
