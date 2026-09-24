@@ -53,6 +53,9 @@ bool AppState::LoadFromFile(const std::wstring& path) {
     if (const JsonValue* tint = settings->Find("glassTint")) {
       grid.glass_tint = static_cast<float>(tint->NumberOr(0.0));
     }
+    if (const JsonValue* snap = settings->Find("snapEnabled")) {
+      grid.snap_enabled = snap->BoolOr(true);
+    }
   }
 
   // 注意命名：局部变量不要叫 cards —— 那是成员名，会遮蔽（第一版就是这么

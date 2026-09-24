@@ -22,6 +22,7 @@ struct GridSettings {
   std::string theme = "auto";  // auto / light / dark
   std::string material = "acrylic";
   float glass_tint = 0.0f;  // 毛玻璃的染色强度（0 = 纯模糊壁纸）
+  bool snap_enabled = true;  // 拖动后是否吸附到网格
 };
 
 // 一张磁贴的持久化数据（对应 lib/model/card.dart 的 WidgetCard）

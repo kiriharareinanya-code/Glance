@@ -36,6 +36,7 @@ class JsonValue {
 
   // 取成员；不存在返回 nullptr。
   const JsonValue* Find(const std::string& key) const;
+  JsonValue* Find(const std::string& key);
 
   double NumberOr(double fallback) const;
   bool BoolOr(bool fallback) const;
@@ -47,8 +48,17 @@ class JsonValue {
 // 解析 UTF-8 JSON 文本。失败返回 false（out 保持未定义）。
 bool ParseJson(const std::string& text, JsonValue* out);
 
+// 序列化回 UTF-8 JSON（2 空格缩进）。
+// 用途：改布局之后要把 state.json 写回去——解析时保留了全部字段（包括
+// 我们不认识的），所以重写不会丢数据。
+std::string StringifyJson(const JsonValue& value);
+
 // 读文件为 UTF-8 文本；不存在或读失败返回空串。
 std::string ReadFileUtf8(const std::wstring& path);
+
+// 原子写文件：先写 .tmp 再替换，中途断电/崩溃不会留下半截配置。
+// 覆盖已有的 state.json 这种文件时，调用方应该自己先备份。
+bool WriteFileUtf8(const std::wstring& path, const std::string& text);
 
 // UTF-8 → UTF-16
 std::wstring Utf8ToWide(const std::string& text);

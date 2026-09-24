@@ -1,5 +1,10 @@
 #include "app.h"
 
+#include <windowsx.h>
+
+#include <algorithm>
+#include <cmath>
+
 #include "cards/card_factory.h"
 #include "platform/log.h"
 #include "render/backdrop.h"
@@ -78,7 +83,63 @@ void App::LoadLayoutAndCards(float dpi_scale, int screen_w, int screen_h) {
     if (card) cards_.push_back(std::move(card));
   }
   Log(L"[app] built %zu cards", cards_.size());
+  SyncHitRects();
 }
+
+void App::SyncHitRects() {
+  const float radius =
+      theme_.card_radius * (cards_.empty() ? 1.0f : cards_[0]->scale);
+  std::vector<HitRect> rects;
+  rects.reserve(cards_.size());
+  for (const auto& card : cards_) {
+    rects.push_back(HitRect{card->rect.left, card->rect.top,
+                            card->rect.right - card->rect.left,
+                            card->rect.bottom - card->rect.top, radius});
+  }
+  HitRegion::Instance().SetRects(std::move(rects));
+}
+
+bool App::SaveLayout() {
+  const std::wstring path = FindStateFilePath();
+  if (path.empty()) return false;
+
+  JsonValue root;
+  if (!ParseJson(ReadFileUtf8(path), &root)) {
+    Log(L"[layout] 读不到 state.json，位置只在本次会话有效");
+    return false;
+  }
+  JsonValue* cards = root.Find("cards");
+  if (cards == nullptr || !cards->IsArray()) return false;
+
+  const float scale = window_.dpi_scale();
+  for (JsonValue& entry : cards->array) {
+    JsonValue* id = entry.Find("id");
+    if (id == nullptr) continue;
+    const std::string card_id = id->StringOr("");
+    for (const auto& card : cards_) {
+      if (card->id != card_id) continue;
+      const float logical_x = card->rect.left / scale;
+      const float logical_y = card->rect.top / scale;
+      if (JsonValue* x = entry.Find("x")) x->number_value = logical_x;
+      if (JsonValue* y = entry.Find("y")) y->number_value = logical_y;
+      for (CardData& data : state_.cards) {
+        if (data.id == card_id) {
+          data.x = logical_x;
+          data.y = logical_y;
+          break;
+        }
+      }
+      break;
+    }
+  }
+
+  // 先备份再写：写坏用户配置的代价远大于多一个 .bak 文件
+  CopyFileW(path.c_str(), (path + L".bak").c_str(), FALSE);
+  const bool ok = WriteFileUtf8(path, StringifyJson(root));
+  Log(L"[layout] saved=%d", ok ? 1 : 0);
+  return ok;
+}
+
 
 int App::Run() {
   MSG message = {};
@@ -149,6 +210,89 @@ LRESULT App::OnMessage(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam,
       needs_frame_ = true;
       handled = true;
       return 0;
+
+    case WM_NCHITTEST: {
+      // 窗口覆盖整屏，但只有落在卡片上的点归自己：其余返回 HTTRANSPARENT，
+      // 让系统把消息交给下面的窗口（桌面图标、别的程序照常可点）。
+      // 拖拽期间整窗放开——快速拖动时指针会甩出卡片，那时若还按命中区裁剪，
+      // 窗口收不到 WM_MOUSEMOVE，拖拽就断在半路。
+      handled = true;
+      if (drag_.active) return HTCLIENT;
+      const int screen_x = static_cast<short>(LOWORD(lparam));
+      const int screen_y = static_cast<short>(HIWORD(lparam));
+      POINT point = {screen_x, screen_y};
+      ScreenToClient(hwnd, &point);
+      const bool inside = HitRegion::Instance().Contains(point.x, point.y);
+      if (hit_log_count_ < 6) {
+        ++hit_log_count_;
+        Log(L"[hit] nchittest client=(%ld,%ld) inside=%d rects=%zu", point.x,
+            point.y, inside ? 1 : 0, HitRegion::Instance().RectCount());
+      }
+      return inside ? HTCLIENT : HTTRANSPARENT;
+    }
+
+    case WM_LBUTTONDOWN: {
+      const float x = static_cast<float>(GET_X_LPARAM(lparam));
+      const float y = static_cast<float>(GET_Y_LPARAM(lparam));
+      if (hit_log_count_ < 12) {
+        ++hit_log_count_;
+        Log(L"[hit] lbuttondown (%.0f,%.0f) cards=%zu", x, y, cards_.size());
+      }
+      // 后加的卡片画在上面：从后往前找第一个命中的
+      for (auto it = cards_.rbegin(); it != cards_.rend(); ++it) {
+        Card* card = it->get();
+        if (x < card->rect.left || x > card->rect.right || y < card->rect.top ||
+            y > card->rect.bottom) {
+          continue;
+        }
+        drag_.active = true;
+        drag_.card = card;
+        drag_.grab_dx = x - card->rect.left;
+        drag_.grab_dy = y - card->rect.top;
+        HitRegion::Instance().SetDragging(true);
+        break;
+      }
+      handled = true;
+      return 0;
+    }
+
+    case WM_MOUSEMOVE: {
+      if (!drag_.active || drag_.card == nullptr) break;
+      const float x = static_cast<float>(GET_X_LPARAM(lparam));
+      const float y = static_cast<float>(GET_Y_LPARAM(lparam));
+      const float width = drag_.card->rect.right - drag_.card->rect.left;
+      const float height = drag_.card->rect.bottom - drag_.card->rect.top;
+      const float new_x = x - drag_.grab_dx;
+      const float new_y = y - drag_.grab_dy;
+      drag_.card->rect = D2D1::RectF(new_x, new_y, new_x + width, new_y + height);
+      needs_frame_ = true;
+      handled = true;
+      return 0;
+    }
+
+    case WM_LBUTTONUP: {
+      if (!drag_.active || drag_.card == nullptr) break;
+      // 松手吸附到网格（对齐 snapEnabled 设置）
+      if (state_.grid.snap_enabled) {
+        const float scale = window_.dpi_scale();
+        const float cell = state_.grid.cell * scale;
+        const float width = drag_.card->rect.right - drag_.card->rect.left;
+        const float height = drag_.card->rect.bottom - drag_.card->rect.top;
+        const float snapped_x = std::round(drag_.card->rect.left / cell) * cell;
+        const float snapped_y = std::round(drag_.card->rect.top / cell) * cell;
+        drag_.card->rect = D2D1::RectF(snapped_x, snapped_y, snapped_x + width,
+                                       snapped_y + height);
+      }
+      SyncHitRects();
+      SaveLayout();
+      HitRegion::Instance().SetDragging(false);
+      drag_.active = false;
+      drag_.card = nullptr;
+      needs_frame_ = true;
+      handled = true;
+      return 0;
+    }
+
 
     default:
       break;

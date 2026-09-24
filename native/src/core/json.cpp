@@ -2,7 +2,10 @@
 
 #include <windows.h>
 
+#include <cmath>
+#include <cstdio>
 #include <cstdlib>
+#include <string>
 
 namespace glance {
 namespace {
@@ -226,6 +229,14 @@ const JsonValue* JsonValue::Find(const std::string& key) const {
   return nullptr;
 }
 
+JsonValue* JsonValue::Find(const std::string& key) {
+  if (type != Type::kObject) return nullptr;
+  for (auto& [k, v] : object) {
+    if (k == key) return &v;
+  }
+  return nullptr;
+}
+
 double JsonValue::NumberOr(double fallback) const {
   if (type == Type::kNumber) return number_value;
   if (type == Type::kBool) return bool_value ? 1.0 : 0.0;
@@ -300,6 +311,133 @@ std::wstring Utf8ToWide(const std::string& text) {
   MultiByteToWideChar(CP_UTF8, 0, text.c_str(), static_cast<int>(text.size()),
                       wide.data(), length);
   return wide;
+}
+
+namespace {
+
+void EscapeJsonString(const std::string& text, std::string* out) {
+  out->push_back('"');
+  for (const char c : text) {
+    switch (c) {
+      case '"':
+        out->append("\\\"");
+        break;
+      case '\\':
+        out->push_back('\\');
+        out->push_back('\\');
+        break;
+      case '\n':
+        out->append("\\n");
+        break;
+      case '\r':
+        out->append("\\r");
+        break;
+      case '\t':
+        out->append("\\t");
+        break;
+      default:
+        out->push_back(c);
+        break;
+    }
+  }
+  out->push_back('"');
+}
+
+void StringifyTo(const JsonValue& value, int level, std::string* out) {
+  const std::string pad(static_cast<size_t>(level) * 2, ' ');
+  const std::string pad_inner(static_cast<size_t>(level + 1) * 2, ' ');
+  switch (value.type) {
+    case JsonValue::Type::kNull:
+      *out += "null";
+      break;
+    case JsonValue::Type::kBool:
+      *out += value.bool_value ? "true" : "false";
+      break;
+    case JsonValue::Type::kNumber: {
+      char buffer[48] = {};
+      // 整数值别写成 104.0：state.json 里 gridCell 就是整数，写成浮点
+      // 会让 Flutter 版读到同样的值但文件 diff 全是噪音
+      if (value.number_value == std::floor(value.number_value) &&
+          std::fabs(value.number_value) < 1e15) {
+        snprintf(buffer, sizeof(buffer), "%lld",
+                 static_cast<long long>(value.number_value));
+      } else {
+        // %.15g：能往返 double 的精度。用 %.10g 会把 752.6666666666667 改写成
+        // 752.6666667，用户没动过的卡片坐标也跟着变，diff 全是噪音。
+        snprintf(buffer, sizeof(buffer), "%.15g", value.number_value);
+      }
+      *out += buffer;
+      break;
+    }
+    case JsonValue::Type::kString:
+      EscapeJsonString(value.string_value, out);
+      break;
+    case JsonValue::Type::kArray: {
+      if (value.array.empty()) {
+        *out += "[]";
+        break;
+      }
+      out->push_back('[');
+      out->push_back('\n');
+      for (size_t i = 0; i < value.array.size(); ++i) {
+        *out += pad_inner;
+        StringifyTo(value.array[i], level + 1, out);
+        if (i + 1 < value.array.size()) *out += ',';
+        out->push_back('\n');
+      }
+      *out += pad;
+      *out += ']';
+      break;
+    }
+    case JsonValue::Type::kObject: {
+      if (value.object.empty()) {
+        *out += "{}";
+        break;
+      }
+      out->push_back('{');
+      out->push_back('\n');
+      for (size_t i = 0; i < value.object.size(); ++i) {
+        *out += pad_inner;
+        EscapeJsonString(value.object[i].first, out);
+        *out += ": ";
+        StringifyTo(value.object[i].second, level + 1, out);
+        if (i + 1 < value.object.size()) *out += ',';
+        out->push_back('\n');
+      }
+      *out += pad;
+      *out += '}';
+      break;
+    }
+  }
+}
+
+}  // namespace
+
+std::string StringifyJson(const JsonValue& value) {
+  std::string out;
+  StringifyTo(value, 0, &out);
+  out.push_back('\n');  // 末尾补一个换行：工具改这个文件时 diff 干净些
+  return out;
+}
+
+bool WriteFileUtf8(const std::wstring& path, const std::string& text) {
+  const std::wstring temp = path + L".tmp";
+  {
+    HANDLE file = CreateFileW(temp.c_str(), GENERIC_WRITE, 0, nullptr,
+                              CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (file == INVALID_HANDLE_VALUE) return false;
+    DWORD written = 0;
+    const bool ok = WriteFile(file, text.data(), static_cast<DWORD>(text.size()),
+                              &written, nullptr) != FALSE;
+    CloseHandle(file);
+    if (!ok || written != text.size()) {
+      DeleteFileW(temp.c_str());
+      return false;
+    }
+  }
+  // 原子替换：MoveFileEx 带 REPLACE_EXISTING 在同一个卷上是原子的
+  return MoveFileExW(temp.c_str(), path.c_str(),
+                     MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH) != FALSE;
 }
 
 std::string WideToUtf8(const std::wstring& text) {
