@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "cards/card.h"
+#include "core/app_state.h"
 #include "platform/win_window.h"
 #include "render/renderer.h"
 
@@ -34,7 +35,10 @@ class App {
   int RenderToPng(const std::wstring& path);
 
  private:
-  void BuildCards();
+  // 读 state.json（与 Flutter 版共享同一份）并按真实布局建卡片。
+  // 窗口模式与 --capture 共用，两条路的画面才可比。
+  void LoadLayoutAndCards(float dpi_scale);
+
   void Tick();
   void RenderFrame();
   LRESULT OnMessage(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam,
@@ -42,6 +46,7 @@ class App {
 
   WinWindow window_;
   Renderer renderer_;
+  AppState state_;
   Theme theme_;
   std::vector<std::unique_ptr<Card>> cards_;
   bool needs_frame_ = true;

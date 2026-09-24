@@ -9,13 +9,32 @@ namespace glance {
 bool ClockCard::Update() {
   SYSTEMTIME now = {};
   GetLocalTime(&now);
-  if (now.wHour == last_hour_ && now.wMinute == last_minute_) return false;
+  // 秒没开时"分钟内不变就不重绘"；开了秒才逐秒跟。
+  if (now.wHour == last_hour_ && now.wMinute == last_minute_ &&
+      (!show_seconds_ || now.wSecond == last_second_)) {
+    return false;
+  }
   last_hour_ = now.wHour;
   last_minute_ = now.wMinute;
+  last_second_ = now.wSecond;
+
+  int hour = now.wHour;
+  const wchar_t* meridiem = L"";
+  if (!hour24_) {
+    // 12 小时制：0 点显示 12，午后加 PM（和 Flutter 版同一套显示习惯）
+    meridiem = now.wHour < 12 ? L" AM" : L" PM";
+    hour = now.wHour % 12;
+    if (hour == 0) hour = 12;
+  }
 
   wchar_t buffer[64] = {};
-  swprintf_s(buffer, L"%02d:%02d", now.wHour, now.wMinute);
+  if (show_seconds_) {
+    swprintf_s(buffer, L"%02d:%02d:%02d", hour, now.wMinute, now.wSecond);
+  } else {
+    swprintf_s(buffer, L"%02d:%02d", hour, now.wMinute);
+  }
   time_text_ = buffer;
+  time_text_ += meridiem;
 
   // 顺序按 GetLocalTime 的约定：wDayOfWeek 0 = 周日
   static const wchar_t* kWeekdays[] = {L"周日", L"周一", L"周二", L"周三",

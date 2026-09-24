@@ -55,6 +55,10 @@ class Card {
   Card(const Card&) = delete;
   Card& operator=(const Card&) = delete;
 
+  // 与 state.json 对应的身份（命中、拖拽、右键设置都要靠它找回来）
+  std::string id;
+  std::string plugin_id;
+
   // 物理像素矩形（已含 DPI 缩放）
   D2D1_RECT_F rect = D2D1::RectF(0, 0, 0, 0);
 
