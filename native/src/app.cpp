@@ -139,14 +139,24 @@ void App::Tick() {
   for (auto& card : cards_) {
     if (card->Update()) dirty = true;
   }
+  if (!tick_logged_) {
+    Log(L"[tick] first tick, dirty=%d needs_frame=%d", dirty ? 1 : 0,
+        needs_frame_ ? 1 : 0);
+    tick_logged_ = true;
+  }
   if (dirty || needs_frame_) RenderFrame();
 }
 
 void App::RenderFrame() {
-  if (!renderer_.BeginFrame()) return;
+  if (!renderer_.BeginFrame()) {
+    Log(L"[frame] BeginFrame failed");
+    return;
+  }
   for (auto& card : cards_) card->Paint(renderer_, theme_);
   renderer_.EndFrame();
   needs_frame_ = false;
+  ++frame_count_;
+  if (frame_count_ <= 3) Log(L"[frame] rendered #%d", frame_count_);
 }
 
 }  // namespace glance

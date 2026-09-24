@@ -45,6 +45,9 @@ class App {
   Theme theme_;
   std::vector<std::unique_ptr<Card>> cards_;
   bool needs_frame_ = true;
+  // 诊断用：前几帧/首个 tick 落日志，定位"窗口是空的"这类问题。
+  int frame_count_ = 0;
+  bool tick_logged_ = false;
 };
 
 }  // namespace glance

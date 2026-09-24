@@ -43,6 +43,17 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE /*prev*/, LPWSTR command_lin
   // 第一行就落日志：静态 CRT + GUI 子系统下，启动即崩时会连一行字都留不下。
   glance::Log(L"[boot] wWinMain entered");
 
+  // 单实例：命名互斥体。没有这道闸，用户多点几次就是几个覆盖层叠着跑——
+  // 每个都占 40MB 内存、都在画同一张卡，桌面组件的省内存就白省了。
+  // （第一版忘了做，用户双击三次就起了三个实例。）
+  HANDLE single_instance =
+      CreateMutexW(nullptr, TRUE, L"GlanceNative.SingleInstance");
+  if (single_instance != nullptr && GetLastError() == ERROR_ALREADY_EXISTS) {
+    glance::Log(L"[boot] another instance is already running, exit");
+    CloseHandle(single_instance);
+    return 0;
+  }
+
   // DPI 感知必须在创建任何窗口之前声明。PerMonitorV2 下 150% 缩放
   // 拿到的是真实物理像素；不声明的话系统会按 96 DPI 交一张被放大过的
   // 位图，再渲染出来字全是糊的（Flutter 版当年也踩过这个）。
@@ -67,6 +78,10 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE /*prev*/, LPWSTR command_lin
   }
   glance::Log(L"[boot] exit code=%d", exit_code);
 
+  if (single_instance != nullptr) {
+    ReleaseMutex(single_instance);
+    CloseHandle(single_instance);
+  }
   if (SUCCEEDED(com)) CoUninitialize();
   return exit_code;
 }

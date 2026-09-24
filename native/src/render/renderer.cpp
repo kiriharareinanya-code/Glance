@@ -70,12 +70,22 @@ bool Renderer::InitializeForOffscreen(int width, int height) {
   height_ = height;
   if (!CreateBaseFactories()) return false;
   if (!CreateDeviceResources()) return false;
+  return CreateDrawTargetTexture();
+}
 
-  // 一块普通 D3D 纹理当画布：D2D 通过 DXGI 表面绑上去画，
-  // 读回时再拷到 staging 纹理（见 SaveTargetToPng）。
+// 建绘制目标：一块 D3D 纹理 + 绑定它的 D2D 位图。
+//
+// 窗口模式也走这里（而不是直接画交换链的后台缓冲）。原因是踩过坑：
+// 直接拿 flip-model 的后台缓冲当 D2D 目标，EndDraw 会返回
+// D2DERR_WRONG_STATE（0x88990001），第一帧都画不出来；而且 flip 模式下
+// Present 之后后台缓冲会换一块，绑定关系还得每帧重建。
+// 统一画到自己的纹理、再拷给后台缓冲，路径和 --capture 完全一致（那条路
+// 已稳定），flip 的坑也一并绕开了。代价是一帧一次 GPU 内拷贝：
+// 静态桌面组件分钟级才更新一次，这点开销可以忽略。
+bool Renderer::CreateDrawTargetTexture() {
   D3D11_TEXTURE2D_DESC desc = {};
-  desc.Width = static_cast<UINT>(width);
-  desc.Height = static_cast<UINT>(height);
+  desc.Width = static_cast<UINT>(width_);
+  desc.Height = static_cast<UINT>(height_);
   desc.MipLevels = 1;
   desc.ArraySize = 1;
   desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -85,21 +95,20 @@ bool Renderer::InitializeForOffscreen(int width, int height) {
   // CreateBitmapFromDxgiSurface 会拒绝（实测）。
   desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
   if (FAILED(d3d_device_->CreateTexture2D(&desc, nullptr,
-                                          offscreen_texture_.GetAddressOf()))) {
-    Log(L"[render] offscreen CreateTexture2D failed");
+                                          draw_target_texture_.GetAddressOf()))) {
+    Log(L"[render] CreateTexture2D(draw target) failed");
     return false;
   }
 
   ComPtr<IDXGISurface> surface;
-  if (FAILED(offscreen_texture_.As(&surface))) return false;
+  if (FAILED(draw_target_texture_.As(&surface))) return false;
   const D2D1_BITMAP_PROPERTIES1 props = D2D1::BitmapProperties1(
       D2D1_BITMAP_OPTIONS_TARGET,
       D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED));
-  const HRESULT surface_hr = d2d_context_->CreateBitmapFromDxgiSurface(
+  const HRESULT hr = d2d_context_->CreateBitmapFromDxgiSurface(
       surface.Get(), &props, target_bitmap_.ReleaseAndGetAddressOf());
-  if (FAILED(surface_hr)) {
-    Log(L"[render] offscreen CreateBitmapFromDxgiSurface failed, hr=0x%08X",
-        surface_hr);
+  if (FAILED(hr)) {
+    Log(L"[render] CreateBitmapFromDxgiSurface(draw target) failed, hr=0x%08X", hr);
     return false;
   }
   d2d_context_->SetTarget(target_bitmap_.Get());
@@ -107,13 +116,13 @@ bool Renderer::InitializeForOffscreen(int width, int height) {
 }
 
 bool Renderer::SaveTargetToPng(const std::wstring& path) {
-  if (!wic_factory_ || !offscreen_texture_ || !d3d_context_) return false;
+  if (!wic_factory_ || !draw_target_texture_ || !d3d_context_) return false;
 
   // D2D 和 D3D 是两个 API 层：先 Flush 再 CopyResource，否则可能拷到半成品。
   d3d_context_->Flush();
 
   D3D11_TEXTURE2D_DESC desc = {};
-  offscreen_texture_->GetDesc(&desc);
+  draw_target_texture_->GetDesc(&desc);
   desc.Usage = D3D11_USAGE_STAGING;
   desc.BindFlags = 0;
   desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
@@ -124,7 +133,7 @@ bool Renderer::SaveTargetToPng(const std::wstring& path) {
     Log(L"[render] staging texture failed");
     return false;
   }
-  d3d_context_->CopyResource(staging.Get(), offscreen_texture_.Get());
+  d3d_context_->CopyResource(staging.Get(), draw_target_texture_.Get());
 
   D3D11_MAPPED_SUBRESOURCE mapped = {};
   if (FAILED(d3d_context_->Map(staging.Get(), 0, D3D11_MAP_READ, 0, &mapped))) {
@@ -304,35 +313,21 @@ bool Renderer::CreateSwapChain(HWND hwnd) {
     return false;
   }
 
-  if (!CreateTargetBitmapForBackbuffer()) {
-    Log(L"[render] CreateBitmapFromDxgiSurface failed");
-    return false;
-  }
-  return true;
-}
-
-bool Renderer::CreateTargetBitmapForBackbuffer() {
-  ComPtr<IDXGISurface> surface;
-  if (FAILED(swap_chain_->GetBuffer(0, __uuidof(IDXGISurface),
-                                    reinterpret_cast<void**>(surface.GetAddressOf())))) {
-    return false;
-  }
-  const D2D1_BITMAP_PROPERTIES1 props = D2D1::BitmapProperties1(
-      D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
-      D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED));
-  return SUCCEEDED(d2d_context_->CreateBitmapFromDxgiSurface(
-      surface.Get(), &props, target_bitmap_.ReleaseAndGetAddressOf()));
-}
-
-void Renderer::ReleaseTargetBitmap() {
-  // Shutdown 可能被调用两次（显式收尾 + 析构），这里的解引用必须带守卫：
-  // 少这个判断，第二次进来就是空指针崩溃（实测退出时段错误）。
-  if (d2d_context_) d2d_context_->SetTarget(nullptr);
-  target_bitmap_.Reset();
+  // 绘制目标是自己的纹理（见 CreateDrawTargetTexture 的说明），
+  // 不是交换链的后台缓冲。
+  return CreateDrawTargetTexture();
 }
 
 bool Renderer::BeginFrame() {
   if (!d2d_context_ || drawing_) return false;
+  // 帧与帧之间才是处理挂起 resize 的时机（见 Resize 的说明）。
+  if (pending_width_ > 0) {
+    const int w = pending_width_;
+    const int h = pending_height_;
+    pending_width_ = 0;
+    pending_height_ = 0;
+    Resize(w, h);
+  }
   d2d_context_->BeginDraw();
   d2d_context_->SetTransform(D2D1::Matrix3x2F::Identity());
   // 全透明打底：卡片之外的地方必须透出壁纸。
@@ -348,27 +343,66 @@ void Renderer::EndFrame() {
   if (hr == D2DERR_RECREATE_TARGET) {
     // 设备丢了（显卡驱动更新/休眠恢复）：重建渲染目标，下一帧继续。
     // 不重建的话整个窗口从此不再出画面——这类问题在覆盖层上表现为"桌面变空"。
-    if (swap_chain_) {
-      ReleaseTargetBitmap();
-      CreateTargetBitmapForBackbuffer();
-    }
+    Log(L"[render] EndDraw: recreate target");
+    ReleaseDrawTarget();
+    CreateDrawTargetTexture();
     return;
   }
-  if (FAILED(hr)) return;
-  // 同步呈现：覆盖层是静态内容为主，跟住垂直同步就够了，不烧 GPU。
-  // 离屏模式（--capture）没有交换链，画完直接等调用方保存位图。
-  if (swap_chain_) swap_chain_->Present(1, 0);
+  if (FAILED(hr)) {
+    // 静默 return 过一次，结果就是"窗口全空、日志里什么都看不出来"。
+    Log(L"[render] EndDraw failed hr=0x%08X", hr);
+    return;
+  }
+
+  if (!swap_chain_) return;  // 离屏模式：画完等调用方保存位图
+
+  // D2D 与 D3D 是两层 API：拷贝前 Flush，确保绘制的命令已经落到纹理上。
+  d3d_context_->Flush();
+
+  ComPtr<ID3D11Texture2D> backbuffer;
+  if (SUCCEEDED(swap_chain_->GetBuffer(0, __uuidof(ID3D11Texture2D),
+                                       reinterpret_cast<void**>(backbuffer.GetAddressOf())))) {
+    d3d_context_->CopyResource(backbuffer.Get(), draw_target_texture_.Get());
+  } else {
+    Log(L"[render] GetBuffer(0) failed");
+  }
+
+  const HRESULT present_hr = swap_chain_->Present(1, 0);
+  if (present_count_ < 3) {
+    ++present_count_;
+    Log(L"[render] Present #%d hr=0x%08X", present_count_, present_hr);
+  }
 }
 
 void Renderer::Resize(int width, int height) {
+  Log(L"[render] Resize(%d,%d) drawing=%d cur=%dx%d", width, height,
+      drawing_ ? 1 : 0, width_, height_);
   if (!swap_chain_ || width <= 0 || height <= 0) return;
   if (width == width_ && height == height_) return;
+  // BeginDraw 和 EndDraw 之间绝对不能碰 SetTarget/ResizeBuffers——
+  // D2D 会直接判 D2DERR_WRONG_STATE（实测第一帧就是这么废掉的：
+  // 窗口显示时的 WM_SIZE 插进了帧中间）。挪到帧之间做。
+  if (drawing_) {
+    pending_width_ = width;
+    pending_height_ = height;
+    return;
+  }
   width_ = width;
   height_ = height;
-  ReleaseTargetBitmap();
-  swap_chain_->ResizeBuffers(0, static_cast<UINT>(width), static_cast<UINT>(height),
-                             DXGI_FORMAT_UNKNOWN, 0);
-  CreateTargetBitmapForBackbuffer();
+  ReleaseDrawTarget();
+  if (swap_chain_) {
+    swap_chain_->ResizeBuffers(0, static_cast<UINT>(width), static_cast<UINT>(height),
+                               DXGI_FORMAT_UNKNOWN, 0);
+  }
+  CreateDrawTargetTexture();
+}
+
+void Renderer::ReleaseDrawTarget() {
+  // Shutdown 可能被调用两次（显式收尾 + 析构），这里的解引用必须带守卫：
+  // 少这个判断，第二次进来就是空指针崩溃（实测退出时段错误）。
+  if (d2d_context_) d2d_context_->SetTarget(nullptr);
+  target_bitmap_.Reset();
+  draw_target_texture_.Reset();
 }
 
 void Renderer::FillRoundRect(const D2D1_RECT_F& rect, float radius, const Color& color) {
@@ -423,8 +457,7 @@ void Renderer::DrawText(const std::wstring& text, IDWriteTextFormat* format,
 }
 
 void Renderer::Shutdown() {
-  ReleaseTargetBitmap();
-  offscreen_texture_.Reset();
+  ReleaseDrawTarget();
   cached_count_ = 0;
   for (auto& f : cached_formats_) f.Reset();
   brush_.Reset();

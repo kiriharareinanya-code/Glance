@@ -107,8 +107,8 @@ class Renderer {
   int height() const { return height_; }
 
  private:
-  bool CreateTargetBitmapForBackbuffer();
-  void ReleaseTargetBitmap();
+  bool CreateDrawTargetTexture();
+  void ReleaseDrawTarget();
   bool CreateBaseFactories();
   bool CreateDeviceResources();
   bool CreateSwapChain(HWND hwnd);
@@ -124,7 +124,8 @@ class Renderer {
   ComPtr<ID2D1Device> d2d_device_;
   ComPtr<ID2D1DeviceContext> d2d_context_;
   ComPtr<ID2D1Bitmap1> target_bitmap_;
-  ComPtr<ID3D11Texture2D> offscreen_texture_;  // 离屏模式下渲染目标的宿主
+  // 绘制目标纹理：窗口模式与 --capture 共用同一条渲染路径（见 .cpp 的说明）
+  ComPtr<ID3D11Texture2D> draw_target_texture_;
   ComPtr<ID2D1SolidColorBrush> brush_;
 
   // DirectComposition：交换链的内容经视觉树合成到窗口上，
@@ -140,7 +141,11 @@ class Renderer {
 
   int width_ = 0;
   int height_ = 0;
+  // BeginDraw 期间到来的 resize 请求，暂存到帧之间处理
+  int pending_width_ = 0;
+  int pending_height_ = 0;
   bool drawing_ = false;
+  int present_count_ = 0;  // 诊断用：只记前几次 Present 的结果
 };
 
 }  // namespace glance
