@@ -87,6 +87,7 @@ class Renderer {
 
   void FillRoundRect(const D2D1_RECT_F& rect, float radius, const Color& color);
   void FillRect(const D2D1_RECT_F& rect, const Color& color);
+  void FillCircle(float center_x, float center_y, float radius, const Color& color);
 
   // 在 rect 内绘制文字。format 由 CreateTextFormat 创建并被本类持有复用。
   void DrawText(const std::wstring& text, IDWriteTextFormat* format,
@@ -135,8 +136,10 @@ class Renderer {
   ComPtr<IDCompositionVisual> dcomp_visual_;
 
   // 排版格式缓存：时钟每分钟重绘，每帧新建 TextFormat 会白白吃内存。
-  ComPtr<IDWriteTextFormat> cached_formats_[8];
-  TextStyle cached_styles_[8];
+  // 槽位按"每种组件 2~3 个样式 × 五种组件 + 余量"留，别卡太紧
+  // （塞满后 TextFormat 返回 nullptr，文字会成片消失，很难从画面上看出来）。
+  ComPtr<IDWriteTextFormat> cached_formats_[32];
+  TextStyle cached_styles_[32];
   int cached_count_ = 0;
 
   int width_ = 0;

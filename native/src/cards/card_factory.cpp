@@ -1,9 +1,19 @@
 #include "cards/card_factory.h"
 
+#include "cards/calendar_card.h"
 #include "cards/clock_card.h"
 #include "cards/placeholder_card.h"
 
 namespace glance {
+namespace {
+
+// 设置项缺省为 true 的小工具（与 spec.dart 里的 default 对齐）
+bool SettingsBoolOr(const JsonValue& settings, const char* key, bool fallback) {
+  const JsonValue* node = settings.Find(key);
+  return node != nullptr ? node->BoolOr(fallback) : fallback;
+}
+
+}  // namespace
 
 std::unique_ptr<Card> CreateCardFor(const CardData& data,
                                     const GridSettings& grid, float dpi_scale) {
@@ -11,12 +21,15 @@ std::unique_ptr<Card> CreateCardFor(const CardData& data,
 
   std::unique_ptr<Card> card;
   if (data.plugin_id == "clock") {
-    const JsonValue* seconds = data.settings.Find("seconds");
-    const JsonValue* hour24 = data.settings.Find("hour24");
-    card = std::make_unique<ClockCard>(seconds != nullptr && seconds->BoolOr(false),
-                                       hour24 == nullptr || hour24->BoolOr(true));
+    card = std::make_unique<ClockCard>(SettingsBoolOr(data.settings, "seconds", false),
+                                       SettingsBoolOr(data.settings, "hour24", true));
+  } else if (data.plugin_id == "calendar") {
+    card = std::make_unique<CalendarCard>(
+        SettingsBoolOr(data.settings, "lunar", true),
+        SettingsBoolOr(data.settings, "festival", true),
+        SettingsBoolOr(data.settings, "mondayFirst", true));
   } else {
-    // 天气 / 日历 / 待办 / 歌词：布局先占位，组件逐个迁移
+    // 天气 / 待办 / 歌词：布局先占位，组件逐个迁移
     card = std::make_unique<PlaceholderCard>(DisplayNameForPlugin(data.plugin_id));
   }
 

@@ -419,6 +419,15 @@ void Renderer::FillRect(const D2D1_RECT_F& rect, const Color& color) {
   d2d_context_->FillRectangle(rect, brush_.Get());
 }
 
+void Renderer::FillCircle(float center_x, float center_y, float radius,
+                          const Color& color) {
+  if (!d2d_context_) return;
+  brush_->SetColor(D2D1::ColorF(color.r, color.g, color.b, color.a));
+  d2d_context_->FillEllipse(D2D1::Ellipse(D2D1::Point2F(center_x, center_y), radius,
+                                          radius),
+                            brush_.Get());
+}
+
 IDWriteTextFormat* Renderer::TextFormat(const TextStyle& style) {
   for (int i = 0; i < cached_count_; ++i) {
     if (SameStyle(cached_styles_[i], style)) return cached_formats_[i].Get();
