@@ -88,6 +88,10 @@ class Renderer {
   void FillRoundRect(const D2D1_RECT_F& rect, float radius, const Color& color);
   void FillRect(const D2D1_RECT_F& rect, const Color& color);
   void FillCircle(float center_x, float center_y, float radius, const Color& color);
+  void DrawLine(float x1, float y1, float x2, float y2, float width,
+                const Color& color);
+  // 填充多边形（天气图标里的雨丝/闪电这类几何形状）
+  void FillPolygon(const D2D1_POINT_2F* points, int count, const Color& color);
 
   // 在 rect 内绘制文字。format 由 CreateTextFormat 创建并被本类持有复用。
   void DrawText(const std::wstring& text, IDWriteTextFormat* format,

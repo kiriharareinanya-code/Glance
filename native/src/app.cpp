@@ -103,6 +103,21 @@ int App::RenderToPng(const std::wstring& path) {
   // 抓出来的图才等于桌面上真实的样子。
   LoadLayoutAndCards(scale);
 
+  // 等异步组件（天气）把首帧数据拿到：最多 10 秒，每 100ms 让卡片
+  // Update 一次把后台结果落地。没这一步，导出的图里天气还停在
+  // "正在获取…"，等于没验证到。
+  int waited_ms = 0;
+  for (; waited_ms < 10000; waited_ms += 100) {
+    bool ready = true;
+    for (auto& card : cards_) {
+      card->Update();
+      if (!card->ReadyForCapture()) ready = false;
+    }
+    if (ready) break;
+    Sleep(100);
+  }
+  Log(L"[capture] async wait done (%d ms)", waited_ms);
+
   RenderFrame();
   const bool saved = renderer_.SaveTargetToPng(path);
   renderer_.Shutdown();

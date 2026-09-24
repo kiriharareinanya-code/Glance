@@ -26,7 +26,7 @@ target_compile_definitions(glance_native PRIVATE
 target_compile_options(glance_native PRIVATE /utf-8 /W4 /permissive-)
 
 target_link_libraries(glance_native PRIVATE
-  d2d1 d3d11 dxgi dwrite dcomp windowscodecs)
+  d2d1 d3d11 dxgi dwrite dcomp windowscodecs winhttp)
 
 # 静态链接 CRT：目标是单 exe 分发，不依赖 VC++ 可再发行包
 set_property(TARGET glance_native PROPERTY MSVC_RUNTIME_LIBRARY

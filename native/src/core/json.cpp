@@ -229,6 +229,15 @@ const JsonValue* JsonValue::Find(const std::string& key) const {
 double JsonValue::NumberOr(double fallback) const {
   if (type == Type::kNumber) return number_value;
   if (type == Type::kBool) return bool_value ? 1.0 : 0.0;
+  // 字符串形式的数字也要认：小米天气接口把温度和天气码都当字符串给
+  // （"value": "27"），只认 number 的话温度会静默变 0。
+  if (type == Type::kString && !string_value.empty()) {
+    try {
+      return std::stod(string_value);
+    } catch (...) {
+      return fallback;
+    }
+  }
   return fallback;
 }
 

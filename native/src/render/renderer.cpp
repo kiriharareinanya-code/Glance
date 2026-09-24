@@ -465,6 +465,33 @@ void Renderer::DrawText(const std::wstring& text, IDWriteTextFormat* format,
                           DWRITE_MEASURING_MODE_NATURAL);
 }
 
+void Renderer::DrawLine(float x1, float y1, float x2, float y2, float width,
+                        const Color& color) {
+  if (!d2d_context_) return;
+  brush_->SetColor(D2D1::ColorF(color.r, color.g, color.b, color.a));
+  // 端点样式用默认（平头）：天气图标的雨丝只有几像素长，差别肉眼不可见，
+  // 不值得为此维护一个 ID2D1StrokeStyle。
+  d2d_context_->DrawLine(D2D1::Point2F(x1, y1), D2D1::Point2F(x2, y2), brush_.Get(),
+                         width, nullptr);
+}
+
+void Renderer::FillPolygon(const D2D1_POINT_2F* points, int count,
+                           const Color& color) {
+  if (!d2d_context_ || points == nullptr || count < 3) return;
+  brush_->SetColor(D2D1::ColorF(color.r, color.g, color.b, color.a));
+
+  ComPtr<ID2D1PathGeometry> geometry;
+  if (FAILED(d2d_factory_->CreatePathGeometry(geometry.GetAddressOf()))) return;
+  ComPtr<ID2D1GeometrySink> sink;
+  if (FAILED(geometry->Open(sink.GetAddressOf()))) return;
+  sink->BeginFigure(points[0], D2D1_FIGURE_BEGIN_FILLED);
+  sink->AddLines(points + 1, static_cast<UINT32>(count - 1));
+  sink->EndFigure(D2D1_FIGURE_END_CLOSED);
+  if (FAILED(sink->Close())) return;
+
+  d2d_context_->FillGeometry(geometry.Get(), brush_.Get());
+}
+
 void Renderer::Shutdown() {
   ReleaseDrawTarget();
   cached_count_ = 0;

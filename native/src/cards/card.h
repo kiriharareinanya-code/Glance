@@ -71,6 +71,15 @@ class Card {
 
   virtual void Paint(Renderer& renderer, const Theme& theme) = 0;
 
+  // 无窗口/离屏导出（--capture）时用：异步取数的组件（天气）数据没到
+  // 就返回 false，调用方等一会儿再抓帧，免得导出的图里只有"正在获取…"。
+  virtual bool ReadyForCapture() const { return true; }
+
+  // 工厂把 id / plugin_id / rect 都填好之后调一次。
+  // 需要按卡片 id 去读自己缓存数据的组件（天气读 plugindata）在这里做，
+  // 不能在构造函数里做——那时 id 还是空的。
+  virtual void OnConfigured() {}
+
  protected:
   Card() = default;
 };

@@ -3,6 +3,7 @@
 #include "cards/calendar_card.h"
 #include "cards/clock_card.h"
 #include "cards/placeholder_card.h"
+#include "cards/weather_card.h"
 
 namespace glance {
 namespace {
@@ -28,8 +29,14 @@ std::unique_ptr<Card> CreateCardFor(const CardData& data,
         SettingsBoolOr(data.settings, "lunar", true),
         SettingsBoolOr(data.settings, "festival", true),
         SettingsBoolOr(data.settings, "mondayFirst", true));
+  } else if (data.plugin_id == "weather") {
+    const JsonValue* city = data.settings.Find("city");
+    const JsonValue* refresh = data.settings.Find("refreshMin");
+    card = std::make_unique<WeatherCard>(
+        city != nullptr ? city->StringOr("") : "",
+        static_cast<int>(refresh != nullptr ? refresh->NumberOr(30.0) : 30.0));
   } else {
-    // 天气 / 待办 / 歌词：布局先占位，组件逐个迁移
+    // 待办 / 歌词：布局先占位，组件逐个迁移
     card = std::make_unique<PlaceholderCard>(DisplayNameForPlugin(data.plugin_id));
   }
 
@@ -44,6 +51,8 @@ std::unique_ptr<Card> CreateCardFor(const CardData& data,
   const float height =
       (data.rows * grid.cell + (data.rows - 1) * grid.gap) * dpi_scale;
   card->rect = D2D1::RectF(x, y, x + width, y + height);
+  // id 之类的身份信息到这步才齐，需要读自己缓存的组件在这里做初始化
+  card->OnConfigured();
   return card;
 }
 

@@ -7,8 +7,6 @@
 namespace glance {
 namespace {
 
-constexpr const wchar_t kStateRelativePath[] = L"userdata\\state.json";
-
 }  // namespace
 
 bool ParseCardSize(const std::string& size, int* cols, int* rows) {
@@ -91,7 +89,7 @@ bool AppState::LoadFromFile(const std::wstring& path) {
   return true;
 }
 
-std::wstring FindStateFilePath() {
+std::wstring FindUserDataFile(const std::wstring& relative_path) {
   wchar_t exe_path[MAX_PATH] = {};
   if (GetModuleFileNameW(nullptr, exe_path, MAX_PATH) == 0) return {};
   std::wstring dir(exe_path);
@@ -99,16 +97,17 @@ std::wstring FindStateFilePath() {
   if (slash == std::wstring::npos) return {};
   dir.resize(slash);
 
-  // 候选一：exe 同级的 userdata（原生版自己的包）
-  // 候选二：往上找 Flutter 版的构建产物目录里的 userdata（开发期共享配置）
   std::wstring base = dir;
   for (int level = 0; level < 6; ++level) {
-    const std::wstring direct = base + L"\\" + kStateRelativePath;
+    // 候选一：exe 同级的 userdata（原生版自己的包）
+    const std::wstring direct = base + L"\\userdata\\" + relative_path;
     if (GetFileAttributesW(direct.c_str()) != INVALID_FILE_ATTRIBUTES) {
       return direct;
     }
+    // 候选二：Flutter 版构建产物里的 userdata（开发期共享运行数据）
     const std::wstring flutter_release =
-        base + L"\\build\\windows\\x64\\runner\\Release\\" + kStateRelativePath;
+        base + L"\\build\\windows\\x64\\runner\\Release\\userdata\\" +
+        relative_path;
     if (GetFileAttributesW(flutter_release.c_str()) != INVALID_FILE_ATTRIBUTES) {
       return flutter_release;
     }
@@ -116,5 +115,7 @@ std::wstring FindStateFilePath() {
   }
   return {};
 }
+
+std::wstring FindStateFilePath() { return FindUserDataFile(L"state.json"); }
 
 }  // namespace glance

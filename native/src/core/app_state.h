@@ -51,9 +51,12 @@ struct AppState {
   }
 };
 
-// 在 exe 附近逐级向上找 userdata/state.json。
-// 开发时 exe 在 native\build\Release（往上是仓库根），
-// 但 userdata 在 Flutter 版的 build 产物里——两个位置都试。
+// 在 exe 附近逐级向上找 userdata 下的某个文件（state.json / plugindata/*）。
+// 开发时 exe 在 native\build\Release，而 userdata 在 Flutter 版的构建产物里
+// ——两个位置都试，这样两个版本共享同一份运行数据。
+std::wstring FindUserDataFile(const std::wstring& relative_path);
+
+// FindUserDataFile("state.json") 的快捷方式
 std::wstring FindStateFilePath();
 
 // 解析 "3x2"；失败返回 false
