@@ -15,6 +15,31 @@ namespace {
 
 // 解析 `--capture <png 路径>`：离屏渲染一帧存图，不开窗口。
 // 参数就这一个，不值得上命令行解析库——按空格切、支持引号包路径即可。
+bool HasFlag(const wchar_t* command_line, const wchar_t* flag) {
+  if (command_line == nullptr || *command_line == L'\0') return false;
+  return std::wstring(command_line).find(flag) != std::wstring::npos;
+}
+
+// 取 "--flag <值>" 形式的参数值；没有就返回空串
+std::wstring ExtractFlagValue(const wchar_t* command_line, const wchar_t* flag) {
+  if (command_line == nullptr || *command_line == L'\0') return std::wstring();
+  const std::wstring args(command_line);
+  const std::wstring key = flag;
+  const size_t pos = args.find(key);
+  if (pos == std::wstring::npos) return std::wstring();
+  size_t start = pos + key.size();
+  while (start < args.size() && args[start] == L' ') ++start;
+  if (start >= args.size()) return std::wstring();
+  if (args[start] == L'"') {
+    const size_t end = args.find(L'"', start + 1);
+    return end == std::wstring::npos ? args.substr(start + 1)
+                                     : args.substr(start + 1, end - start - 1);
+  }
+  const size_t end = args.find(L' ', start);
+  return end == std::wstring::npos ? args.substr(start)
+                                   : args.substr(start, end - start);
+}
+
 std::wstring ParseCapturePath(const wchar_t* command_line) {
   if (command_line == nullptr || *command_line == L'\0') return {};
   const std::wstring args(command_line);
@@ -73,7 +98,15 @@ int APIENTRY wWinMain(HINSTANCE instance, HINSTANCE /*prev*/, LPWSTR command_lin
     if (!capture_path.empty()) {
       exit_code = app.RenderToPng(capture_path);
     } else {
-      exit_code = app.Start(instance) ? app.Run() : 1;
+      if (app.Start(instance)) {
+        // --panel：启动后直接把设置窗口打开
+        if (HasFlag(command_line, L"--panel")) {
+          app.OpenPanel(ExtractFlagValue(command_line, L"--panel-shot"));
+        }
+        exit_code = app.Run();
+      } else {
+        exit_code = 1;
+      }
     }
   }
   glance::Log(L"[boot] exit code=%d", exit_code);

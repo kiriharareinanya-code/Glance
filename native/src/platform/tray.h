@@ -23,6 +23,7 @@ enum TrayCommand {
   kTrayReload = 2,
   kTrayExit = 3,
   kTrayAutostart = 4,  // 这是个开关：菜单里显示勾选状态
+  kTraySettings = 5,
 };
 
 class Tray {

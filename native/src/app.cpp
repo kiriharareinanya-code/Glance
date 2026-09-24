@@ -62,6 +62,20 @@ bool App::Start(HINSTANCE /*instance*/) {
   SetTimer(window_.handle(), kWatchdogTimerId, kWatchdogMs, nullptr);
   tray_.SetTilesVisible(true);
   tray_.Create(L"Glance · 一瞥", [this](int command) { OnTrayCommand(command); });
+
+  // 设置窗口先建好但藏着：第一次打开不用等渲染器初始化
+  panel_view_.SetContext(&state_, PanelCallbacks{
+      [this]() { ApplyPanelSettings(); },
+      [this]() { panel_.Hide(); },
+      [this]() { ShowWindow(panel_.handle(), SW_MINIMIZE); },
+      [this]() {
+        if (IsZoomed(panel_.handle())) {
+          ShowWindow(panel_.handle(), SW_RESTORE);
+        } else {
+          ShowWindow(panel_.handle(), SW_MAXIMIZE);
+        }
+      }});
+  panel_.Create(&panel_view_, 980, 680);
   Log(L"[app] started, cards=%zu", cards_.size());
   return true;
 }
@@ -255,6 +269,18 @@ void App::ShowCardMenu(size_t card_index, int screen_x, int screen_y) {
   SyncHitRects();
   SaveLayout();
   needs_frame_ = true;
+}
+
+void App::OpenPanel(const std::wstring& shot_path) {
+  panel_view_.Refresh();
+  panel_.Show();
+  // 传了路径就把面板当前帧导出成 PNG：面板是独立窗口，截屏会被桌面上
+  // 的窗口盖住（实测截到的是浏览器），从渲染纹理导出不受 Z 序影响。
+  if (!shot_path.empty()) {
+    if (panel_.renderer().SaveTargetToPng(shot_path)) {
+      Log(L"[panel] shot saved: %s", shot_path.c_str());
+    }
+  }
 }
 
 int App::Run() {
@@ -517,6 +543,11 @@ void App::OnTrayCommand(int command) {
       needs_frame_ = true;
       break;
 
+    case kTraySettings:
+      panel_view_.Refresh();
+      panel_.Show();
+      break;
+
     case kTrayAutostart:
       SetAutostartEnabled(!IsAutostartEnabled());
       break;
@@ -528,6 +559,33 @@ void App::OnTrayCommand(int command) {
     default:
       break;  // 0 = 用户点了菜单外面
   }
+}
+
+void App::ApplyPanelSettings() {
+  if (state_.cards.empty() && last_grid_cell_ == 0.0f) return;
+
+  // 外观类设置：直接生效
+  theme_.card_radius = state_.grid.card_radius;
+  theme_.material = state_.grid.material;
+  theme_.glass_tint = state_.grid.glass_tint;
+
+  // 网格参数变了要重排卡片（卡片尺寸是按网格算出来的）
+  const bool geometry_changed = state_.grid.cell != last_grid_cell_ ||
+                                state_.grid.gap != last_grid_gap_;
+  if (geometry_changed) {
+    last_grid_cell_ = state_.grid.cell;
+    last_grid_gap_ = state_.grid.gap;
+    std::vector<CardData> keep = state_.cards;
+    cards_.clear();
+    for (const CardData& data : keep) {
+      auto card = CreateCardFor(data, state_.grid, window_.dpi_scale());
+      if (card) cards_.push_back(std::move(card));
+    }
+    SyncHitRects();
+  }
+
+  SaveLayout();
+  needs_frame_ = true;
 }
 
 void App::Tick() {

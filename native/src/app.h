@@ -18,12 +18,16 @@
 #include "cards/card.h"
 #include "core/app_state.h"
 #include "platform/hit_region.h"
+#include "platform/panel_window.h"
 #include "platform/popup_menu.h"
+#include "platform/panel_window.h"
 #include "platform/popup_menu.h"
+#include "platform/panel_window.h"
 #include "platform/popup_menu.h"
 #include "platform/tray.h"
 #include "platform/win_window.h"
 #include "render/renderer.h"
+#include "ui/panel_view.h"
 
 namespace glance {
 
@@ -36,6 +40,9 @@ class App {
   App& operator=(const App&) = delete;
 
   bool Start(HINSTANCE instance);
+
+  // 直接打开设置窗口（--panel：命令行/快捷方式入口，也方便自动化验证）
+  void OpenPanel(const std::wstring& shot_path = L"");
   int Run();
 
   // 离屏渲染一帧并存成 PNG（`--capture <path>`）。
@@ -55,6 +62,9 @@ class App {
 
   // 托盘菜单命令（显示/隐藏磁贴、重载布局、退出）
   void OnTrayCommand(int command);
+
+  // 设置窗口里改了设置：应用到磁贴（圆角/材质立即生效，网格变化要重排卡片）
+  void ApplyPanelSettings();
 
   // 卡片右键菜单：改尺寸 / 置于顶层 / 移除
   void ShowCardMenu(size_t card_index, int screen_x, int screen_y);
@@ -85,6 +95,12 @@ class App {
   DragState drag_;
   Tray tray_;
   bool tiles_visible_ = true;
+
+  // 设置窗口（面板）：无边框独立窗口 + 自绘界面，和磁贴共用 state_
+  PanelWindow panel_;
+  PanelView panel_view_;
+  float last_grid_cell_ = 0.0f;  // 上次建卡片时的网格参数（判断要不要重建）
+  float last_grid_gap_ = 0.0f;
   bool needs_frame_ = true;
   // 诊断用：前几帧/首个 tick 落日志，定位"窗口是空的"这类问题。
   int frame_count_ = 0;

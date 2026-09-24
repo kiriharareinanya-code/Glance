@@ -31,7 +31,7 @@ target_compile_definitions(glance_native PRIVATE
   "_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS")
 
 target_link_libraries(glance_native PRIVATE
-  d2d1 d3d11 dxgi dwrite dcomp windowscodecs winhttp shell32)
+  d2d1 d3d11 dxgi dwrite dcomp windowscodecs winhttp shell32 dwmapi)
 # C++/WinRT 的运行时（RoGetActivationFactory 等）在 windowsapp.lib
 target_link_libraries(glance_native PRIVATE "windowsapp.lib")
 

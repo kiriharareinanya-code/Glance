@@ -106,6 +106,8 @@ void Tray::Destroy() {
 void Tray::ShowMenu() {
   HMENU menu = CreatePopupMenu();
   if (menu == nullptr) return;
+  AppendMenuW(menu, MF_STRING, kTraySettings, L"设置…");
+  AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
   AppendMenuW(menu, MF_STRING, kTrayToggleTiles,
               tiles_visible_ ? L"隐藏磁贴" : L"显示磁贴");
   AppendMenuW(menu, MF_STRING, kTrayReload, L"重载布局");
