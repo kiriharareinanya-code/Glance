@@ -47,6 +47,11 @@ bool KeepAboveDesktopBand(HWND hwnd) {
   // 注意：窗口过程里的 WM_WINDOWPOSCHANGING 默认会把窗口压回最底，
   // 这次抬升要先把门闩打开（见 WinWindow::set_allow_z_change）。
   const HWND above_band = ::GetWindow(band, GW_HWNDPREV);
+  // above_band == nullptr 意味着桌面带已经在 Z 序最顶（Win+D 那种显示桌面
+  // 状态）。此时把磁贴插到 nullptr 位置等于 HWND_TOP——磁贴会盖住所有窗口，
+  // 用户看到的就是莫名其妙全局置顶。宁可这一拍不动：等桌面带回到正常
+  // 位置，下一拍再处理。
+  if (above_band == nullptr) return false;
   return ::SetWindowPos(hwnd, above_band, 0, 0, 0, 0,
                         SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE) != FALSE;
 }

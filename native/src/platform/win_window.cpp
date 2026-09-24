@@ -116,11 +116,13 @@ LRESULT WinWindow::HandleMessage(UINT message, WPARAM wparam, LPARAM lparam) {
     case WM_WINDOWPOSCHANGING: {
       // 把自己按回 Z 序最底。少了这一条，任何 SetWindowPos / 激活操作
       // 都可能把整块覆盖层抬到用户窗口前面，桌面直接被盖住。
-      if (allow_z_change_) {
+      const unsigned long long now = GetTickCount64();
+      if (allow_z_change_until_ != 0 && now <= allow_z_change_until_) {
         // 例外：桌面带看门狗抬升那一次（Win+D 之后磁贴被壁纸层盖住）。
-        allow_z_change_ = false;
+        allow_z_change_until_ = 0;  // 一次性，用完即焚
         return 0;
       }
+      allow_z_change_until_ = 0;  // 过期的令牌一并清掉
       auto* pos = reinterpret_cast<WINDOWPOS*>(lparam);
       pos->hwndInsertAfter = HWND_BOTTOM;
       pos->flags &= ~SWP_NOZORDER;

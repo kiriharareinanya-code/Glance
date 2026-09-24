@@ -77,6 +77,8 @@ class App {
   // 诊断用：前几帧/首个 tick 落日志，定位"窗口是空的"这类问题。
   int frame_count_ = 0;
   int hit_log_count_ = 0;  // 诊断：只记前几次命中测试
+  unsigned long long last_drag_frame_ms_ = 0;  // 拖拽出帧的最小间隔控制
+  int drag_frame_count_ = 0;                   // 诊断：一次拖拽出了多少帧
   bool tick_logged_ = false;
 };
 

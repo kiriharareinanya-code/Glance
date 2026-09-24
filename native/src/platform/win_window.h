@@ -48,7 +48,13 @@ class WinWindow {
 
   // 看门狗要把磁贴从桌面带下面抬回来时先开门闩：窗口过程默认会把任何
   // Z 序改动压回最底（防止被别的操作顶上去），抬升那一次必须放行。
-  void set_allow_z_change(bool allow) { allow_z_change_ = allow; }
+  //
+  // 门闩带超时（300ms）：万一那次 SetWindowPos 没能触发
+  // WM_WINDOWPOSCHANGING，令牌会一直挂着，之后任何一个无关的 Z 序变化
+  // 都会被放行——磁贴就可能被顶到窗口最前面（用户报过莫名其妙全局置顶）。
+  void set_allow_z_change(bool allow) {
+    allow_z_change_until_ = allow ? GetTickCount64() + 300 : 0;
+  }
 
  private:
   static LRESULT CALLBACK WndProcThunk(HWND, UINT, WPARAM, LPARAM);
@@ -58,7 +64,7 @@ class WinWindow {
   int width_ = 0;
   int height_ = 0;
   float dpi_scale_ = 1.0f;
-  bool allow_z_change_ = false;
+  unsigned long long allow_z_change_until_ = 0;
   MessageHandler handler_;
 };
 

@@ -55,7 +55,8 @@ bool App::Start(HINSTANCE /*instance*/) {
   window_.Show();
   SetTimer(window_.handle(), kTickTimerId, kTickMs, nullptr);
   SetTimer(window_.handle(), kWatchdogTimerId, kWatchdogMs, nullptr);
-  tray_.Create(window_.handle(), L"Glance · 一瞥");
+  tray_.SetTilesVisible(true);
+  tray_.Create(L"Glance · 一瞥", [this](int command) { OnTrayCommand(command); });
   Log(L"[app] started, cards=%zu", cards_.size());
   return true;
 }
@@ -221,18 +222,6 @@ LRESULT App::OnMessage(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam,
       }
       break;
 
-    case Tray::kCallbackMessage: {
-      const UINT event = LOWORD(lparam);
-      if (event == WM_RBUTTONUP) {
-        OnTrayCommand(tray_.ShowMenu(tiles_visible_));
-      } else if (event == WM_LBUTTONUP) {
-        // 左键直接切换显示，不用点进菜单
-        OnTrayCommand(kTrayToggleTiles);
-      }
-      handled = true;
-      return 0;
-    }
-
     case WM_SIZE:
       // 尺寸变化（分辨率/多屏调整）时重建交换链缓冲，并重画一帧。
       renderer_.Resize(LOWORD(lparam), HIWORD(lparam));
@@ -291,10 +280,27 @@ LRESULT App::OnMessage(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam,
       const float y = static_cast<float>(GET_Y_LPARAM(lparam));
       const float width = drag_.card->rect.right - drag_.card->rect.left;
       const float height = drag_.card->rect.bottom - drag_.card->rect.top;
-      const float new_x = x - drag_.grab_dx;
-      const float new_y = y - drag_.grab_dy;
+      float new_x = x - drag_.grab_dx;
+      float new_y = y - drag_.grab_dy;
+      // 至少留 40 逻辑像素在屏幕内：拖出边界还能抓回来
+      const float scale = window_.dpi_scale();
+      const float keep = 40.0f * scale;
+      const float screen_w = static_cast<float>(window_.width());
+      const float screen_h = static_cast<float>(window_.height());
+      new_x = std::max(-width + keep, std::min(new_x, screen_w - keep));
+      new_y = std::max(-height + keep, std::min(new_y, screen_h - keep));
       drag_.card->rect = D2D1::RectF(new_x, new_y, new_x + width, new_y + height);
       needs_frame_ = true;
+      // 拖拽必须跟手：每来一个移动消息就出一帧。原先只置 needs_frame_、
+      // 等 200ms 的节拍定时器去画——那个节拍是给静态内容定的，拖动时只有
+      // 5fps，手感就是"卡"。这里限一下最小间隔（≈120fps）防止鼠标
+      // 高频上报时把 GPU 打满。
+      const ULONGLONG now = GetTickCount64();
+      if (now - last_drag_frame_ms_ >= 8) {
+        last_drag_frame_ms_ = now;
+        ++drag_frame_count_;
+        RenderFrame();
+      }
       handled = true;
       return 0;
     }
@@ -314,6 +320,8 @@ LRESULT App::OnMessage(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam,
       }
       SyncHitRects();
       SaveLayout();
+      Log(L"[drag] frames=%d", drag_frame_count_);
+      drag_frame_count_ = 0;
       HitRegion::Instance().SetDragging(false);
       drag_.active = false;
       drag_.card = nullptr;
@@ -334,6 +342,7 @@ void App::OnTrayCommand(int command) {
   switch (command) {
     case kTrayToggleTiles:
       tiles_visible_ = !tiles_visible_;
+      tray_.SetTilesVisible(tiles_visible_);
       if (tiles_visible_) {
         window_.Show();  // Show 里含贴底
       } else {
@@ -349,6 +358,8 @@ void App::OnTrayCommand(int command) {
       state_ = AppState{};
       theme_ = Theme{};
       LoadLayoutAndCards(window_.dpi_scale(), window_.width(), window_.height());
+      // 重建卡片后重新贴底：否则可能停在重建瞬间的 Z 序位置
+      window_.Show();
       needs_frame_ = true;
       break;
 
