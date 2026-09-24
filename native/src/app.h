@@ -18,6 +18,7 @@
 #include "cards/card.h"
 #include "core/app_state.h"
 #include "platform/hit_region.h"
+#include "platform/tray.h"
 #include "platform/win_window.h"
 #include "render/renderer.h"
 
@@ -49,6 +50,9 @@ class App {
   // 把当前卡片位置写回 state.json（先备份 .bak，再原子替换）
   bool SaveLayout();
 
+  // 托盘菜单命令（显示/隐藏磁贴、重载布局、退出）
+  void OnTrayCommand(int command);
+
   void Tick();
   void RenderFrame();
   LRESULT OnMessage(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam,
@@ -67,6 +71,8 @@ class App {
   Theme theme_;
   std::vector<std::unique_ptr<Card>> cards_;
   DragState drag_;
+  Tray tray_;
+  bool tiles_visible_ = true;
   bool needs_frame_ = true;
   // 诊断用：前几帧/首个 tick 落日志，定位"窗口是空的"这类问题。
   int frame_count_ = 0;

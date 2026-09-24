@@ -7,6 +7,7 @@
 
 #include "cards/card_factory.h"
 #include "platform/log.h"
+#include "platform/desktop_band.h"
 #include "render/backdrop.h"
 #include "platform/private_fonts.h"
 
@@ -16,6 +17,10 @@ namespace {
 // 刷新节拍：时钟的分辨率是分钟，200ms 查一次既够灵敏又不费电。
 constexpr UINT_PTR kTickTimerId = 1;
 constexpr UINT kTickMs = 200;
+// 桌面带看门狗：Win+D / 全屏程序退出后 shell 可能把桌面带抬到磁贴上面，
+// 周期性检查并抬回来（Flutter 版同一个思路）
+constexpr UINT_PTR kWatchdogTimerId = 2;
+constexpr UINT kWatchdogMs = 3000;
 
 }  // namespace
 
@@ -49,6 +54,8 @@ bool App::Start(HINSTANCE /*instance*/) {
   LoadLayoutAndCards(window_.dpi_scale(), window_.width(), window_.height());
   window_.Show();
   SetTimer(window_.handle(), kTickTimerId, kTickMs, nullptr);
+  SetTimer(window_.handle(), kWatchdogTimerId, kWatchdogMs, nullptr);
+  tray_.Create(window_.handle(), L"Glance · 一瞥");
   Log(L"[app] started, cards=%zu", cards_.size());
   return true;
 }
@@ -147,6 +154,7 @@ int App::Run() {
     TranslateMessage(&message);
     DispatchMessageW(&message);
   }
+  tray_.Destroy();
   renderer_.Shutdown();
   return static_cast<int>(message.wParam);
 }
@@ -202,7 +210,28 @@ LRESULT App::OnMessage(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam,
         handled = true;
         return 0;
       }
+      if (wparam == kWatchdogTimerId) {
+        // 先开门闩再抬，否则会被自己的 WM_WINDOWPOSCHANGING 压回底部
+        window_.set_allow_z_change(true);
+        if (KeepAboveDesktopBand(window_.handle())) {
+          Log(L"[watchdog] 桌面带盖住了磁贴，已抬回");
+        }
+        handled = true;
+        return 0;
+      }
       break;
+
+    case Tray::kCallbackMessage: {
+      const UINT event = LOWORD(lparam);
+      if (event == WM_RBUTTONUP) {
+        OnTrayCommand(tray_.ShowMenu(tiles_visible_));
+      } else if (event == WM_LBUTTONUP) {
+        // 左键直接切换显示，不用点进菜单
+        OnTrayCommand(kTrayToggleTiles);
+      }
+      handled = true;
+      return 0;
+    }
 
     case WM_SIZE:
       // 尺寸变化（分辨率/多屏调整）时重建交换链缓冲，并重画一帧。
@@ -299,6 +328,37 @@ LRESULT App::OnMessage(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam,
   }
   handled = false;
   return 0;
+}
+
+void App::OnTrayCommand(int command) {
+  switch (command) {
+    case kTrayToggleTiles:
+      tiles_visible_ = !tiles_visible_;
+      if (tiles_visible_) {
+        window_.Show();  // Show 里含贴底
+      } else {
+        ShowWindow(window_.handle(), SW_HIDE);
+      }
+      Log(L"[tray] tiles visible=%d", tiles_visible_ ? 1 : 0);
+      break;
+
+    case kTrayReload:
+      // 重读 state.json 重建卡片：Flutter 版那边改了布局/设置，这里跟上
+      Log(L"[tray] reload layout");
+      cards_.clear();
+      state_ = AppState{};
+      theme_ = Theme{};
+      LoadLayoutAndCards(window_.dpi_scale(), window_.width(), window_.height());
+      needs_frame_ = true;
+      break;
+
+    case kTrayExit:
+      PostQuitMessage(0);
+      break;
+
+    default:
+      break;  // 0 = 用户点了菜单外面
+  }
 }
 
 void App::Tick() {

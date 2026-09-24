@@ -46,6 +46,10 @@ class WinWindow {
 
   void set_message_handler(MessageHandler handler) { handler_ = std::move(handler); }
 
+  // 看门狗要把磁贴从桌面带下面抬回来时先开门闩：窗口过程默认会把任何
+  // Z 序改动压回最底（防止被别的操作顶上去），抬升那一次必须放行。
+  void set_allow_z_change(bool allow) { allow_z_change_ = allow; }
+
  private:
   static LRESULT CALLBACK WndProcThunk(HWND, UINT, WPARAM, LPARAM);
   LRESULT HandleMessage(UINT message, WPARAM wparam, LPARAM lparam);
@@ -54,6 +58,7 @@ class WinWindow {
   int width_ = 0;
   int height_ = 0;
   float dpi_scale_ = 1.0f;
+  bool allow_z_change_ = false;
   MessageHandler handler_;
 };
 
