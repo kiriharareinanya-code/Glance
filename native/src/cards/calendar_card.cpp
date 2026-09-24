@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include <algorithm>
+#include <cmath>
 
 #include "core/date_util.h"
 
@@ -20,6 +21,11 @@ constexpr float kHeaderSize = 17.0f;  // 逻辑像素
 constexpr float kWeekSize = 13.0f;
 constexpr float kDateSize = 17.0f;
 constexpr float kSubSize = 11.0f;
+
+// 翻月箭头的位置参数（绘制与点击判定共用，别各写一份）
+constexpr float kArrowOffset = 10.0f;  // 下箭头中心距右内边
+constexpr float kArrowGap = 26.0f;     // 两个箭头中心的间距
+constexpr float kArrowHit = 11.0f;     // 点击判定的半宽
 
 }  // namespace
 
@@ -49,8 +55,7 @@ bool CalendarCard::Update() {
   return true;
 }
 
-void CalendarCard::Paint(Renderer& renderer, const Theme& theme) {
-  const float s = scale;
+void CalendarCard::Paint(Renderer& renderer, const Theme& theme) {  const float s = scale;
   renderer.FillCardBackground(rect, theme.card_radius * s, theme.card_bg,
                               theme.CardTintAlpha());
 
@@ -71,6 +76,26 @@ void CalendarCard::Paint(Renderer& renderer, const Theme& theme) {
       std::to_wstring(view_year_) + L"年" + std::to_wstring(view_month_) + L"月";
   renderer.DrawText(title, renderer.TextFormat(head_style),
                     D2D1::RectF(left, cursor, right, cursor + header_h), theme.fg);
+
+  // 翻月箭头（上/下）。位置必须与 OnClick 的判定区域一致——差几个像素
+  // 就是"看得见点不着"，这类错位最难查。
+  {
+    const float down_cx = right - kArrowOffset * s;
+    const float up_cx = down_cx - kArrowGap * s;
+    const float arrow_cy = cursor + header_h * 0.5f;
+    const float ax = 5.0f * s;
+    const float ay = 3.5f * s;
+    const D2D1_POINT_2F up_tri[3] = {
+        D2D1::Point2F(up_cx - ax, arrow_cy + ay),
+        D2D1::Point2F(up_cx + ax, arrow_cy + ay),
+        D2D1::Point2F(up_cx, arrow_cy - ay)};
+    renderer.FillPolygon(up_tri, 3, theme.fg.WithAlpha(0.72f));
+    const D2D1_POINT_2F down_tri[3] = {
+        D2D1::Point2F(down_cx - ax, arrow_cy - ay),
+        D2D1::Point2F(down_cx + ax, arrow_cy - ay),
+        D2D1::Point2F(down_cx, arrow_cy + ay)};
+    renderer.FillPolygon(down_tri, 3, theme.fg.WithAlpha(0.72f));
+  }
   cursor += header_h + 10.0f * s;
 
   // ---- 周标题 ----
@@ -200,6 +225,38 @@ void CalendarCard::Paint(Renderer& renderer, const Theme& theme) {
                         color);
     }
   }
+}
+
+bool CalendarCard::OnClick(float local_x, float local_y) {
+  const float pad_y = 16.0f;
+  const float header_h = 26.0f;
+  if (local_y < pad_y || local_y > pad_y + header_h) return false;
+
+  const float card_w = (rect.right - rect.left) / scale;
+  const float right = card_w - 18.0f;
+  const float down_cx = right - kArrowOffset;
+  const float up_cx = down_cx - kArrowGap;
+
+  if (std::fabs(local_x - up_cx) <= kArrowHit) {  // 上一月
+    if (--view_month_ < 1) {
+      view_month_ = 12;
+      --view_year_;
+    }
+    return true;
+  }
+  if (std::fabs(local_x - down_cx) <= kArrowHit) {  // 下一月
+    if (++view_month_ > 12) {
+      view_month_ = 1;
+      ++view_year_;
+    }
+    return true;
+  }
+  if (local_x < up_cx - kArrowHit - 2.0f) {  // 点标题：回到今天
+    view_year_ = today_year_;
+    view_month_ = today_month_;
+    return true;
+  }
+  return false;
 }
 
 }  // namespace glance

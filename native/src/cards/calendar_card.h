@@ -22,6 +22,8 @@ class CalendarCard : public Card {
 
   bool Update() override;
   void Paint(Renderer& renderer, const Theme& theme) override;
+  // 头部：上/下箭头翻月，点标题回今天
+  bool OnClick(float local_x, float local_y) override;
 
  private:
   bool show_lunar_ = true;

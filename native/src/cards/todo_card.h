@@ -26,6 +26,8 @@ class TodoCard : public Card {
   bool Update() override;
   void Paint(Renderer& renderer, const Theme& theme) override;
   void OnConfigured() override;
+  // 点任意一行切换它的完成状态，并写回 plugindata/todo.json
+  bool OnClick(float local_x, float local_y) override;
 
  private:
   struct Item {
@@ -35,6 +37,7 @@ class TodoCard : public Card {
   };
 
   void Load();          // 读 plugindata/todo.json
+  bool Save() const;    // 写回 plugindata/todo.json（先备份 .bak）
   int64_t ModifiedTime() const;
 
   bool hide_done_ = false;

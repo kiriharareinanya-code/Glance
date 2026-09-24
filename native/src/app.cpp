@@ -21,6 +21,9 @@ constexpr UINT kTickMs = 200;
 // 周期性检查并抬回来（Flutter 版同一个思路）
 constexpr UINT_PTR kWatchdogTimerId = 2;
 constexpr UINT kWatchdogMs = 3000;
+// 指针移动超过这个距离（物理像素）才算拖拽，否则算点击。
+// 手感阈值：太小会把手的抖动算成拖拽，太大又点不动
+constexpr float kDragThreshold = 5.0f;
 
 }  // namespace
 
@@ -267,6 +270,9 @@ LRESULT App::OnMessage(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam,
         drag_.card = card;
         drag_.grab_dx = x - card->rect.left;
         drag_.grab_dy = y - card->rect.top;
+        drag_.press_x = x;
+        drag_.press_y = y;
+        drag_.moved = false;
         HitRegion::Instance().SetDragging(true);
         break;
       }
@@ -278,6 +284,13 @@ LRESULT App::OnMessage(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam,
       if (!drag_.active || drag_.card == nullptr) break;
       const float x = static_cast<float>(GET_X_LPARAM(lparam));
       const float y = static_cast<float>(GET_Y_LPARAM(lparam));
+      if (!drag_.moved) {
+        const float dx = x - drag_.press_x;
+        const float dy = y - drag_.press_y;
+        // 还没超过阈值：当成手抖，不算拖拽（否则点一下卡片会微微挪位）
+        if (dx * dx + dy * dy < kDragThreshold * kDragThreshold) break;
+        drag_.moved = true;
+      }
       const float width = drag_.card->rect.right - drag_.card->rect.left;
       const float height = drag_.card->rect.bottom - drag_.card->rect.top;
       float new_x = x - drag_.grab_dx;
@@ -307,6 +320,22 @@ LRESULT App::OnMessage(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam,
 
     case WM_LBUTTONUP: {
       if (!drag_.active || drag_.card == nullptr) break;
+
+      // 没移动过 = 点击：交给卡片自己处理（翻月、勾选…）
+      if (!drag_.moved) {
+        const float x = static_cast<float>(GET_X_LPARAM(lparam));
+        const float y = static_cast<float>(GET_Y_LPARAM(lparam));
+        Card* card = drag_.card;
+        const float local_x = (x - card->rect.left) / card->scale;
+        const float local_y = (y - card->rect.top) / card->scale;
+        if (card->OnClick(local_x, local_y)) needs_frame_ = true;
+        HitRegion::Instance().SetDragging(false);
+        drag_.active = false;
+        drag_.card = nullptr;
+        handled = true;
+        return 0;
+      }
+
       // 松手吸附到网格（对齐 snapEnabled 设置）
       if (state_.grid.snap_enabled) {
         const float scale = window_.dpi_scale();

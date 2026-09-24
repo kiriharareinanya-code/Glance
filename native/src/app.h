@@ -63,6 +63,9 @@ class App {
     Card* card = nullptr;
     float grab_dx = 0.0f;  // 抓取点相对卡片左上角（物理像素）
     float grab_dy = 0.0f;
+    float press_x = 0.0f;  // 按下点：用来区分"点击"和"拖拽"
+    float press_y = 0.0f;
+    bool moved = false;    // 移动超过阈值才算拖拽
   };
 
   WinWindow window_;

@@ -80,6 +80,13 @@ class Card {
 
   virtual void Paint(Renderer& renderer, const Theme& theme) = 0;
 
+  // 卡片内的点击。坐标是**相对卡片左上角的逻辑像素**（调用方已除掉
+  // scale）。返回 true 表示吃掉了这次点击（调用方会重绘一帧）。
+  //
+  // 只在"按下 → 松开之间指针没怎么动"时调用；移动超过阈值就当成拖拽，
+  // 不走这里（见 App 的 WM_LBUTTONUP）。
+  virtual bool OnClick(float /*local_x*/, float /*local_y*/) { return false; }
+
   // 无窗口/离屏导出（--capture）时用：异步取数的组件（天气）数据没到
   // 就返回 false，调用方等一会儿再抓帧，免得导出的图里只有"正在获取…"。
   virtual bool ReadyForCapture() const { return true; }

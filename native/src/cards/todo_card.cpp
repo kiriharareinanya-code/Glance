@@ -209,4 +209,61 @@ void TodoCard::Paint(Renderer& renderer, const Theme& theme) {
   }
 }
 
+bool TodoCard::Save() const {
+  const std::wstring path = FindUserDataFile(L"plugindata\\todo.json");
+  if (path.empty()) return false;
+
+  JsonValue root;
+  if (!ParseJson(ReadFileUtf8(path), &root)) return false;
+  JsonValue* list = root.Find("@inst:" + id + ":items");
+  if (list == nullptr || !list->IsArray()) return false;
+
+  // items_ 与文件里的数组同序（Load 就是按序读的），按下标回写 done
+  for (size_t i = 0; i < list->array.size() && i < items_.size(); ++i) {
+    JsonValue* done = list->array[i].Find("done");
+    if (done == nullptr) continue;
+    done->type = JsonValue::Type::kBool;
+    done->bool_value = items_[i].done;
+  }
+
+  CopyFileW(path.c_str(), (path + L".bak").c_str(), FALSE);
+  const bool ok = WriteFileUtf8(path, StringifyJson(root));
+  Log(L"[todo] saved=%d", ok ? 1 : 0);
+  return ok;
+}
+
+bool TodoCard::OnClick(float local_x, float local_y) {
+  (void)local_x;  // 整行都是热区：比只点那个小圆圈好按得多
+  const float pad = 14.0f;
+  const float card_h = (rect.bottom - rect.top) / scale;
+
+  std::vector<Item*> shown;
+  for (Item& item : items_) {
+    if (hide_done_ && item.done) continue;
+    shown.push_back(&item);
+  }
+  if (shown.empty()) return false;
+
+  // 与 Paint 用同一套行高公式（改了一处必须改另一处）
+  const float list_top = pad + 24.0f;
+  const float list_height = card_h - pad - list_top;
+  const int count = static_cast<int>(shown.size());
+  const float row_h =
+      std::min(34.0f, std::max(24.0f, list_height / static_cast<float>(count)));
+  const float gap = std::min(6.0f, row_h * 0.22f);
+  const float row_block = row_h + gap * 0.5f;
+
+  float row_top = list_top;
+  for (int i = 0; i < count; ++i) {
+    if (row_top + row_h > card_h - pad + 1.0f) break;
+    if (local_y >= row_top && local_y <= row_top + row_h) {
+      shown[static_cast<size_t>(i)]->done = !shown[static_cast<size_t>(i)]->done;
+      Save();
+      return true;
+    }
+    row_top += row_block;
+  }
+  return false;
+}
+
 }  // namespace glance
