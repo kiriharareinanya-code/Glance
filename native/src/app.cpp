@@ -6,6 +6,7 @@
 #include <cmath>
 
 #include "cards/card_factory.h"
+#include "cards/card_spec.h"
 #include "platform/log.h"
 #include "platform/desktop_band.h"
 #include "render/backdrop.h"
@@ -116,41 +117,144 @@ bool App::SaveLayout() {
 
   JsonValue root;
   if (!ParseJson(ReadFileUtf8(path), &root)) {
-    Log(L"[layout] 读不到 state.json，位置只在本次会话有效");
+    Log(L"[layout] 读不到 state.json，改动只在本次会话有效");
     return false;
   }
-  JsonValue* cards = root.Find("cards");
-  if (cards == nullptr || !cards->IsArray()) return false;
+  JsonValue* cards_node = root.Find("cards");
+  if (cards_node == nullptr) return false;
 
+  // 1) 把运行时状态同步回模型（拖拽改的是 rect，模型里存的是逻辑坐标）
   const float scale = window_.dpi_scale();
-  for (JsonValue& entry : cards->array) {
-    JsonValue* id = entry.Find("id");
-    if (id == nullptr) continue;
-    const std::string card_id = id->StringOr("");
-    for (const auto& card : cards_) {
-      if (card->id != card_id) continue;
-      const float logical_x = card->rect.left / scale;
-      const float logical_y = card->rect.top / scale;
-      if (JsonValue* x = entry.Find("x")) x->number_value = logical_x;
-      if (JsonValue* y = entry.Find("y")) y->number_value = logical_y;
-      for (CardData& data : state_.cards) {
-        if (data.id == card_id) {
-          data.x = logical_x;
-          data.y = logical_y;
-          break;
-        }
-      }
-      break;
-    }
+  for (const auto& card : cards_) {
+    CardData* data = FindCardData(card->id);
+    if (data == nullptr) continue;
+    data->x = card->rect.left / scale;
+    data->y = card->rect.top / scale;
   }
 
-  // 先备份再写：写坏用户配置的代价远大于多一个 .bak 文件
+  // 2) 用模型**重建** cards 数组，而不是逐项改 JSON。
+  //    位置/尺寸/z/增删全都从这里出去——早先只改 x/y 的写法有个坑：
+  //    移除卡片时 JSON 里那条还在，下次启动它就"复活"了。
+  JsonValue rebuilt;
+  rebuilt.type = JsonValue::Type::kArray;
+  for (const CardData& data : state_.cards) {
+    JsonValue entry;
+    entry.type = JsonValue::Type::kObject;
+
+    const auto put_string = [&entry](const char* key, const std::string& value) {
+      JsonValue node;
+      node.type = JsonValue::Type::kString;
+      node.string_value = value;
+      entry.object.emplace_back(key, std::move(node));
+    };
+    const auto put_number = [&entry](const char* key, double value) {
+      JsonValue node;
+      node.type = JsonValue::Type::kNumber;
+      node.number_value = value;
+      entry.object.emplace_back(key, std::move(node));
+    };
+
+    put_string("id", data.id);
+    put_string("pluginId", data.plugin_id);
+    put_number("x", data.x);
+    put_number("y", data.y);
+    put_string("size", std::to_string(data.cols) + "x" + std::to_string(data.rows));
+    put_number("z", data.z);
+    // 组件设置原样带回去（我们不认识的字段也在这份 JsonValue 里）
+    JsonValue settings = data.settings;
+    if (!settings.IsObject()) settings = JsonValue{};
+    if (!settings.IsObject()) settings.type = JsonValue::Type::kObject;
+    entry.object.emplace_back("settings", std::move(settings));
+
+    rebuilt.array.push_back(std::move(entry));
+  }
+  *cards_node = std::move(rebuilt);
+
+  // 先备份再写：写坏用户配置的代价远大于多一个 .bak
   CopyFileW(path.c_str(), (path + L".bak").c_str(), FALSE);
   const bool ok = WriteFileUtf8(path, StringifyJson(root));
-  Log(L"[layout] saved=%d", ok ? 1 : 0);
+  Log(L"[layout] saved=%d (%zu cards)", ok ? 1 : 0, state_.cards.size());
   return ok;
 }
 
+CardData* App::FindCardData(const std::string& id) {
+  for (CardData& data : state_.cards) {
+    if (data.id == id) return &data;
+  }
+  return nullptr;
+}
+
+void App::ShowCardMenu(size_t card_index, int screen_x, int screen_y) {
+  if (card_index >= cards_.size()) return;
+  Card* card = cards_[card_index].get();
+  CardData* data = FindCardData(card->id);
+  if (data == nullptr) return;
+
+  std::vector<MenuItem> items;
+  const std::vector<std::string>& sizes = SizesForPlugin(card->plugin_id);
+  const std::string current =
+      std::to_string(data->cols) + "x" + std::to_string(data->rows);
+  constexpr int kFirstSizeId = 100;
+  int next_id = kFirstSizeId;
+  for (const std::string& size : sizes) {
+    MenuItem item;
+    item.id = next_id++;
+    item.label = L"尺寸 " + Utf8ToWide(size);
+    item.checked = (size == current);
+    items.push_back(std::move(item));
+  }
+  if (!sizes.empty()) items.push_back(MenuItem{0, L"", false, true});
+  items.push_back(MenuItem{1, L"置于顶层", false, false});
+  items.push_back(MenuItem{2, L"移除卡片", false, false});
+
+  const int command = ShowPopupMenu(screen_x, screen_y, items);
+  if (command == 0) return;
+
+  if (command >= kFirstSizeId) {
+    const size_t size_index = static_cast<size_t>(command - kFirstSizeId);
+    if (size_index >= sizes.size()) return;
+    int cols = 0;
+    int rows = 0;
+    if (!ParseCardSize(sizes[size_index], &cols, &rows)) return;
+    data->cols = cols;
+    data->rows = rows;
+    // 尺寸变了卡片要按新矩形重建（组件内部布局是按卡片尺寸算的）
+    auto rebuilt = CreateCardFor(*data, state_.grid, window_.dpi_scale());
+    if (rebuilt != nullptr) {
+      cards_[card_index] = std::move(rebuilt);
+      Log(L"[menu] resize %s -> %s", card->plugin_id.c_str(),
+          sizes[size_index].c_str());
+    }
+  } else if (command == 1) {
+    // 置于顶层：绘制顺序末尾（后画的在上面）+ z 抬高
+    int max_z = 0;
+    for (const CardData& other : state_.cards) {
+      max_z = std::max(max_z, other.z);
+    }
+    data->z = max_z + 1;
+    auto lifted = std::move(cards_[card_index]);
+    cards_.erase(cards_.begin() + static_cast<long long>(card_index));
+    cards_.push_back(std::move(lifted));
+    Log(L"[menu] raise to front");
+  } else if (command == 2) {
+    // 移除：运行时和模型都要删掉（SaveLayout 会重建 JSON，条目随之消失）
+    const std::string removed_id = cards_[card_index]->id;
+    cards_.erase(cards_.begin() + static_cast<long long>(card_index));
+    for (auto it = state_.cards.begin(); it != state_.cards.end(); ++it) {
+      if (it->id == removed_id) {
+        state_.cards.erase(it);
+        break;
+      }
+    }
+    Log(L"[menu] removed %s", removed_id.c_str());
+  } else {
+    return;
+  }
+
+  SyncHitRects();
+  SaveLayout();
+  needs_frame_ = true;
+}
 
 int App::Run() {
   MSG message = {};
@@ -274,6 +378,26 @@ LRESULT App::OnMessage(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam,
         drag_.press_y = y;
         drag_.moved = false;
         HitRegion::Instance().SetDragging(true);
+        break;
+      }
+      handled = true;
+      return 0;
+    }
+
+    case WM_RBUTTONUP: {
+      if (drag_.active) break;  // 拖拽中不弹菜单
+      const float x = static_cast<float>(GET_X_LPARAM(lparam));
+      const float y = static_cast<float>(GET_Y_LPARAM(lparam));
+      POINT cursor = {static_cast<LONG>(x), static_cast<LONG>(y)};
+      ClientToScreen(hwnd, &cursor);
+      // 从后往前找：后画的卡片在上面
+      for (size_t i = cards_.size(); i-- > 0;) {
+        const Card* card = cards_[i].get();
+        if (x < card->rect.left || x > card->rect.right || y < card->rect.top ||
+            y > card->rect.bottom) {
+          continue;
+        }
+        ShowCardMenu(i, cursor.x, cursor.y);
         break;
       }
       handled = true;

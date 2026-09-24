@@ -18,6 +18,9 @@
 #include "cards/card.h"
 #include "core/app_state.h"
 #include "platform/hit_region.h"
+#include "platform/popup_menu.h"
+#include "platform/popup_menu.h"
+#include "platform/popup_menu.h"
 #include "platform/tray.h"
 #include "platform/win_window.h"
 #include "render/renderer.h"
@@ -52,6 +55,12 @@ class App {
 
   // 托盘菜单命令（显示/隐藏磁贴、重载布局、退出）
   void OnTrayCommand(int command);
+
+  // 卡片右键菜单：改尺寸 / 置于顶层 / 移除
+  void ShowCardMenu(size_t card_index, int screen_x, int screen_y);
+  CardData* FindCardData(const std::string& id);
+
+
 
   void Tick();
   void RenderFrame();
