@@ -50,7 +50,8 @@ void ClockCard::Paint(Renderer& renderer, const Theme& theme) {
   const float s = scale;
   const float height = rect.bottom - rect.top;
 
-  renderer.FillRoundRect(rect, theme.card_radius * s, theme.card_bg);
+  renderer.FillCardBackground(rect, theme.card_radius * s, theme.card_bg,
+                              theme.CardTintAlpha());
 
   // 时间：卡片上部的大字。字号按逻辑 58px 定，乘 DPI 缩放。
   // 圆体只有英数，族名必须精确到内部名（见 private_fonts.h），

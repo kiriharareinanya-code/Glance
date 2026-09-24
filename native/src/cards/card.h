@@ -37,15 +37,24 @@ inline float GridHeight(const GridSize& g, float cell = kDefaultCell,
   return g.rows * cell + (g.rows - 1) * gap;
 }
 
-// 卡片外观。数值取自 Flutter 版深色主题的实测观感，不是拍脑袋：
-// 深灰蓝底 82% 不透明，配白 96% 正文——壁纸模糊还没接上之前，
-// 这个浓度在深浅两种壁纸上都能保证正文读得清（半透明太低会脏、太高像贴纸）。
+// 卡片外观。数值取自 Flutter 版深色主题的实测观感，不是拍脑袋。
+// 三种材质（对齐 Flutter 版 card_view.dart）：
+//   opaque  纯色不透明卡
+//   mica    薄色板叠壁纸
+//   acrylic 毛玻璃：预模糊壁纸 + glassTint 染色（默认材质）
 struct Theme {
   Color card_bg = Color::Rgba(0.075f, 0.086f, 0.105f, 0.82f);
   Color fg = Color::Rgba(1.0f, 1.0f, 1.0f, 0.96f);
   Color fg_muted = Color::Rgba(1.0f, 1.0f, 1.0f, 0.55f);
   Color accent = Color::Hex(0x7CE38B);
   float card_radius = 18.0f;  // 逻辑像素
+  float glass_tint = 0.0f;    // acrylic 的染色不透明度（0 = 纯模糊壁纸）
+  std::string material = "acrylic";
+
+  // 卡片染色层的不透明度：opaque 直接盖住壁纸，acrylic/mica 用用户设的强度
+  float CardTintAlpha() const {
+    return material == "opaque" ? 1.0f : glass_tint;
+  }
 };
 
 class Card {

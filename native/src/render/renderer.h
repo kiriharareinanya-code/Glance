@@ -103,6 +103,16 @@ class Renderer {
   // 按样式取（并缓存）一个排版格式。相同样式重复调用返回同一个对象。
   IDWriteTextFormat* TextFormat(const TextStyle& style);
 
+  // ---- 卡片背景（预模糊壁纸）----
+  //
+  // 传一张已模糊的全屏位图（BGRA，尺寸通常小于屏幕），卡片背景直接用它
+  // 在对应位置的像素——这就是 Acrylic/毛玻璃。见 render/backdrop.h。
+  bool SetBackdropFromPixels(const uint8_t* bgra, int width, int height,
+                             int screen_width, int screen_height);
+  // tint_alpha = 0 表示纯模糊壁纸；>0 时再叠一层染色（材质的 glassTint）
+  void FillCardBackground(const D2D1_RECT_F& rect, float radius, const Color& tint,
+                          float tint_alpha);
+
   // 从 ttf 文件建私有字体集合（时钟的圆体）。
   //
   // 不能用 GDI 的 AddFontResourceEx + 族名硬拼：那条路加载的字体**对
@@ -135,6 +145,12 @@ class Renderer {
   // 绘制目标纹理：窗口模式与 --capture 共用同一条渲染路径（见 .cpp 的说明）
   ComPtr<ID3D11Texture2D> draw_target_texture_;
   ComPtr<ID2D1SolidColorBrush> brush_;
+  // 预模糊壁纸（卡片毛玻璃用）
+  ComPtr<ID2D1Bitmap1> backdrop_bitmap_;
+  // D2D 1.1 的 CreateBitmapBrush 返回 BitmapBrush1（带插值模式的那个接口）
+  ComPtr<ID2D1BitmapBrush1> backdrop_brush_;
+  float backdrop_scale_x_ = 1.0f;
+  float backdrop_scale_y_ = 1.0f;
 
   // DirectComposition：交换链的内容经视觉树合成到窗口上，
   // 这条路才允许逐像素 alpha。

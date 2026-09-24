@@ -13,7 +13,8 @@ std::wstring DisplayNameForPlugin(const std::string& plugin_id) {
 
 void PlaceholderCard::Paint(Renderer& renderer, const Theme& theme) {
   const float s = scale;
-  renderer.FillRoundRect(rect, theme.card_radius * s, theme.card_bg);
+  renderer.FillCardBackground(rect, theme.card_radius * s, theme.card_bg,
+                              theme.CardTintAlpha());
 
   // 组件名（居中偏上）+ 迁移状态小字
   TextStyle name_style;

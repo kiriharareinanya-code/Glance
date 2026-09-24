@@ -501,11 +501,71 @@ void Renderer::FillPolygon(const D2D1_POINT_2F* points, int count,
   d2d_context_->FillGeometry(geometry.Get(), brush_.Get());
 }
 
+bool Renderer::SetBackdropFromPixels(const uint8_t* bgra, int width, int height,
+                                     int screen_width, int screen_height) {
+  if (!d2d_context_ || bgra == nullptr || width <= 0 || height <= 0) return false;
+
+  backdrop_brush_.Reset();
+  backdrop_bitmap_.Reset();
+
+  const D2D1_BITMAP_PROPERTIES1 props = D2D1::BitmapProperties1(
+      D2D1_BITMAP_OPTIONS_NONE,
+      D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE));
+  if (FAILED(d2d_context_->CreateBitmap(
+          D2D1::SizeU(static_cast<UINT32>(width), static_cast<UINT32>(height)), bgra,
+          static_cast<UINT32>(width * 4), &props,
+          backdrop_bitmap_.GetAddressOf()))) {
+    Log(L"[render] backdrop CreateBitmap failed");
+    return false;
+  }
+
+  // CLAMP + 线性插值：卡片在屏幕边缘时刷子会取到边界外的像素，
+  // CLAMP 让它延续边缘色，不会出现黑边。
+  const D2D1_BITMAP_BRUSH_PROPERTIES1 brush_props = D2D1::BitmapBrushProperties1(
+      D2D1_EXTEND_MODE_CLAMP, D2D1_EXTEND_MODE_CLAMP,
+      D2D1_INTERPOLATION_MODE_LINEAR);
+  if (FAILED(d2d_context_->CreateBitmapBrush(backdrop_bitmap_.Get(), &brush_props,
+                                             nullptr,
+                                             backdrop_brush_.GetAddressOf()))) {
+    Log(L"[render] CreateBitmapBrush failed");
+    return false;
+  }
+
+  // 位图是 1/4 尺寸，用刷子变换放大回屏幕坐标：之后按屏幕坐标画卡片，
+  // 取到的就是该位置的壁纸像素。
+  backdrop_scale_x_ = static_cast<float>(screen_width) / static_cast<float>(width);
+  backdrop_scale_y_ = static_cast<float>(screen_height) / static_cast<float>(height);
+  return true;
+}
+
+void Renderer::FillCardBackground(const D2D1_RECT_F& rect, float radius,
+                                  const Color& tint, float tint_alpha) {
+  if (!d2d_context_) return;
+  const D2D1_ROUNDED_RECT rounded = D2D1::RoundedRect(rect, radius, radius);
+
+  if (backdrop_brush_ != nullptr) {
+    backdrop_brush_->SetTransform(
+        D2D1::Matrix3x2F::Scale(backdrop_scale_x_, backdrop_scale_y_));
+    d2d_context_->FillRoundedRectangle(rounded, backdrop_brush_.Get());
+    // 染色层：glassTint 为 0 时就是纯模糊壁纸（用户当前的设置）
+    if (tint_alpha > 0.001f) {
+      brush_->SetColor(D2D1::ColorF(tint.r, tint.g, tint.b, tint_alpha));
+      d2d_context_->FillRoundedRectangle(rounded, brush_.Get());
+    }
+    return;
+  }
+  // 没有壁纸（抓屏失败/动态壁纸）就退回纯色底，不让卡片变成透明洞
+  brush_->SetColor(D2D1::ColorF(tint.r, tint.g, tint.b, tint.a));
+  d2d_context_->FillRoundedRectangle(rounded, brush_.Get());
+}
+
 void Renderer::Shutdown() {
   ReleaseDrawTarget();
   cached_count_ = 0;
   for (auto& f : cached_formats_) f.Reset();
   brush_.Reset();
+  backdrop_brush_.Reset();
+  backdrop_bitmap_.Reset();
   d2d_context_.Reset();
   d2d_device_.Reset();
   // DComp 先松，再放交换链：视觉树还引用着内容时释放交换链是无效操作。

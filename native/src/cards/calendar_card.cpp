@@ -51,7 +51,8 @@ bool CalendarCard::Update() {
 
 void CalendarCard::Paint(Renderer& renderer, const Theme& theme) {
   const float s = scale;
-  renderer.FillRoundRect(rect, theme.card_radius * s, theme.card_bg);
+  renderer.FillCardBackground(rect, theme.card_radius * s, theme.card_bg,
+                              theme.CardTintAlpha());
 
   const float pad_x = 18.0f * s;
   const float pad_y = 16.0f * s;

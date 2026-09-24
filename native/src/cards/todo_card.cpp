@@ -91,7 +91,8 @@ bool TodoCard::Update() {
 
 void TodoCard::Paint(Renderer& renderer, const Theme& theme) {
   const float s = scale;
-  renderer.FillRoundRect(rect, theme.card_radius * s, theme.card_bg);
+  renderer.FillCardBackground(rect, theme.card_radius * s, theme.card_bg,
+                              theme.CardTintAlpha());
 
   const float pad = 14.0f * s;
   const float left = rect.left + pad;

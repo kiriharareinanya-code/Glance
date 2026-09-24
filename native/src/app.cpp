@@ -2,6 +2,7 @@
 
 #include "cards/card_factory.h"
 #include "platform/log.h"
+#include "render/backdrop.h"
 #include "platform/private_fonts.h"
 
 namespace glance {
@@ -40,18 +41,23 @@ bool App::Start(HINSTANCE /*instance*/) {
         return OnMessage(hwnd, message, wparam, lparam, handled);
       });
 
-  LoadLayoutAndCards(window_.dpi_scale());
+  LoadLayoutAndCards(window_.dpi_scale(), window_.width(), window_.height());
   window_.Show();
   SetTimer(window_.handle(), kTickTimerId, kTickMs, nullptr);
   Log(L"[app] started, cards=%zu", cards_.size());
   return true;
 }
 
-void App::LoadLayoutAndCards(float dpi_scale) {
+void App::LoadLayoutAndCards(float dpi_scale, int screen_w, int screen_h) {
+  // 卡片毛玻璃的底：抓桌面 + 预模糊。失败就退回纯色底（不是致命错）。
+  PrepareBackdrop(renderer_, screen_w, screen_h);
+
   const std::wstring state_path = FindStateFilePath();
   if (!state_path.empty() && state_.LoadFromFile(state_path)) {
-    // 圆角跟着用户的设置（Flutter 版默认 26，这里也用同一份配置）
+    // 外观跟着用户的设置走：圆角 / 材质 / 毛玻璃染色强度
     theme_.card_radius = state_.grid.card_radius;
+    theme_.material = state_.grid.material;
+    theme_.glass_tint = state_.grid.glass_tint;
   } else {
     // 读不到布局就用一张时钟兜底：宁可少显示，也不要空窗口让人以为没启动
     Log(L"[app] state.json not found, fallback to a single clock");
@@ -101,7 +107,7 @@ int App::RenderToPng(const std::wstring& path) {
 
   // 用与窗口模式完全相同的布局路径：同读 state.json、同建卡片，
   // 抓出来的图才等于桌面上真实的样子。
-  LoadLayoutAndCards(scale);
+  LoadLayoutAndCards(scale, width, height);
 
   // 等异步组件（天气）把首帧数据拿到：最多 10 秒，每 100ms 让卡片
   // Update 一次把后台结果落地。没这一步，导出的图里天气还停在

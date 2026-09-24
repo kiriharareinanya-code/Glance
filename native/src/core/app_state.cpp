@@ -50,6 +50,9 @@ bool AppState::LoadFromFile(const std::wstring& path) {
     if (const JsonValue* material = settings->Find("material")) {
       grid.material = material->StringOr("acrylic");
     }
+    if (const JsonValue* tint = settings->Find("glassTint")) {
+      grid.glass_tint = static_cast<float>(tint->NumberOr(0.0));
+    }
   }
 
   // 注意命名：局部变量不要叫 cards —— 那是成员名，会遮蔽（第一版就是这么

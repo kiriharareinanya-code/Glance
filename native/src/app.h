@@ -37,7 +37,7 @@ class App {
  private:
   // 读 state.json（与 Flutter 版共享同一份）并按真实布局建卡片。
   // 窗口模式与 --capture 共用，两条路的画面才可比。
-  void LoadLayoutAndCards(float dpi_scale);
+  void LoadLayoutAndCards(float dpi_scale, int screen_w, int screen_h);
 
   void Tick();
   void RenderFrame();
