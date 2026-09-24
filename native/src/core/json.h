@@ -53,6 +53,9 @@ std::string ReadFileUtf8(const std::wstring& path);
 // UTF-8 → UTF-16
 std::wstring Utf8ToWide(const std::string& text);
 
+// UTF-16 → UTF-8（拼查询参数、写日志用）
+std::string WideToUtf8(const std::wstring& text);
+
 }  // namespace glance
 
 #endif  // GLANCE_NATIVE_CORE_JSON_H_

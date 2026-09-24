@@ -25,8 +25,15 @@ target_compile_definitions(glance_native PRIVATE
 # /permissive-：标准一致模式，早暴露问题
 target_compile_options(glance_native PRIVATE /utf-8 /W4 /permissive-)
 
+# C++/WinRT（platform/smtc.cpp 读系统媒体控件）要求标准库异常可用。
+# 用 C++20 的标准协程，不需要旧版的 /await。
+target_compile_definitions(glance_native PRIVATE
+  "_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS")
+
 target_link_libraries(glance_native PRIVATE
   d2d1 d3d11 dxgi dwrite dcomp windowscodecs winhttp)
+# C++/WinRT 的运行时（RoGetActivationFactory 等）在 windowsapp.lib
+target_link_libraries(glance_native PRIVATE "windowsapp.lib")
 
 # 静态链接 CRT：目标是单 exe 分发，不依赖 VC++ 可再发行包
 set_property(TARGET glance_native PROPERTY MSVC_RUNTIME_LIBRARY

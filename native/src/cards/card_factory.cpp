@@ -2,6 +2,7 @@
 
 #include "cards/calendar_card.h"
 #include "cards/clock_card.h"
+#include "cards/lyrics_card.h"
 #include "cards/placeholder_card.h"
 #include "cards/weather_card.h"
 
@@ -35,8 +36,14 @@ std::unique_ptr<Card> CreateCardFor(const CardData& data,
     card = std::make_unique<WeatherCard>(
         city != nullptr ? city->StringOr("") : "",
         static_cast<int>(refresh != nullptr ? refresh->NumberOr(30.0) : 30.0));
+  } else if (data.plugin_id == "lyrics") {
+    const JsonValue* source = data.settings.Find("source");
+    card = std::make_unique<LyricsCard>(
+        SettingsBoolOr(data.settings, "trans", true),
+        SettingsBoolOr(data.settings, "credits", false),
+        source != nullptr ? source->StringOr("auto") : "auto");
   } else {
-    // 待办 / 歌词：布局先占位，组件逐个迁移
+    // 待办：布局先占位（它要输入框，是五个组件里最难的一个，排在最后）
     card = std::make_unique<PlaceholderCard>(DisplayNameForPlugin(data.plugin_id));
   }
 
