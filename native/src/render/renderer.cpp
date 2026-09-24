@@ -465,6 +465,15 @@ void Renderer::DrawText(const std::wstring& text, IDWriteTextFormat* format,
                           DWRITE_MEASURING_MODE_NATURAL);
 }
 
+void Renderer::DrawCircleStroke(float center_x, float center_y, float radius,
+                                float width, const Color& color) {
+  if (!d2d_context_) return;
+  brush_->SetColor(D2D1::ColorF(color.r, color.g, color.b, color.a));
+  d2d_context_->DrawEllipse(
+      D2D1::Ellipse(D2D1::Point2F(center_x, center_y), radius, radius),
+      brush_.Get(), width, nullptr);
+}
+
 void Renderer::DrawLine(float x1, float y1, float x2, float y2, float width,
                         const Color& color) {
   if (!d2d_context_) return;

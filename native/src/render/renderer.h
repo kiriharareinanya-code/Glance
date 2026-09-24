@@ -88,6 +88,9 @@ class Renderer {
   void FillRoundRect(const D2D1_RECT_F& rect, float radius, const Color& color);
   void FillRect(const D2D1_RECT_F& rect, const Color& color);
   void FillCircle(float center_x, float center_y, float radius, const Color& color);
+  // 描边圆（待办的空心勾选框）
+  void DrawCircleStroke(float center_x, float center_y, float radius, float width,
+                        const Color& color);
   void DrawLine(float x1, float y1, float x2, float y2, float width,
                 const Color& color);
   // 填充多边形（天气图标里的雨丝/闪电这类几何形状）

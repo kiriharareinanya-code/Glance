@@ -4,6 +4,7 @@
 #include "cards/clock_card.h"
 #include "cards/lyrics_card.h"
 #include "cards/placeholder_card.h"
+#include "cards/todo_card.h"
 #include "cards/weather_card.h"
 
 namespace glance {
@@ -42,8 +43,10 @@ std::unique_ptr<Card> CreateCardFor(const CardData& data,
         SettingsBoolOr(data.settings, "trans", true),
         SettingsBoolOr(data.settings, "credits", false),
         source != nullptr ? source->StringOr("auto") : "auto");
+  } else if (data.plugin_id == "todo") {
+    // 本轮先做列表显示；勾选与输入框（IME）归到交互层一起做
+    card = std::make_unique<TodoCard>(SettingsBoolOr(data.settings, "hideDone", false));
   } else {
-    // 待办：布局先占位（它要输入框，是五个组件里最难的一个，排在最后）
     card = std::make_unique<PlaceholderCard>(DisplayNameForPlugin(data.plugin_id));
   }
 
