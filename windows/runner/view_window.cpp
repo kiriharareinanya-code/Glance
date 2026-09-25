@@ -44,14 +44,6 @@ int Scaled(int logical, UINT dpi) {
   return MulDiv(logical, static_cast<int>(dpi), 96);
 }
 
-// 拖动窗口到屏幕边缘时的吸附目标。只在 view_window.cpp 内部用。
-enum SnapTarget {
-  kSnapNone = 0,
-  kSnapMaximize = 1,
-  kSnapLeft = 2,
-  kSnapRight = 3,
-};
-
 // ---- 窗口尺寸记忆（反馈 Fb0031）----
 //
 // "修改设置窗口大小后关闭，重新打开会回到初始状态"——建窗口时只认 spec 里的
@@ -93,24 +85,6 @@ bool LoadWindowSize(const std::string& key, int* width, int* height) {
   *width = w;
   *height = h;
   return true;
-}
-
-// 把窗口摆到吸附目标上（拖动结束时调用）。最大化交给系统，左右半屏自己算。
-void ApplySnapTo(HWND hwnd, int target) {
-  HMONITOR mon = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
-  MONITORINFO mi{};
-  mi.cbSize = sizeof(mi);
-  if (!GetMonitorInfo(mon, &mi)) return;
-  if (target == kSnapMaximize) {
-    ShowWindow(hwnd, SW_MAXIMIZE);
-    return;
-  }
-  const int full = mi.rcWork.right - mi.rcWork.left;
-  const int half = full / 2;
-  const int x = (target == kSnapLeft) ? mi.rcWork.left : mi.rcWork.left + half;
-  SetWindowPos(hwnd, nullptr, x, mi.rcWork.top, half,
-               mi.rcWork.bottom - mi.rcWork.top,
-               SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
 // 无边框窗口的圆角。Win11 用 DWM 圆角（dwm_round_ok_ 时**不要**区域裁剪——
@@ -195,47 +169,25 @@ LRESULT ViewWindow::Handle(HWND hwnd, UINT msg, WPARAM w, LPARAM l) {
     // 整个客户区都被 Flutter 的子窗口盖着，没有一块地方需要我们擦背景。
     // 返回非 0 表示"已经擦过了"，系统就不会再拿黑色背景刷刷一遍 ——
     // 这是拖动缩放时整窗黑闪的另一半原因（另一半是 WS_CLIPCHILDREN）。
+    case WM_NCCALCSIZE:
+      // wparam=TRUE 时把非客户区全部划进客户区：系统标题栏/边框从此"看不见"，
+      // 但样式里它们仍然存在——DWM 因此照常播最小化/最大化动画、给系统阴影。
+      // 标题栏区域由 Flutter 的自绘标题栏盖住（window_chrome.dart）。
+      // 最大化尺寸不用在这里裁：带 WS_CAPTION 的窗口系统自动避开任务栏，
+      // WM_GETMINMAXINFO 里的自定义计算继续作为兜底。
+      if (w) return 0;
+      break;
+
     case WM_ERASEBKGND:
       return 1;
     case WM_ENTERSIZEMOVE:
       in_size_move_ = true;
       return 0;
-    // 拖动窗口按光标位置判吸附目标（反馈 Fb0011）。
-    //
-    // 无边框窗口用的是 WS_POPUP，没有 WS_THICKFRAME，系统的 Aero Snap 不生效：
-    // 拖到屏幕顶部/左边/右边什么都不会发生。这里自己按光标落点判，真正的摆放
-    // 留到 WM_EXITSIZEMOVE——拖动中途改窗口位置会和系统的移动循环打架。
-    // 返回 0 = 我们没有改动 WM_MOVING 给的 RECT，系统继续按原样拖。
-    case WM_MOVING: {
-      if (IsZoomed(hwnd)) return 0;
-      POINT pt{};
-      if (!GetCursorPos(&pt)) return 0;
-      HMONITOR mon = MonitorFromPoint(pt, MONITOR_DEFAULTTONEAREST);
-      MONITORINFO mi{};
-      mi.cbSize = sizeof(mi);
-      if (!GetMonitorInfo(mon, &mi)) return 0;
-      // 判定带用物理像素（和光标同一套坐标）。顶部做得薄：只有明确往顶上怼
-      // 才最大化；左右放宽一点，贴边分屏是高频操作。
-      constexpr int kTopEdge = 8;
-      constexpr int kSideEdge = 24;
-      if (pt.y <= mi.rcWork.top + kTopEdge) {
-        snap_pending_ = kSnapMaximize;
-      } else if (pt.x <= mi.rcWork.left + kSideEdge) {
-        snap_pending_ = kSnapLeft;
-      } else if (pt.x >= mi.rcWork.right - kSideEdge) {
-        snap_pending_ = kSnapRight;
-      } else {
-        snap_pending_ = kSnapNone;
-      }
-      return 0;
-    }
+    // 拖动贴边分屏（反馈 Fb0011 当年自己实现的 snap）已删：WS_THICKFRAME
+    // 加回来之后系统 Aero Snap 原生生效（Win11 还带布局选择浮层），
+    // 两套 snap 同时工作会在 WM_EXITSIZEMOVE 里互相覆盖。
     case WM_EXITSIZEMOVE: {
       in_size_move_ = false;
-      // 先落吸附，再补圆角：吸附会改窗口尺寸，顺序反了圆角就按旧尺寸裁。
-      if (snap_pending_ != kSnapNone) {
-        ApplySnapTo(hwnd, snap_pending_);
-        snap_pending_ = kSnapNone;
-      }
       // 拖动期间区域是按 bRedraw=FALSE 设的，松手后补一次带重绘的，
       // 保证圆角最终是干净的
       if (!dwm_round_ok_) {
@@ -337,14 +289,17 @@ int64_t ViewWindow::Create(int64_t engine_id) {
   wc.hIcon = LoadIcon(wc.hInstance, MAKEINTRESOURCE(IDI_APP_ICON));
   RegisterClassEx(&wc);
 
-  // 无边框自绘窗口：
-  //   WS_POPUP            去掉系统标题栏/边框（标题栏由 Flutter 自绘）
-  //   WS_EX_APPWINDOW     WS_POPUP 默认不进任务栏/Alt+Tab，这个样式强制有按钮
+  // 无边框自绘窗口——用 rossy/borderless-window（Office/VS/UWP 同款）的做法：
   //
-  // 不加 WS_THICKFRAME：它在 Win10 上会在窗口四周画出约 7px 的可见边框线
-  // （左侧和上方最明显）。它本来的作用是提供系统缩放边缘，但 Flutter 窗口的
-  // WM_NCHITTEST 失效（见 flutter_window.cpp 的实测记录），缩放边缘根本点不到
-  // —— 只换来一圈丑边框，没有缩放收益，所以直接不缩放，砍掉它。
+  //   保留 WS_OVERLAPPEDWINDOW（含 WS_CAPTION/WS_THICKFRAME），再在
+  //   WM_NCCALCSIZE 里返回 0 把非客户区从视觉上吃掉。
+  //
+  // 早年用 WS_POPUP 的写法有个换不回来的代价：**DWM 只给带系统标题栏的
+  // 窗口播最小化/最大化/还原动画**（BorderlessWindow issue #11 的结论：
+  // "WS_CAPTION is required for the animations; if you remove it there is
+  // no way to enable them"）——用户实测点最大化就是瞬间跳变。换成标准样式
+  // 之后动画、Aero Snap、系统阴影、任务栏行为全部回到原生水平。
+  // WS_EX_APPWINDOW 继续保留：WS_POPUP 时代需要它进任务栏，留着无害。
   const UINT dpi = GetDpiForSystem();
   RECT wa{};
   SystemParametersInfoW(SPI_GETWORKAREA, 0, &wa, 0);
@@ -369,8 +324,8 @@ int64_t ViewWindow::Create(int64_t engine_id) {
   // 黑的），子窗口随后才重画，拖动缩放时就是整窗一直黑闪。
   const DWORD ex_style = WS_EX_APPWINDOW;
   hwnd_ = CreateWindowEx(ex_style, spec_.class_name, spec_.title,
-                         WS_POPUP | WS_CLIPCHILDREN, x, y, w, h, nullptr,
-                         nullptr, wc.hInstance, this);
+                         WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, x, y, w, h,
+                         nullptr, nullptr, wc.hInstance, this);
   if (!hwnd_) {
     Log(key_ + " 窗口：建窗口失败 err=" + std::to_string(GetLastError()));
     return -1;

@@ -92,11 +92,6 @@ class ViewWindow {
   bool in_size_move_ = false;
 
   // 拖动窗口时在 WM_MOVING 里判出的吸附目标，松手（WM_EXITSIZEMOVE）时摆下去。
-  // 取值见 view_window.cpp 里的 SnapTarget（0 = 不吸附）。
-  //
-  // 反馈 Fb0011：无边框窗口（WS_POPUP，没有 WS_THICKFRAME）拿不到系统的
-  // Aero Snap，拖到屏幕顶部/左/右边缘毫无反应。
-  int snap_pending_ = 0;
 };
 
 #endif  // RUNNER_VIEW_WINDOW_H_
