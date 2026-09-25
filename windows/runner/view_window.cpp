@@ -483,10 +483,13 @@ void ViewWindow::ResizeFrom(int edge) {
 }
 
 void ViewWindow::Minimize() {
-  if (hwnd_) ShowWindow(hwnd_, SW_MINIMIZE);
+  // 自绘按钮如果直接 ShowWindow(SW_MINIMIZE) 会跳过 DWM 动画——只有走
+  // 系统命令路径（WM_SYSCOMMAND）才有 Win11 那个最小化/最大化的缩放动画。
+  if (hwnd_) PostMessageW(hwnd_, WM_SYSCOMMAND, SC_MINIMIZE, 0);
 }
 
 void ViewWindow::ToggleMaximize() {
   if (!hwnd_) return;
-  ShowWindow(hwnd_, IsZoomed(hwnd_) ? SW_RESTORE : SW_MAXIMIZE);
+  PostMessageW(hwnd_, WM_SYSCOMMAND,
+               IsZoomed(hwnd_) ? SC_RESTORE : SC_MAXIMIZE, 0);
 }
