@@ -15,7 +15,9 @@ import 'dart:ui' as ui;
 
 import 'package:fluent_ui/fluent_ui.dart';
 
+import '../core/logger.dart';
 import '../core/theme.dart';
+import '../native/native_bridge.dart';
 import '../store/store.dart';
 import 'app_root.dart';
 import 'panel.dart';
@@ -37,7 +39,7 @@ final ValueNotifier<String?> panelCardRequest = ValueNotifier(null);
 /// 这个 notifier 只负责"用户手动改了 settings.theme"的那一条路径。
 final ValueNotifier<int> panelThemeRevision = ValueNotifier(0);
 
-class PanelApp extends StatelessWidget {
+class PanelApp extends StatefulWidget {
   const PanelApp({
     super.key,
     required this.state,
@@ -50,6 +52,28 @@ class PanelApp extends StatelessWidget {
   final GlobalKey<AppRootState> appKey;
 
   @override
+  State<PanelApp> createState() => _PanelAppState();
+}
+
+class _PanelAppState extends State<PanelApp> {
+  /// 已经推给 native 的窗口深色状态，用来去重。
+  ///
+  /// 同步动作放在 build 里：面板窗口的 DWM 边框只认这个属性，而它的来源
+  /// （settings.theme 与系统深浅色）都在 Dart 侧，任何一个变了这棵树都会重建。
+  /// 函数内部去重，实际只在亮度真的变化时才发通道调用。
+  bool? _pushedDark;
+
+  void _syncWindowTheme(bool light) {
+    final dark = !light;
+    if (_pushedDark == dark) return;
+    _pushedDark = dark;
+    Log.i('panel', '窗口深浅色 → ${dark ? '深色' : '浅色'}');
+    NativeWindow.panel.setDarkMode(dark).catchError((Object e) {
+      Log.i('panel', '窗口深浅色推送失败: $e');
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     // 双重监听重建 FluentApp：
     //   1. systemBrightness 翻转（系统深浅色切换 / 显式 light+dark 不影响）
@@ -58,7 +82,10 @@ class PanelApp extends StatelessWidget {
     return AnimatedBuilder(
       animation: Listenable.merge([systemBrightness, panelThemeRevision]),
       builder: (context, _) {
-        final light = effectiveBrightness(state.settings) == Brightness.light;
+        final light =
+            effectiveBrightness(widget.state.settings) == Brightness.light;
+        // 窗口级深浅色跟着生效亮度走（DWM 边框/阴影/窗口菜单）
+        _syncWindowTheme(light);
         // 窗口底色改由亚克力层自己画（见 [_AcrylicBackdrop]），
         // Scaffold 不能再铺一层不透明底，否则整块把壁纸盖住。
         const bg = Colors.transparent;
@@ -93,24 +120,26 @@ class PanelApp extends StatelessWidget {
                     builder: (context, cardId, _) => ControlPanel(
                       // 换页/换定位卡片时重建，其余时候不动
                       key: ValueKey('panel:$tab:$cardId'),
-                      state: state,
-                      store: store,
+                      state: widget.state,
+                      store: widget.store,
                       focusCardId: cardId,
                       initialTab: tab,
                       // 独立窗口里不要遮罩、不要固定尺寸、不要自绘关闭按钮
                       embedded: false,
-                      onClose: () => appKey.currentState?.hidePanelWindow(),
-                      onChanged: () => appKey.currentState?.onPanelChanged(),
-                      onAdd: (plugin) => appKey.currentState?.addCard(plugin),
+                      onClose: () => widget.appKey.currentState?.hidePanelWindow(),
+                      onChanged: () => widget.appKey.currentState?.onPanelChanged(),
+                      onAdd: (plugin) => widget.appKey.currentState?.addCard(plugin),
                       // 每块屏都放过这种组件了就不让再加。判断要用磁贴那边的
                       // 显示器信息，所以问 appKey 而不是在面板里自己算。
                       canAdd: (pluginId) =>
-                          appKey.currentState?.canAddPlugin(pluginId) ?? true,
+                          widget.appKey.currentState?.canAddPlugin(pluginId) ??
+                          true,
                       onRemove: (card) =>
-                          appKey.currentState?.removeCard(card),
+                          widget.appKey.currentState?.removeCard(card),
                       // 应用更新：保存退出 + 拉起静默安装器都在磁贴那边编排
                       onInstallUpdate: (path) async =>
-                          appKey.currentState?.installUpdate(path) ?? false,
+                          widget.appKey.currentState?.installUpdate(path) ??
+                          false,
                     ),
                   ),
                 ),

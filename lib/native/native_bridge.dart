@@ -260,6 +260,13 @@ class NativeWindow {
   Future<void> toggleMaximize() =>
       _channel.invokeMethod<void>('windowToggleMaximize', key);
 
+  /// 窗口级深浅色（DWM 画的那圈边框、系统阴影、Alt+Space 窗口菜单的观感）。
+  ///
+  /// 面板里的"主题"改了、或系统深浅色翻转时推一次。不推的话窗口会停在
+  /// 建窗时那个状态——浅色面板配深色边框，一眼就不对。
+  Future<void> setDarkMode(bool dark) =>
+      _channel.invokeMethod<void>('windowSetDarkMode', {'key': key, 'dark': dark});
+
   /// 从窗口某条边/某个角开始缩放。
   ///
   /// 传的是 Win32 的命中码（HTLEFT=10 那一套，见 WindowEdge）。窗口没有系统

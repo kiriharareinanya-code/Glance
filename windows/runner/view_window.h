@@ -68,6 +68,19 @@ class ViewWindow {
   void Minimize();
   void ToggleMaximize();
 
+  // 窗口级深浅色（DWM 边框、系统阴影、窗口菜单的观感）。
+  // 面板里的"主题"设置变了、或系统深浅色翻转时由 Dart 推过来——
+  // 这个属性决定系统画的那 1px 边框是深色还是浅色，写死会在另一种主题下露馅。
+  void SetDarkMode(bool dark);
+
+  // 记住深色值，供之后创建的窗口沿用。
+  //
+  // 为什么需要：Dart 在面板 widget 第一次 build 时就推值，而那一刻 native
+  // 侧的次级窗口**可能还没建出来**（视图是先创建、窗口随后 show），
+  // ForKey 拿到 nullptr、这次推送就丢了——实测就是"浅色对、深色不对"。
+  // 记下来，窗口建好时补一次即可。
+  static void RememberDarkMode(bool dark);
+
   // 从窗口边缘开始缩放。传的是 Win32 命中码（HTLEFT 那一套）。
   void ResizeFrom(int edge);
 
@@ -89,9 +102,9 @@ class ViewWindow {
   int64_t view_id_ = -1;
 
   bool dwm_round_ok_ = false;
+  static bool pending_dark_valid_;
+  static bool pending_dark_;
   bool in_size_move_ = false;
-
-  // 拖动窗口时在 WM_MOVING 里判出的吸附目标，松手（WM_EXITSIZEMOVE）时摆下去。
 };
 
 #endif  // RUNNER_VIEW_WINDOW_H_

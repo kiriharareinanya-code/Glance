@@ -144,9 +144,11 @@ LRESULT CALLBACK ViewWindow::WndProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l) {
                      reinterpret_cast<LONG_PTR>(cs->lpCreateParams));
     auto* self = static_cast<ViewWindow*>(cs->lpCreateParams);
     self->hwnd_ = hwnd;
-    // 标题栏跟随系统深浅色。20 = DWMWA_USE_IMMERSIVE_DARK_MODE
-    BOOL dark = TRUE;
-    DwmSetWindowAttribute(hwnd, 20, &dark, sizeof(dark));
+    // 深浅色：Dart 已经推过就用它的值（推送早于建窗是常态），
+    // 否则先跟随**系统**，等 Dart 那边下一次推送覆盖。
+    // 20 = DWMWA_USE_IMMERSIVE_DARK_MODE
+    self->SetDarkMode(pending_dark_valid_ ? pending_dark_
+                                         : !SystemIsLightTheme());
   }
   auto* self =
       reinterpret_cast<ViewWindow*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -435,6 +437,25 @@ void ViewWindow::ResizeFrom(int edge) {
   }
   ReleaseCapture();
   SendMessage(hwnd_, WM_NCLBUTTONDOWN, static_cast<WPARAM>(edge), 0);
+}
+
+bool ViewWindow::pending_dark_valid_ = false;
+bool ViewWindow::pending_dark_ = false;
+
+void ViewWindow::RememberDarkMode(bool dark) {
+  pending_dark_valid_ = true;
+  pending_dark_ = dark;
+}
+
+void ViewWindow::SetDarkMode(bool dark) {
+  if (!hwnd_) return;
+  const BOOL value = dark ? TRUE : FALSE;
+  DwmSetWindowAttribute(hwnd_, 20 /* DWMWA_USE_IMMERSIVE_DARK_MODE */, &value,
+                        sizeof(value));
+  // 非客户区（那 1px 边框）按新主题重画。只发 WM_NCPAINT 在 Win11 上不够，
+  // RedrawWindow 带 RDW_FRAME 才会走完整条非客户区绘制路径。
+  RedrawWindow(hwnd_, nullptr, nullptr,
+               RDW_FRAME | RDW_INVALIDATE | RDW_NOCHILDREN);
 }
 
 void ViewWindow::Minimize() {

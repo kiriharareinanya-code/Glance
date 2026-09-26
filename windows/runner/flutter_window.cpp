@@ -457,6 +457,28 @@ void HandleMethodCall(
   }
 
   // 下面几条的参数就是窗口 key 本身
+  // 窗口级深浅色：面板里的"主题"改了、或系统深浅色翻转时推过来。
+  // 参数是 {key, dark}——和 windowMinimize 那几个（只带 key）不同，
+  // 所以单独一段，不混进下面那个分支。
+  if (call.method_name() == "windowSetDarkMode") {
+    const auto* args = std::get_if<flutter::EncodableMap>(call.arguments());
+    if (args) {
+      const auto* key = std::get_if<std::string>(
+          &args->at(flutter::EncodableValue("key")));
+      const auto* dark = std::get_if<bool>(
+          &args->at(flutter::EncodableValue("dark")));
+      if (key && dark) {
+        // 先记住：窗口可能还没建出来（Dart 在面板首次 build 时就推了值）
+        ViewWindow::RememberDarkMode(*dark);
+        if (ViewWindow* win = ViewWindow::ForKey(*key)) {
+          win->SetDarkMode(*dark);
+        }
+      }
+    }
+    result->Success();
+    return;
+  }
+
   if (call.method_name() == "windowShow" ||
       call.method_name() == "windowHide" ||
       call.method_name() == "windowDragMove" ||
