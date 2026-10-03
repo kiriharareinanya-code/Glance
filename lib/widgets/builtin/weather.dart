@@ -24,6 +24,7 @@ import '../catalog.dart';
 import '../kit.dart'
     show FlipSwap, NodeIcon, TapFeedback, nodeColor, nodeWeight, withGaps;
 import 'package:flutter/material.dart';
+import '../../core/logger.dart';
 
 /// 自动翻面后停留多久（毫秒）。原来写死 8000，反馈说太快。
 const int kFlipDwell = 30000;
@@ -664,7 +665,72 @@ class WeatherWidget extends BuiltinController {
   // 中国天气网 toy1 的返回是 JSONP 包装：([{"ref":"...~...~..."}])。
   // ref 用 ~ 分隔，第一个字段是城市码；结果里第一条通常是市级记录
   // （9 位 code）。Referer 必须有——不带的话 toy1 只回一个空的 "()"。
+  /// 城市码缓存：城市名 → {name, cityId, province}，存在卡片自己的本地存储里。
+  ///
+  /// 为什么要缓存：toy1 偶发回空（同一查询有时 2B 有时 949B），而每次刷新
+  /// 都去问一遍既慢、又徒增"刚巧撞上空响应"的概率。查成功后记住即可。
+  Map<String, Map<String, String>> _cityCodeCache() {
+    final raw = ctx.storageGetLocal('cityCodes');
+    final out = <String, Map<String, String>>{};
+    if (raw is Map) {
+      for (final e in raw.entries) {
+        final v = e.value;
+        if (v is Map) {
+          out['${e.key}'] = {
+            for (final kv in v.entries) '${kv.key}': '${kv.value}',
+          };
+        }
+      }
+    }
+    return out;
+  }
+
+  void _saveCityCode(String keyword, Map<String, String> hit) {
+    final all = _cityCodeCache();
+    all[keyword] = hit;
+    ctx.storageSetLocal('cityCodes', all);
+  }
+
+  /// 查询变体：先原样，再去掉行政区划后缀。
+  ///
+  /// toy1 只认不带后缀的简称（实测：「株洲」✓ /「株洲市」✗ /「天元区」✗），
+  /// 所以带后缀的输入要能自动退化一次。
+  static List<String> _cityVariants(String raw) {
+    final out = <String>[raw];
+    final stripped =
+        raw.replaceAll(RegExp(r'[市区县省盟旗镇乡]$'), '').trim();
+    if (stripped.isNotEmpty && stripped != raw) out.add(stripped);
+    return out;
+  }
+
+  /// 城市名 → 城市码（带缓存、变体、重试）。
   Future<Map<String, String>?> _searchCity(String keyword) async {
+    final kw = keyword.trim();
+    if (kw.isEmpty) return null;
+
+    final hit0 = _cityCodeCache()[kw];
+    if (hit0 != null) {
+      Log.i('weather', '城市码命中缓存:「$kw」→ ${hit0['cityId']}');
+      return hit0;
+    }
+
+    for (final v in _cityVariants(kw)) {
+      // toy1 会偶发回空数组，同一个变体试两次
+      for (var attempt = 0; attempt < 2; attempt++) {
+        final hit = await _searchCityOnce(Uri.encodeComponent(v));
+        if (hit != null) {
+          Log.i('weather',
+              '城市码:「$kw」→ 用「$v」查到 ${hit['cityId']} ${hit['name']}');
+          _saveCityCode(kw, hit);
+          return hit;
+        }
+      }
+      Log.w('weather', '城市码:「$kw」用变体「$v」查不到（toy1 没给市级记录）');
+    }
+    return null;
+  }
+
+  Future<Map<String, String>?> _searchCityOnce(String keyword) async {
     final u = 'https://toy1.weather.com.cn/search?cityname=$keyword';
     final r = await ctx.httpGetText(u, headers: {
       'Referer': 'https://www.weather.com.cn/',
@@ -764,9 +830,9 @@ class WeatherWidget extends BuiltinController {
     final city = '${ctx.settings['city'] ?? ''}'.trim();
     if (city.isNotEmpty) {
       // 手填城市名：toy1 拿城市码，open-meteo 拿坐标
-      final hit = await _searchCity(Uri.encodeComponent(city));
+      final hit = await _searchCity(city);
       if (hit == null) {
-        _fail('没找到城市「$city」');
+        _fail('没找到城市「$city」（试试填市名简称，别带「市/区」后缀）');
         return null;
       }
       final coord = await _searchCoord(Uri.encodeComponent(city));
@@ -782,7 +848,7 @@ class WeatherWidget extends BuiltinController {
       _fail('自动定位失败（可在设置里手填城市）');
       return null;
     }
-    final hit = await _searchCity(Uri.encodeComponent(d.city));
+    final hit = await _searchCity(d.city);
     if (hit == null) {
       _fail('定位到的「${d.city}」查不到城市码，请手填城市');
       return null;

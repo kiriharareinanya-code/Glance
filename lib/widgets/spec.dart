@@ -66,7 +66,8 @@ const List<BuiltinSpec> kBuiltinSpecs = [
         'key': 'city',
         'type': 'text',
         'label': '城市',
-        'desc': '留空则按 IP 自动定位',
+        'desc': '留空则按 IP 自动定位。填市名简称即可——这个数据源不认'
+            '「市/区/县」后缀（填「株洲」能查到，填「株洲市」或「天元区」查不到）',
         'default': ''
       },
       {
