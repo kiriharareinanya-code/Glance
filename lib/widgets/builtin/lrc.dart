@@ -367,7 +367,10 @@ class Lrc {
       // <0.3 秒 6 分、<0.7 秒 5 分、<1.5 秒 4 分、<3.5 秒 2 分，
       // ≥3.5 秒直接判不匹配（0 分且不再给任何补救机会）。
       final dur = (s['duration'] as num?)?.toInt() ?? 0;
-      if (durMs > 0 && dur > 0) {
+      // LRCLIB 有条目把 duration 记成 1 秒（实测《Ripples of Past Reverie
+      // (Chinese Ver.)》7 个候选全是 191s 的"时长差"）——太短的一律当没填，
+      // 跳过时长规则，否则正确的候选会被全拒、语言筛选根本没机会跑。
+      if (durMs > 0 && dur > 0 && dur >= 10000) {
         final diff = (dur - durMs).abs();
         if (diff == 0) {
           score += 70;
