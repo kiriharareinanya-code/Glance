@@ -143,6 +143,20 @@ const List<BuiltinSpec> kBuiltinSpecs = [
         'default': 'auto'
       },
       {
+        'key': 'preferLang',
+        'type': 'select',
+        'label': '版本语言偏好',
+        'desc': '同一首歌有中/英文两个版本且时长相同时，优先取哪种语言的'
+            '歌词（如《昔涟》与《Ripples of Past Reverie》）。标不上语言时'
+            '维持原样',
+        'options': [
+          {'value': 'zh', 'label': '优先中文'},
+          {'value': 'en', 'label': '优先英文'},
+          {'value': 'none', 'label': '不挑语言'},
+        ],
+        'default': 'zh'
+      },
+      {
         'key': 'trans',
         'type': 'boolean',
         'label': '显示翻译',

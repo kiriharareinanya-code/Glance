@@ -170,13 +170,25 @@ class LyricsWidget extends BuiltinController {
     if (query.isEmpty) return null;
     final songs = await _searchNeteaseSongs(query, artistOnly ? 30 : 10);
     if (songs == null) return null;
-    final want = Lrc.wantedLyricLang(vTitle);
+    // 语言要求：标题里的标记（Chinese Ver. 之类）优先；没写就用用户偏好。
+    // 默认中文优先——用户是中文用户，英文原文反正还挂着官方翻译，而
+    // "同专辑里藏着中演唱版"的情况只有偏好启动了才找得到。英文歌不会
+    // 受影响：全不符时回退到第一份候选。
+    final want = Lrc.wantedLyricLang(vTitle) ??
+        switch ('${_settings['preferLang'] ?? 'zh'}') {
+          'zh' => 'zh',
+          'en' => 'en',
+          _ => null,
+        };
     if (want != null) {
-      Log.i('lyrics', '要求${want == 'zh' ? '中文' : '英文'}歌词');
+      Log.i('lyrics', '要求${want == 'zh' ? '中文' : '英文'}歌词'
+          '${Lrc.wantedLyricLang(vTitle) == null ? '（按偏好设置）' : ''}');
     }
     // 逐个候选试：同名不同语言版本（时长也一样）时，只有靠歌词实际语言
     // 才分得开。选中的那个语言不符就拉黑它、换下一个，最多试 3 个。
     final tried = <String>{};
+    List<LrcLine>? fallback;
+    Map<String, Object?>? fallbackSong;
     for (var round = 0; round < 3; round++) {
       final pool =
           songs.where((s) => !tried.contains('${s['id']}')).toList();
@@ -189,11 +201,44 @@ class LyricsWidget extends BuiltinController {
       if (!Lrc.langOk(want, lines)) {
         Log.i('lyrics', '「${song['name']}」是${Lrc.lyricLangOf(lines) == 'zh' ? '中文' : '英文'}版，'
             '与要求不符，换下一个候选');
+        fallback ??= lines;
+        fallbackSong ??= song;
         continue;
       }
       return lines;
     }
-    return null;
+    // 候选全不符：查命中候选**所在专辑**，找"同专辑、时长差 ≤1.5s、语言符合"
+    // 的兄弟曲目。典型场景是翻译歌名——《昔涟》和
+    // 《Ripples of Past Reverie》两个标题毫无字面关联，按标题永远搜不到，
+    // 但它们就在同一张专辑里，而且时长一秒不差。
+    if (want != null && fallback != null && fallbackSong != null) {
+      final al = fallbackSong['album'];
+      final albId = al is Map ? '${al['id']}' : '';
+      if (albId.isNotEmpty) {
+        Log.i('lyrics', '候选全不符，查专辑 $albId 找${want == 'zh' ? '中' : '英'}文版');
+        final alb = await ctx.httpGetJSON(
+            'https://music.163.com/api/v1/album/$albId', headers: _neHeaders);
+        final albSongs = alb['songs'] as List?;
+        if (albSongs != null) {
+          for (final it in albSongs.cast<Object?>()) {
+            final s = (it as Map).cast<String, Object?>();
+            final sid = '${s['id']}';
+            if (tried.contains(sid)) continue;
+            final d = (s['duration'] as num?)?.toInt() ?? 0;
+            if ((d - durMs).abs() > 1500) continue;
+            tried.add(sid);
+            final lines = await _lyricsFromNeteaseSong(s);
+            if (lines == null) continue;
+            if (Lrc.langOk(want, lines)) {
+              Log.i('lyrics', '专辑内找到${want == 'zh' ? '中' : '英'}文版:'
+                  '「${s['name']}」');
+              return lines;
+            }
+          }
+        }
+      }
+    }
+    return fallback;
   }
 
   Future<List<LrcLine>?> _lrclibGetAttempt(
