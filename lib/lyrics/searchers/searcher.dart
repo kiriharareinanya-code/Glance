@@ -4,6 +4,7 @@
 //
 library;
 
+import '../lyrics_log.dart';
 import '../models/track_metadata.dart';
 import 'helpers/compare_helper.dart';
 import 'isearcher.dart';
@@ -52,6 +53,7 @@ abstract class Searcher implements ISearcher {
   @override
   Future<List<ISearchResult>> searchForResultsByTrack(TrackMetadata track,
       [bool fullSearch = false]) async {
+    lyricsLog('[探针] searchForResultsByTrack 入口 title=${track.title}');
     var searchString =
         '${track.title} ${track.artist?.replaceAll(', ', ' ')} ${track.album}'
             .replaceAll(' - ', ' ')
@@ -60,7 +62,9 @@ abstract class Searcher implements ISearcher {
 
     var level = 1;
     do {
+      lyricsLog('[探针] L$level 搜索「$searchString」');
       final results = await searchForResults(searchString);
+      lyricsLog('[探针] L$level 返回 ${results?.length} 条');
       if (results != null && results.isNotEmpty) {
         searchResults.addAll(results);
       }
@@ -100,9 +104,13 @@ abstract class Searcher implements ISearcher {
       }
     } while (++level < 3);
 
+    lyricsLog('[探针] 开始打分，共 ${searchResults.length} 条');
+    var idx = 0;
     for (final result in searchResults) {
+      lyricsLog('[探针] 打分第 ${++idx} 条：${result.title}');
       result.setMatchType(CompareHelper.compareTrack(track, result));
     }
+    lyricsLog('[探针] 打分完成');
 
     searchResults.sort(
         (x, y) => MatchTypeComparer().compare(y.matchType!, x.matchType!));

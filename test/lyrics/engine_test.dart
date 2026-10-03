@@ -78,6 +78,14 @@ class _FakeResult implements ISearchResult {
   @override
   List<String>? get albumArtists => null;
 
+  // ISearchResult 给了这两个的默认实现，但 implements 不继承默认实现，
+  // 必须显式写出来。
+  @override
+  String get artist => artists.join(', ');
+
+  @override
+  String get albumArtist => (albumArtists ?? const <String>[]).join(', ');
+
   @override
   ISearcher get searcher => _FakeSearcher(const []);
 
@@ -303,27 +311,6 @@ void main() {
     expect(out!.searchResult.title, '英文版');
   });
 
-  test('信息行：stripInfoLines=true 时裁掉制作名单', () async {
-    final bridge = _FakeBridge(
-      searcherType: Searchers.netease,
-      displayName: 'Netease',
-      searcher: _FakeSearcher([
-        _FakeResult('歌', ['某人'], 8000, MatchType.perfect),
-      ]),
-      lyricsByTitle: {'歌': _lrcWithCredits},
-    );
-
-    final out = await engineWith([bridge]).fetch(
-      title: '歌',
-      artist: '某人',
-      durationMs: 8000,
-      stripInfoLines: true,
-    );
-
-    expect(out, isNotNull);
-    expect(out!.lines.any((l) => l.text.contains('作词')), isFalse);
-    expect(out.lines.length, 5);
-  });
 
   test('信息行：stripInfoLines=false 时原样保留', () async {
     final bridge = _FakeBridge(

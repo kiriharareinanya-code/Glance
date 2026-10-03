@@ -125,7 +125,9 @@ class LyricsEngine {
       try {
         results = await searcher.searchForResultsByTrack(track);
       } catch (e) {
+        final st = StackTrace.current;
         lyricsLog('${bridge.displayName} 搜索失败：$e', warn: true);
+        lyricsLog('堆栈：' + st.toString(), warn: true);
         continue;
       }
       if (results.isEmpty) {
@@ -162,6 +164,16 @@ class LyricsEngine {
           matchType: result.matchType ?? MatchType.noMatch,
           searchResult: result,
         );
+
+        // 伴奏/纯音乐的"歌词"只有一行「纯音乐，请欣赏」，语言判定会把它
+        // 当中文歌词放行。行数是最可靠的信号：真歌词至少有几十行。
+        // 留 3 行给极短的口播/诗体歌词，低于这个数一律当没有歌词。
+        final lineCount = data.lines?.length ?? 0;
+        if (lineCount < 3) {
+          lyricsLog('${bridge.displayName}「${result.title}」只有 $lineCount 行'
+              '（伴奏/纯音乐），换下一个候选');
+          continue;
+        }
 
         if (preferLang == 'zh' || preferLang == 'en') {
           final got = _lyricLangOf(data);

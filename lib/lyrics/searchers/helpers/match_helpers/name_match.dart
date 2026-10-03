@@ -28,7 +28,27 @@ NameMatchType? compareName(String? name1, String? name2) {
   name1 = normalizeName(name1) ?? '';
   name2 = normalizeName(name2) ?? '';
 
-  if (name1 == name2) return NameMatchType.perfect;
+  // 伴奏/纯音乐不是"歌"：同一首歌的伴奏版常常和原歌标题几乎一样，
+  // 反而比"中文译名"的真人唱版更像（实测《昔涟》只得 medium，
+  // 而「昔涟 (中文和声伴奏)」「Ripples of Past Reverie (英文和声伴奏)」
+  // 都拿到 veryHigh）。这里先摘掉这些标记再比，并降档处理。
+  String stripInstrumental(String s) => s
+      .replaceAll(RegExp(r'\((?:[^()]*)(?:伴奏|纯音乐|纯乐曲| instrumental| inst| off vocal| no vocals| karaoke)[^()]*\)'), '')
+      .replaceAll(RegExp(r'\[[^\[\]]*(?:伴奏|纯音乐| instrumental)[^\[\]]*\]'), '')
+      .replaceAll(RegExp(r'伴奏版|纯音乐版| instrumental version'), '')
+      .trim();
+
+  final orig1 = name1;
+  final orig2 = name2;
+  name1 = normalizeName(stripInstrumental(name1)) ?? '';
+  name2 = normalizeName(stripInstrumental(name2)) ?? '';
+  final strippedAny = (name1 != normalizeName(orig1)) ||
+      (name2 != normalizeName(orig2));
+
+  if (name1 == name2) {
+    // 至少一方是伴奏版时降档：伴奏不是我们要的歌词来源
+    return strippedAny ? NameMatchType.high : NameMatchType.perfect;
+  }
 
   name1 = name1.replaceAll('acoustic version', 'acoustic');
   name2 = name2.replaceAll('acoustic version', 'acoustic');
@@ -131,20 +151,54 @@ NameMatchType? compareName(String? name1, String? name2) {
     }
   }
 
-  if (StringHelper.computeTextSame(name1, name2, true) > 90) {
-    return NameMatchType.veryHigh;
-  }
-  if (StringHelper.computeTextSame(name1, name2, true) > 80) {
-    return NameMatchType.high;
-  }
-  if (StringHelper.computeTextSame(name1, name2, true) > 68) {
-    return NameMatchType.medium;
-  }
-  if (StringHelper.computeTextSame(name1, name2, true) > 55) {
-    return NameMatchType.low;
+  NameMatchType result;
+  final sim = StringHelper.computeTextSame(name1, name2, true);
+  if (sim > 90) {
+    result = NameMatchType.veryHigh;
+  } else if (sim > 80) {
+    result = NameMatchType.high;
+  } else if (sim > 68) {
+    result = NameMatchType.medium;
+  } else if (sim > 55) {
+    result = NameMatchType.low;
+  } else {
+    result = NameMatchType.noMatch;
   }
 
-  return NameMatchType.noMatch;
+  // 伴奏/纯音乐统一降一档。
+  //
+  // 为什么必须在出口做：伴奏版的标题往往**和原歌几乎完全一致**
+  // （《Ripples of Past Reverie (英文和声伴奏)》vs 原歌），而真人唱的中文
+  // 译名版（《昔涟》）和英文原名毫无字面关联，只能拿到 medium。逐条比较
+  // 的话伴奏版永远赢，而它的歌词只有「纯音乐，请欣赏」一行。
+  if (result != NameMatchType.noMatch &&
+      (_isInstrumental(orig1) || _isInstrumental(orig2))) {
+    result = _downgrade(result);
+  }
+  return result;
+}
+
+final _instrumentalRe = RegExp(
+    r'(伴奏|纯音乐|纯乐曲| instrumental|inst|off vocal|no vocals|karaoke|伴奏版)',
+    caseSensitive: false);
+
+bool _isInstrumental(String s) => _instrumentalRe.hasMatch(s);
+
+/// 降一档（noMatch 保持不变）。
+NameMatchType _downgrade(NameMatchType t) {
+  switch (t) {
+    case NameMatchType.perfect:
+      return NameMatchType.veryHigh;
+    case NameMatchType.veryHigh:
+      return NameMatchType.high;
+    case NameMatchType.high:
+      return NameMatchType.medium;
+    case NameMatchType.medium:
+      return NameMatchType.low;
+    case NameMatchType.low:
+    case NameMatchType.noMatch:
+      return NameMatchType.noMatch;
+  }
 }
 
 ///
