@@ -1,0 +1,4568 @@
+{
+  "file": {
+    "type": "Krc",
+    "syncTypes": "SyllableSynced",
+    "attributes": [
+      [
+        "id",
+        "$00000000"
+      ],
+      [
+        "ar",
+        "OneRepublic"
+      ],
+      [
+        "ti",
+        "Counting Stars (2015年苹果秋季发布会表演歌曲原曲)"
+      ],
+      [
+        "by",
+        ""
+      ],
+      [
+        "al",
+        ""
+      ],
+      [
+        "sign",
+        ""
+      ],
+      [
+        "qq",
+        ""
+      ],
+      [
+        "total",
+        "0"
+      ],
+      [
+        "offset",
+        "0"
+      ],
+      [
+        "language",
+        "eyJjb250ZW50IjpbeyJsYW5ndWFnZSI6MCwibHlyaWNDb250ZW50IjpbWyIgICJdLFsiICAiXSxbIlx1NjcwMFx1OGZkMVx1NjIxMVx1NjAzYlx1NjYyZlx1OGY5N1x1OGY2Y1x1NTNjZFx1NGZhNyBcdTk2YmVcdTRlZTVcdTUxNjVcdTc3MjAiXSxbIlx1NWJmOVx1NjIxMVx1NGVlY1x1NjZmZVx1NjcwOVx1OGZjN1x1NzY4NFx1NjEzZlx1NjY2Zlx1NmQ2ZVx1NjBmM1x1ODA1NFx1N2ZlOSJdLFsiXHU0ZjQ2XHU0ZWIyXHU3MjMxXHU3Njg0IFx1NjIxMVx1NjVlOVx1NWRmMlx1NTcyOFx1NTE4NVx1NWZjM1x1NmRmMVx1NTkwNFx1Nzk0OFx1Nzk3N1x1Nzc0MCJdLFsiXHU3OTQ4XHU3OTc3XHU4MWVhXHU1ZGYxXHU0ZTBkXHU1MThkXHU4ZmY3XHU1OTMxXHU0ZThlXHU5MWQxXHU5NGIxXHU3Njg0XHU4ZmZkXHU5MDEwXHU0ZTJkIl0sWyJcdTYyMTFcdTRlZWNcdTUzZWZcdTRlZTVcdTdlYzZcdTY1NzBcdTZlZTFcdTU5MjlcdTdlNDFcdTY2MWYiXSxbIlx1N2VjNlx1NjU3MFx1NmVlMVx1NTkyOVx1N2U0MVx1NjYxZiBcdTU0YzFcdTU0NzNcdTc1MWZcdTZkM2JcdTRlNTBcdThkYTMiXSxbIlx1NzUxZlx1NmQzYlx1NWMzMVx1NTBjZlx1NGUwMFx1NjgyYVx1OGRjM1x1NTJhOFx1NzY4NFx1ODVlNFx1ODUxMyJdLFsiXHU5NTdmXHU5YTcxXHU3NmY0XHU1MTY1IFx1NmZjMFx1NmQzYlx1NjIxMVx1NzY4NFx1NTE4NVx1NWZjMyJdLFsiXHU1NzI4XHU2MjExXHU4MTM4XHU0ZTBhIFx1NTIxMlx1OGZjN1x1OGZmOVx1OGM2MSJdLFsiXHU5MDRkXHU1YmZiXHU0ZTRiXHU1NDBlXHU0ZjYwXHU1YzMxXHU0ZjFhXHU1M2QxXHU3M2IwIl0sWyJcdTYyMTFcdTg2N2RcdTRlMGFcdTVlNzRcdTdlYWEgXHU0ZjQ2XHU0ZTBkXHU4MWYzXHU4MDAxXHU2MDAxXHU5Zjk5XHU5NDlmIl0sWyJcdTg2N2RcdThmZDhcdTVlNzRcdThmN2IgXHU1Mzc0XHU2NzJhXHU1ZmM1XHU5YzgxXHU4M2JkXHU1OTMxXHU3OTNjIl0sWyJcdTU3NWFcdTRmZTFcdThmZDlcdTRlMmFcdTRlMTZcdTc1NGNcdTdmOGVcdTU5N2RcdTU5ODJcdTUyMWQiXSxbIlx1NjIxMVx1NTNlYVx1NjYyZlx1NWZhYVx1ODljNFx1OGU0OFx1NzdlOVx1NTczMFx1NzUxZlx1NmQzYlx1Nzc0MCJdLFsiXHU0ZjUzXHU1NDczXHU1ZmMzXHU1Yjg5XHU3NDA2XHU1Zjk3Il0sWyJcdTYwZWZcdTRlOGVcdTc5YmJcdTdlY2ZcdTUzZGJcdTkwNTNcdTRlMmQiXSxbIlx1NzVkYlx1NjExZlx1NGU0Zlx1NTU4NFx1NTNlZlx1OTY0OCJdLFsiXHU0ZWE2XHU0ZThlXHU2MzA5XHU5MGU4XHU1YzMxXHU3M2VkXHU0ZTJkIl0sWyJcdTYyMTFcdTZiM2FcdTlhOTdcdThmYzcgXHU0ZjJhXHU4OGM1XHU4ZmM3IFx1NTkzMVx1NzcxZlx1OGZjNyJdLFsiXHU0ZjQ2XHU3ZjZlXHU2MjExXHU0ZThlXHU2YjdiXHU1NzMwXHU4MDA1IFx1NWZjNVx1NWMwNlx1OGQ1MFx1NjIxMVx1NGVlNVx1NTQwZVx1NzUxZiJdLFsiXHU2NzAwXHU4ZmQxXHU2MjExXHU2MDNiXHU2NjJmXHU4Zjk3XHU4ZjZjXHU1M2NkXHU0ZmE3IFx1OTZiZVx1NGVlNVx1NTE2NVx1NzcyMCJdLFsiXHU1YmY5XHU2MjExXHU0ZWVjXHU2NmZlXHU2NzA5XHU4ZmM3XHU3Njg0XHU2MTNmXHU2NjZmXHU2ZDZlXHU2MGYzXHU4MDU0XHU3ZmU5Il0sWyJcdTRmNDZcdTRlYjJcdTcyMzFcdTc2ODQgXHU2MjExXHU2NWU5XHU1ZGYyXHU1NzI4XHU1MTg1XHU1ZmMzXHU2ZGYxXHU1OTA0XHU3OTQ4XHU3OTc3XHU3NzQwIl0sWyJcdTc5NDhcdTc5NzdcdTgxZWFcdTVkZjFcdTRlMGRcdTUxOGRcdThmZjdcdTU5MzFcdTRlOGVcdTkxZDFcdTk0YjFcdTc2ODRcdThmZmRcdTkwMTBcdTRlMmQiXSxbIlx1NjIxMVx1NGVlY1x1NTNlZlx1NGVlNVx1N2VjNlx1NjU3MFx1NmVlMVx1NTkyOVx1N2U0MVx1NjYxZiJdLFsiXHU2NzAwXHU4ZmQxXHU2MjExXHU2MDNiXHU2NjJmXHU4Zjk3XHU4ZjZjXHU1M2NkXHU0ZmE3IFx1OTZiZVx1NGVlNVx1NTE2NVx1NzcyMCJdLFsiXHU1YmY5XHU2MjExXHU0ZWVjXHU2NmZlXHU2NzA5XHU4ZmM3XHU3Njg0XHU2MTNmXHU2NjZmXHU2ZDZlXHU2MGYzXHU4MDU0XHU3ZmU5Il0sWyJcdTRmNDZcdTRlYjJcdTcyMzFcdTc2ODQgXHU2MjExXHU2NWU5XHU1ZGYyXHU1NzI4XHU1MTg1XHU1ZmMzXHU2ZGYxXHU1OTA0XHU3OTQ4XHU3OTc3XHU3NzQwIl0sWyJcdTc5NDhcdTc5NzdcdTgxZWFcdTVkZjFcdTRlMGRcdTUxOGRcdThmZjdcdTU5MzFcdTRlOGVcdTkxZDFcdTk0YjFcdTc2ODRcdThmZmRcdTkwMTBcdTRlMmQiXSxbIlx1NjIxMVx1NGVlY1x1NTNlZlx1NGVlNVx1N2VjNlx1NjU3MFx1NmVlMVx1NTkyOVx1N2U0MVx1NjYxZiJdLFsiXHU2MjExXHU2MTFmXHU4OWM5XHU1MjMwXHU3MjMxXHU3MDZiIFx1NTcyOFx1ODBmOFx1NGUyZFx1NzE4YVx1OGQ3NyJdLFsiXHU0ZThlXHU2Y2IzXHU2ZDQxXHU3Njg0XHU2YmNmXHU0ZTJhXHU4ZmMyXHU1NmRlXHU1OTA0XHU3ZmZiXHU4MTdlIl0sWyJcdTVlMGNcdTY3MWJcdTUzZWFcdTY2MmZcdTRlMmFcdTU2ZGJcdTViNTdcdTUzNTVcdThiY2QiXSxbIlx1OGVhYlx1NTkxNlx1NGU0Ylx1NzI2OSBcdTc2ODZcdTUzZWZcdTYyOWJcdTUzNzQiXSxbIlx1NjIxMVx1ODY3ZFx1NGUwYVx1NWU3NFx1N2VhYSBcdTRmNDZcdTRlMGRcdTgxZjNcdTgwMDFcdTYwMDFcdTlmOTlcdTk0OWYiXSxbIlx1ODY3ZFx1OGZkOFx1NWU3NFx1OGY3YiBcdTUzNzRcdTY3MmFcdTVmYzVcdTljODFcdTgzYmRcdTU5MzFcdTc5M2MiXSxbIlx1NTc1YVx1NGZlMVx1OGZkOVx1NGUyYVx1NGUxNlx1NzU0Y1x1N2Y4ZVx1NTk3ZFx1NTk4Mlx1NTIxZCJdLFsiXHU2MjExXHU1M2VhXHU2NjJmXHU1ZmFhXHU4OWM0XHU4ZTQ4XHU3N2U5XHU1NzMwXHU3NTFmXHU2ZDNiXHU3NzQwIl0sWyJcdTc1ZGJcdTYxMWZcdTRlNGZcdTU1ODRcdTUzZWZcdTk2NDgiXSxbIlx1NGVhNlx1NGU4ZVx1NjMwOVx1OTBlOFx1NWMzMVx1NzNlZFx1NGUyZCJdLFsiXHU2MjExXHU2YjNhXHU5YTk3XHU4ZmM3IFx1NGYyYVx1ODhjNVx1OGZjNyBcdTU5MzFcdTc3MWZcdThmYzciXSxbIlx1NGY0Nlx1N2Y2ZVx1NjIxMVx1NGU4ZVx1NGY0ZVx1OGMzN1x1ODAwNSBcdTViOWFcdTgwZmRcdTUyYTlcdTYyMTFcdTRlZTVcdTVkMWJcdThkNzciXSxbIlx1NjcwMFx1OGZkMVx1NjIxMVx1NjAzYlx1NjYyZlx1OGY5N1x1OGY2Y1x1NTNjZFx1NGZhNyBcdTk2YmVcdTRlZTVcdTUxNjVcdTc3MjAiXSxbIlx1NWJmOVx1NjIxMVx1NGVlY1x1NjZmZVx1NjcwOVx1OGZjN1x1NzY4NFx1NjEzZlx1NjY2Zlx1NmQ2ZVx1NjBmM1x1ODA1NFx1N2ZlOSJdLFsiXHU0ZjQ2XHU0ZWIyXHU3MjMxXHU3Njg0IFx1NjIxMVx1NjVlOVx1NWRmMlx1NTcyOFx1NTE4NVx1NWZjM1x1NmRmMVx1NTkwNFx1Nzk0OFx1Nzk3N1x1Nzc0MCJdLFsiXHU3OTQ4XHU3OTc3XHU4MWVhXHU1ZGYxXHU0ZTBkXHU1MThkXHU4ZmY3XHU1OTMxXHU0ZThlXHU5MWQxXHU5NGIxXHU3Njg0XHU4ZmZkXHU5MDEwXHU0ZTJkIl0sWyJcdTYyMTFcdTRlZWNcdTUzZWZcdTRlZTVcdTdlYzZcdTY1NzBcdTZlZTFcdTU5MjlcdTdlNDFcdTY2MWYiXSxbIlx1NjcwMFx1OGZkMVx1NjIxMVx1NjAzYlx1NjYyZlx1OGY5N1x1OGY2Y1x1NTNjZFx1NGZhNyBcdTk2YmVcdTRlZTVcdTUxNjVcdTc3MjAiXSxbIlx1NWJmOVx1NjIxMVx1NGVlY1x1NjZmZVx1NjcwOVx1OGZjN1x1NzY4NFx1NjEzZlx1NjY2Zlx1NmQ2ZVx1NjBmM1x1ODA1NFx1N2ZlOSJdLFsiXHU0ZjQ2XHU0ZWIyXHU3MjMxXHU3Njg0IFx1NjIxMVx1NjVlOVx1NWRmMlx1NTcyOFx1NTE4NVx1NWZjM1x1NmRmMVx1NTkwNFx1Nzk0OFx1Nzk3N1x1Nzc0MCJdLFsiXHU3OTQ4XHU3OTc3XHU4MWVhXHU1ZGYxXHU0ZTBkXHU1MThkXHU4ZmY3XHU1OTMxXHU0ZThlXHU5MWQxXHU5NGIxXHU3Njg0XHU4ZmZkXHU5MDEwXHU0ZTJkIl0sWyJcdTYyMTFcdTRlZWNcdTUzZWZcdTRlZTVcdTdlYzZcdTY1NzBcdTZlZTFcdTU5MjlcdTdlNDFcdTY2MWYiXSxbIlx1OGVhYlx1NTkxNlx1NGU0Ylx1NzI2OSAiXSxbIlx1NzY4Nlx1NTNlZlx1NjI5Ylx1NTM3NCJdLFsiXHU2Y2RiXHU4MjFmXHU1ZjUzXHU2YjRjICJdLFsiXHU0ZWJhXHU3NTFmXHU1MWUwXHU0ZjU1Il0sWyJcdThlYWJcdTU5MTZcdTRlNGJcdTcyNjkgIl0sWyJcdTc2ODZcdTUzZWZcdTYyOWJcdTUzNzQiXSxbIlx1NmNkYlx1ODIxZlx1NWY1M1x1NmI0YyAiXSxbIlx1NGViYVx1NzUxZlx1NTFlMFx1NGY1NSJdLFsiXHU4ZWFiXHU1OTE2XHU0ZTRiXHU3MjY5ICJdLFsiXHU3Njg2XHU1M2VmXHU2MjliXHU1Mzc0Il0sWyJcdTZjZGJcdTgyMWZcdTVmNTNcdTZiNGMgIl0sWyJcdTRlYmFcdTc1MWZcdTUxZTBcdTRmNTUiXSxbIlx1OGVhYlx1NTkxNlx1NGU0Ylx1NzI2OSAiXSxbIlx1NzY4Nlx1NTNlZlx1NjI5Ylx1NTM3NCJdLFsiXHU2Y2RiXHU4MjFmXHU1ZjUzXHU2YjRjICJdLFsiXHU0ZWJhXHU3NTFmXHU1MWUwXHU0ZjU1Il0sWyJcdTRmNDZcdTdmNmVcdTYyMTFcdTRlOGVcdTZiN2JcdTU3MzBcdTgwMDUiXSxbIlx1NWZjNVx1NWMwNlx1OGQ1MFx1NjIxMVx1NGVlNVx1NTQwZVx1NzUxZiJdLFsiXHU2NzAwXHU4ZmQxXHU2MjExXHU2MDNiXHU2NjJmXHU4Zjk3XHU4ZjZjXHU1M2NkXHU0ZmE3IFx1OTZiZVx1NGVlNVx1NTE2NVx1NzcyMCJdLFsiXHU1YmY5XHU2MjExXHU0ZWVjXHU2NmZlXHU2NzA5XHU4ZmM3XHU3Njg0XHU2MTNmXHU2NjZmXHU2ZDZlXHU2MGYzXHU4MDU0XHU3ZmU5Il0sWyJcdTRmNDZcdTRlYjJcdTcyMzFcdTc2ODQgXHU2MjExXHU2NWU5XHU1ZGYyXHU1NzI4XHU1MTg1XHU1ZmMzXHU2ZGYxXHU1OTA0XHU3OTQ4XHU3OTc3XHU3NzQwIl0sWyJcdTc5NDhcdTc5NzdcdTgxZWFcdTVkZjFcdTRlMGRcdTUxOGRcdThmZjdcdTU5MzFcdTRlOGVcdTkxZDFcdTk0YjFcdTc2ODRcdThmZmRcdTkwMTBcdTRlMmQiXSxbIlx1NjIxMVx1NGVlY1x1NTNlZlx1NGVlNVx1N2VjNlx1NjU3MFx1NmVlMVx1NTkyOVx1N2U0MVx1NjYxZiJdLFsiXHU2NzAwXHU4ZmQxXHU2MjExXHU2MDNiXHU2NjJmXHU4Zjk3XHU4ZjZjXHU1M2NkXHU0ZmE3IFx1OTZiZVx1NGVlNVx1NTE2NVx1NzcyMCJdLFsiXHU1YmY5XHU2MjExXHU0ZWVjXHU2NmZlXHU2NzA5XHU4ZmM3XHU3Njg0XHU2MTNmXHU2NjZmXHU2ZDZlXHU2MGYzXHU4MDU0XHU3ZmU5Il0sWyJcdTRmNDZcdTRlYjJcdTcyMzFcdTc2ODQgXHU2MjExXHU2NWU5XHU1ZGYyXHU1NzI4XHU1MTg1XHU1ZmMzXHU2ZGYxXHU1OTA0XHU3OTQ4XHU3OTc3XHU3NzQwIl0sWyJcdTc5NDhcdTc5NzdcdTgxZWFcdTVkZjFcdTRlMGRcdTUxOGRcdThmZjdcdTU5MzFcdTRlOGVcdTkxZDFcdTk0YjFcdTc2ODRcdThmZmRcdTkwMTBcdTRlMmQiXSxbIlx1NjIxMVx1NGVlY1x1NTNlZlx1NGVlNVx1N2VjNlx1NjU3MFx1NmVlMVx1NTkyOVx1N2U0MVx1NjYxZiJdLFsiXHU4ZWFiXHU1OTE2XHU0ZTRiXHU3MjY5ICJdLFsiXHU3Njg2XHU1M2VmXHU2MjliXHU1Mzc0Il0sWyJcdTZjZGJcdTgyMWZcdTVmNTNcdTZiNGMgIl0sWyJcdTRlYmFcdTc1MWZcdTUxZTBcdTRmNTUiXSxbIlx1OGVhYlx1NTkxNlx1NGU0Ylx1NzI2OSAiXSxbIlx1NzY4Nlx1NTNlZlx1NjI5Ylx1NTM3NCJdLFsiXHU2Y2RiXHU4MjFmXHU1ZjUzXHU2YjRjICJdLFsiXHU0ZWJhXHU3NTFmXHU1MWUwXHU0ZjU1Il0sWyJcdThlYWJcdTU5MTZcdTRlNGJcdTcyNjkgIl0sWyJcdTc2ODZcdTUzZWZcdTYyOWJcdTUzNzQiXSxbIlx1NmNkYlx1ODIxZlx1NWY1M1x1NmI0YyAiXSxbIlx1NGViYVx1NzUxZlx1NTFlMFx1NGY1NSJdLFsiXHU4ZWFiXHU1OTE2XHU0ZTRiXHU3MjY5ICJdLFsiXHU3Njg2XHU1M2VmXHU2MjliXHU1Mzc0Il0sWyJcdTZjZGJcdTgyMWZcdTVmNTNcdTZiNGMgIl0sWyJcdTRlYmFcdTc1MWZcdTUxZTBcdTRmNTUiXV0sInR5cGUiOjF9XSwidmVyc2lvbiI6MX0="
+      ]
+    ],
+    "krcHash": "34ce9b1c75e8afa9bb0bb6571f5eb913"
+  },
+  "writers": null,
+  "trackMetadata": {
+    "title": "Counting Stars (2015年苹果秋季发布会表演歌曲原曲)",
+    "artist": "OneRepublic",
+    "album": "",
+    "durationMs": null
+  },
+  "lines": [
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "OneRepublic - Counting Stars",
+      "startTime": 419,
+      "endTime": 1029,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "OneRepublic ",
+          "startTime": 419,
+          "endTime": 928
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "- ",
+          "startTime": 928,
+          "endTime": 979
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Counting ",
+          "startTime": 979,
+          "endTime": 1029
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Stars",
+          "startTime": 1029,
+          "endTime": 1029
+        }
+      ],
+      "translations": {
+        "zh": "  "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Written by：Ryan Tedder",
+      "startTime": 200,
+      "endTime": 300,
+      "alignment": "Unspecified",
+      "syllableCount": 1,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Written by：Ryan Tedder",
+          "startTime": 200,
+          "endTime": 300
+        }
+      ],
+      "translations": {
+        "zh": "  "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Lately I've been I've been losing sleep",
+      "startTime": 790,
+      "endTime": 4451,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Lately ",
+          "startTime": 790,
+          "endTime": 1862
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 1862,
+          "endTime": 2395
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 2395,
+          "endTime": 2866
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 2866,
+          "endTime": 3209
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 3209,
+          "endTime": 3536
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "losing ",
+          "startTime": 3536,
+          "endTime": 3884
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sleep",
+          "startTime": 3884,
+          "endTime": 4451
+        }
+      ],
+      "translations": {
+        "zh": "最近我总是辗转反侧 难以入眠"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Dreaming about the things that we could be",
+      "startTime": 5499,
+      "endTime": 8991,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Dreaming ",
+          "startTime": 5499,
+          "endTime": 6141
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about ",
+          "startTime": 6141,
+          "endTime": 6604
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 6604,
+          "endTime": 6883
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things ",
+          "startTime": 6883,
+          "endTime": 7266
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that we ",
+          "startTime": 7266,
+          "endTime": 7865
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 7865,
+          "endTime": 8498
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 8498,
+          "endTime": 8991
+        }
+      ],
+      "translations": {
+        "zh": "对我们曾有过的愿景浮想联翩"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "But baby I've been I've been praying hard",
+      "startTime": 9390,
+      "endTime": 13656,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 9390,
+          "endTime": 9590
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 9590,
+          "endTime": 10669
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 10669,
+          "endTime": 11086
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 11086,
+          "endTime": 11773
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 11773,
+          "endTime": 11988
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 11988,
+          "endTime": 12314
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "praying ",
+          "startTime": 12314,
+          "endTime": 12658
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hard",
+          "startTime": 12658,
+          "endTime": 13656
+        }
+      ],
+      "translations": {
+        "zh": "但亲爱的 我早已在内心深处祈祷着"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Said no more counting dollars",
+      "startTime": 14361,
+      "endTime": 16357,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Said ",
+          "startTime": 14361,
+          "endTime": 14551
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "no ",
+          "startTime": 14551,
+          "endTime": 14913
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "more ",
+          "startTime": 14913,
+          "endTime": 15176
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 15176,
+          "endTime": 15622
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dollars",
+          "startTime": 15622,
+          "endTime": 16357
+        }
+      ],
+      "translations": {
+        "zh": "祈祷自己不再迷失于金钱的追逐中"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "We'll be counting stars",
+      "startTime": 16362,
+      "endTime": 19282,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "We'll ",
+          "startTime": 16362,
+          "endTime": 16506
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 16506,
+          "endTime": 16791
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 16791,
+          "endTime": 17381
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 17381,
+          "endTime": 19282
+        }
+      ],
+      "translations": {
+        "zh": "我们可以细数满天繁星"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Yeah we'll be counting stars",
+      "startTime": 19286,
+      "endTime": 22892,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Yeah ",
+          "startTime": 19286,
+          "endTime": 19816
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we'll ",
+          "startTime": 19816,
+          "endTime": 20007
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 20007,
+          "endTime": 20189
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 20189,
+          "endTime": 21519
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 21519,
+          "endTime": 22892
+        }
+      ],
+      "translations": {
+        "zh": "细数满天繁星 品味生活乐趣"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "I see this life like a swinging vine",
+      "startTime": 38059,
+      "endTime": 40665,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 38059,
+          "endTime": 38240
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "see ",
+          "startTime": 38240,
+          "endTime": 38420
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "this ",
+          "startTime": 38420,
+          "endTime": 38566
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "life ",
+          "startTime": 38566,
+          "endTime": 39262
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "like ",
+          "startTime": 39262,
+          "endTime": 39444
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 39444,
+          "endTime": 39643
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "swinging ",
+          "startTime": 39643,
+          "endTime": 39858
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "vine",
+          "startTime": 39858,
+          "endTime": 40665
+        }
+      ],
+      "translations": {
+        "zh": "生活就像一株跃动的藤蔓"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Swing my heart across the line",
+      "startTime": 40673,
+      "endTime": 42579,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Swing ",
+          "startTime": 40673,
+          "endTime": 40888
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 40888,
+          "endTime": 41103
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "heart ",
+          "startTime": 41103,
+          "endTime": 41574
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "across ",
+          "startTime": 41574,
+          "endTime": 41789
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 41789,
+          "endTime": 41980
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "line",
+          "startTime": 41980,
+          "endTime": 42579
+        }
+      ],
+      "translations": {
+        "zh": "长驱直入 激活我的内心"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "In my face is flashing signs",
+      "startTime": 42585,
+      "endTime": 44508,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "In ",
+          "startTime": 42585,
+          "endTime": 42801
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 42801,
+          "endTime": 43007
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "face ",
+          "startTime": 43007,
+          "endTime": 43326
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is ",
+          "startTime": 43326,
+          "endTime": 43526
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "flashing ",
+          "startTime": 43526,
+          "endTime": 43886
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "signs",
+          "startTime": 43886,
+          "endTime": 44508
+        }
+      ],
+      "translations": {
+        "zh": "在我脸上 划过迹象"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Seek it out and ye' shall find",
+      "startTime": 44570,
+      "endTime": 46436,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Seek ",
+          "startTime": 44570,
+          "endTime": 44809
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 44809,
+          "endTime": 45089
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "out ",
+          "startTime": 45089,
+          "endTime": 45449
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 45449,
+          "endTime": 45655
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ye' ",
+          "startTime": 45655,
+          "endTime": 45838
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "shall ",
+          "startTime": 45838,
+          "endTime": 46006
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "find",
+          "startTime": 46006,
+          "endTime": 46436
+        }
+      ],
+      "translations": {
+        "zh": "遍寻之后你就会发现"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Old but I'm not that old",
+      "startTime": 46475,
+      "endTime": 48505,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Old ",
+          "startTime": 46475,
+          "endTime": 47238
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "but ",
+          "startTime": 47238,
+          "endTime": 47413
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 47413,
+          "endTime": 47588
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "not ",
+          "startTime": 47588,
+          "endTime": 47763
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 47763,
+          "endTime": 48010
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "old",
+          "startTime": 48010,
+          "endTime": 48505
+        }
+      ],
+      "translations": {
+        "zh": "我虽上年纪 但不至老态龙钟"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Young but I'm not that bold",
+      "startTime": 48511,
+      "endTime": 50369,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Young ",
+          "startTime": 48511,
+          "endTime": 49086
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "but ",
+          "startTime": 49086,
+          "endTime": 49286
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 49286,
+          "endTime": 49468
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "not ",
+          "startTime": 49468,
+          "endTime": 49651
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 49651,
+          "endTime": 49827
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "bold",
+          "startTime": 49827,
+          "endTime": 50369
+        }
+      ],
+      "translations": {
+        "zh": "虽还年轻 却未必鲁莽失礼"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "And I don't think the world is sold",
+      "startTime": 50434,
+      "endTime": 52293,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And ",
+          "startTime": 50434,
+          "endTime": 50603
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 50603,
+          "endTime": 50752
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "don't ",
+          "startTime": 50752,
+          "endTime": 50927
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "think ",
+          "startTime": 50927,
+          "endTime": 51118
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 51118,
+          "endTime": 51271
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "world ",
+          "startTime": 51271,
+          "endTime": 51655
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is ",
+          "startTime": 51655,
+          "endTime": 51814
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sold",
+          "startTime": 51814,
+          "endTime": 52293
+        }
+      ],
+      "translations": {
+        "zh": "坚信这个世界美好如初"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "I'm just doing what we're told",
+      "startTime": 52505,
+      "endTime": 54133,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 52505,
+          "endTime": 52709
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "just ",
+          "startTime": 52709,
+          "endTime": 52963
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "doing ",
+          "startTime": 52963,
+          "endTime": 53219
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "what ",
+          "startTime": 53219,
+          "endTime": 53474
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we're ",
+          "startTime": 53474,
+          "endTime": 53727
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "told",
+          "startTime": 53727,
+          "endTime": 54133
+        }
+      ],
+      "translations": {
+        "zh": "我只是循规蹈矩地生活着"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "I I I I feel something so right",
+      "startTime": 55039,
+      "endTime": 58673,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 55039,
+          "endTime": 55429
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 55429,
+          "endTime": 55604
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 55604,
+          "endTime": 55957
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 55957,
+          "endTime": 56805
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feel ",
+          "startTime": 56805,
+          "endTime": 57067
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "something ",
+          "startTime": 57067,
+          "endTime": 57690
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "so ",
+          "startTime": 57690,
+          "endTime": 58146
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "right",
+          "startTime": 58146,
+          "endTime": 58673
+        }
+      ],
+      "translations": {
+        "zh": "体味心安理得"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Doing the wrong thing",
+      "startTime": 59233,
+      "endTime": 61804,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Doing ",
+          "startTime": 59233,
+          "endTime": 59696
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 59696,
+          "endTime": 59866
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "wrong ",
+          "startTime": 59866,
+          "endTime": 60277
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thing",
+          "startTime": 60277,
+          "endTime": 61804
+        }
+      ],
+      "translations": {
+        "zh": "惯于离经叛道中"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "I I I I feel something so wrong",
+      "startTime": 62680,
+      "endTime": 66624,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 62680,
+          "endTime": 63151
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 63151,
+          "endTime": 63318
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 63318,
+          "endTime": 63494
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 63494,
+          "endTime": 64428
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feel ",
+          "startTime": 64428,
+          "endTime": 65043
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "something ",
+          "startTime": 65043,
+          "endTime": 65746
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "so ",
+          "startTime": 65746,
+          "endTime": 66130
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "wrong",
+          "startTime": 66130,
+          "endTime": 66624
+        }
+      ],
+      "translations": {
+        "zh": "痛感乏善可陈"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Doing the right thing",
+      "startTime": 67032,
+      "endTime": 69599,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Doing ",
+          "startTime": 67032,
+          "endTime": 67449
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 67449,
+          "endTime": 67910
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "right ",
+          "startTime": 67910,
+          "endTime": 68334
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thing",
+          "startTime": 68334,
+          "endTime": 69599
+        }
+      ],
+      "translations": {
+        "zh": "亦于按部就班中"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "I couldn't lie couldn't lie couldn't lie",
+      "startTime": 70459,
+      "endTime": 73313,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 70459,
+          "endTime": 70650
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "couldn't ",
+          "startTime": 70650,
+          "endTime": 70969
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lie ",
+          "startTime": 70969,
+          "endTime": 71576
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "couldn't ",
+          "startTime": 71576,
+          "endTime": 71783
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lie ",
+          "startTime": 71783,
+          "endTime": 72559
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "couldn't ",
+          "startTime": 72559,
+          "endTime": 72946
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lie",
+          "startTime": 72946,
+          "endTime": 73313
+        }
+      ],
+      "translations": {
+        "zh": "我欺骗过 伪装过 失真过"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Everything that kills me makes me feel alive",
+      "startTime": 74200,
+      "endTime": 78158,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Everything ",
+          "startTime": 74200,
+          "endTime": 75511
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 75511,
+          "endTime": 75967
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "kills ",
+          "startTime": 75967,
+          "endTime": 76413
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 76413,
+          "endTime": 76852
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "makes ",
+          "startTime": 76852,
+          "endTime": 77251
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 77251,
+          "endTime": 77474
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feel ",
+          "startTime": 77474,
+          "endTime": 77739
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "alive",
+          "startTime": 77739,
+          "endTime": 78158
+        }
+      ],
+      "translations": {
+        "zh": "但置我于死地者 必将赐我以后生"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Lately I've been I've been losing sleep",
+      "startTime": 78166,
+      "endTime": 81323,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Lately ",
+          "startTime": 78166,
+          "endTime": 78919
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 78919,
+          "endTime": 79279
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 79279,
+          "endTime": 79781
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 79781,
+          "endTime": 80036
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 80036,
+          "endTime": 80348
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "losing ",
+          "startTime": 80348,
+          "endTime": 80618
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sleep",
+          "startTime": 80618,
+          "endTime": 81323
+        }
+      ],
+      "translations": {
+        "zh": "最近我总是辗转反侧 难以入眠"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Dreaming about the things we could be",
+      "startTime": 81938,
+      "endTime": 85342,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Dreaming ",
+          "startTime": 81938,
+          "endTime": 82553
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about ",
+          "startTime": 82553,
+          "endTime": 82753
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 82753,
+          "endTime": 83087
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things ",
+          "startTime": 83087,
+          "endTime": 83685
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 83685,
+          "endTime": 84244
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 84244,
+          "endTime": 84808
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 84808,
+          "endTime": 85342
+        }
+      ],
+      "translations": {
+        "zh": "对我们曾有过的愿景浮想联翩"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "But baby I've been I've been praying hard",
+      "startTime": 85758,
+      "endTime": 89758,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 85758,
+          "endTime": 85933
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 85933,
+          "endTime": 86663
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 86663,
+          "endTime": 87133
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 87133,
+          "endTime": 87626
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 87626,
+          "endTime": 87969
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 87969,
+          "endTime": 88288
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "praying ",
+          "startTime": 88288,
+          "endTime": 88519
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hard",
+          "startTime": 88519,
+          "endTime": 89758
+        }
+      ],
+      "translations": {
+        "zh": "但亲爱的 我早已在内心深处祈祷着"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Said no more counting dollars",
+      "startTime": 89766,
+      "endTime": 91713,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Said ",
+          "startTime": 89766,
+          "endTime": 90311
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "no ",
+          "startTime": 90311,
+          "endTime": 90606
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "more ",
+          "startTime": 90606,
+          "endTime": 90901
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 90901,
+          "endTime": 91309
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dollars",
+          "startTime": 91309,
+          "endTime": 91713
+        }
+      ],
+      "translations": {
+        "zh": "祈祷自己不再迷失于金钱的追逐中"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "We'll be counting stars",
+      "startTime": 91718,
+      "endTime": 93314,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "We'll ",
+          "startTime": 91718,
+          "endTime": 92037
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 92037,
+          "endTime": 92293
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 92293,
+          "endTime": 92531
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 92531,
+          "endTime": 93314
+        }
+      ],
+      "translations": {
+        "zh": "我们可以细数满天繁星"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Lately I've been I've been losing sleep",
+      "startTime": 93846,
+      "endTime": 97078,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Lately ",
+          "startTime": 93846,
+          "endTime": 94670
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 94670,
+          "endTime": 94932
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 94932,
+          "endTime": 95508
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 95508,
+          "endTime": 95762
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 95762,
+          "endTime": 96074
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "losing ",
+          "startTime": 96074,
+          "endTime": 96395
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sleep",
+          "startTime": 96395,
+          "endTime": 97078
+        }
+      ],
+      "translations": {
+        "zh": "最近我总是辗转反侧 难以入眠"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Dreaming about the things we could be",
+      "startTime": 97725,
+      "endTime": 101079,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Dreaming ",
+          "startTime": 97725,
+          "endTime": 98351
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about ",
+          "startTime": 98351,
+          "endTime": 98580
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 98580,
+          "endTime": 99012
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things ",
+          "startTime": 99012,
+          "endTime": 99580
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 99580,
+          "endTime": 99995
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 99995,
+          "endTime": 100464
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 100464,
+          "endTime": 101079
+        }
+      ],
+      "translations": {
+        "zh": "对我们曾有过的愿景浮想联翩"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "But baby I've been I've been praying hard",
+      "startTime": 101647,
+      "endTime": 104815,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 101647,
+          "endTime": 101877
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 101877,
+          "endTime": 102453
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 102453,
+          "endTime": 102907
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 102907,
+          "endTime": 103402
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 103402,
+          "endTime": 103617
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 103617,
+          "endTime": 103944
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "praying ",
+          "startTime": 103944,
+          "endTime": 104239
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hard",
+          "startTime": 104239,
+          "endTime": 104815
+        }
+      ],
+      "translations": {
+        "zh": "但亲爱的 我早已在内心深处祈祷着"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Said no more counting dollars",
+      "startTime": 105567,
+      "endTime": 107522,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Said ",
+          "startTime": 105567,
+          "endTime": 105898
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "no ",
+          "startTime": 105898,
+          "endTime": 106157
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "more ",
+          "startTime": 106157,
+          "endTime": 106484
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 106484,
+          "endTime": 107091
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dollars",
+          "startTime": 107091,
+          "endTime": 107522
+        }
+      ],
+      "translations": {
+        "zh": "祈祷自己不再迷失于金钱的追逐中"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "We'll be we'll be counting stars",
+      "startTime": 107527,
+      "endTime": 110580,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "We'll ",
+          "startTime": 107527,
+          "endTime": 107800
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 107800,
+          "endTime": 108430
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we'll ",
+          "startTime": 108430,
+          "endTime": 108645
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 108645,
+          "endTime": 109004
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 109004,
+          "endTime": 109275
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 109275,
+          "endTime": 110580
+        }
+      ],
+      "translations": {
+        "zh": "我们可以细数满天繁星"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "I feel the love and I feel it burn",
+      "startTime": 116755,
+      "endTime": 119444,
+      "alignment": "Unspecified",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 116755,
+          "endTime": 116947
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feel ",
+          "startTime": 116947,
+          "endTime": 117110
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 117110,
+          "endTime": 117310
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 117310,
+          "endTime": 118112
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 118112,
+          "endTime": 118296
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 118296,
+          "endTime": 118462
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feel ",
+          "startTime": 118462,
+          "endTime": 118629
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 118629,
+          "endTime": 118772
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 118772,
+          "endTime": 119444
+        }
+      ],
+      "translations": {
+        "zh": "我感觉到爱火 在胸中熊起"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Down this river every turn",
+      "startTime": 119453,
+      "endTime": 121021,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Down ",
+          "startTime": 119453,
+          "endTime": 119646
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "this ",
+          "startTime": 119646,
+          "endTime": 119802
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river ",
+          "startTime": 119802,
+          "endTime": 120271
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "every ",
+          "startTime": 120271,
+          "endTime": 120494
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "turn",
+          "startTime": 120494,
+          "endTime": 121021
+        }
+      ],
+      "translations": {
+        "zh": "于河流的每个迂回处翻腾"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Hope is our four-letter word",
+      "startTime": 121338,
+      "endTime": 123217,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Hope ",
+          "startTime": 121338,
+          "endTime": 121569
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is ",
+          "startTime": 121569,
+          "endTime": 121708
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "our ",
+          "startTime": 121708,
+          "endTime": 121899
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "four-letter ",
+          "startTime": 121899,
+          "endTime": 122562
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "word",
+          "startTime": 122562,
+          "endTime": 123217
+        }
+      ],
+      "translations": {
+        "zh": "希望只是个四字单词"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Make that money watch it burn",
+      "startTime": 123222,
+      "endTime": 125135,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Make ",
+          "startTime": 123222,
+          "endTime": 123517
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 123517,
+          "endTime": 123708
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money ",
+          "startTime": 123708,
+          "endTime": 124186
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "watch ",
+          "startTime": 124186,
+          "endTime": 124401
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 124401,
+          "endTime": 124638
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 124638,
+          "endTime": 125135
+        }
+      ],
+      "translations": {
+        "zh": "身外之物 皆可抛却"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Old but I'm not that old",
+      "startTime": 125141,
+      "endTime": 127143,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Old ",
+          "startTime": 125141,
+          "endTime": 126005
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "but ",
+          "startTime": 126005,
+          "endTime": 126195
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 126195,
+          "endTime": 126371
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "not ",
+          "startTime": 126371,
+          "endTime": 126561
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 126561,
+          "endTime": 126712
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "old",
+          "startTime": 126712,
+          "endTime": 127143
+        }
+      ],
+      "translations": {
+        "zh": "我虽上年纪 但不至老态龙钟"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Young but I'm not that bold",
+      "startTime": 127349,
+      "endTime": 129128,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Young ",
+          "startTime": 127349,
+          "endTime": 127908
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "but ",
+          "startTime": 127908,
+          "endTime": 128125
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 128125,
+          "endTime": 128305
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "not ",
+          "startTime": 128305,
+          "endTime": 128497
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 128497,
+          "endTime": 128664
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "bold",
+          "startTime": 128664,
+          "endTime": 129128
+        }
+      ],
+      "translations": {
+        "zh": "虽还年轻 却未必鲁莽失礼"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "And I don't think the world is sold",
+      "startTime": 129134,
+      "endTime": 130665,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And ",
+          "startTime": 129134,
+          "endTime": 129404
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 129404,
+          "endTime": 129627
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "don't ",
+          "startTime": 129627,
+          "endTime": 129826
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "think ",
+          "startTime": 129826,
+          "endTime": 130016
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 130016,
+          "endTime": 130134
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "world ",
+          "startTime": 130134,
+          "endTime": 130325
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is ",
+          "startTime": 130325,
+          "endTime": 130458
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sold",
+          "startTime": 130458,
+          "endTime": 130665
+        }
+      ],
+      "translations": {
+        "zh": "坚信这个世界美好如初"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "I'm just doing what we're told",
+      "startTime": 131036,
+      "endTime": 132909,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 131036,
+          "endTime": 131390
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "just ",
+          "startTime": 131390,
+          "endTime": 131593
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "doing ",
+          "startTime": 131593,
+          "endTime": 131795
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "what ",
+          "startTime": 131795,
+          "endTime": 132050
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we're ",
+          "startTime": 132050,
+          "endTime": 132302
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "told",
+          "startTime": 132302,
+          "endTime": 132909
+        }
+      ],
+      "translations": {
+        "zh": "我只是循规蹈矩地生活着"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "I I I I feel something so wrong",
+      "startTime": 133441,
+      "endTime": 137837,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 133441,
+          "endTime": 134380
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 134380,
+          "endTime": 134579
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 134579,
+          "endTime": 134794
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 134794,
+          "endTime": 135426
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feel ",
+          "startTime": 135426,
+          "endTime": 135776
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "something ",
+          "startTime": 135776,
+          "endTime": 136279
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "so ",
+          "startTime": 136279,
+          "endTime": 136854
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "wrong",
+          "startTime": 136854,
+          "endTime": 137837
+        }
+      ],
+      "translations": {
+        "zh": "痛感乏善可陈"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Doing the right thing",
+      "startTime": 137845,
+      "endTime": 140543,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Doing ",
+          "startTime": 137845,
+          "endTime": 138212
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 138212,
+          "endTime": 138499
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "right ",
+          "startTime": 138499,
+          "endTime": 139176
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thing",
+          "startTime": 139176,
+          "endTime": 140543
+        }
+      ],
+      "translations": {
+        "zh": "亦于按部就班中"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "I could lie could lie could lie",
+      "startTime": 141283,
+      "endTime": 144548,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 141283,
+          "endTime": 141562
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 141562,
+          "endTime": 141889
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lie ",
+          "startTime": 141889,
+          "endTime": 142394
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 142394,
+          "endTime": 142720
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lie ",
+          "startTime": 142720,
+          "endTime": 143278
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 143278,
+          "endTime": 143735
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lie",
+          "startTime": 143735,
+          "endTime": 144548
+        }
+      ],
+      "translations": {
+        "zh": "我欺骗过 伪装过 失真过"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Everything that drowns me makes me wanna fly",
+      "startTime": 145075,
+      "endTime": 148901,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Everything ",
+          "startTime": 145075,
+          "endTime": 146387
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 146387,
+          "endTime": 146762
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "drowns ",
+          "startTime": 146762,
+          "endTime": 147288
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 147288,
+          "endTime": 147743
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "makes ",
+          "startTime": 147743,
+          "endTime": 148276
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 148276,
+          "endTime": 148503
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "wanna ",
+          "startTime": 148503,
+          "endTime": 148662
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fly",
+          "startTime": 148662,
+          "endTime": 148901
+        }
+      ],
+      "translations": {
+        "zh": "但置我于低谷者 定能助我以崛起"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Lately I've been I've been losing sleep",
+      "startTime": 148909,
+      "endTime": 152279,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Lately ",
+          "startTime": 148909,
+          "endTime": 149802
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 149802,
+          "endTime": 150193
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 150193,
+          "endTime": 150680
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 150680,
+          "endTime": 150929
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 150929,
+          "endTime": 151176
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "losing ",
+          "startTime": 151176,
+          "endTime": 151456
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sleep",
+          "startTime": 151456,
+          "endTime": 152279
+        }
+      ],
+      "translations": {
+        "zh": "最近我总是辗转反侧 难以入眠"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Dreaming about the things we could be",
+      "startTime": 152814,
+      "endTime": 156140,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Dreaming ",
+          "startTime": 152814,
+          "endTime": 153374
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about ",
+          "startTime": 153374,
+          "endTime": 153929
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 153929,
+          "endTime": 154152
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things ",
+          "startTime": 154152,
+          "endTime": 154351
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 154351,
+          "endTime": 155102
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 155102,
+          "endTime": 155656
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 155656,
+          "endTime": 156140
+        }
+      ],
+      "translations": {
+        "zh": "对我们曾有过的愿景浮想联翩"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "But baby I've been I've been praying hard",
+      "startTime": 156601,
+      "endTime": 160024,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 156601,
+          "endTime": 156782
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 156782,
+          "endTime": 157526
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 157526,
+          "endTime": 158021
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 158021,
+          "endTime": 158515
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 158515,
+          "endTime": 158722
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 158722,
+          "endTime": 158978
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "praying ",
+          "startTime": 158978,
+          "endTime": 159385
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hard",
+          "startTime": 159385,
+          "endTime": 160024
+        }
+      ],
+      "translations": {
+        "zh": "但亲爱的 我早已在内心深处祈祷着"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Said no more counting dollars",
+      "startTime": 160599,
+      "endTime": 162606,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Said ",
+          "startTime": 160599,
+          "endTime": 160978
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "no ",
+          "startTime": 160978,
+          "endTime": 161257
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "more ",
+          "startTime": 161257,
+          "endTime": 161594
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 161594,
+          "endTime": 162151
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dollars",
+          "startTime": 162151,
+          "endTime": 162606
+        }
+      ],
+      "translations": {
+        "zh": "祈祷自己不再迷失于金钱的追逐中"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "We'll be counting stars",
+      "startTime": 162611,
+      "endTime": 163865,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "We'll ",
+          "startTime": 162611,
+          "endTime": 162955
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 162955,
+          "endTime": 163162
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 163162,
+          "endTime": 163360
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 163360,
+          "endTime": 163865
+        }
+      ],
+      "translations": {
+        "zh": "我们可以细数满天繁星"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Lately I've been I've been losing sleep",
+      "startTime": 164723,
+      "endTime": 168708,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Lately ",
+          "startTime": 164723,
+          "endTime": 165523
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 165523,
+          "endTime": 165833
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 165833,
+          "endTime": 166400
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 166400,
+          "endTime": 166647
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 166647,
+          "endTime": 166968
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "losing ",
+          "startTime": 166968,
+          "endTime": 167240
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sleep",
+          "startTime": 167240,
+          "endTime": 168708
+        }
+      ],
+      "translations": {
+        "zh": "最近我总是辗转反侧 难以入眠"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Dreaming about the things we could be",
+      "startTime": 168715,
+      "endTime": 172397,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Dreaming ",
+          "startTime": 168715,
+          "endTime": 169018
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about ",
+          "startTime": 169018,
+          "endTime": 169426
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 169426,
+          "endTime": 169800
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things ",
+          "startTime": 169800,
+          "endTime": 170296
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 170296,
+          "endTime": 170743
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 170743,
+          "endTime": 171269
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 171269,
+          "endTime": 172397
+        }
+      ],
+      "translations": {
+        "zh": "对我们曾有过的愿景浮想联翩"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "But baby I've been I've been praying hard",
+      "startTime": 172404,
+      "endTime": 176331,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 172404,
+          "endTime": 172770
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 172770,
+          "endTime": 173265
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 173265,
+          "endTime": 173681
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 173681,
+          "endTime": 174255
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 174255,
+          "endTime": 174502
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 174502,
+          "endTime": 174733
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "praying ",
+          "startTime": 174733,
+          "endTime": 175132
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hard",
+          "startTime": 175132,
+          "endTime": 176331
+        }
+      ],
+      "translations": {
+        "zh": "但亲爱的 我早已在内心深处祈祷着"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Said no more counting dollars",
+      "startTime": 176339,
+      "endTime": 178150,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Said ",
+          "startTime": 176339,
+          "endTime": 176711
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "no ",
+          "startTime": 176711,
+          "endTime": 177050
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "more ",
+          "startTime": 177050,
+          "endTime": 177368
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 177368,
+          "endTime": 177687
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dollars",
+          "startTime": 177687,
+          "endTime": 178150
+        }
+      ],
+      "translations": {
+        "zh": "祈祷自己不再迷失于金钱的追逐中"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "We'll be we'll be counting stars",
+      "startTime": 178155,
+      "endTime": 181289,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "We'll ",
+          "startTime": 178155,
+          "endTime": 178578
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 178578,
+          "endTime": 179175
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we'll ",
+          "startTime": 179175,
+          "endTime": 179470
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 179470,
+          "endTime": 179919
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 179919,
+          "endTime": 180092
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 180092,
+          "endTime": 181289
+        }
+      ],
+      "translations": {
+        "zh": "我们可以细数满天繁星"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Take that money",
+      "startTime": 184424,
+      "endTime": 184875,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 184424,
+          "endTime": 184590
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 184590,
+          "endTime": 184717
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money",
+          "startTime": 184717,
+          "endTime": 184875
+        }
+      ],
+      "translations": {
+        "zh": "身外之物 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Watch it burn",
+      "startTime": 185025,
+      "endTime": 185854,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Watch ",
+          "startTime": 185025,
+          "endTime": 185184
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 185184,
+          "endTime": 185391
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 185391,
+          "endTime": 185854
+        }
+      ],
+      "translations": {
+        "zh": "皆可抛却"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Sink in the river",
+      "startTime": 185857,
+      "endTime": 186885,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 185857,
+          "endTime": 186169
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 186169,
+          "endTime": 186399
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 186399,
+          "endTime": 186662
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river",
+          "startTime": 186662,
+          "endTime": 186885
+        }
+      ],
+      "translations": {
+        "zh": "泛舟当歌 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 186889,
+      "endTime": 187614,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "The ",
+          "startTime": 186889,
+          "endTime": 187080
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 187080,
+          "endTime": 187272
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 187272,
+          "endTime": 187454
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 187454,
+          "endTime": 187614
+        }
+      ],
+      "translations": {
+        "zh": "人生几何"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Take that money",
+      "startTime": 188059,
+      "endTime": 188735,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 188059,
+          "endTime": 188314
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 188314,
+          "endTime": 188528
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money",
+          "startTime": 188528,
+          "endTime": 188735
+        }
+      ],
+      "translations": {
+        "zh": "身外之物 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Watch it burn",
+      "startTime": 188738,
+      "endTime": 189921,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Watch ",
+          "startTime": 188738,
+          "endTime": 189018
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 189018,
+          "endTime": 189265
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 189265,
+          "endTime": 189921
+        }
+      ],
+      "translations": {
+        "zh": "皆可抛却"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Sink in the river",
+      "startTime": 189924,
+      "endTime": 190895,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 189924,
+          "endTime": 190162
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 190162,
+          "endTime": 190376
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 190376,
+          "endTime": 190599
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river",
+          "startTime": 190599,
+          "endTime": 190895
+        }
+      ],
+      "translations": {
+        "zh": "泛舟当歌 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 190899,
+      "endTime": 191633,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "The ",
+          "startTime": 190899,
+          "endTime": 191114
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 191114,
+          "endTime": 191289
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 191289,
+          "endTime": 191456
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 191456,
+          "endTime": 191633
+        }
+      ],
+      "translations": {
+        "zh": "人生几何"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Take that money",
+      "startTime": 192013,
+      "endTime": 192827,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 192013,
+          "endTime": 192283
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 192283,
+          "endTime": 192498
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money",
+          "startTime": 192498,
+          "endTime": 192827
+        }
+      ],
+      "translations": {
+        "zh": "身外之物 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Watch it burn",
+      "startTime": 192830,
+      "endTime": 193860,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Watch ",
+          "startTime": 192830,
+          "endTime": 193051
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 193051,
+          "endTime": 193242
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 193242,
+          "endTime": 193860
+        }
+      ],
+      "translations": {
+        "zh": "皆可抛却"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Sink in the river",
+      "startTime": 193863,
+      "endTime": 194848,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 193863,
+          "endTime": 194059
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 194059,
+          "endTime": 194295
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 194295,
+          "endTime": 194505
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river",
+          "startTime": 194505,
+          "endTime": 194848
+        }
+      ],
+      "translations": {
+        "zh": "泛舟当歌 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 194852,
+      "endTime": 196024,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "The ",
+          "startTime": 194852,
+          "endTime": 195067
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 195067,
+          "endTime": 195261
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 195261,
+          "endTime": 195419
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 195419,
+          "endTime": 196024
+        }
+      ],
+      "translations": {
+        "zh": "人生几何"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Take that money",
+      "startTime": 196028,
+      "endTime": 196633,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 196028,
+          "endTime": 196219
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 196219,
+          "endTime": 196418
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money",
+          "startTime": 196418,
+          "endTime": 196633
+        }
+      ],
+      "translations": {
+        "zh": "身外之物 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Watch it burn",
+      "startTime": 196915,
+      "endTime": 197840,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Watch ",
+          "startTime": 196915,
+          "endTime": 197098
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 197098,
+          "endTime": 197297
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 197297,
+          "endTime": 197840
+        }
+      ],
+      "translations": {
+        "zh": "皆可抛却"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Sink in the river",
+      "startTime": 197843,
+      "endTime": 198832,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 197843,
+          "endTime": 198042
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 198042,
+          "endTime": 198249
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 198249,
+          "endTime": 198488
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river",
+          "startTime": 198488,
+          "endTime": 198832
+        }
+      ],
+      "translations": {
+        "zh": "泛舟当歌 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 198836,
+      "endTime": 199511,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "The ",
+          "startTime": 198836,
+          "endTime": 199027
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 199027,
+          "endTime": 199197
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 199197,
+          "endTime": 199352
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 199352,
+          "endTime": 199511
+        }
+      ],
+      "translations": {
+        "zh": "人生几何"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Everything that kills me",
+      "startTime": 199985,
+      "endTime": 203867,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Everything ",
+          "startTime": 199985,
+          "endTime": 201486
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 201486,
+          "endTime": 201935
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "kills ",
+          "startTime": 201935,
+          "endTime": 202828
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me",
+          "startTime": 202828,
+          "endTime": 203867
+        }
+      ],
+      "translations": {
+        "zh": "但置我于死地者"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Makes me feel alive",
+      "startTime": 205865,
+      "endTime": 207062,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Makes ",
+          "startTime": 205865,
+          "endTime": 206111
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 206111,
+          "endTime": 206301
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feel ",
+          "startTime": 206301,
+          "endTime": 206436
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "alive",
+          "startTime": 206436,
+          "endTime": 207062
+        }
+      ],
+      "translations": {
+        "zh": "必将赐我以后生"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Lately I've been I've been losing sleep",
+      "startTime": 207066,
+      "endTime": 210059,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Lately ",
+          "startTime": 207066,
+          "endTime": 207785
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 207785,
+          "endTime": 208098
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 208098,
+          "endTime": 208681
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 208681,
+          "endTime": 208888
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 208888,
+          "endTime": 209215
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "losing ",
+          "startTime": 209215,
+          "endTime": 209422
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sleep",
+          "startTime": 209422,
+          "endTime": 210059
+        }
+      ],
+      "translations": {
+        "zh": "最近我总是辗转反侧 难以入眠"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Dreaming about the things we could be",
+      "startTime": 210767,
+      "endTime": 214622,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Dreaming ",
+          "startTime": 210767,
+          "endTime": 211370
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about ",
+          "startTime": 211370,
+          "endTime": 211615
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 211615,
+          "endTime": 211948
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things ",
+          "startTime": 211948,
+          "endTime": 212452
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 212452,
+          "endTime": 212930
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 212930,
+          "endTime": 213441
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 213441,
+          "endTime": 214622
+        }
+      ],
+      "translations": {
+        "zh": "对我们曾有过的愿景浮想联翩"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "But baby I've been I've been praying hard",
+      "startTime": 214629,
+      "endTime": 218628,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 214629,
+          "endTime": 214812
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 214812,
+          "endTime": 215538
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 215538,
+          "endTime": 215937
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 215937,
+          "endTime": 216536
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 216536,
+          "endTime": 216812
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 216812,
+          "endTime": 217062
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "praying ",
+          "startTime": 217062,
+          "endTime": 217309
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hard",
+          "startTime": 217309,
+          "endTime": 218628
+        }
+      ],
+      "translations": {
+        "zh": "但亲爱的 我早已在内心深处祈祷着"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Said no more counting dollars",
+      "startTime": 218636,
+      "endTime": 220536,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Said ",
+          "startTime": 218636,
+          "endTime": 219027
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "no ",
+          "startTime": 219027,
+          "endTime": 219123
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "more ",
+          "startTime": 219123,
+          "endTime": 219378
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 219378,
+          "endTime": 220033
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dollars",
+          "startTime": 220033,
+          "endTime": 220536
+        }
+      ],
+      "translations": {
+        "zh": "祈祷自己不再迷失于金钱的追逐中"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "We'll be counting stars",
+      "startTime": 220541,
+      "endTime": 222035,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "We'll ",
+          "startTime": 220541,
+          "endTime": 220965
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 220965,
+          "endTime": 221196
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 221196,
+          "endTime": 221386
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 221386,
+          "endTime": 222035
+        }
+      ],
+      "translations": {
+        "zh": "我们可以细数满天繁星"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Lately I've been I've been losing sleep",
+      "startTime": 222485,
+      "endTime": 226054,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Lately ",
+          "startTime": 222485,
+          "endTime": 223444
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 223444,
+          "endTime": 223811
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 223811,
+          "endTime": 224333
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 224333,
+          "endTime": 224643
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 224643,
+          "endTime": 225000
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "losing ",
+          "startTime": 225000,
+          "endTime": 225287
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sleep",
+          "startTime": 225287,
+          "endTime": 226054
+        }
+      ],
+      "translations": {
+        "zh": "最近我总是辗转反侧 难以入眠"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Dreaming about the things we could be",
+      "startTime": 226661,
+      "endTime": 229774,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Dreaming ",
+          "startTime": 226661,
+          "endTime": 227078
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about ",
+          "startTime": 227078,
+          "endTime": 227331
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 227331,
+          "endTime": 227730
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things ",
+          "startTime": 227730,
+          "endTime": 228225
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 228225,
+          "endTime": 228746
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 228746,
+          "endTime": 229271
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 229271,
+          "endTime": 229774
+        }
+      ],
+      "translations": {
+        "zh": "对我们曾有过的愿景浮想联翩"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "But baby I've been I've been praying hard",
+      "startTime": 230510,
+      "endTime": 233937,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 230510,
+          "endTime": 230876
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 230876,
+          "endTime": 231347
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 231347,
+          "endTime": 231722
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 231722,
+          "endTime": 232259
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 232259,
+          "endTime": 232562
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 232562,
+          "endTime": 232855
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "praying ",
+          "startTime": 232855,
+          "endTime": 233174
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hard",
+          "startTime": 233174,
+          "endTime": 233937
+        }
+      ],
+      "translations": {
+        "zh": "但亲爱的 我早已在内心深处祈祷着"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Said no more counting dollars",
+      "startTime": 234525,
+      "endTime": 236461,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Said ",
+          "startTime": 234525,
+          "endTime": 234852
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "no ",
+          "startTime": 234852,
+          "endTime": 235093
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "more ",
+          "startTime": 235093,
+          "endTime": 235410
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 235410,
+          "endTime": 235814
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dollars",
+          "startTime": 235814,
+          "endTime": 236461
+        }
+      ],
+      "translations": {
+        "zh": "祈祷自己不再迷失于金钱的追逐中"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "We'll be we'll be counting stars",
+      "startTime": 236466,
+      "endTime": 238876,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "We'll ",
+          "startTime": 236466,
+          "endTime": 236713
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 236713,
+          "endTime": 236928
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we'll ",
+          "startTime": 236928,
+          "endTime": 237441
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 237441,
+          "endTime": 237662
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 237662,
+          "endTime": 238029
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 238029,
+          "endTime": 238876
+        }
+      ],
+      "translations": {
+        "zh": "我们可以细数满天繁星"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Take that money",
+      "startTime": 239072,
+      "endTime": 239621,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 239072,
+          "endTime": 239267
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 239267,
+          "endTime": 239455
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money",
+          "startTime": 239455,
+          "endTime": 239621
+        }
+      ],
+      "translations": {
+        "zh": "身外之物 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Watch it burn",
+      "startTime": 239624,
+      "endTime": 240109,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Watch ",
+          "startTime": 239624,
+          "endTime": 239767
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 239767,
+          "endTime": 239918
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 239918,
+          "endTime": 240109
+        }
+      ],
+      "translations": {
+        "zh": "皆可抛却"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Sink in the river",
+      "startTime": 240112,
+      "endTime": 240812,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 240112,
+          "endTime": 240296
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 240296,
+          "endTime": 240479
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 240479,
+          "endTime": 240645
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river",
+          "startTime": 240645,
+          "endTime": 240812
+        }
+      ],
+      "translations": {
+        "zh": "泛舟当歌 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 240816,
+      "endTime": 242229,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "The ",
+          "startTime": 240816,
+          "endTime": 241032
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 241032,
+          "endTime": 241295
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 241295,
+          "endTime": 241518
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 241518,
+          "endTime": 242229
+        }
+      ],
+      "translations": {
+        "zh": "人生几何"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Take that money",
+      "startTime": 242233,
+      "endTime": 243031,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 242233,
+          "endTime": 242441
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 242441,
+          "endTime": 242633
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money",
+          "startTime": 242633,
+          "endTime": 243031
+        }
+      ],
+      "translations": {
+        "zh": "身外之物 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Watch it burn",
+      "startTime": 243034,
+      "endTime": 243968,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Watch ",
+          "startTime": 243034,
+          "endTime": 243248
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 243248,
+          "endTime": 243455
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 243455,
+          "endTime": 243968
+        }
+      ],
+      "translations": {
+        "zh": "皆可抛却"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Sink in the river",
+      "startTime": 243971,
+      "endTime": 244998,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 243971,
+          "endTime": 244219
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 244219,
+          "endTime": 244457
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 244457,
+          "endTime": 244686
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river",
+          "startTime": 244686,
+          "endTime": 244998
+        }
+      ],
+      "translations": {
+        "zh": "泛舟当歌 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 245002,
+      "endTime": 245775,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "The ",
+          "startTime": 245002,
+          "endTime": 245224
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 245224,
+          "endTime": 245383
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 245383,
+          "endTime": 245550
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 245550,
+          "endTime": 245775
+        }
+      ],
+      "translations": {
+        "zh": "人生几何"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Take that money",
+      "startTime": 246185,
+      "endTime": 246886,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 246185,
+          "endTime": 246360
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 246360,
+          "endTime": 246559
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money",
+          "startTime": 246559,
+          "endTime": 246886
+        }
+      ],
+      "translations": {
+        "zh": "身外之物 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Watch it burn",
+      "startTime": 246889,
+      "endTime": 247678,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Watch ",
+          "startTime": 246889,
+          "endTime": 247098
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 247098,
+          "endTime": 247281
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 247281,
+          "endTime": 247678
+        }
+      ],
+      "translations": {
+        "zh": "皆可抛却"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Sink in the river",
+      "startTime": 247681,
+      "endTime": 248989,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 247681,
+          "endTime": 247944
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 247944,
+          "endTime": 248200
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 248200,
+          "endTime": 248406
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river",
+          "startTime": 248406,
+          "endTime": 248989
+        }
+      ],
+      "translations": {
+        "zh": "泛舟当歌 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 248993,
+      "endTime": 249743,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "The ",
+          "startTime": 248993,
+          "endTime": 249203
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 249203,
+          "endTime": 249368
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 249368,
+          "endTime": 249529
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 249529,
+          "endTime": 249743
+        }
+      ],
+      "translations": {
+        "zh": "人生几何"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Take that money",
+      "startTime": 249831,
+      "endTime": 250560,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 249831,
+          "endTime": 250076
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 250076,
+          "endTime": 250305
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money",
+          "startTime": 250305,
+          "endTime": 250560
+        }
+      ],
+      "translations": {
+        "zh": "身外之物 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Watch it burn",
+      "startTime": 250886,
+      "endTime": 251660,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Watch ",
+          "startTime": 250886,
+          "endTime": 251125
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 251125,
+          "endTime": 251380
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 251380,
+          "endTime": 251660
+        }
+      ],
+      "translations": {
+        "zh": "皆可抛却"
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "Sink in the river",
+      "startTime": 251663,
+      "endTime": 252597,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 251663,
+          "endTime": 251885
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 251885,
+          "endTime": 252222
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 252222,
+          "endTime": 252406
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river",
+          "startTime": 252406,
+          "endTime": 252597
+        }
+      ],
+      "translations": {
+        "zh": "泛舟当歌 "
+      },
+      "pronunciation": null
+    },
+    {
+      "kind": "FullSyllableLineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 252601,
+      "endTime": 253542,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "The ",
+          "startTime": 252601,
+          "endTime": 252785
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 252785,
+          "endTime": 253194
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 253194,
+          "endTime": 253383
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 253383,
+          "endTime": 253542
+        }
+      ],
+      "translations": {
+        "zh": "人生几何"
+      },
+      "pronunciation": null
+    }
+  ]
+}

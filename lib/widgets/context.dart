@@ -152,6 +152,19 @@ class WidgetContext {
           {Map<String, Object?>? headers}) async =>
       _wrapText(await _fetch(url, headers));
 
+  /// 通用请求（歌词模块用）：GET/POST、自定义请求体。
+  ///
+  /// 为什么加这一条：Lyricify 移植进来的各在线源不只有 GET——网易云 eapi 是
+  /// 表单 POST、QQ 音乐 musicu 是 JSON POST、Musixmatch 要先 POST 拿 token。
+  /// 返回体一律按文本取出（歌词模块自己解析 JSON/XML/纯文本）。
+  Future<Map<String, Object?>> httpRequest(
+    String url, {
+    String method = 'GET',
+    Map<String, Object?>? headers,
+    String? body,
+  }) async =>
+      _wrapText(await _fetch(url, headers, method: method, body: body));
+
   Future<Map<String, Object?>> mediaState() => _mediaState();
 
   Future<Map<String, Object?>> mediaControl(String cmd, {int posMs = 0}) async {
@@ -253,19 +266,38 @@ class WidgetContext {
   Future<Map<String, Object?>> _wrapText(Map<String, Object?>? res) async {
     if (res == null) return {'ok': false, 'error': '只允许 http/https'};
     if (res['ok'] != true) return res;
-    return {'ok': true, 'data': res['text'] as String};
+    return {'ok': true, 'data': res['text'] as String, 'status': res['status']};
   }
 
   /// 共用请求骨架：URL 校验、头白名单、日志留痕、超时。
   /// 超时定时器登记在 [_netTimeouts] 里，unmount 时统一取消——
   /// 组件测试环境下（假时钟）挂着的 Timer 会让测试不变式炸掉。
+  ///
+  /// [method]/[body] 是给歌词模块的 POST 用的（见 httpRequest 的注释）。
   Future<Map<String, Object?>?> _fetch(
-      String url, Map<String, Object?>? extraHeaders) async {
+      String url, Map<String, Object?>? extraHeaders,
+      {String method = 'GET', String? body}) async {
     final uri = Uri.tryParse(url);
     if (uri == null || !(uri.scheme == 'http' || uri.scheme == 'https')) {
       return {'ok': false, 'error': '只允许 http/https'};
     }
-    const allowed = {'user-agent', 'referer', 'accept', 'accept-language'};
+    // 头白名单。歌词模块要用到 Cookie（网易云/QQ 的登录态字段）与
+    // Content-Type（POST 表单/JSON），其余照旧只放行这几类。
+    const allowed = {
+      'user-agent',
+      'referer',
+      'accept',
+      'accept-language',
+      'content-type',
+      'cookie',
+      'origin',
+      'x-real-ip',
+      'x-forwarded-for',
+      'x-requested-with',
+      'authorization',
+      'appver',
+      'os',
+    };
     final headers = <String, String>{'User-Agent': appUserAgent};
     if (extraHeaders != null) {
       for (final e in extraHeaders.entries) {
@@ -275,7 +307,7 @@ class WidgetContext {
       }
     }
     final target = '${uri.host}${uri.path}';
-    Log.d('widgets', '$pluginId 请求 $target');
+    Log.d('widgets', '$pluginId 请求 $method $target');
     final sw = Stopwatch()..start();
     final completer = Completer<http.Response>();
     final timeout = Timer(const Duration(seconds: 15), () {
@@ -284,7 +316,13 @@ class WidgetContext {
       }
     });
     _netTimeouts.add(timeout);
-    _widgetHttp.get(uri, headers: headers).then((res) {
+    final up = method.toUpperCase();
+    final future = up == 'POST'
+        ? _widgetHttp.post(uri,
+            headers: headers,
+            body: body == null ? null : utf8.encode(body))
+        : _widgetHttp.get(uri, headers: headers);
+    future.then((res) {
       if (!completer.isCompleted) completer.complete(res);
     }, onError: (Object e) {
       if (!completer.isCompleted) completer.completeError(e);
@@ -296,11 +334,23 @@ class WidgetContext {
       if (res.statusCode < 200 || res.statusCode >= 300) {
         Log.w('widgets',
             '$pluginId 请求返回 ${res.statusCode} $target（${sw.elapsedMilliseconds}ms）');
-        return {'ok': false, 'error': 'HTTP ${res.statusCode}'};
+        // 带上 status 与响应体：歌词模块的接口（网易云 weapi / QQ musicu /
+        // LRCLIB）**失败时也常常带可读的 JSON**（-460 风控、nolyric 之类），
+        // 上层要能据此换接口重试，所以不能只回一句 "HTTP xxx"。
+        return {
+          'ok': false,
+          'error': 'HTTP ${res.statusCode}',
+          'status': res.statusCode,
+          'text': utf8.decode(res.bodyBytes, allowMalformed: true),
+        };
       }
       Log.i('widgets',
           '$pluginId 请求成功 $target ${res.bodyBytes.length}B（${sw.elapsedMilliseconds}ms）');
-      return {'ok': true, 'text': utf8.decode(res.bodyBytes)};
+      return {
+        'ok': true,
+        'text': utf8.decode(res.bodyBytes, allowMalformed: true),
+        'status': res.statusCode,
+      };
     } catch (e) {
       timeout.cancel();
       sw.stop();

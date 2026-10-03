@@ -1,0 +1,405 @@
+{
+  "file": {
+    "type": "LyricifyLines",
+    "syncTypes": "LineSynced",
+    "attributes": [
+      [
+        "ti",
+        "Cruel Summer"
+      ],
+      [
+        "ar",
+        "Taylor Swift"
+      ],
+      [
+        "al",
+        "Lover"
+      ],
+      [
+        "offset",
+        "0"
+      ]
+    ],
+    "krcHash": null
+  },
+  "writers": null,
+  "trackMetadata": {
+    "title": "Cruel Summer",
+    "artist": "Taylor Swift",
+    "album": "Lover",
+    "durationMs": null
+  },
+  "lines": [
+    {
+      "kind": "LineInfo",
+      "text": "Fever dream high in the quiet of the night",
+      "startTime": 5841,
+      "endTime": 8298,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "You know that I caught it (Oh yeah, you're right, I want it)",
+      "startTime": 8298,
+      "endTime": 11511,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Bad, bad boy shiny toy with a price",
+      "startTime": 11511,
+      "endTime": 13978,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "You know that I bought it (Oh yeah, you're right, I want it)",
+      "startTime": 13978,
+      "endTime": 16986,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Killing me slow, out the window",
+      "startTime": 16433,
+      "endTime": 19108,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I'm always waiting for you to be waiting below",
+      "startTime": 19108,
+      "endTime": 22076,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Devils roll the dice, angels roll their eyes",
+      "startTime": 22076,
+      "endTime": 24749,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "What doesn't kill me makes me want you more",
+      "startTime": 24749,
+      "endTime": 27882,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "And it's new, the shape of your body, it's blue",
+      "startTime": 27882,
+      "endTime": 32289,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "The feeling I got and it's, ooh, whoa-oh",
+      "startTime": 32289,
+      "endTime": 36605,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "It's a cruel summer",
+      "startTime": 36561,
+      "endTime": 39383,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "It's cool, that's what I tell 'em",
+      "startTime": 39383,
+      "endTime": 42231,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "No rules in breakable heaven but, ooh, whoa-oh",
+      "startTime": 42231,
+      "endTime": 47866,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "It's a cruel summer with you",
+      "startTime": 47866,
+      "endTime": 51468,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Hang your head low in the glow of the vending machine",
+      "startTime": 53866,
+      "endTime": 56948,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I'm not dying (Oh yeah, you're right, I want it)",
+      "startTime": 56948,
+      "endTime": 59492,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Say that we'll just screw it up in these trying times",
+      "startTime": 59492,
+      "endTime": 62465,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "We're not trying (Oh yeah, you're right, I want it)",
+      "startTime": 62465,
+      "endTime": 64920,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "So cut the headlights, summer's a knife",
+      "startTime": 64291,
+      "endTime": 67098,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I'm always waiting for you just to cut to the bone",
+      "startTime": 67098,
+      "endTime": 70065,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Devils roll the dice, angels roll their eyes",
+      "startTime": 70065,
+      "endTime": 72725,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "And if I bleed, you'll be the last to know",
+      "startTime": 72725,
+      "endTime": 75511,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Oh, it's new, the shape of your body, it's blue",
+      "startTime": 75511,
+      "endTime": 80303,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "The feeling I got and it's, ooh, whoa-oh",
+      "startTime": 80303,
+      "endTime": 84546,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "It's a cruel summer",
+      "startTime": 84546,
+      "endTime": 87376,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "It's cool, that's what I tell 'em",
+      "startTime": 87376,
+      "endTime": 90217,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "No rules in breakable heaven but, ooh, whoa-oh",
+      "startTime": 90217,
+      "endTime": 95837,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "It's a cruel summer with you",
+      "startTime": 95837,
+      "endTime": 99417,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I'm drunk in the back of the car",
+      "startTime": 99384,
+      "endTime": 101509,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "And I cried like a baby coming home from the bar, oh",
+      "startTime": 101509,
+      "endTime": 104815,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Said, \"I'm fine,\" but it wasn't true",
+      "startTime": 104815,
+      "endTime": 107127,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I don't wanna keep secrets just to keep you",
+      "startTime": 107127,
+      "endTime": 109981,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "And I snuck in through the garden gate",
+      "startTime": 109981,
+      "endTime": 112776,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Every night that summer just to seal my fate, oh",
+      "startTime": 112776,
+      "endTime": 116130,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "And I scream, for whatever it's worth",
+      "startTime": 116130,
+      "endTime": 118600,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "\"I love you, ain't that the worst thing you ever heard?\"",
+      "startTime": 118600,
+      "endTime": 121953,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "He looks up, grinning like a devil",
+      "startTime": 121953,
+      "endTime": 124100,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "It's new, the shape of your body, it's blue",
+      "startTime": 124100,
+      "endTime": 128285,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "The feeling I got and it's, ooh, whoa-oh",
+      "startTime": 128285,
+      "endTime": 132550,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "It's a cruel summer",
+      "startTime": 132550,
+      "endTime": 135367,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "It's cool, that's what I tell 'em",
+      "startTime": 135367,
+      "endTime": 138181,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "No rules in breakable heaven but, ooh, whoa-oh",
+      "startTime": 138181,
+      "endTime": 143813,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "It's a cruel summer with you",
+      "startTime": 143813,
+      "endTime": 147376,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I'm drunk in the back of the car",
+      "startTime": 147367,
+      "endTime": 149495,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "And I cried like a baby coming home from the bar, oh",
+      "startTime": 149495,
+      "endTime": 152852,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Said, \"I'm fine\" but it wasn't true",
+      "startTime": 152852,
+      "endTime": 155113,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I don't wanna keep secrets just to keep you",
+      "startTime": 155113,
+      "endTime": 157961,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "And I snuck in through the garden gate",
+      "startTime": 157961,
+      "endTime": 160796,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Every night that summer just to seal my fate, oh",
+      "startTime": 160796,
+      "endTime": 164137,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "And I scream, for whatever it's worth",
+      "startTime": 164137,
+      "endTime": 166589,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "\"I love you, ain't that the worst thing you ever heard?\"",
+      "startTime": 166589,
+      "endTime": 170316,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Yeah, yeah",
+      "startTime": 170316,
+      "endTime": 173101,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Yeah, yeah",
+      "startTime": 173101,
+      "endTime": 175023,
+      "alignment": "Unspecified"
+    }
+  ]
+}

@@ -48,6 +48,13 @@ dependencies:
   # 图标形变动画：icon 节点的图标名变化时（勾选、播放/暂停）在 SVG path
   # 之间平滑形变。零依赖，path 级动画不是位图帧，MIT 协议
   iconic_morph: ^1.9.0
+  # XML 解析：LibreOffice 之外只剩歌词模块在用（Lyricify 移植来的 TTML /
+  # QRC(XML) / KRC 三种格式）。MIT 协议，本来就是 fluent_ui 的传递依赖。
+  xml: ^7.0.1
+  # 哈希：歌词模块的网易云 eapi 要用 MD5 算摘要（原来就是传递依赖，这里显式声明）。
+  crypto: ^3.0.6
+  # AES-128-ECB：同上，eapi 请求体加密。MIT 协议，纯 Dart 实现。
+  pointycastle: ^3.9.1
 
 dev_dependencies:
   flutter_test:

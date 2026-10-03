@@ -1,8 +1,16 @@
 /// 内置组件：歌词。
 ///
-/// 从 assets/plugins/lyrics/index.js 逐行移植。数据分两路：
+/// 数据分两路：
 ///   「正在放什么」来自 Windows 系统媒体控件（SMTC）；
-///   「歌词」来自网络（网易云 / LRCLIB），解析与挑选在 lrc.dart。
+///   「歌词」来自 `lib/lyrics/**`（Lyricify 歌词逻辑的移植，纯 Dart）——
+///   经由 `lib/widgets/lyrics_bridge.dart` 接上宿主的网络/日志，取词统一走
+///   `LyricsEngine.fetch()`：多源顺序、匹配打分门槛、语言偏好过滤、信息行
+///   裁剪、逐字词合并都在引擎里，本文件**不再自己搜歌、自己拼 LRC**。
+///
+/// 引擎返回的 `LyricsData` 由 `lib/widgets/lyrics_view.dart` 的
+/// [LyricsView]/[LyricsLine] 转成渲染模型（含逐字音节），本文件只负责画：
+///   - 当前行用 `LyricsLine.charsSungAt(pos)` 做**逐字（卡拉OK）高亮**；
+///   - 没有逐字数据时退化成原来的整行高亮，行为与旧版一致。
 ///
 /// 位置自己外推：native 每 250ms 采样一次 SMTC，播放中按流逝时间往前推，
 /// 把采样间隔抹平；切歌/暂停/拖动时快照会纠正回来。
@@ -13,17 +21,18 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../../core/logger.dart';
+import '../../lyrics/engine.dart';
 import '../catalog.dart';
 import '../images.dart' show WidgetImages;
-import '../morph_icons.dart' show MorphableIcon;
 import '../kit.dart'
     show PluginSlider, TapFeedback, iconDataFor, nodeColor, nodeGlow;
+import '../lyrics_bridge.dart' show installLyricsHost;
+import '../lyrics_view.dart' show LyricsLine, LyricsView;
+import '../morph_icons.dart' show MorphableIcon;
 import '../node_anim.dart'
     show NodeAnimatedColor, kNodeAnimCurve, kNodeAnimDuration;
 import '../spring_transition.dart' show SpringSlide;
 import 'lrc.dart';
-import 'dart:convert';
 
 class LyricsWidget extends BuiltinController {
   LyricsWidget(super.ctx);
@@ -57,8 +66,14 @@ class LyricsWidget extends BuiltinController {
   late int _lineSingle;
   /// 双语高度（正文 + 译文叠两行）
   late int _lineBilingual;
-  /// 这首歌是否**存在**译文（任一行有即算）。决定行高取单行还是双语。
-  bool _songHasTrans = false;
+  /// 这首歌是否**存在**译文（渲染模型里任一行有译文即算）。决定行高取单行
+  /// 还是双语。
+  ///
+  /// 直接问 `_view`（"这首歌到底有没有译文"是渲染模型的属性），不再自己
+  /// 遍历行数组统计。`_settings['trans']` 也要与进来：缓存可能是开着翻译时
+  /// 写下的，用户关掉翻译后不该继续按双语留高（那正是"上方空一大片"的旧问题）。
+  bool get _songHasTrans =>
+      _settings['trans'] == true && (_view?.hasTranslation ?? false);
   /// 当前行是否有译文（用于辉光/调试）。
   bool _hasTrans = false;
 
@@ -68,7 +83,11 @@ class LyricsWidget extends BuiltinController {
 
   // ---- 运行时状态 ----
   Map<String, Object?>? _media; // 最近一次「有歌在放」的 SMTC 快照
-  List<LrcLine> _lyrics = [];
+  /// 歌词渲染模型（引擎取词结果 / 缓存解析结果）。null = 还没有歌词。
+  ///
+  /// 命中判断、行文本、译文、逐字进度全部走它，卡片自己不再持有
+  /// `List<LrcLine>`。
+  LyricsView? _view;
   String _lyricState = 'idle'; // idle | loading | ok | none
   String _trackKey = '';
   String _viewKey = 'idle';
@@ -76,6 +95,9 @@ class LyricsWidget extends BuiltinController {
   static const int _idleGrace = 3000;
   String _lastPaint = '';
   int _lastPos = 0;
+
+  /// 当前歌词行（还没有歌词时是空列表，取用一律安全）。
+  List<LyricsLine> get _lines => _view?.lines ?? const <LyricsLine>[];
   /// 当前渲染的歌词列表**窗口顶端**在整首歌里的行号（0 基）。
   int _windowBase = 0;
   bool _dead = false;
@@ -99,411 +121,83 @@ class LyricsWidget extends BuiltinController {
 
   /// 点某一行歌词跳到那一句。
   void _seekTo(int lineIndex) {
-    if (lineIndex < 0 || lineIndex >= _lyrics.length) return;
+    final lines = _lines;
+    if (lineIndex < 0 || lineIndex >= lines.length) return;
     _lastPos = 0;
-    ctx.mediaControl('seek', posMs: _lyrics[lineIndex].t);
+    ctx.mediaControl('seek', posMs: lines[lineIndex].start);
   }
 
   // ------------------------------------------------------------------
   // 取歌词
   // ------------------------------------------------------------------
 
-  // 网易云是非官方接口，带上正常的 UA/Referer 降低被限流的概率。
-  Map<String, Object?> get _neHeaders => {
-        'headers': {
-          'Referer': 'https://music.163.com/',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
-        }
-      };
-
-  // 歌词开头的「作词 : X」名单。设置里可以关掉。
-  static final _creditRe = RegExp(
-      r'^\s*(作词|作曲|编曲|制作人|monitor|录音|混音|母带|和声|吉他|贝斯|鼓|键盘|弦乐|统筹|企划|出品|发行|监制|制作|营销|策划|录音室|Producer|Composer|Lyricist|Arranger|Mixing|Mastering)\s*[:：]',
-      caseSensitive: false);
-
-  List<LrcLine> _stripCredits(List<LrcLine> arr) {
-    if (_settings['credits'] == true) return arr;
-    final out =
-        arr.where((l) => !_creditRe.hasMatch(l.s)).map((e) => e).toList();
-    // 万一整首歌被当成名单滤空了，宁可原样显示也别显示空白
-    return out.length >= 4 ? out : arr;
-  }
-
-  Future<List<Map<String, Object?>>?> _searchNeteaseSongs(
-      String query, int limit) async {
-    final q = Uri.encodeComponent(query.trim());
-    final url =
-        'https://music.163.com/api/search/get?s=$q&type=1&limit=$limit';
-    final r = await ctx.httpGetJSON(url, headers: _neHeaders);
-    if (r['ok'] != true) return null;
-    final data = r['data'];
-    if (data is! Map) return null;
-    final result = data['result'];
-    if (result is! Map) return null;
-    final songs = (result['songs'] as List?)?.cast<Object?>() ?? const [];
-    return songs.isNotEmpty
-        ? [for (final s in songs) (s as Map).cast<String, Object?>()]
-        : null;
-  }
-
-  Future<List<LrcLine>?> _lyricsFromNeteaseSong(
-      Map<String, Object?> song) async {
-    final lu = 'https://music.163.com/api/song/lyric'
-        '?id=${song['id']}&lv=1&kv=1&tv=-1';
-    final r = await ctx.httpGetJSON(lu, headers: _neHeaders);
-    if (r['ok'] != true) return null;
-    final data = r['data'];
-    if (data is! Map || data['lrc'] is! Map) return null;
-    final lrcMap = data['lrc'] as Map;
-    final main = _stripCredits(Lrc.parse('${lrcMap['lyric'] ?? ''}'));
-    if (main.isEmpty) return null;
-    if (_settings['trans'] == true && data['tlyric'] is Map) {
-      final tl = data['tlyric'] as Map;
-      return Lrc.merge(main, Lrc.parse('${tl['lyric'] ?? ''}'));
-    }
-    return main;
-  }
-
-  Future<List<LrcLine>?> _neteaseAttempt(
-      String vTitle, String artist, int durMs, bool artistOnly) async {
-    final query = artistOnly ? artist : '$vTitle $artist'.trim();
-    if (query.isEmpty) return null;
-    final songs = await _searchNeteaseSongs(query, artistOnly ? 30 : 10);
-    if (songs == null) return null;
-    // 语言要求：标题里的标记（Chinese Ver. 之类）优先；没写就用用户偏好。
-    // 默认中文优先——用户是中文用户，英文原文反正还挂着官方翻译，而
-    // "同专辑里藏着中演唱版"的情况只有偏好启动了才找得到。英文歌不会
-    // 受影响：全不符时回退到第一份候选。
-    final want = Lrc.wantedLyricLang(vTitle) ??
-        switch ('${_settings['preferLang'] ?? 'zh'}') {
-          'zh' => 'zh',
-          'en' => 'en',
-          _ => null,
-        };
-    if (want != null) {
-      Log.i('lyrics', '要求${want == 'zh' ? '中文' : '英文'}歌词'
-          '${Lrc.wantedLyricLang(vTitle) == null ? '（按偏好设置）' : ''}');
-    }
-    // 逐个候选试：同名不同语言版本（时长也一样）时，只有靠歌词实际语言
-    // 才分得开。选中的那个语言不符就拉黑它、换下一个，最多试 3 个。
-    final tried = <String>{};
-    List<LrcLine>? fallback;
-    Map<String, Object?>? fallbackSong;
-    for (var round = 0; round < 5; round++) {
-      final pool =
-          songs.where((s) => !tried.contains('${s['id']}')).toList();
-      if (pool.isEmpty) return null;
-      final song = Lrc.pickSongStrictFirst(pool, vTitle, artist, durMs);
-      if (song == null) return null;
-      tried.add('${song['id']}');
-      final lines = await _lyricsFromNeteaseSong(song);
-      if (lines == null) continue;
-      if (!Lrc.langOk(want, lines)) {
-        Log.i('lyrics', '「${song['name']}」是${Lrc.lyricLangOf(lines) == 'zh' ? '中文' : '英文'}版，'
-            '与要求不符，换下一个候选');
-        fallback ??= lines;
-        fallbackSong ??= song;
-        continue;
-      }
-      return lines;
-    }
-    // 候选全不符：查命中候选**所在专辑**，找"同专辑、时长差 ≤1.5s、语言符合"
-    // 的兄弟曲目。典型场景是翻译歌名——《昔涟》和
-    // 《Ripples of Past Reverie》两个标题毫无字面关联，按标题永远搜不到，
-    // 但它们就在同一张专辑里，而且时长一秒不差。
-    if (want != null && fallback != null && fallbackSong != null) {
-      final al = fallbackSong['album'];
-      final albId = al is Map ? '${al['id']}' : '';
-      if (albId.isNotEmpty) {
-        Log.i('lyrics', '候选全不符，查专辑 $albId 找${want == 'zh' ? '中' : '英'}文版');
-        final alb = await ctx.httpGetJSON(
-            'https://music.163.com/api/v1/album/$albId', headers: _neHeaders);
-        final albSongs = alb['songs'] as List?;
-        if (albSongs != null) {
-          for (final it in albSongs.cast<Object?>()) {
-            final s = (it as Map).cast<String, Object?>();
-            final sid = '${s['id']}';
-            if (tried.contains(sid)) continue;
-            final d = (s['duration'] as num?)?.toInt() ?? 0;
-            if ((d - durMs).abs() > 1500) continue;
-            tried.add(sid);
-            final lines = await _lyricsFromNeteaseSong(s);
-            if (lines == null) continue;
-            if (Lrc.langOk(want, lines)) {
-              Log.i('lyrics', '专辑内找到${want == 'zh' ? '中' : '英'}文版:'
-                  '「${s['name']}」');
-              return lines;
-            }
-          }
-        }
-      }
-    }
-    return fallback;
-  }
-
-  Future<List<LrcLine>?> _lrclibGetAttempt(
-      String vTitle, String artist, int durMs) async {
-    var u = 'https://lrclib.net/api/get'
-        '?track_name=${Uri.encodeComponent(vTitle)}'
-        '&artist_name=${Uri.encodeComponent(artist)}';
-    if (durMs > 0) u += '&duration=${(durMs / 1000).round()}';
-    final r = await ctx.httpGetJSON(u);
-    if (r['ok'] != true) return null;
-    final data = r['data'];
-    if (data is! Map) return null;
-    final synced = data['syncedLyrics'];
-    if (synced == null || '$synced'.isEmpty) return null;
-    final arr = _stripCredits(Lrc.parse('$synced'));
-    return arr.isNotEmpty ? arr : null;
-  }
-
-  Future<List<LrcLine>?> _lrclibSearchAttempt(
-      String vTitle, String artist, int durMs) async {
-    final u = 'https://lrclib.net/api/search'
-        '?track_name=${Uri.encodeComponent(vTitle)}'
-        '&artist_name=${Uri.encodeComponent(artist)}';
-    final r = await ctx.httpGetJSON(u);
-    if (r['ok'] != true) return null;
-    final data = r['data'];
-    if (data is! List || data.isEmpty) return null;
-    final songs = <Map<String, Object?>>[];
-    for (var i = 0; i < data.length && i < 20; i++) {
-      final it = data[i];
-      if (it is! Map || it['syncedLyrics'] == null) continue;
-      songs.add({
-        'id': i,
-        'name': '${it['trackName'] ?? ''}',
-        'artists': [
-          {'name': '${it['artistName'] ?? ''}'}
-        ],
-        'duration': it['duration'] ?? 0,
-        '_synced': it['syncedLyrics'],
-      });
-    }
-    final song = Lrc.pickSongStrictFirst(songs, vTitle, artist, durMs);
-    if (song == null) return null;
-    final arr = _stripCredits(Lrc.parse('${song['_synced']}'));
-    return arr.isNotEmpty ? arr : null;
-  }
-
-  /// 顺序尝试一串 attempt，单个失败/为空自动滑到下一个
-  Future<List<LrcLine>?> _trySeq(
-      List<Future<List<LrcLine>?> Function()> attempts, int i) async {
-    if (i >= attempts.length) return null;
-    List<LrcLine>? r;
-    try {
-      r = await attempts[i]();
-    } catch (_) {
-      r = null;
-    }
-    if (r != null && r.isNotEmpty) return r;
-    return _trySeq(attempts, i + 1);
-  }
-
-  /// 完整搜索编排。来源优先级：auto = 网易云 → LRCLIB；手动选源时只跑
-  /// 所选来源优先，但来源内部的变体/兜底序列保持完整。
-  Future<List<LrcLine>?> _searchLyrics(String title, String artist, int durMs) {
-    // 记下实际用的搜索参数与结果。
-    //
-    // 为什么值得单独记：排查"这首歌搜不到歌词"时，日志里原先只有
-    // "lyrics 请求成功 music.163.com/..." 这种粒度——看得出网络通，
-    // 但看不出**查的是哪首歌**、匹配结果如何，只能靠猜。
-    // （真实案例：Spotify 给「Golden Number / Iyowa」，曲库里是
-    // 「黄金数 / いよわ」，两头名字都被翻译/罗马字化了。）
-    Log.i('lyrics', '搜索:「$title」/「$artist」/${durMs}ms');
-    final variants = Lrc.titleVariants(title).take(3).toList();
-    if (variants.isEmpty) return Future.value(null);
-    final bare = variants.length > 1 ? variants[1] : variants[0];
-
-    Future<List<LrcLine>?> neteaseBlock() {
-      final list = <Future<List<LrcLine>?> Function()>[
-        for (final v in variants)
-          () => _neteaseAttempt(v, artist, durMs, false),
-        // 兜底 1：只搜歌手（30 条候选里靠歌手+时长挑），专治歌名被
-        // 翻译成另一门语言/罗马音对不上曲库的情况
-        () => _neteaseAttempt(title, artist, durMs, true),
-      ];
-      return _trySeq(list, 0);
-    }
-
-
-  /// ---- 酷狗（Lyricify 的 KugouSearcher 同款流程）----
+  /// 载入歌词：缓存优先（命中就不联网）→ 引擎取词 → 回写缓存。
   ///
-  /// 选它做第一个新增源：搜索接口是纯 GET + keyword，**不需要签名也不需要
-  /// Cookie**（QQ 音乐那套 musicu.fcg 返回 0 首、汽水要专用 UA + 签名）。
-  /// 取词用 `fmt=lrc` 拿明文 LRC，因此不需要 Lyricify 那套 KRC 解密器。
-  ///
-  /// 候选与网易云转成同一种形状，好让 Lrc.pickSong 统一打分。
-  Future<List<LrcLine>?> _kugouAttempt(
-      String keyword, String artist, int durMs) async {
-    try {
-      final r = await ctx.httpGetJSON(
-          'http://mobilecdn.kugou.com/api/v3/search/song'
-          '?format=json&keyword=${Uri.encodeComponent(keyword)}'
-          '&page=1&pagesize=20&showtype=1');
-      if (r['ok'] != true) {
-        Log.w('lyrics', '酷狗 搜索请求失败 ok=${r['ok']}（接口只能走 http，'
-            'https 证书无效）');
-        return null;
-      }
-      final info = (r['data'] as Map?)?['info'];
-      if (info is! List || info.isEmpty) {
-        // 实测外部请求能拿到 7~19 首，这里却判空——把 Dart 侧实际收到的
-        // 结构打出来，先分清是"响应不一样"还是"解析路径不对"。
-        final d = r['data'];
-        Log.w('lyrics', '酷狗 搜索无结果 keyword=$keyword  data类型='
-            '${d.runtimeType}  顶层键=${d is Map ? d.keys.toList() : '-'}'
-            '  info=${info.runtimeType}');
-        return null;
-      }
-      final want = Lrc.wantedLyricLang(keyword);
-      final songs = <Map<String, Object?>>[];
-      for (final it in info.cast<Object?>()) {
-        final m = it as Map;
-        final singername = '${m['singername'] ?? ''}';
-        final durSec = (m['duration'] as num?)?.toInt() ?? 0;
-        if (m['hash'] == null) continue;
-        songs.add({
-          'name': '${m['songname'] ?? ''}',
-          'duration': durSec * 1000,            // 酷狗给的是秒，统一成毫秒
-          'durationSec': durSec,
-          'hash': '${m['hash']}',
-          'artists': [
-            for (final n in singername.split('、')) {'name': n.trim()}
-          ],
-        });
-      }
-      if (songs.isEmpty) return null;
-      Log.i('lyrics', '酷狗 搜索「$keyword」→ ${songs.length} 首');
-
-      final song = Lrc.pickSongStrictFirst(songs, keyword, artist, durMs);
-      if (song == null) {
-        Log.i('lyrics', '酷狗候选都没过匹配门槛');
-        return null;
-      }
-      final hash = '${song['hash']}';
-      final name = '${song['name']}';
-      final sec = (song['durationSec'] as num?)?.toInt() ?? 0;
-      Log.i('lyrics', '酷狗 选中「$name」/hash=${hash.substring(0, 8)}');
-
-      // 找歌词候选（这一步要 hash + 时长，命中率比按歌名搜高得多）
-      final c = await ctx.httpGetJSON(
-          'https://lyrics.kugou.com/search?ver=1&man=yes&client=pc'
-          '&keyword=${Uri.encodeComponent(name)}'
-          '&duration=${sec * 1000}&hash=$hash');
-      final cands = (c['candidates'] as List?)?.cast<Object?>();
-      if (cands == null || cands.isEmpty) return null;
-
-      // 逐个候选试取词：第一个能解出带时间戳的就算
-      for (final cd in cands.take(5).cast<Map>()) {
-        final id = '${cd['id'] ?? ''}';
-        final key = '${cd['accesskey'] ?? ''}';
-        if (id.isEmpty || key.isEmpty) continue;
-        final d = await ctx.httpGetJSON(
-            'https://lyrics.kugou.com/download?ver=1&client=pc&id=$id'
-            '&accesskey=${Uri.encodeComponent(key)}&fmt=lrc&charset=utf8');
-        final raw = '${d['content'] ?? ''}';
-        if (raw.isEmpty) continue;
-        final lrc = utf8.decode(base64.decode(raw));
-        final lines = Lrc.parse(lrc);
-        if (lines.isEmpty) continue;
-        if (!Lrc.langOk(want, lines)) {
-          Log.i('lyrics', '酷狗候选「${cd['song']}」是'
-              '${Lrc.lyricLangOf(lines) == 'zh' ? '中文' : '英文'}版，与要求不符');
-          continue;
-        }
-        // 翻译：同一 id 再要一次 fmt=tlrc，失败就算了（可有可无）
-        try {
-          final tr = await ctx.httpGetJSON(
-              'https://lyrics.kugou.com/download?ver=1&client=pc&id=$id'
-              '&accesskey=${Uri.encodeComponent(key)}&fmt=tlrc&charset=utf8');
-          final traw = '${tr['content'] ?? ''}';
-          if (traw.isNotEmpty) {
-            final tl = Lrc.parse(utf8.decode(base64.decode(traw)));
-            if (tl.isNotEmpty) return Lrc.merge(lines, tl);
-          }
-        } catch (_) {}
-        return lines;
-      }
-    } catch (e) {
-      Log.w('lyrics', '酷狗 失败: $e');
-    }
-    return null;
-  }
-
-    Future<List<LrcLine>?> lrclibBlock() {
-      final list = <Future<List<LrcLine>?> Function()>[
-        for (final v in variants) () => _lrclibGetAttempt(v, artist, durMs),
-        // 兜底 2：LRCLIB 的模糊 search 接口
-        () => _lrclibSearchAttempt(bare, artist, durMs),
-      ];
-      return _trySeq(list, 0);
-    }
-
-    Future<List<LrcLine>?> kugouBlock() {
-      final list = <Future<List<LrcLine>?> Function()>[
-        for (final v in variants) () => _kugouAttempt(v, artist, durMs),
-        // 兜底：只搜原标题。酷狗的曲库对中文歌名覆盖不错，歌名被翻译成
-        // 另一门语言时这条路径靠"歌手 + 时长"两条信号兜住。
-        () => _kugouAttempt(title, artist, durMs),
-      ];
-      return _trySeq(list, 0);
-    }
-
-    final src = '${_settings['source'] ?? 'auto'}';
-    // 用 async/await 而不是 .then().then() 链：链式写法下第一个 then 没有
-    // 返回类型上下文，会被推成 Object 再传染到后面几环（analyze 报
-    // "The returned type 'Object' isn't returnable"）。
-    Future<List<LrcLine>?> run() async {
-      if (src == 'lrclib') {
-        return await lrclibBlock() ?? await kugouBlock() ?? await neteaseBlock();
-      }
-      if (src == 'kugou') {
-        return await kugouBlock() ?? await neteaseBlock() ?? await lrclibBlock();
-      }
-      if (src == 'netease') {
-        return await neteaseBlock() ?? await kugouBlock() ?? await lrclibBlock();
-      }
-      // auto：网易云 → 酷狗 → LRCLIB
-      return await neteaseBlock() ?? await kugouBlock() ?? await lrclibBlock();
-    }
-
-    // 结果也记一笔：命中多少行 / 全线落空。和上面那条配对，
-    // 一眼就能看出"歌名对不对得上、是没搜到还是被匹配算法拒了"。
-    return run().then((lines) {
-      Log.i('lyrics',
-          lines == null ? '没找到（各源都没匹配上）' : '命中 ${lines.length} 行');
-      return lines;
-    });
-  }
-
+  /// [key] = 「标题|歌手|时长秒」（含时长，区分现场版/录音室版），也是缓存键。
   Future<void> _loadLyrics(
       String title, String artist, int durMs, String key) async {
     // 只在没有旧歌词时设 loading（首次加载），避免状态变化触发重绘闪白
-    if (_lyrics.isEmpty) _lyricState = 'loading';
-    // 缓存键 = 标题|歌手|时长秒，含时长（区分现场版/录音室版）
-    final cached = await ctx.cacheGet(key);
+    if (_lines.isEmpty) _lyricState = 'loading';
+
+    // 缓存里存的是 LyricsView.encode() 出来的字符串（旧版裸 LrcLine 数组
+    // 也读得懂，decode 里有兼容分支）。
+    final cached = LyricsView.decode(await ctx.cacheGet(key));
     if (_trackKey != key) return; // 加载期间已经换歌了
-    if (cached is List && cached.isNotEmpty) {
-      _lyrics = [for (final e in cached.cast<Map>()) LrcLine.fromJson(e.cast<String, Object?>())];
+    if (cached != null && cached.lines.isNotEmpty) {
+      _view = cached;
       _lyricState = 'ok';
       _paint(true);
       return;
     }
-    List<LrcLine>? arr;
+
+    LyricsView? fetched;
     try {
-      arr = await _searchLyrics(title, artist, durMs);
+      // 取词全权交给 Lyricify 移植过来的引擎：来源顺序、匹配打分门槛、语言
+      // 偏好过滤、信息行裁剪、逐字词合并都在 fetch() 里，卡片不再自己拼。
+      final outcome = await LyricsEngine().fetch(
+        title: title,
+        // 歌手/时长取不到就传 null（旧代码用空串/0 表示"没有"，引擎按 null 判）
+        artist: artist.isEmpty ? null : artist,
+        durationMs: durMs > 0 ? durMs : null,
+        sourcePreference: '${_settings['source'] ?? 'auto'}',
+        // 语言要求：标题里的标记（Chinese Ver. 之类）优先；没写就用用户偏好。
+        // 默认中文优先——用户是中文用户，英文原文反正还挂着官方翻译，而
+        // "曲库里藏着中演唱版"的情况只有偏好启动了才找得到。英文歌不会受
+        // 影响：全不符时引擎会回退到兜底候选。
+        preferLang: Lrc.wantedLyricLang(title) ??
+            switch ('${_settings['preferLang'] ?? 'zh'}') {
+              'zh' => 'zh',
+              'en' => 'en',
+              _ => '',
+            },
+        // 设置里的「显示制作名单」开着（credits == true）就不裁信息行
+        stripInfoLines: _settings['credits'] != true,
+      );
+      if (outcome != null) {
+        fetched = LyricsView.fromData(
+          outcome.data,
+          sourceName: outcome.sourceName,
+          wantTranslation: _settings['trans'] == true,
+        );
+      }
     } catch (_) {
-      arr = null;
+      fetched = null;
     }
     if (_trackKey != key) return;
-    if (arr != null && arr.isNotEmpty) {
-      _lyrics = arr;
+
+    if (fetched != null && fetched.lines.isNotEmpty) {
+      _view = fetched;
       _lyricState = 'ok';
-      ctx.cacheSet(key, [for (final l in arr) l.toJson()]);
+      // 存字符串：渲染模型自带格式/同步类型/来源/逐字音节，能无损还原
+      ctx.cacheSet(key, fetched.encode());
     } else {
-      _lyrics = [];
-      _lyricState = 'none';
+      // 没找到**不清掉已有歌词**。SMTC 标题会在「XXX - Chinese Ver.」和
+      // 「XXX (Honkai Star Rail)」之间跳变（网易云播放器实测），同一次切歌
+      // 会以两个不同的 key 各触发一次搜索——先到的命中不该被后到的失败
+      // 清掉（用户看到的就是歌词凭空消失）。
+      if (_lines.isEmpty) {
+        _lyricState = 'none';
+      }
     }
     _paint(true);
   }
@@ -580,9 +274,18 @@ class LyricsWidget extends BuiltinController {
 
   /// 只有可见内容真的变了才 render。指纹：当前行、秒数、播放状态、
   /// 进度条的像素位置（300px 条上 1px 以内的变化不值得重绘）。
+  ///
+  /// 逐字高亮比"秒"更细：同一秒里已唱字符数就可能变（`LyricsLine.charsSungAt`），
+  /// 所以当前行是逐字行时把已唱字符数也进指纹。**只对逐字行加**——普通 LRC
+  /// 行的 charsSungAt 是整行进度的折算值，每帧都在变，塞进指纹等于每 100ms
+  /// 白重绘一次；而它渲染出来只是整行高亮，本来就不需要更细的重绘。
+  /// （也不要直接把 pos 塞进指纹：那是每帧都变。）
   void _paint(bool force) {
     final pos = _nowPos();
-    final idx = Lrc.indexAt(_lyrics, pos);
+    final idx = _view?.indexAt(pos) ?? -1;
+    final lines = _lines;
+    final cur = idx >= 0 && idx < lines.length ? lines[idx] : null;
+    final sung = cur != null && cur.isSyllable ? cur.charsSungAt(pos) : -1;
     final duration = (_media?['duration'] as num?)?.toInt() ?? 0;
     final barPx = _media != null && duration > 0
         ? (pos / duration * 300).round()
@@ -594,6 +297,7 @@ class LyricsWidget extends BuiltinController {
       idx,
       barPx,
       pos ~/ 1000,
+      sung,
       _media?['status'] ?? -1,
     ].join('\u0001');
     if (!force && sig == _lastPaint) return;
@@ -656,15 +360,19 @@ class LyricsWidget extends BuiltinController {
   ///
   /// 这正是用户截图反馈的那个问题：以前只要开了「显示翻译」就恒定按双语
   /// 留高，而网易云大多数歌没有 tlyric，正文上方就空出一大片。
+  ///
+  /// 译文从哪来：`LyricsView.fromData(..., wantTranslation: ...)` 已经把
+  /// 关掉翻译的情况滤掉了，所以「这行有没有译文」就是 `line.trans.isNotEmpty`；
+  /// [_songHasTrans] 同样只看渲染模型里到底有没有译文。两边都再与
+  /// 「显示翻译」开关取一次与：缓存可能是在开着翻译时写下的，设置关掉后
+  /// 不该继续按双语留高（那就会退回上面说的那个空白问题）。
   void _syncLineHeights(int idx) {
+    final lines = _lines;
     _hasTrans = _settings['trans'] == true &&
         idx >= 0 &&
-        idx < _lyrics.length &&
-        _lyrics[idx].tr.isNotEmpty;
-    final wantTrans = _settings['trans'] == true &&
-        _lyrics.any((l) => l.tr.isNotEmpty);
-    _songHasTrans = wantTrans;
-    _lineContext = wantTrans ? _lineBilingual : _lineSingle;
+        idx < lines.length &&
+        lines[idx].trans.isNotEmpty;
+    _lineContext = _songHasTrans ? _lineBilingual : _lineSingle;
   }
 
   /// 歌词区能放下的**完整**行数（取景框里看得见的行数，不含预滚/预铺行）。
@@ -745,8 +453,12 @@ class LyricsWidget extends BuiltinController {
   /// 代价：数组铺的行数随进度增长（40 行的歌最多铺 40 行）。这是必要的——
   /// 数组长度和偏移变量只能二选一，而要弹簧就必须让偏移动。子节点是
   /// `Text`，Flutter 会按位置 diff 复用，换句只重建一两个槽位。
-  Widget _lyricArea(int idx, Color fg) {
+  ///
+  /// [pos] 是当前播放位置（毫秒），只用于当前行的**逐字**高亮
+  /// （`LyricsLine.charsSungAt`）——非逐字行一个像素都不受影响。
+  Widget _lyricArea(int pos, int idx, Color fg) {
     _syncLineHeights(idx);
+    final arr = _lines;
     final lh = _lineContext;
     // 取景框高度 = 外层 Expanded 实际给到的可用高度。
     final viewport = _availHeight();
@@ -765,7 +477,7 @@ class LyricsWidget extends BuiltinController {
     var top = cur - anchor;
     // 窗口下界：不能越过"最后一行落在最后一个可见行"的位置。到底之后
     // 就**冻结**——内容不再滚动，当前行在框内下移。
-    final maxTop = _lyrics.length - lines;
+    final maxTop = arr.length - lines;
     if (maxTop >= 0 && top > maxTop) top = maxTop;
     if (top < 0) top = 0;
     _windowBase = top;
@@ -773,11 +485,11 @@ class LyricsWidget extends BuiltinController {
     // 数组**从 0 铺到窗口底部**（+ 上下余量），下标 i 即真实行号。
     // 上限收到总行数：末尾时不再往后铺空行。
     final lastNeeded = top + bodyRows + preRoll + 1;
-    final rowCount = lastNeeded > _lyrics.length ? _lyrics.length : lastNeeded;
+    final rowCount = lastNeeded > arr.length ? arr.length : lastNeeded;
     final rows = <Widget>[];
     for (var i = 0; i < rowCount; i++) {
       final li = i;
-      final line = _lyrics[li];
+      final line = arr[li];
       final dist = (li - cur).abs();
       final isCurrent = dist == 0;
       // 焦点层级：越远越淡
@@ -803,17 +515,27 @@ class LyricsWidget extends BuiltinController {
       // "正在唱"的这一行带辉光。半径按字号配，光晕必须小于字间距。
       final glow =
           isCurrent ? nodeGlow(nodeColor(_accent), 9) : const <Shadow>[];
-      final body = Text(
-        line.s.isEmpty ? '·' : line.s,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontSize: sz.toDouble(),
-          fontWeight: wt == 700 ? FontWeight.w700 : FontWeight.w400,
-          color: fg.withValues(alpha: op),
-          shadows: glow,
-        ),
+      final style = TextStyle(
+        fontSize: sz.toDouble(),
+        fontWeight: wt == 700 ? FontWeight.w700 : FontWeight.w400,
+        color: fg.withValues(alpha: op),
+        shadows: glow,
       );
+      final text = line.text;
+      final Widget body;
+      if (isCurrent && line.isSyllable && text.isNotEmpty) {
+        // 逐字行：已唱的部分亮、未唱的部分暗，且只在这一行上做。
+        body = _syllableBody(text, line.charsSungAt(pos), style);
+      } else {
+        // 没有逐字数据（普通 LRC）**或不是当前行**：整行一个颜色，
+        // 与改造前逐像素一致——逐字高亮不会让旧行为退化。
+        body = Text(
+          text.isEmpty ? '·' : text,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: style,
+        );
+      }
       // 当前行有译文 → 正文 + 译文叠两行**垂直居中**地放进这一行的
       // 高度预算里。整首歌的行高（_lineContext）在 _syncLineHeights 里
       // 已经按"有没有译文"选好，所以这里正文 + 译文一定放得下。
@@ -821,7 +543,7 @@ class LyricsWidget extends BuiltinController {
       // 非当前行**不显示译文**，但行高仍是双语的——单行正文用 center
       // 居中，视觉上落在行中间，换句时不会有"忽然跳高"的抖动。
       final Widget cell;
-      if (isCurrent && line.tr.isNotEmpty) {
+      if (isCurrent && line.trans.isNotEmpty) {
         cell = Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -830,7 +552,7 @@ class LyricsWidget extends BuiltinController {
             body,
             const SizedBox(height: 1),
             Text(
-              line.tr,
+              line.trans,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -900,6 +622,49 @@ class LyricsWidget extends BuiltinController {
     );
   }
 
+  /// 逐字（卡拉OK）高亮：前 [sung] 个字符用亮色，后面的压暗。
+  ///
+  /// 做法是**两个 `Text` 叠在一起**：
+  ///   - 底层：整行都用暗色（未唱部分）；
+  ///   - 上层：已唱前缀正常亮色，未唱后缀设成完全透明——后缀虽然看不见，
+  ///     但仍参与排版，所以两层的字位、省略号位置逐像素一致。
+  ///
+  /// 为什么不用 `ClipRect` 按宽度比例裁：比例字体下"第 n 个字符"的边界不在
+  /// 宽度的 n/total 处，会切进字里。为什么不用单个 `Text.rich`：那样整行得由
+  /// 一个 Text 画，没法把"未唱部分"独立压暗（也只能有一种辉光）。
+  ///
+  /// 没有逐字数据的行根本不会走到这里（见 [_lyricArea]），所以旧行为不变。
+  Widget _syllableBody(String text, int sung, TextStyle bright) {
+    final n = sung.clamp(0, text.length);
+    final dim = bright.copyWith(
+      color: bright.color?.withValues(alpha: 0.28),
+      shadows: const <Shadow>[],
+    );
+    return Stack(
+      // 辉光会画到文字盒子外，Stack 默认 Clip.hardEdge 会把它切掉
+      clipBehavior: Clip.none,
+      children: [
+        Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, style: dim),
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(text: text.substring(0, n)),
+              TextSpan(
+                text: text.substring(n),
+                // 占位但不可见：保住排版位置，同时不参与辉光
+                style: const TextStyle(
+                    color: Colors.transparent, shadows: <Shadow>[]),
+              ),
+            ],
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: bright,
+        ),
+      ],
+    );
+  }
+
   Widget _lyricPlaceholder(Color fg) {
     final msg = _lyricState == 'loading' ? '正在找歌词…' : '没找到这首歌的歌词';
     return SizedBox(
@@ -923,7 +688,7 @@ class LyricsWidget extends BuiltinController {
       final fg = DefaultTextStyle.of(context).style.color ?? Colors.white;
       final content = DefaultTextStyle.merge(
         style: const TextStyle(fontSize: 13, decoration: TextDecoration.none),
-        child: _view(pos, idx, fg),
+        child: _content(pos, idx, fg),
       );
       if (!ctx.animate) return content;
       return AnimatedSwitcher(
@@ -943,7 +708,11 @@ class LyricsWidget extends BuiltinController {
     });
   }
 
-  Widget _view(int pos, int idx, Color fg) {
+  /// 整卡内容（封面 + 控件 + 歌词区）。
+  ///
+  /// 名字不叫 `_view`：那已经是「渲染模型字段」的名字（`LyricsView? _view`），
+  /// 同名的成员方法会和字段冲突。
+  Widget _content(int pos, int idx, Color fg) {
     final media = _media;
     if (media == null || media['available'] != true) return _idleView(fg);
 
@@ -1033,8 +802,8 @@ class LyricsWidget extends BuiltinController {
           bar,
           const SizedBox(height: 6),
           Expanded(
-            child: _lyrics.isNotEmpty
-                ? _lyricArea(idx, fg)
+            child: _lines.isNotEmpty
+                ? _lyricArea(pos, idx, fg)
                 : _lyricPlaceholder(fg),
           ),
         ],
@@ -1208,7 +977,10 @@ class LyricsWidget extends BuiltinController {
     // 这里先给单行值，保证 mount 阶段的行数预算有意义。
     _lineContext = _lineSingle;
 
-    _lyrics = [];
+    _view = null;
+    // 把歌词模块的网络/日志接到宿主（15s 超时、组件卸载自动取消、统一日志），
+    // 一次即可；引擎里的各源 Api 都走这唯一的 httpClient 出口。
+    installLyricsHost(ctx);
     ctx.renderWidget(_root(0, -1));
     _purgeLegacyCache();
     _tick();
@@ -1262,9 +1034,15 @@ class LyricsWidget extends BuiltinController {
   @visibleForTesting
   bool get debugHasTrans => _hasTrans;
 
+  /// 塞一段演示歌词（预览图生成 / 布局测试用）。
+  ///
+  /// 签名保持 `List<LrcLine>` 不变（`test/gen_previews_test.dart` 在用），
+  /// 内部转成渲染模型：这些行没有逐字数据，所以画出来就是整行高亮。
   @visibleForTesting
   void debugSetLyrics(List<LrcLine> lines) {
-    _lyrics = lines;
+    _view = LyricsView.fromSimpleLines([
+      for (final l in lines) (start: l.t, text: l.s, trans: l.tr),
+    ]);
     _lyricState = 'ok';
   }
 

@@ -1,0 +1,36 @@
+Vectra / Glance — Lyricify 歌词逻辑移植说明（NOTICE）
+=====================================================
+
+本目录（lib/lyrics）下的代码是以下开源项目的 **衍生作品（Derivative Work）**：
+
+  项目：Lyricify Lyrics Helper
+  仓库：https://github.com/WXRIW/Lyricify-Lyrics-Helper
+  提交：53a2f81d3b92b279e1996a27e1de8598cf283a2d（2026-09-28）
+  版权：Copyright (c) WXRIW 及 Lyricify 贡献者
+  许可：Apache License 2.0（全文见同目录 LICENSE）
+
+我们做过的修改（Apache-2.0 §4(b) 要求的"已修改"声明）：
+
+  1. 语言翻译：C# → Dart（逐行保真移植，类名/方法名/常量/阈值/顺序尽量一致）。
+  2. 网络层替换：上游的静态 System.Net.Http.HttpClient + Proxy 改为
+     LyricsHttpClient 抽象（lib/lyrics/http/lyrics_http.dart），由宿主注入实现，
+     便于统一日志、超时、代理与可测试性。
+  3. JSON 层替换：上游 Newtonsoft.Json 的动态取值改为 lib/lyrics/json_utils.dart
+     的手写取值助手；DTO 类改用 factory fromJson。
+  4. XML 层替换：上游 System.Xml.Linq 改为 package:xml。
+  5. 压缩层替换：上游 System.IO.Compression 改为 dart:io 的 ZLibDecoder。
+  6. 简繁转换：上游依赖 .NET 专有库
+     Microsoft.International.Converters.TraditionalChineseToSimplifiedConverter，
+     该库本身没有可移植实现；我们改用**上游同文件 `ChineseConverter` 自带的**
+     `CHSWord` / `CHTWord` 两张硬编码字表（逐字节抄进
+     lib/lyrics/helpers/general/chinese_converter_tables.dart，4804 对），
+     `ChineseHelper.S2T/T2S/ToTC/ToSC` 全部走这两张表，因此不引入任何外部数据。
+  7. 去掉了上游的 RegexOptions.Compiled（Dart 无此概念），语义等价。
+  8. 未移植上游与本项目无关的部分（如 .sln/.csproj 工程文件、Demo 程序）。
+  9. 新增宿主适配层（本目录内非上游文件）：http/lyrics_http.dart、json_utils.dart、
+     lyrics_log.dart、engine.dart。
+
+每个移植文件顶部都标了它来自上游的哪个文件，便于逐行对照。
+
+许可证全文见：lib/lyrics/LICENSE
+移植规格与进度见：docs/lyricify-port.md

@@ -1,0 +1,717 @@
+{
+  "file": {
+    "type": "Lrc",
+    "syncTypes": "LineSynced",
+    "attributes": null,
+    "krcHash": null
+  },
+  "writers": null,
+  "trackMetadata": {
+    "title": null,
+    "artist": null,
+    "album": null,
+    "durationMs": null
+  },
+  "lines": [
+    {
+      "kind": "LineInfo",
+      "text": "作词 : Ryan Tedder",
+      "startTime": 0,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "作曲 : Ryan Tedder",
+      "startTime": 835,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Lately, I've been, I've been losing sleep",
+      "startTime": 1670,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Dreaming about the things that we could be",
+      "startTime": 4850,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "But baby, I've been, I've been praying hard",
+      "startTime": 9480,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Said no more counting dollars",
+      "startTime": 13480,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "We'll be counting stars",
+      "startTime": 16040,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Yeah, we'll be counting stars",
+      "startTime": 18920,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I see this life",
+      "startTime": 37720,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Like a swinging vine",
+      "startTime": 39030,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Swing my heart across the line",
+      "startTime": 40340,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "And in my face is flashing signs",
+      "startTime": 42090,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Seek it out and ye' shall find",
+      "startTime": 43970,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Old, but I'm not that old",
+      "startTime": 46160,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Young, but I'm not that bold",
+      "startTime": 48160,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "And I don't think the world is sold",
+      "startTime": 49910,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I'm just doing what we're told",
+      "startTime": 51850,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I-I-I-I feel something so right",
+      "startTime": 54440,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "doing the wrong thing",
+      "startTime": 58750,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I-I-I-I feel something so wrong",
+      "startTime": 61750,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "doing the right thing",
+      "startTime": 66310,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I couldn't lie, couldn't lie, couldn't lie",
+      "startTime": 69880,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Everything that kills me makes me feel alive",
+      "startTime": 73500,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Lately, I've been, I've been losing sleep",
+      "startTime": 77870,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Dreaming about the things that we could be",
+      "startTime": 81390,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "But baby, I've been, I've been praying hard",
+      "startTime": 85390,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Said no more counting dollars",
+      "startTime": 89390,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "We'll be counting stars",
+      "startTime": 91210,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Lately, I've been, I've been losing sleep",
+      "startTime": 93210,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Dreaming about the things that we could be",
+      "startTime": 97200,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "But baby, I've been, I've been praying hard",
+      "startTime": 101210,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Said no more counting dollars",
+      "startTime": 105210,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "We'll be, we'll be counting stars",
+      "startTime": 107140,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I feel the love",
+      "startTime": 116390,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "And I feel it burn",
+      "startTime": 117640,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Down this river, every turn",
+      "startTime": 119080,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Hope is a four-letter word",
+      "startTime": 120950,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Make that money",
+      "startTime": 122950,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Watch it burn",
+      "startTime": 123640,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Old, but I'm not that old",
+      "startTime": 124950,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Young, but I'm not that bold",
+      "startTime": 126830,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "And I don't think the world is sold",
+      "startTime": 128700,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I'm just doing what we're told",
+      "startTime": 130960,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I-I-I-I feel something so wrong",
+      "startTime": 133020,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "by doing the right thing",
+      "startTime": 137210,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I couldn't lie, couldn't lie, couldn't lie",
+      "startTime": 140400,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Everything that drowns me makes me wanna fly",
+      "startTime": 144640,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Lately, I've been, I've been losing sleep",
+      "startTime": 148640,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Dreaming about the things that we could be",
+      "startTime": 152250,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "But baby, I've been, I've been praying hard",
+      "startTime": 156160,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Said no more counting dollars",
+      "startTime": 160100,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "We'll be counting stars",
+      "startTime": 162030,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Lately, I've been, I've been losing sleep",
+      "startTime": 164220,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Dreaming about the things that we could be",
+      "startTime": 168160,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "But baby, I've been, I've been praying hard",
+      "startTime": 171910,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Said no more counting dollars",
+      "startTime": 175970,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "We'll be, we'll be counting stars",
+      "startTime": 177860,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Take that money",
+      "startTime": 184100,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Watch it burn",
+      "startTime": 184730,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Sink in the river",
+      "startTime": 185600,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 186480,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Take that money",
+      "startTime": 187610,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Watch it burn",
+      "startTime": 188490,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Sink in the river",
+      "startTime": 189420,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 190420,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Take that money",
+      "startTime": 191540,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Watch it burn",
+      "startTime": 192290,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Sink in the river",
+      "startTime": 193290,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 194290,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Take that money",
+      "startTime": 195420,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Watch it burn",
+      "startTime": 196170,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Sink in the river",
+      "startTime": 197230,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 198170,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Everything that kills me makes me feel alive",
+      "startTime": 199610,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Lately, I've been, I've been losing sleep",
+      "startTime": 206670,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Dreaming about the things that we could be",
+      "startTime": 210350,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "But baby, I've been, I've been praying hard",
+      "startTime": 214220,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Said no more counting dollars",
+      "startTime": 218290,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "We'll be counting stars",
+      "startTime": 220040,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Lately, I've been, I've been losing sleep",
+      "startTime": 222100,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Dreaming about the things that we could be",
+      "startTime": 226220,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "But baby, I've been, I've been praying hard",
+      "startTime": 229970,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Said no more counting dollars",
+      "startTime": 234100,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "We'll be, we'll be counting stars",
+      "startTime": 235910,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Take that money",
+      "startTime": 238400,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Watch it burn",
+      "startTime": 238910,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Sink in the river",
+      "startTime": 239720,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 240650,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Take that money",
+      "startTime": 241720,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Watch it burn",
+      "startTime": 242400,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Sink in the river",
+      "startTime": 243470,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 244530,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Take that money",
+      "startTime": 245650,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Watch it burn",
+      "startTime": 246410,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Sink in the river",
+      "startTime": 247470,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 248340,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Take that money",
+      "startTime": 249530,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Watch it burn",
+      "startTime": 250150,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Sink in the river",
+      "startTime": 251280,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "The lessons I've learned",
+      "startTime": 252350,
+      "endTime": null,
+      "alignment": "Unspecified"
+    }
+  ]
+}

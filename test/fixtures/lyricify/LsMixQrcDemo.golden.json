@@ -1,0 +1,1898 @@
+{
+  "file": {
+    "type": "Qrc",
+    "syncTypes": "SyllableSynced",
+    "attributes": [
+      [
+        "ti",
+        "Stop and Stare"
+      ],
+      [
+        "ar",
+        "OneRepublic"
+      ],
+      [
+        "al",
+        "Dreaming Out Loud"
+      ],
+      [
+        "by",
+        ""
+      ],
+      [
+        "offset",
+        "0"
+      ]
+    ],
+    "krcHash": null
+  },
+  "writers": null,
+  "trackMetadata": {
+    "title": "Stop and Stare",
+    "artist": "OneRepublic",
+    "album": "Dreaming Out Loud",
+    "durationMs": null
+  },
+  "lines": [
+    {
+      "kind": "SyllableLineInfo",
+      "text": "This town is colder now I think it's sick of us",
+      "startTime": 13181,
+      "endTime": 18406,
+      "alignment": "Unspecified",
+      "syllableCount": 11,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "This ",
+          "startTime": 13181,
+          "endTime": 13655
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "town ",
+          "startTime": 13655,
+          "endTime": 13930
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is ",
+          "startTime": 13930,
+          "endTime": 14249
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "colder ",
+          "startTime": 14249,
+          "endTime": 14867
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "now ",
+          "startTime": 14867,
+          "endTime": 15807
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 15807,
+          "endTime": 16210
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "think ",
+          "startTime": 16210,
+          "endTime": 16554
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it's ",
+          "startTime": 16554,
+          "endTime": 16876
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sick ",
+          "startTime": 16876,
+          "endTime": 17152
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "of ",
+          "startTime": 17152,
+          "endTime": 17465
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "us",
+          "startTime": 17465,
+          "endTime": 18406
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "It's time to make our move I'm shaking off the rust",
+      "startTime": 18115,
+      "endTime": 23595,
+      "alignment": "Left",
+      "syllableCount": 11,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "It's ",
+          "startTime": 18115,
+          "endTime": 18764
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "time ",
+          "startTime": 18764,
+          "endTime": 19100
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 19100,
+          "endTime": 19430
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "make ",
+          "startTime": 19430,
+          "endTime": 20080
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "our ",
+          "startTime": 20080,
+          "endTime": 20377
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "move ",
+          "startTime": 20377,
+          "endTime": 21065
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 21065,
+          "endTime": 21355
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "shaking ",
+          "startTime": 21355,
+          "endTime": 21945
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "off ",
+          "startTime": 21945,
+          "endTime": 22279
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 22279,
+          "endTime": 22624
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "rust",
+          "startTime": 22624,
+          "endTime": 23595
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I've got my heart set on anywhere but here",
+      "startTime": 23304,
+      "endTime": 28785,
+      "alignment": "Left",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 23304,
+          "endTime": 23955
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "got ",
+          "startTime": 23955,
+          "endTime": 24310
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 24310,
+          "endTime": 24669
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "heart ",
+          "startTime": 24669,
+          "endTime": 25254
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "set ",
+          "startTime": 25254,
+          "endTime": 26180
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 26180,
+          "endTime": 26519
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "anywhere ",
+          "startTime": 26519,
+          "endTime": 27454
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "but ",
+          "startTime": 27454,
+          "endTime": 27816
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "here",
+          "startTime": 27816,
+          "endTime": 28785
+        }
+      ],
+      "subLine": {
+        "kind": "SyllableLineInfo",
+        "text": "I'm staring down myself counting up the years",
+        "startTime": 28494,
+        "endTime": 35262,
+        "alignment": "Left",
+        "syllableCount": 8,
+        "syllables": [
+          {
+            "kind": "SyllableInfo",
+            "text": "I'm ",
+            "startTime": 28494,
+            "endTime": 29186
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "staring ",
+            "startTime": 29186,
+            "endTime": 29774
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "down ",
+            "startTime": 29827,
+            "endTime": 30435
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "myself ",
+            "startTime": 30435,
+            "endTime": 31766
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "counting ",
+            "startTime": 31766,
+            "endTime": 32412
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "up ",
+            "startTime": 32412,
+            "endTime": 33117
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "the ",
+            "startTime": 33117,
+            "endTime": 33394
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "years",
+            "startTime": 33394,
+            "endTime": 35262
+          }
+        ]
+      }
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Steady hands just take the wheel",
+      "startTime": 34967,
+      "endTime": 40479,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Steady ",
+          "startTime": 34967,
+          "endTime": 35931
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hands ",
+          "startTime": 35931,
+          "endTime": 36931
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "just ",
+          "startTime": 36931,
+          "endTime": 37612
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "take ",
+          "startTime": 37612,
+          "endTime": 38253
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 38253,
+          "endTime": 38533
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "wheel",
+          "startTime": 38533,
+          "endTime": 40479
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "And every glance is killing me",
+      "startTime": 40285,
+      "endTime": 45816,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And ",
+          "startTime": 40285,
+          "endTime": 41045
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "every ",
+          "startTime": 41045,
+          "endTime": 41280
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "glance ",
+          "startTime": 41280,
+          "endTime": 42196
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is ",
+          "startTime": 42196,
+          "endTime": 42916
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "killing ",
+          "startTime": 42916,
+          "endTime": 43900
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me",
+          "startTime": 43900,
+          "endTime": 45816
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Time to make one last appeal for the life I lead",
+      "startTime": 45519,
+      "endTime": 54506,
+      "alignment": "Unspecified",
+      "syllableCount": 11,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Time ",
+          "startTime": 45519,
+          "endTime": 46166
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 46166,
+          "endTime": 46520
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "make ",
+          "startTime": 46520,
+          "endTime": 47430
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "one ",
+          "startTime": 47430,
+          "endTime": 48088
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "last ",
+          "startTime": 48088,
+          "endTime": 48770
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "appeal ",
+          "startTime": 48770,
+          "endTime": 51005
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "for ",
+          "startTime": 51005,
+          "endTime": 51412
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 51412,
+          "endTime": 51700
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "life ",
+          "startTime": 51700,
+          "endTime": 52820
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 52820,
+          "endTime": 53535
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lead",
+          "startTime": 53535,
+          "endTime": 54506
+        }
+      ],
+      "subLine": {
+        "kind": "SyllableLineInfo",
+        "text": "Stop and stare",
+        "startTime": 54208,
+        "endTime": 57463,
+        "alignment": "Right",
+        "syllableCount": 3,
+        "syllables": [
+          {
+            "kind": "SyllableInfo",
+            "text": "Stop ",
+            "startTime": 54208,
+            "endTime": 55170
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "and ",
+            "startTime": 55170,
+            "endTime": 55840
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "stare",
+            "startTime": 55840,
+            "endTime": 57463
+          }
+        ]
+      }
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I think I'm moving but I go nowhere",
+      "startTime": 57164,
+      "endTime": 62967,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 57164,
+          "endTime": 57825
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "think ",
+          "startTime": 57825,
+          "endTime": 58145
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 58145,
+          "endTime": 58479
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "moving ",
+          "startTime": 58479,
+          "endTime": 59150
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "but ",
+          "startTime": 59150,
+          "endTime": 59446
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 59446,
+          "endTime": 60290
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "go ",
+          "startTime": 60290,
+          "endTime": 60569
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "nowhere",
+          "startTime": 60569,
+          "endTime": 62967
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Yeah I know that everyone gets scared",
+      "startTime": 62674,
+      "endTime": 67927,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Yeah ",
+          "startTime": 62674,
+          "endTime": 63349
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 63349,
+          "endTime": 63699
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "know ",
+          "startTime": 63699,
+          "endTime": 64024
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 64024,
+          "endTime": 64344
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "everyone ",
+          "startTime": 64344,
+          "endTime": 65578
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "gets ",
+          "startTime": 65578,
+          "endTime": 66260
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "scared",
+          "startTime": 66260,
+          "endTime": 67927
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But I've become what I can't be oh",
+      "startTime": 67629,
+      "endTime": 75299,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 67629,
+          "endTime": 68205
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 68205,
+          "endTime": 68509
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "become ",
+          "startTime": 68509,
+          "endTime": 69164
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "what ",
+          "startTime": 69164,
+          "endTime": 69534
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 69534,
+          "endTime": 69831
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "can't ",
+          "startTime": 69831,
+          "endTime": 70719
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 70719,
+          "endTime": 72751
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "oh",
+          "startTime": 73651,
+          "endTime": 75299
+        }
+      ],
+      "subLine": {
+        "kind": "SyllableLineInfo",
+        "text": "(Stop and stare)",
+        "startTime": 74999,
+        "endTime": 78217,
+        "alignment": "Unspecified",
+        "syllableCount": 3,
+        "syllables": [
+          {
+            "kind": "SyllableInfo",
+            "text": "(Stop ",
+            "startTime": 74999,
+            "endTime": 75955
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "and ",
+            "startTime": 75955,
+            "endTime": 76584
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "stare)",
+            "startTime": 76584,
+            "endTime": 78217
+          }
+        ]
+      }
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "You start to wonder why you're here not there",
+      "startTime": 77919,
+      "endTime": 83408,
+      "alignment": "Unspecified",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "You ",
+          "startTime": 77919,
+          "endTime": 78559
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "start ",
+          "startTime": 78559,
+          "endTime": 78914
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 78914,
+          "endTime": 79262
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "wonder ",
+          "startTime": 79262,
+          "endTime": 79859
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "why ",
+          "startTime": 79859,
+          "endTime": 80208
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you're ",
+          "startTime": 80208,
+          "endTime": 80574
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "here ",
+          "startTime": 80574,
+          "endTime": 81204
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "not ",
+          "startTime": 81204,
+          "endTime": 81829
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "there",
+          "startTime": 81829,
+          "endTime": 83408
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "And you'd give anything to get what's fair",
+      "startTime": 83109,
+      "endTime": 88647,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And ",
+          "startTime": 83109,
+          "endTime": 83799
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you'd ",
+          "startTime": 83799,
+          "endTime": 84113
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "give ",
+          "startTime": 84113,
+          "endTime": 84559
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "anything ",
+          "startTime": 84559,
+          "endTime": 85374
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 85374,
+          "endTime": 85708
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "get ",
+          "startTime": 85708,
+          "endTime": 86338
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "what's ",
+          "startTime": 86338,
+          "endTime": 86989
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fair",
+          "startTime": 86989,
+          "endTime": 88647
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But fair ain't what you really need",
+      "startTime": 88356,
+      "endTime": 93203,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 88356,
+          "endTime": 89019
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fair ",
+          "startTime": 89019,
+          "endTime": 89329
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ain't ",
+          "startTime": 89329,
+          "endTime": 89659
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "what ",
+          "startTime": 89659,
+          "endTime": 89969
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 89969,
+          "endTime": 90324
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "really ",
+          "startTime": 90324,
+          "endTime": 91226
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "need",
+          "startTime": 91226,
+          "endTime": 93203
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Oh can you see what I see",
+      "startTime": 92904,
+      "endTime": 98044,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 92904,
+          "endTime": 94171
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "can ",
+          "startTime": 94171,
+          "endTime": 94564
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 94564,
+          "endTime": 94828
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "see ",
+          "startTime": 94828,
+          "endTime": 95147
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "what ",
+          "startTime": 95147,
+          "endTime": 95471
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 95471,
+          "endTime": 96044
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "see",
+          "startTime": 96044,
+          "endTime": 98044
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "They're trying to come back all my senses push",
+      "startTime": 101534,
+      "endTime": 106985,
+      "alignment": "Unspecified",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "They're ",
+          "startTime": 101534,
+          "endTime": 102014
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "trying ",
+          "startTime": 102014,
+          "endTime": 102524
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 102524,
+          "endTime": 102934
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 102934,
+          "endTime": 103337
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "back ",
+          "startTime": 103337,
+          "endTime": 104181
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "all ",
+          "startTime": 104181,
+          "endTime": 104849
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 104849,
+          "endTime": 105204
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "senses ",
+          "startTime": 105204,
+          "endTime": 106106
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "push",
+          "startTime": 106106,
+          "endTime": 106985
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "(Un-tie the weight bags I never thought I could)",
+      "startTime": 106699,
+      "endTime": 113258,
+      "alignment": "Unspecified",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "(Un-tie ",
+          "startTime": 106699,
+          "endTime": 107311
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 107311,
+          "endTime": 107787
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "weight ",
+          "startTime": 107787,
+          "endTime": 108470
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "bags ",
+          "startTime": 108470,
+          "endTime": 109444
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 109444,
+          "endTime": 109814
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "never ",
+          "startTime": 109814,
+          "endTime": 110374
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thought ",
+          "startTime": 110374,
+          "endTime": 110724
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 110724,
+          "endTime": 111389
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could)",
+          "startTime": 111389,
+          "endTime": 113258
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "(Steady feet don't fail me now)",
+      "startTime": 112964,
+      "endTime": 118450,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "(Steady ",
+          "startTime": 112964,
+          "endTime": 113949
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feet ",
+          "startTime": 113949,
+          "endTime": 114999
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "don't ",
+          "startTime": 114999,
+          "endTime": 115594
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fail ",
+          "startTime": 115594,
+          "endTime": 116229
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 116229,
+          "endTime": 116564
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "now)",
+          "startTime": 116564,
+          "endTime": 118450
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'ma run till you can't walk",
+      "startTime": 118154,
+      "endTime": 123626,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'ma ",
+          "startTime": 118154,
+          "endTime": 119189
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "run ",
+          "startTime": 119189,
+          "endTime": 120084
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "till ",
+          "startTime": 120084,
+          "endTime": 120759
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 120759,
+          "endTime": 121083
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "can't ",
+          "startTime": 121083,
+          "endTime": 121750
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "walk",
+          "startTime": 121750,
+          "endTime": 123626
+        }
+      ],
+      "subLine": {
+        "kind": "SyllableLineInfo",
+        "text": "Something pulls my focus out",
+        "startTime": 123334,
+        "endTime": 128905,
+        "alignment": "Left",
+        "syllableCount": 5,
+        "syllables": [
+          {
+            "kind": "SyllableInfo",
+            "text": "Something ",
+            "startTime": 123334,
+            "endTime": 124439
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "pulls ",
+            "startTime": 124529,
+            "endTime": 125309
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "my ",
+            "startTime": 125309,
+            "endTime": 126014
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "focus ",
+            "startTime": 126014,
+            "endTime": 126949
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "out",
+            "startTime": 126949,
+            "endTime": 128905
+          }
+        ]
+      }
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "(And I'm standing down)",
+      "startTime": 128614,
+      "endTime": 132408,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "(And ",
+          "startTime": 128614,
+          "endTime": 129264
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 129264,
+          "endTime": 129719
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "standing ",
+          "startTime": 129719,
+          "endTime": 130834
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "down)",
+          "startTime": 130834,
+          "endTime": 132408
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Stop and stare",
+      "startTime": 132110,
+      "endTime": 135336,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Stop ",
+          "startTime": 132110,
+          "endTime": 133068
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 133068,
+          "endTime": 133713
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stare",
+          "startTime": 133713,
+          "endTime": 135336
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I think I'm moving but I go nowhere",
+      "startTime": 135043,
+      "endTime": 140846,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 135043,
+          "endTime": 135693
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "think ",
+          "startTime": 135693,
+          "endTime": 136058
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 136058,
+          "endTime": 136353
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "moving ",
+          "startTime": 136353,
+          "endTime": 136978
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "but ",
+          "startTime": 136978,
+          "endTime": 137285
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 137285,
+          "endTime": 137619
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "go ",
+          "startTime": 137619,
+          "endTime": 138308
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "nowhere",
+          "startTime": 138308,
+          "endTime": 140846
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Yeah I know that everyone gets scared",
+      "startTime": 140553,
+      "endTime": 145915,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Yeah ",
+          "startTime": 140553,
+          "endTime": 141203
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 141203,
+          "endTime": 141558
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "know ",
+          "startTime": 141558,
+          "endTime": 141878
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 141878,
+          "endTime": 142192
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "everyone ",
+          "startTime": 142192,
+          "endTime": 143463
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "gets ",
+          "startTime": 143463,
+          "endTime": 144148
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "scared",
+          "startTime": 144148,
+          "endTime": 145915
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But I've become what I can't be oh",
+      "startTime": 145619,
+      "endTime": 153141,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 145619,
+          "endTime": 146123
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 146123,
+          "endTime": 146403
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "become ",
+          "startTime": 146403,
+          "endTime": 147008
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "what ",
+          "startTime": 147008,
+          "endTime": 147379
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 147379,
+          "endTime": 147684
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "can't ",
+          "startTime": 147684,
+          "endTime": 148584
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 148584,
+          "endTime": 150293
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "oh",
+          "startTime": 150293,
+          "endTime": 153141
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Stop and stare",
+      "startTime": 152850,
+      "endTime": 156086,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Stop ",
+          "startTime": 152850,
+          "endTime": 153853
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 153853,
+          "endTime": 154453
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stare",
+          "startTime": 154453,
+          "endTime": 156086
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "You start to wonder why you're here not there",
+      "startTime": 155788,
+      "endTime": 161287,
+      "alignment": "Unspecified",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "You ",
+          "startTime": 155788,
+          "endTime": 156418
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "start ",
+          "startTime": 156418,
+          "endTime": 156758
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 156758,
+          "endTime": 157078
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "wonder ",
+          "startTime": 157078,
+          "endTime": 157728
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "why ",
+          "startTime": 157728,
+          "endTime": 158068
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you're ",
+          "startTime": 158068,
+          "endTime": 158414
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "here ",
+          "startTime": 158414,
+          "endTime": 159023
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "not ",
+          "startTime": 159023,
+          "endTime": 159688
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "there",
+          "startTime": 159688,
+          "endTime": 161287
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "And you'd give anything to get what's fair",
+      "startTime": 160993,
+      "endTime": 166451,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And ",
+          "startTime": 160993,
+          "endTime": 161608
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you'd ",
+          "startTime": 161608,
+          "endTime": 161973
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "give ",
+          "startTime": 161973,
+          "endTime": 162313
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "anything ",
+          "startTime": 162313,
+          "endTime": 163193
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 163193,
+          "endTime": 163566
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "get ",
+          "startTime": 163566,
+          "endTime": 164214
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "what's ",
+          "startTime": 164214,
+          "endTime": 164873
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fair",
+          "startTime": 164873,
+          "endTime": 166451
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But fair aren't what you really need",
+      "startTime": 166153,
+      "endTime": 171015,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 166153,
+          "endTime": 166813
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fair ",
+          "startTime": 166813,
+          "endTime": 167168
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "aren't ",
+          "startTime": 167168,
+          "endTime": 167523
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "what ",
+          "startTime": 167523,
+          "endTime": 167813
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 167813,
+          "endTime": 168138
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "really ",
+          "startTime": 168138,
+          "endTime": 169078
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "need",
+          "startTime": 169078,
+          "endTime": 171015
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Oh you don't need",
+      "startTime": 170720,
+      "endTime": 176463,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 170720,
+          "endTime": 172298
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 172298,
+          "endTime": 172978
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "don't ",
+          "startTime": 172978,
+          "endTime": 173663
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "need",
+          "startTime": 173663,
+          "endTime": 176463
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Stop and stare",
+      "startTime": 194362,
+      "endTime": 197572,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Stop ",
+          "startTime": 194362,
+          "endTime": 195347
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 195347,
+          "endTime": 195989
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stare",
+          "startTime": 195989,
+          "endTime": 197572
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I think I'm moving but I go nowhere",
+      "startTime": 197275,
+      "endTime": 203100,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 197275,
+          "endTime": 197947
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "think ",
+          "startTime": 197947,
+          "endTime": 198321
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 198321,
+          "endTime": 198672
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "moving ",
+          "startTime": 198672,
+          "endTime": 199272
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "but ",
+          "startTime": 199272,
+          "endTime": 199597
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 199597,
+          "endTime": 199917
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "go ",
+          "startTime": 199917,
+          "endTime": 200602
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "nowhere",
+          "startTime": 200602,
+          "endTime": 203100
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Yeah I know that everyone gets scared",
+      "startTime": 202806,
+      "endTime": 208094,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Yeah ",
+          "startTime": 202806,
+          "endTime": 203474
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 203474,
+          "endTime": 203822
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "know ",
+          "startTime": 203822,
+          "endTime": 204157
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 204157,
+          "endTime": 204472
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "everyone ",
+          "startTime": 204472,
+          "endTime": 205732
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "gets ",
+          "startTime": 205732,
+          "endTime": 206467
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "scared",
+          "startTime": 206467,
+          "endTime": 208094
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But I've become what I can't be",
+      "startTime": 208231,
+      "endTime": 212823,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 208231,
+          "endTime": 208701
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 208701,
+          "endTime": 208866
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "become ",
+          "startTime": 208866,
+          "endTime": 209390
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "what ",
+          "startTime": 209390,
+          "endTime": 209712
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 209712,
+          "endTime": 210006
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "can't ",
+          "startTime": 210006,
+          "endTime": 210976
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 210976,
+          "endTime": 212823
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Oh do you see what I see",
+      "startTime": 212532,
+      "endTime": 216901,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 212532,
+          "endTime": 213889
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "do ",
+          "startTime": 213889,
+          "endTime": 214033
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 214033,
+          "endTime": 214173
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "see ",
+          "startTime": 214173,
+          "endTime": 214611
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "what ",
+          "startTime": 214611,
+          "endTime": 214986
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 214986,
+          "endTime": 216006
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "see",
+          "startTime": 215901,
+          "endTime": 216901
+        }
+      ]
+    }
+  ]
+}

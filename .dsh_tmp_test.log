@@ -1,0 +1,237 @@
+﻿00:00 +0: loading C:/Users/81157/Documents/work/Vectra/test/lyrics/providers_b_test.dart
+00:00 +0: SodaMusic 搜索请求：URL 参数、UA、Accept 与固定的 iid/device_id
+00:00 +1: SodaMusic 搜索响应 DTO：歌名/歌手/时长/id
+00:00 +2: SodaMusic 详情请求：h5 URL、web UA、track_id/device_platform
+00:00 +3: SodaMusic 详情响应：seo_track 回填 track / track_player（??= 语义）
+00:00 +4: SodaMusic 空响应返回 null；HTTP 失败时 getDetail 吞异常返回 null
+00:00 +5: AppleMusic findIndexScriptUrls / findAccessTokenInScript 正则与打分
+00:00 +6: AppleMusic JWT 过期判定（exp - 1 分钟）
+00:00 +7: AppleMusic normalizeBase64 / tryReadJwt 解析出 header 与 payload
+00:00 +7 -1: AppleMusic normalizeBase64 / tryReadJwt 解析出 header 与 payload [E]
+  Expected: 'a+b/c='
+    Actual: 'a+b/c==='
+     Which: is different. Both strings start the same, but the actual value also has the following trailing characters: ==
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\lyrics\providers_b_test.dart 432:7             main.<fn>.<fn>
+  
+00:00 +7 -1: AppleMusic 搜索请求：storefront 与 l 参数、Authorization 头
+00:00 +8 -1: AppleMusic 歌词请求：include[songs]=syllable-lyrics、l 固定 zh-hans-cn、TTML 归一化
+00:00 +9 -1: AppleMusic TTML 回退与时间轴校验
+00:00 +10 -1: AppleMusic storefront 请求：media-user-token 头与 storefront/language 生效
+00:00 +11 -1: AppleMusic 401 会刷新 access token 并重试一次
+00:00 +11 -2: AppleMusic 401 会刷新 access token 并重试一次 [E]
+  Expected: an object with length of <4>
+    Actual: [
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest'
+            ]
+     Which: has length of <5>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\lyrics\providers_b_test.dart 553:7             main.<fn>.<fn>
+  
+00:00 +11 -2: AppleMusic 403 + 空响应体也会刷新 token（上游的 ContentLength==0 等价物）
+00:00 +11 -3: AppleMusic 403 + 空响应体也会刷新 token（上游的 ContentLength==0 等价物） [E]
+  Expected: an object with length of <4>
+    Actual: [
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest'
+            ]
+     Which: has length of <5>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\lyrics\providers_b_test.dart 577:7             main.<fn>.<fn>
+  
+00:00 +11 -3: AppleMusic setMediaUserToken：相同 token 不重置 _inited；空串忽略
+00:00 +11 -4: AppleMusic setMediaUserToken：相同 token 不重置 _inited；空串忽略 [E]
+  Expected: an object with length of <1>
+    Actual: [Instance of 'RecordedRequest', Instance of 'RecordedRequest']
+     Which: has length of <2>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\lyrics\providers_b_test.dart 596:7             main.<fn>.<fn>
+  
+00:00 +11 -4: Spotify normalizeSpDc：去掉 cookie 前缀与引号
+00:00 +12 -4: Spotify tryParseSecretPayload：XOR 解码与取最大版本号
+00:00 +12 -5: Spotify tryParseSecretPayload：XOR 解码与取最大版本号 [E]
+  Expected: <27>
+    Actual: <60>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\lyrics\providers_b_test.dart 622:7             main.<fn>.<fn>
+  
+00:00 +12 -5: Spotify generateTotp：与 .NET HMACSHA1 独立算出的黄金向量一致
+00:00 +12 -6: Spotify generateTotp：与 .NET HMACSHA1 独立算出的黄金向量一致 [E]
+  Expected: '043318'
+    Actual: '122979'
+     Which: is different.
+            Expected: 043318
+              Actual: 122979
+                      ^
+             Differ at offset 0
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\lyrics\providers_b_test.dart 646:7             main.<fn>.<fn>
+  
+00:00 +12 -6: Spotify server time 缺失时报错；token 端点带 totp/totpVer/productType
+00:00 +12 -7: Spotify server time 缺失时报错；token 端点带 totp/totpVer/productType [E]
+  Expected: an object with length of <2>
+    Actual: [
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest'
+            ]
+     Which: has length of <5>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\lyrics\providers_b_test.dart 662:7             main.<fn>.<fn>
+  
+00:00 +12 -7: Spotify token 端点 400 时回退 legacy 参数（reason=transport + ts）
+00:00 +12 -8: Spotify token 端点 400 时回退 legacy 参数（reason=transport + ts） [E]
+  Expected: an object with length of <4>
+    Actual: [
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest',
+              Instance of 'RecordedRequest'
+            ]
+     Which: has length of <5>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\lyrics\providers_b_test.dart 695:7             main.<fn>.<fn>
+  
+00:00 +12 -8: Spotify isAnonymous / 空 accessToken 视为 sp_dc 无效
+00:00 +12 -9: Spotify isAnonymous / 空 accessToken 视为 sp_dc 无效 [E]
+  Expected: throws <Instance of 'StateError'>
+    Actual: <Instance of 'Future<SpotifyTokenResponse>'>
+     Which: threw LyricsHttpException:<LyricsHttpException(401): GET https://open.spotify.com/api/server-time 失败>
+            stack package:vectra/lyrics/providers/web/spotify/api.dart 460:7  Api.buildTokenParametersAsync
+                  ===== asynchronous gap ===========================
+                  package:matcher                                             expectLater
+                  package:flutter_test/src/widget_tester.dart 507:8           expectLater
+                  test\lyrics\providers_b_test.dart 714:13                    main.<fn>.<fn>
+                  ===== asynchronous gap ===========================
+                  dart:async                                                  _CustomZone.registerUnaryCallback
+                  test\lyrics\providers_b_test.dart 710:7                     main.<fn>.<fn>
+                  
+            which is not an instance of 'StateError'
+  
+  package:matcher                                    expectLater
+  package:flutter_test/src/widget_tester.dart 507:8  expectLater
+  test\lyrics\providers_b_test.dart 714:13           main.<fn>.<fn>
+  ===== asynchronous gap ===========================
+  dart:async                                         _CustomZone.registerUnaryCallback
+  test\lyrics\providers_b_test.dart 710:7            main.<fn>.<fn>
+  
+00:00 +12 -9: Spotify Web API 搜索分支：URL 参数与 DTO 映射
+00:00 +12 -10: Spotify Web API 搜索分支：URL 参数与 DTO 映射 [E]
+  Bad state: Spotify sp_dc is not configured.
+  package:vectra/lyrics/providers/web/spotify/api.dart 360:7   Api.ensureAccessTokenAsync
+  package:vectra/lyrics/providers/web/spotify/api.dart 318:11  Api.getAuthorizedJsonAsync
+  package:vectra/lyrics/providers/web/spotify/api.dart 212:24  Api.searchTrackCandidatesViaWebApi
+  test\lyrics\providers_b_test.dart 723:26                     main.<fn>.<fn>
+  
+00:00 +12 -10: Spotify Web API 搜索 DTO：多歌手用 ", " 连接、空字段被过滤
+00:00 +13 -10: Spotify pathfinder 搜索：URL 的 variables/extensions 编码 sha256Hash
+00:00 +14 -10: Spotify pathfinder 解析：uri 兜底、data 包裹、data.search 分支
+00:00 +15 -10: Spotify getLyrics：color-lyrics URL 与专用 UA
+00:00 +15 -11: Spotify getLyrics：color-lyrics URL 与专用 UA [E]
+  Bad state: Spotify sp_dc is not configured.
+  package:vectra/lyrics/providers/web/spotify/api.dart 360:7   Api.ensureAccessTokenAsync
+  package:vectra/lyrics/providers/web/spotify/api.dart 318:11  Api.getAuthorizedJsonAsync
+  package:vectra/lyrics/providers/web/spotify/api.dart 130:12  Api.getLyrics
+  test\lyrics\providers_b_test.dart 811:35                     main.<fn>.<fn>
+  
+00:00 +15 -11: Spotify searchTrackCandidates：pathfinder 命中则不回落 Web API
+00:00 +15 -12: Spotify searchTrackCandidates：pathfinder 命中则不回落 Web API [E]
+  Bad state: Spotify sp_dc is not configured.
+  package:vectra/lyrics/providers/web/spotify/api.dart 360:7   Api.ensureAccessTokenAsync
+  package:vectra/lyrics/providers/web/spotify/api.dart 115:11  Api.searchTrackCandidates
+  test\lyrics\providers_b_test.dart 827:41                     main.<fn>.<fn>
+  
+00:00 +15 -12: Spotify searchTrackCandidates：没有 access token 且没配 sp_dc 时报错
+00:00 +16 -12: Spotify previewText 截断到 180 字符
+00:00 +17 -12: Musixmatch ApiOptions 预设：Android / Desktop / Mobile 的常量
+00:00 +18 -12: Musixmatch 构造校验：baseUrl 自动补 /，appId/timeout 非法即抛
+00:00 +19 -12: Musixmatch token 流程：token.get 请求 URL/头，token 被缓存复用
+00:06 +19 -13: Musixmatch token 流程：token.get 请求 URL/头，token 被缓存复用 [E]
+  LyricsHttpException: Musixmatch request failed after all retries.
+  package:vectra/lyrics/providers/web/musixmatch/api.dart 305:5  Api.sendApiRequestAsync
+  
+00:06 +19 -13: Musixmatch setUserToken / getUserToken 的可用性规则
+00:06 +20 -13: Musixmatch searchTracksAsync：时长参数、空关键字不加 q
+00:09 +20 -14: Musixmatch searchTracksAsync：时长参数、空关键字不加 q [E]
+  Expected: false
+    Actual: <true>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\lyrics\providers_b_test.dart 965:7             main.<fn>.<fn>
+  
+00:09 +20 -14: Musixmatch track.search 响应 DTO：歌名/歌手/时长/id 与歌词字段
+00:09 +21 -14: Musixmatch HasRelatedResult 的过滤（不相关则不返回结果）
+00:11 +22 -14: Musixmatch getTrack 组装 GetTrackResponse（statusCode 200 / confidence 1000）
+00:11 +23 -14: Musixmatch getFullLyricsRaw：macro.subtitles.get 请求参数与响应字符串
+00:14 +23 -15: Musixmatch getFullLyricsRaw：macro.subtitles.get 请求参数与响应字符串 [E]
+  Expected: not null
+    Actual: <null>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\lyrics\providers_b_test.dart 1059:7            main.<fn>.<fn>
+  
+00:14 +23 -15: Musixmatch getFullLyricsRaw：track_id 非数字直接返回 null（不发请求）
+00:14 +24 -15: Musixmatch getTranslations：crowd.track.translations.get 参数与 DTO
+00:14 +25 -15: Musixmatch 401 + hint=renew：作废 token 后重新取 token 并成功
+00:15 +26 -15: Musixmatch 401 + hint=captcha：抛顶层 RequestCaptchaException
+00:15 +27 -15: Musixmatch token.get 也带 captcha 检测；status != 200 抛异常
+00:15 +28 -15: Musixmatch status_code == 404 视为有效响应（直接返回 body，不重试）
+00:15 +29 -15: Musixmatch token 请求失败后重试 RequestRetryCount 次并抛异常
+00:21 +30 -15: Musixmatch Regex/工具方法：normalizeVanity、decodeVanityPart、tokenize
+00:21 +30 -16: Musixmatch Regex/工具方法：normalizeVanity、decodeVanityPart、tokenize [E]
+  Expected: ['c']
+    Actual: []
+     Which: at location [0] is [] which shorter than expected
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test\lyrics\providers_b_test.dart 1197:7            main.<fn>.<fn>
+  
+00:21 +30 -16: Musixmatch resolveTrackAsync：数字 id 走 track.get 并校验 track_id
+00:27 +30 -17: Musixmatch resolveTrackAsync：数字 id 走 track.get 并校验 track_id [E]
+  LyricsHttpException: Musixmatch request failed after all retries.
+  package:vectra/lyrics/providers/web/musixmatch/api.dart 305:5  Api.sendApiRequestAsync
+  
+00:27 +30 -17: Musixmatch resolveTrackAsync：vanity id 走搜索并匹配 commontrack_vanity_id
+00:29 +30 -18: Musixmatch resolveTrackAsync：vanity id 走搜索并匹配 commontrack_vanity_id [E]
+  Null check operator used on a null value
+  test\lyrics\providers_b_test.dart 1233:19  main.<fn>.<fn>
+  
+00:29 +30 -18: Musixmatch resolveTrackAsync：无 "/" 的 vanity 返回 null
+00:29 +31 -18: Musixmatch getToken 直接返回 token 响应 DTO
+00:29 +32 -18: Some tests failed.
+
+Failing tests:
+  C:/Users/81157/Documents/work/Vectra/test/lyrics/providers_b_test.dart: AppleMusic 401 会刷新 access token 并重试一次
+  C:/Users/81157/Documents/work/Vectra/test/lyrics/providers_b_test.dart: AppleMusic 403 + 空响应体也会刷新 token（上游的 ContentLength==0 等价物）
+  C:/Users/81157/Documents/work/Vectra/test/lyrics/providers_b_test.dart: AppleMusic normalizeBase64 / tryReadJwt 解析出 header 与 payload
+  C:/Users/81157/Documents/work/Vectra/test/lyrics/providers_b_test.dart: AppleMusic setMediaUserToken：相同 token 不重置 _inited；空串忽略
+  ... and 14 more

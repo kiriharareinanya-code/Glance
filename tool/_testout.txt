@@ -1,0 +1,16 @@
+﻿00:00 +0: loading C:/Users/81157/Documents/work/Vectra/test/lyrics/helpers_test.dart
+00:00 +0 -1: loading C:/Users/81157/Documents/work/Vectra/test/lyrics/helpers_test.dart [E]
+  PathExistsException: Cannot copy file to 'C:\Users\81157\Documents\work\Vectra\build\test_cache\build\5846cd4b36d3245dd278aabec0ee7e7d.cache.dill.track.dill', path = 'C:\Users\81157\AppData\Local\Temp\flutter_tools.a6257ab3\flutter_test_compiler.44b8781b\output.dill' (OS Error: 当文件已存在时，无法创建该文件。, errno = 183)
+  dart:io/common.dart 58:9                                       _checkForErrorResponse
+  dart:io/file_impl.dart 406:7                                   _File.copy.<fn>
+  dart:async/zone_root.dart 48:47                                _rootRunUnary
+  dart:async/zone.dart 733:19                                    _CustomZone.runUnary
+  ===== asynchronous gap ===========================
+  package:file/src/forwarding/forwarding_file.dart 29:51         ForwardingFile.copy
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/error_handling_io.dart 601:28   ErrorHandlingFile.copy.<fn>
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/base/error_handling_io.dart 1050:14  _run
+  ===== asynchronous gap ===========================
+  package:flutter_tools/src/test/test_compiler.dart 272:13       TestCompiler._onCompilationRequest
+  

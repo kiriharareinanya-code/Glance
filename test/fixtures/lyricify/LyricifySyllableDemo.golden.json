@@ -1,0 +1,2978 @@
+{
+  "file": {
+    "type": "Qrc",
+    "syncTypes": "SyllableSynced",
+    "attributes": [
+      [
+        "from",
+        "AppleSyllable"
+      ]
+    ],
+    "krcHash": null
+  },
+  "writers": null,
+  "trackMetadata": {
+    "title": null,
+    "artist": null,
+    "album": null,
+    "durationMs": null
+  },
+  "lines": [
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Hate to give the satisfaction asking how you're doing now",
+      "startTime": 14872,
+      "endTime": 18424,
+      "alignment": "Left",
+      "syllableCount": 10,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Hate ",
+          "startTime": 14872,
+          "endTime": 15265
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 15265,
+          "endTime": 15455
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "give ",
+          "startTime": 15455,
+          "endTime": 15717
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 15717,
+          "endTime": 15830
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "satisfaction ",
+          "startTime": 15830,
+          "endTime": 16663
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "asking ",
+          "startTime": 16663,
+          "endTime": 17085
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "how ",
+          "startTime": 17085,
+          "endTime": 17335
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you're ",
+          "startTime": 17335,
+          "endTime": 17508
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "doing ",
+          "startTime": 17508,
+          "endTime": 17871
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "now",
+          "startTime": 17871,
+          "endTime": 18424
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "How's the castle built off people you pretend to care about",
+      "startTime": 18424,
+      "endTime": 21832,
+      "alignment": "Left",
+      "syllableCount": 11,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "How's ",
+          "startTime": 18424,
+          "endTime": 18751
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 18751,
+          "endTime": 18936
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "castle ",
+          "startTime": 18936,
+          "endTime": 19406
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "built ",
+          "startTime": 19406,
+          "endTime": 19644
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "off ",
+          "startTime": 19644,
+          "endTime": 19849
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "people ",
+          "startTime": 19849,
+          "endTime": 20315
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 20315,
+          "endTime": 20524
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "pretend ",
+          "startTime": 20524,
+          "endTime": 21030
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 21030,
+          "endTime": 21154
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "care ",
+          "startTime": 21154,
+          "endTime": 21393
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about",
+          "startTime": 21393,
+          "endTime": 21832
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Just what you wanted",
+      "startTime": 21832,
+      "endTime": 23200,
+      "alignment": "Left",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Just ",
+          "startTime": 21832,
+          "endTime": 22088
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "what ",
+          "startTime": 22088,
+          "endTime": 22307
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 22307,
+          "endTime": 22497
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "wanted",
+          "startTime": 22497,
+          "endTime": 23200
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Look at you, cool guy, you got it",
+      "startTime": 24566,
+      "endTime": 27400,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Look ",
+          "startTime": 24566,
+          "endTime": 24822
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "at ",
+          "startTime": 24822,
+          "endTime": 25018
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you, ",
+          "startTime": 25018,
+          "endTime": 25441
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "cool ",
+          "startTime": 25441,
+          "endTime": 25774
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "guy, ",
+          "startTime": 25774,
+          "endTime": 26233
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 26233,
+          "endTime": 26422
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "got ",
+          "startTime": 26422,
+          "endTime": 26797
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it",
+          "startTime": 26797,
+          "endTime": 27400
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I see the parties and the diamonds sometimes when I close my eyes",
+      "startTime": 28864,
+      "endTime": 32437,
+      "alignment": "Left",
+      "syllableCount": 13,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 28864,
+          "endTime": 29066
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "see ",
+          "startTime": 29066,
+          "endTime": 29447
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 29447,
+          "endTime": 29691
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "parties ",
+          "startTime": 29691,
+          "endTime": 30185
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 30185,
+          "endTime": 30345
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 30345,
+          "endTime": 30445
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "diamonds ",
+          "startTime": 30445,
+          "endTime": 31083
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sometimes ",
+          "startTime": 31083,
+          "endTime": 31517
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "when ",
+          "startTime": 31517,
+          "endTime": 31654
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 31654,
+          "endTime": 31815
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "close ",
+          "startTime": 31815,
+          "endTime": 32083
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 32083,
+          "endTime": 32183
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "eyes",
+          "startTime": 32183,
+          "endTime": 32437
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Six months of torture you sold as some forbidden paradise",
+      "startTime": 32437,
+      "endTime": 36191,
+      "alignment": "Left",
+      "syllableCount": 10,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Six ",
+          "startTime": 32437,
+          "endTime": 32693
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "months ",
+          "startTime": 32693,
+          "endTime": 32883
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "of ",
+          "startTime": 32883,
+          "endTime": 33062
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "torture ",
+          "startTime": 33062,
+          "endTime": 33627
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 33627,
+          "endTime": 33758
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sold ",
+          "startTime": 33758,
+          "endTime": 34299
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "as ",
+          "startTime": 34299,
+          "endTime": 34507
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "some ",
+          "startTime": 34507,
+          "endTime": 34716
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "forbidden ",
+          "startTime": 34716,
+          "endTime": 35364
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "paradise",
+          "startTime": 35364,
+          "endTime": 36191
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I loved you truly",
+      "startTime": 36191,
+      "endTime": 37507,
+      "alignment": "Left",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 36191,
+          "endTime": 36381
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "loved ",
+          "startTime": 36381,
+          "endTime": 36607
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 36607,
+          "endTime": 36756
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "truly",
+          "startTime": 36756,
+          "endTime": 37507
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Gotta laugh at the stupidity",
+      "startTime": 38691,
+      "endTime": 41155,
+      "alignment": "Left",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Gotta ",
+          "startTime": 38691,
+          "endTime": 39192
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "laugh ",
+          "startTime": 39192,
+          "endTime": 39741
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "at ",
+          "startTime": 39741,
+          "endTime": 39952
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 39952,
+          "endTime": 40052
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stupidity",
+          "startTime": 40052,
+          "endTime": 41155
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Cuz i've made some real big mistakes",
+      "startTime": 41387,
+      "endTime": 45027,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Cuz ",
+          "startTime": 41387,
+          "endTime": 41607
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "i've ",
+          "startTime": 41607,
+          "endTime": 42047
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "made ",
+          "startTime": 42047,
+          "endTime": 42375
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "some ",
+          "startTime": 42375,
+          "endTime": 42749
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "real ",
+          "startTime": 42749,
+          "endTime": 43404
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "big ",
+          "startTime": 43404,
+          "endTime": 43927
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "mistakes",
+          "startTime": 43927,
+          "endTime": 45027
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But you make the worst one look fine",
+      "startTime": 45027,
+      "endTime": 48714,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 45027,
+          "endTime": 45271
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 45271,
+          "endTime": 45509
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "make ",
+          "startTime": 45509,
+          "endTime": 46098
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 46098,
+          "endTime": 46372
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "worst ",
+          "startTime": 46372,
+          "endTime": 46797
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "one ",
+          "startTime": 47023,
+          "endTime": 47365
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "look ",
+          "startTime": 47365,
+          "endTime": 47782
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fine",
+          "startTime": 47782,
+          "endTime": 48714
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I should've known it was strange",
+      "startTime": 48714,
+      "endTime": 52260,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 48714,
+          "endTime": 48958
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "should've ",
+          "startTime": 48958,
+          "endTime": 50053
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "known ",
+          "startTime": 50053,
+          "endTime": 50523
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 50523,
+          "endTime": 50993
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "was ",
+          "startTime": 50993,
+          "endTime": 51390
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "strange",
+          "startTime": 51390,
+          "endTime": 52260
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "You only come out at night",
+      "startTime": 52315,
+      "endTime": 56003,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "You ",
+          "startTime": 52315,
+          "endTime": 52595
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "only ",
+          "startTime": 52595,
+          "endTime": 53725
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 53725,
+          "endTime": 54231
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "out ",
+          "startTime": 54231,
+          "endTime": 54695
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "at ",
+          "startTime": 54695,
+          "endTime": 55105
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "night",
+          "startTime": 55105,
+          "endTime": 56003
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I used to think I was smart",
+      "startTime": 56003,
+      "endTime": 59238,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 56003,
+          "endTime": 56372
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "used ",
+          "startTime": 56372,
+          "endTime": 56770
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 56770,
+          "endTime": 57014
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "think ",
+          "startTime": 57014,
+          "endTime": 57505
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 57693,
+          "endTime": 58136
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "was ",
+          "startTime": 58136,
+          "endTime": 58335
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "smart",
+          "startTime": 58335,
+          "endTime": 59238
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But you made me look so naïve",
+      "startTime": 59259,
+      "endTime": 63000,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 59259,
+          "endTime": 59551
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 59551,
+          "endTime": 59788
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "made ",
+          "startTime": 59788,
+          "endTime": 60383
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 60383,
+          "endTime": 60833
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "look ",
+          "startTime": 60833,
+          "endTime": 61199
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "so ",
+          "startTime": 61199,
+          "endTime": 61823
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "naïve",
+          "startTime": 61823,
+          "endTime": 63000
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "The way you sold me for parts",
+      "startTime": 63000,
+      "endTime": 66443,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "The ",
+          "startTime": 63000,
+          "endTime": 63490
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "way ",
+          "startTime": 63490,
+          "endTime": 63890
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 63890,
+          "endTime": 64341
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sold ",
+          "startTime": 64341,
+          "endTime": 64738
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 64738,
+          "endTime": 65189
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "for ",
+          "startTime": 65189,
+          "endTime": 65605
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "parts",
+          "startTime": 65605,
+          "endTime": 66443
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "As you sunk your teeth into me, oh",
+      "startTime": 66443,
+      "endTime": 71245,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "As ",
+          "startTime": 66443,
+          "endTime": 66639
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 66639,
+          "endTime": 66919
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sunk ",
+          "startTime": 66919,
+          "endTime": 67508
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 67508,
+          "endTime": 67877
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "teeth ",
+          "startTime": 67877,
+          "endTime": 68484
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "into ",
+          "startTime": 68484,
+          "endTime": 69364
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me, ",
+          "startTime": 69364,
+          "endTime": 70268
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "oh",
+          "startTime": 70268,
+          "endTime": 71245
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Bloodsucker, famefucker",
+      "startTime": 71245,
+      "endTime": 74797,
+      "alignment": "Left",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Blood",
+          "startTime": 71245,
+          "endTime": 72185
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sucker, ",
+          "startTime": 72185,
+          "endTime": 73014
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fame",
+          "startTime": 73125,
+          "endTime": 73961
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fucker",
+          "startTime": 73961,
+          "endTime": 74797
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Bleeding me dry like a goddamn vampire",
+      "startTime": 75064,
+      "endTime": 79085,
+      "alignment": "Left",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Bleeding ",
+          "startTime": 75064,
+          "endTime": 75504
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 75504,
+          "endTime": 75903
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dry ",
+          "startTime": 75903,
+          "endTime": 76415
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "like ",
+          "startTime": 76415,
+          "endTime": 76652
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 76652,
+          "endTime": 76861
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "god",
+          "startTime": 76861,
+          "endTime": 77202
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "damn ",
+          "startTime": 77202,
+          "endTime": 77621
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "vam",
+          "startTime": 77621,
+          "endTime": 78071
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "pire",
+          "startTime": 78071,
+          "endTime": 79085
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Every girl I ever talked to told me you were bad, bad news",
+      "startTime": 82291,
+      "endTime": 85830,
+      "alignment": "Left",
+      "syllableCount": 13,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Every ",
+          "startTime": 82291,
+          "endTime": 82886
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "girl ",
+          "startTime": 82886,
+          "endTime": 83118
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 83118,
+          "endTime": 83332
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ever ",
+          "startTime": 83332,
+          "endTime": 83624
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "talked ",
+          "startTime": 83624,
+          "endTime": 84022
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 84022,
+          "endTime": 84248
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "told ",
+          "startTime": 84248,
+          "endTime": 84516
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 84516,
+          "endTime": 84695
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 84695,
+          "endTime": 84825
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "were ",
+          "startTime": 84825,
+          "endTime": 85022
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "bad, ",
+          "startTime": 85022,
+          "endTime": 85325
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "bad ",
+          "startTime": 85325,
+          "endTime": 85623
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "news",
+          "startTime": 85623,
+          "endTime": 85830
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "You called them crazy god I hate the way I called them crazy too",
+      "startTime": 85830,
+      "endTime": 89288,
+      "alignment": "Left",
+      "syllableCount": 14,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "You ",
+          "startTime": 85830,
+          "endTime": 86008
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "called ",
+          "startTime": 86008,
+          "endTime": 86258
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "them ",
+          "startTime": 86258,
+          "endTime": 86478
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "crazy ",
+          "startTime": 86478,
+          "endTime": 86943
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "god ",
+          "startTime": 86943,
+          "endTime": 87198
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 87198,
+          "endTime": 87389
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hate ",
+          "startTime": 87389,
+          "endTime": 87579
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 87579,
+          "endTime": 87716
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "way ",
+          "startTime": 87716,
+          "endTime": 87835
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 87835,
+          "endTime": 88067
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "called ",
+          "startTime": 88067,
+          "endTime": 88393
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "them ",
+          "startTime": 88393,
+          "endTime": 88601
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "crazy ",
+          "startTime": 88601,
+          "endTime": 88989
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "too",
+          "startTime": 88989,
+          "endTime": 89288
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "You're so convincing",
+      "startTime": 89288,
+      "endTime": 90689,
+      "alignment": "Left",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "You're ",
+          "startTime": 89288,
+          "endTime": 89526
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "so ",
+          "startTime": 89526,
+          "endTime": 89657
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "convincing",
+          "startTime": 89657,
+          "endTime": 90689
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "How do you lie without flinching? ",
+      "startTime": 91773,
+      "endTime": 94223,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "How ",
+          "startTime": 91773,
+          "endTime": 92082
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "do ",
+          "startTime": 92082,
+          "endTime": 92184
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 92184,
+          "endTime": 92380
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lie ",
+          "startTime": 92380,
+          "endTime": 92755
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "without ",
+          "startTime": 92755,
+          "endTime": 93284
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "flinching? ",
+          "startTime": 93284,
+          "endTime": 94223
+        }
+      ],
+      "subLine": {
+        "kind": "SyllableLineInfo",
+        "text": "(How do you lie, how do you lie, how do you lie?)",
+        "startTime": 93600,
+        "endTime": 99452,
+        "alignment": "Left",
+        "syllableCount": 12,
+        "syllables": [
+          {
+            "kind": "SyllableInfo",
+            "text": "(How ",
+            "startTime": 93600,
+            "endTime": 93714
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "do ",
+            "startTime": 93714,
+            "endTime": 93922
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "you ",
+            "startTime": 93922,
+            "endTime": 94098
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "lie, ",
+            "startTime": 94098,
+            "endTime": 94456
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "how ",
+            "startTime": 94456,
+            "endTime": 94632
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "do ",
+            "startTime": 94632,
+            "endTime": 94800
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "you ",
+            "startTime": 94800,
+            "endTime": 94973
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "lie, ",
+            "startTime": 94973,
+            "endTime": 95290
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "how ",
+            "startTime": 95290,
+            "endTime": 95466
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "do ",
+            "startTime": 95466,
+            "endTime": 95640
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "you ",
+            "startTime": 95640,
+            "endTime": 95841
+          },
+          {
+            "kind": "SyllableInfo",
+            "text": "lie?)",
+            "startTime": 95841,
+            "endTime": 99452
+          }
+        ]
+      }
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Oh, what a mesmerizing, paralyzing, fucked up little thrill",
+      "startTime": 95475,
+      "endTime": 99666,
+      "alignment": "Left",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh, ",
+          "startTime": 95475,
+          "endTime": 96403
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "what ",
+          "startTime": 96403,
+          "endTime": 96587
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 96587,
+          "endTime": 96787
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "mesmerizing, ",
+          "startTime": 96787,
+          "endTime": 97667
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "paralyzing, ",
+          "startTime": 97667,
+          "endTime": 98518
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fucked ",
+          "startTime": 98518,
+          "endTime": 98842
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "up ",
+          "startTime": 98842,
+          "endTime": 99003
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "little ",
+          "startTime": 99003,
+          "endTime": 99187
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thrill",
+          "startTime": 99187,
+          "endTime": 99666
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Can't figure out just how you do it and god knows I never will",
+      "startTime": 99666,
+      "endTime": 103387,
+      "alignment": "Left",
+      "syllableCount": 14,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Can't ",
+          "startTime": 99666,
+          "endTime": 99975
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "figure ",
+          "startTime": 99975,
+          "endTime": 100273
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "out ",
+          "startTime": 100273,
+          "endTime": 100630
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "just ",
+          "startTime": 100630,
+          "endTime": 100838
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "how ",
+          "startTime": 100838,
+          "endTime": 101040
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 101040,
+          "endTime": 101296
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "do ",
+          "startTime": 101296,
+          "endTime": 101492
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 101492,
+          "endTime": 101617
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 101617,
+          "endTime": 101790
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "god ",
+          "startTime": 101790,
+          "endTime": 102076
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "knows ",
+          "startTime": 102076,
+          "endTime": 102397
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 102397,
+          "endTime": 102528
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "never ",
+          "startTime": 102528,
+          "endTime": 103033
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "will",
+          "startTime": 103033,
+          "endTime": 103387
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Went for me and not her",
+      "startTime": 103387,
+      "endTime": 105389,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Went ",
+          "startTime": 103387,
+          "endTime": 103708
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "for ",
+          "startTime": 103708,
+          "endTime": 103928
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 103928,
+          "endTime": 104143
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 104143,
+          "endTime": 104375
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "not ",
+          "startTime": 104375,
+          "endTime": 104650
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "her",
+          "startTime": 104650,
+          "endTime": 105389
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Cuz girls your age know better",
+      "startTime": 106174,
+      "endTime": 108649,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Cuz ",
+          "startTime": 106174,
+          "endTime": 106327
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "girls ",
+          "startTime": 106327,
+          "endTime": 106826
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 106826,
+          "endTime": 107242
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "age ",
+          "startTime": 107242,
+          "endTime": 107660
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "know ",
+          "startTime": 107660,
+          "endTime": 108060
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "better",
+          "startTime": 108060,
+          "endTime": 108649
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I've made some real big mistakes",
+      "startTime": 108649,
+      "endTime": 111908,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 108649,
+          "endTime": 109038
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "made ",
+          "startTime": 109038,
+          "endTime": 109422
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "some ",
+          "startTime": 109422,
+          "endTime": 109622
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "real ",
+          "startTime": 109622,
+          "endTime": 110270
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "big ",
+          "startTime": 110270,
+          "endTime": 110670
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "mistakes",
+          "startTime": 110670,
+          "endTime": 111908
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But you make the worst one look fine",
+      "startTime": 111908,
+      "endTime": 115483,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 111908,
+          "endTime": 112200
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 112200,
+          "endTime": 112426
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "make ",
+          "startTime": 112426,
+          "endTime": 112866
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 112866,
+          "endTime": 113104
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "worst ",
+          "startTime": 113104,
+          "endTime": 113599
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "one ",
+          "startTime": 113776,
+          "endTime": 114085
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "look ",
+          "startTime": 114085,
+          "endTime": 114508
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fine",
+          "startTime": 114508,
+          "endTime": 115483
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I should've known it was strange",
+      "startTime": 115483,
+      "endTime": 118788,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 115483,
+          "endTime": 115875
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "should've ",
+          "startTime": 115875,
+          "endTime": 116723
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "known ",
+          "startTime": 116723,
+          "endTime": 117343
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 117343,
+          "endTime": 117523
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "was ",
+          "startTime": 117523,
+          "endTime": 117974
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "strange",
+          "startTime": 117974,
+          "endTime": 118788
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "You only come out at night",
+      "startTime": 118995,
+      "endTime": 122501,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "You ",
+          "startTime": 118995,
+          "endTime": 119206
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "only ",
+          "startTime": 119206,
+          "endTime": 120240
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 120240,
+          "endTime": 120640
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "out ",
+          "startTime": 120640,
+          "endTime": 121040
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "at ",
+          "startTime": 121040,
+          "endTime": 121456
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "night",
+          "startTime": 121456,
+          "endTime": 122501
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I used to think I was smart",
+      "startTime": 122501,
+      "endTime": 125761,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 122501,
+          "endTime": 122933
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "used ",
+          "startTime": 122933,
+          "endTime": 123317
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 123317,
+          "endTime": 123533
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "think ",
+          "startTime": 123533,
+          "endTime": 124040
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 124281,
+          "endTime": 124517
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "was ",
+          "startTime": 124517,
+          "endTime": 124933
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "smart",
+          "startTime": 124933,
+          "endTime": 125761
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But you made me look so naïve",
+      "startTime": 125761,
+      "endTime": 129442,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 125761,
+          "endTime": 126035
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 126035,
+          "endTime": 126267
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "made ",
+          "startTime": 126267,
+          "endTime": 126933
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 126933,
+          "endTime": 127379
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "look ",
+          "startTime": 127379,
+          "endTime": 127665
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "so ",
+          "startTime": 127665,
+          "endTime": 128104
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "naïve",
+          "startTime": 128104,
+          "endTime": 129442
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "The way you sold me for parts",
+      "startTime": 129442,
+      "endTime": 132717,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "The ",
+          "startTime": 129442,
+          "endTime": 129802
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "way ",
+          "startTime": 129802,
+          "endTime": 130205
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 130205,
+          "endTime": 130637
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sold ",
+          "startTime": 130637,
+          "endTime": 131103
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 131103,
+          "endTime": 131503
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "for ",
+          "startTime": 131503,
+          "endTime": 131919
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "parts",
+          "startTime": 131919,
+          "endTime": 132717
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "As you sunk your teeth into me, oh",
+      "startTime": 132717,
+      "endTime": 137469,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "As ",
+          "startTime": 132717,
+          "endTime": 132955
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 132955,
+          "endTime": 133229
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sunk ",
+          "startTime": 133229,
+          "endTime": 133847
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 133847,
+          "endTime": 134210
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "teeth ",
+          "startTime": 134210,
+          "endTime": 134770
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "into ",
+          "startTime": 134770,
+          "endTime": 135569
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me, ",
+          "startTime": 135569,
+          "endTime": 136431
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "oh",
+          "startTime": 136431,
+          "endTime": 137469
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Bloodsucker, famefucker",
+      "startTime": 137469,
+      "endTime": 140934,
+      "alignment": "Left",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Blood",
+          "startTime": 137469,
+          "endTime": 138428
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sucker, ",
+          "startTime": 138428,
+          "endTime": 139098
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fame",
+          "startTime": 139246,
+          "endTime": 140161
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fucker",
+          "startTime": 140161,
+          "endTime": 140934
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Bleeding me dry like a goddamn vampire",
+      "startTime": 141153,
+      "endTime": 145019,
+      "alignment": "Left",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Bleeding ",
+          "startTime": 141153,
+          "endTime": 141724
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 141724,
+          "endTime": 142069
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dry ",
+          "startTime": 142069,
+          "endTime": 142435
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "like ",
+          "startTime": 142435,
+          "endTime": 142777
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 142777,
+          "endTime": 142960
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "god",
+          "startTime": 142960,
+          "endTime": 143275
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "damn ",
+          "startTime": 143275,
+          "endTime": 143694
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "vam",
+          "startTime": 143694,
+          "endTime": 144110
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "pire",
+          "startTime": 144110,
+          "endTime": 145019
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "You said it was true love",
+      "startTime": 151847,
+      "endTime": 153479,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "You ",
+          "startTime": 151847,
+          "endTime": 151996
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "said ",
+          "startTime": 151996,
+          "endTime": 152203
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 152203,
+          "endTime": 152322
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "was ",
+          "startTime": 152322,
+          "endTime": 152680
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "true ",
+          "startTime": 152680,
+          "endTime": 152961
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 152961,
+          "endTime": 153479
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But wouldn't that be hard",
+      "startTime": 153505,
+      "endTime": 155206,
+      "alignment": "Left",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 153505,
+          "endTime": 153737
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "wouldn't ",
+          "startTime": 153737,
+          "endTime": 154023
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 154023,
+          "endTime": 154344
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 154344,
+          "endTime": 154606
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hard",
+          "startTime": 154606,
+          "endTime": 155206
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "You can't love anyone",
+      "startTime": 155264,
+      "endTime": 156593,
+      "alignment": "Left",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "You ",
+          "startTime": 155264,
+          "endTime": 155478
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "can't ",
+          "startTime": 155478,
+          "endTime": 155716
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 155716,
+          "endTime": 155883
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "anyone",
+          "startTime": 155883,
+          "endTime": 156593
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Cuz that would mean you had a heart",
+      "startTime": 156593,
+      "endTime": 158735,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Cuz ",
+          "startTime": 156593,
+          "endTime": 156825
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 156825,
+          "endTime": 157069
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "would ",
+          "startTime": 157069,
+          "endTime": 157283
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "mean ",
+          "startTime": 157283,
+          "endTime": 157479
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 157479,
+          "endTime": 157711
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "had ",
+          "startTime": 157711,
+          "endTime": 157949
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 157949,
+          "endTime": 158146
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "heart",
+          "startTime": 158146,
+          "endTime": 158735
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I tried to help you out",
+      "startTime": 158735,
+      "endTime": 160359,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 158735,
+          "endTime": 158997
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "tried ",
+          "startTime": 158997,
+          "endTime": 159210
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 159210,
+          "endTime": 159310
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "help ",
+          "startTime": 159310,
+          "endTime": 159633
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 159633,
+          "endTime": 159844
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "out",
+          "startTime": 159844,
+          "endTime": 160359
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Now I know that I can't",
+      "startTime": 160476,
+      "endTime": 162124,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Now ",
+          "startTime": 160476,
+          "endTime": 160643
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 160643,
+          "endTime": 160743
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "know ",
+          "startTime": 160743,
+          "endTime": 161053
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 161053,
+          "endTime": 161196
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 161196,
+          "endTime": 161476
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "can't",
+          "startTime": 161476,
+          "endTime": 162124
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Cuz how you think's the kind of thing",
+      "startTime": 162124,
+      "endTime": 163929,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Cuz ",
+          "startTime": 162124,
+          "endTime": 162380
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "how ",
+          "startTime": 162380,
+          "endTime": 162558
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 162558,
+          "endTime": 162719
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "think's ",
+          "startTime": 162719,
+          "endTime": 163052
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 163052,
+          "endTime": 163237
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "kind ",
+          "startTime": 163237,
+          "endTime": 163433
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "of ",
+          "startTime": 163433,
+          "endTime": 163552
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thing",
+          "startTime": 163552,
+          "endTime": 163929
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'll never understand",
+      "startTime": 163929,
+      "endTime": 171055,
+      "alignment": "Left",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'll ",
+          "startTime": 163929,
+          "endTime": 164132
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "never ",
+          "startTime": 164132,
+          "endTime": 164572
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "un",
+          "startTime": 164572,
+          "endTime": 164954
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "der",
+          "startTime": 164954,
+          "endTime": 165388
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stand",
+          "startTime": 165388,
+          "endTime": 171055
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I've made some real big mistakes",
+      "startTime": 171088,
+      "endTime": 174215,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 171088,
+          "endTime": 171435
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "made ",
+          "startTime": 171435,
+          "endTime": 171851
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "some ",
+          "startTime": 171851,
+          "endTime": 172070
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "real ",
+          "startTime": 172070,
+          "endTime": 172670
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "big ",
+          "startTime": 172670,
+          "endTime": 173070
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "mistakes",
+          "startTime": 173070,
+          "endTime": 174215
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But you make the worst one look fine",
+      "startTime": 174264,
+      "endTime": 177902,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 174264,
+          "endTime": 174432
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 174432,
+          "endTime": 174632
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "make ",
+          "startTime": 174632,
+          "endTime": 175216
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 175216,
+          "endTime": 175450
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "worst ",
+          "startTime": 175450,
+          "endTime": 175915
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "one ",
+          "startTime": 176217,
+          "endTime": 176581
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "look ",
+          "startTime": 176581,
+          "endTime": 176967
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fine",
+          "startTime": 176967,
+          "endTime": 177902
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I should've known it was strange",
+      "startTime": 177902,
+      "endTime": 181210,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 177902,
+          "endTime": 178280
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "should've ",
+          "startTime": 178280,
+          "endTime": 179064
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "known ",
+          "startTime": 179064,
+          "endTime": 179565
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 179565,
+          "endTime": 179899
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "was ",
+          "startTime": 179899,
+          "endTime": 180315
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "strange",
+          "startTime": 180315,
+          "endTime": 181210
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "You only come out at night",
+      "startTime": 181410,
+      "endTime": 184873,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "You ",
+          "startTime": 181410,
+          "endTime": 181660
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "only ",
+          "startTime": 181660,
+          "endTime": 182749
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 182749,
+          "endTime": 183189
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "out ",
+          "startTime": 183189,
+          "endTime": 183689
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "at ",
+          "startTime": 183689,
+          "endTime": 184081
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "night",
+          "startTime": 184081,
+          "endTime": 184873
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I used to think I was smart",
+      "startTime": 184887,
+      "endTime": 188006,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 184887,
+          "endTime": 185237
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "used ",
+          "startTime": 185237,
+          "endTime": 185687
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 185687,
+          "endTime": 185903
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "think ",
+          "startTime": 185903,
+          "endTime": 186407
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 186635,
+          "endTime": 186869
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "was ",
+          "startTime": 186869,
+          "endTime": 187335
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "smart",
+          "startTime": 187335,
+          "endTime": 188006
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But you made me look so naïve",
+      "startTime": 188071,
+      "endTime": 191712,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But ",
+          "startTime": 188071,
+          "endTime": 188333
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 188333,
+          "endTime": 188565
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "made ",
+          "startTime": 188565,
+          "endTime": 189213
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 189213,
+          "endTime": 189677
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "look ",
+          "startTime": 189677,
+          "endTime": 189969
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "so ",
+          "startTime": 189969,
+          "endTime": 190402
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "naïve",
+          "startTime": 190402,
+          "endTime": 191712
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "The way you sold me for parts",
+      "startTime": 191712,
+      "endTime": 194995,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "The ",
+          "startTime": 191712,
+          "endTime": 192120
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "way ",
+          "startTime": 192120,
+          "endTime": 192555
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 192555,
+          "endTime": 192889
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sold ",
+          "startTime": 192889,
+          "endTime": 193336
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 193336,
+          "endTime": 193771
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "for ",
+          "startTime": 193771,
+          "endTime": 194187
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "parts",
+          "startTime": 194187,
+          "endTime": 194995
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "As you sunk your teeth into me, oh",
+      "startTime": 194995,
+      "endTime": 199772,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "As ",
+          "startTime": 194995,
+          "endTime": 195197
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 195197,
+          "endTime": 195471
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sunk ",
+          "startTime": 195471,
+          "endTime": 196084
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 196084,
+          "endTime": 196453
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "teeth ",
+          "startTime": 196453,
+          "endTime": 197000
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "into ",
+          "startTime": 197000,
+          "endTime": 197839
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me, ",
+          "startTime": 197839,
+          "endTime": 198676
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "oh",
+          "startTime": 198676,
+          "endTime": 199772
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Bloodsucker, famefucker",
+      "startTime": 199772,
+      "endTime": 203230,
+      "alignment": "Left",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Blood",
+          "startTime": 199772,
+          "endTime": 200834
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sucker, ",
+          "startTime": 200834,
+          "endTime": 201364
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fame",
+          "startTime": 201599,
+          "endTime": 202485
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fucker",
+          "startTime": 202485,
+          "endTime": 203230
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Bleeding me dry like a goddamn vampire",
+      "startTime": 203364,
+      "endTime": 207336,
+      "alignment": "Left",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Bleeding ",
+          "startTime": 203364,
+          "endTime": 203893
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 203893,
+          "endTime": 204268
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dry ",
+          "startTime": 204268,
+          "endTime": 204689
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "like ",
+          "startTime": 204689,
+          "endTime": 205036
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 205036,
+          "endTime": 205302
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "god",
+          "startTime": 205302,
+          "endTime": 205651
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "damn ",
+          "startTime": 205651,
+          "endTime": 206086
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "vam",
+          "startTime": 206086,
+          "endTime": 206518
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "pire",
+          "startTime": 206518,
+          "endTime": 207336
+        }
+      ]
+    }
+  ]
+}
