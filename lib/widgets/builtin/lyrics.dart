@@ -189,7 +189,7 @@ class LyricsWidget extends BuiltinController {
     final tried = <String>{};
     List<LrcLine>? fallback;
     Map<String, Object?>? fallbackSong;
-    for (var round = 0; round < 3; round++) {
+    for (var round = 0; round < 5; round++) {
       final pool =
           songs.where((s) => !tried.contains('${s['id']}')).toList();
       if (pool.isEmpty) return null;
@@ -348,7 +348,12 @@ class LyricsWidget extends BuiltinController {
       }
       final info = (r['data'] as Map?)?['info'];
       if (info is! List || info.isEmpty) {
-        Log.w('lyrics', '酷狗 搜索无结果 keyword=$keyword');
+        // 实测外部请求能拿到 7~19 首，这里却判空——把 Dart 侧实际收到的
+        // 结构打出来，先分清是"响应不一样"还是"解析路径不对"。
+        final d = r['data'];
+        Log.w('lyrics', '酷狗 搜索无结果 keyword=$keyword  data类型='
+            '${d.runtimeType}  顶层键=${d is Map ? d.keys.toList() : '-'}'
+            '  info=${info.runtimeType}');
         return null;
       }
       final want = Lrc.wantedLyricLang(keyword);

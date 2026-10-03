@@ -262,7 +262,11 @@ class Lrc {
   static bool langOk(String? want, List<LrcLine> lines) {
     if (want == null) return true;
     final got = lyricLangOf(lines);
-    if (got == 'unknown') return true;
+    // unknown ≠ 放行！实测（《Ripples of Past Reverie》）：网易云的第二候选
+    // 返回的是纯制作名单的"空歌词"，判成 unknown。若放行，会在第 2 轮就
+    // 提前命中它返回空内容，永远走不到后面的专辑搜索。unknown 必须跳过
+    // 换下一个候选。
+    if (got == 'unknown') return false;
     return got == want;
   }
 
