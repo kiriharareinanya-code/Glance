@@ -23,6 +23,7 @@ import '../node_anim.dart'
     show NodeAnimatedColor, kNodeAnimCurve, kNodeAnimDuration;
 import '../spring_transition.dart' show SpringSlide;
 import 'lrc.dart';
+import 'dart:convert';
 
 class LyricsWidget extends BuiltinController {
   LyricsWidget(super.ctx);
@@ -259,6 +260,100 @@ class LyricsWidget extends BuiltinController {
       return _trySeq(list, 0);
     }
 
+
+  /// ---- 酷狗（Lyricify 的 KugouSearcher 同款流程）----
+  ///
+  /// 选它做第一个新增源：搜索接口是纯 GET + keyword，**不需要签名也不需要
+  /// Cookie**（QQ 音乐那套 musicu.fcg 返回 0 首、汽水要专用 UA + 签名）。
+  /// 取词用 `fmt=lrc` 拿明文 LRC，因此不需要 Lyricify 那套 KRC 解密器。
+  ///
+  /// 候选与网易云转成同一种形状，好让 Lrc.pickSong 统一打分。
+  Future<List<LrcLine>?> _kugouAttempt(
+      String keyword, String artist, int durMs) async {
+    try {
+      final r = await ctx.httpGetJSON(
+          'http://mobilecdn.kugou.com/api/v3/search/song'
+          '?format=json&keyword=${Uri.encodeComponent(keyword)}'
+          '&page=1&pagesize=20&showtype=1');
+      if (r['ok'] != true) {
+        Log.w('lyrics', '酷狗 搜索请求失败 ok=${r['ok']}（接口只能走 http，'
+            'https 证书无效）');
+        return null;
+      }
+      final info = (r['data'] as Map?)?['info'];
+      if (info is! List || info.isEmpty) {
+        Log.w('lyrics', '酷狗 搜索无结果 keyword=$keyword');
+        return null;
+      }
+      final songs = <Map<String, Object?>>[];
+      for (final it in info.cast<Object?>()) {
+        final m = it as Map;
+        final singername = '${m['singername'] ?? ''}';
+        final durSec = (m['duration'] as num?)?.toInt() ?? 0;
+        if (m['hash'] == null) continue;
+        songs.add({
+          'name': '${m['songname'] ?? ''}',
+          'duration': durSec * 1000,            // 酷狗给的是秒，统一成毫秒
+          'durationSec': durSec,
+          'hash': '${m['hash']}',
+          'artists': [
+            for (final n in singername.split('、')) {'name': n.trim()}
+          ],
+        });
+      }
+      if (songs.isEmpty) return null;
+      Log.i('lyrics', '酷狗 搜索「$keyword」→ ${songs.length} 首');
+
+      final song = Lrc.pickSong(songs, keyword, artist, durMs);
+      if (song == null) {
+        Log.i('lyrics', '酷狗候选都没过匹配门槛');
+        return null;
+      }
+      final hash = '${song['hash']}';
+      final name = '${song['name']}';
+      final sec = (song['durationSec'] as num?)?.toInt() ?? 0;
+      Log.i('lyrics', '酷狗 选中「$name」/hash=${hash.substring(0, 8)}');
+
+      // 找歌词候选（这一步要 hash + 时长，命中率比按歌名搜高得多）
+      final c = await ctx.httpGetJSON(
+          'https://lyrics.kugou.com/search?ver=1&man=yes&client=pc'
+          '&keyword=${Uri.encodeComponent(name)}'
+          '&duration=${sec * 1000}&hash=$hash');
+      final cands = (c['candidates'] as List?)?.cast<Object?>();
+      if (cands == null || cands.isEmpty) return null;
+
+      // 逐个候选试取词：第一个能解出带时间戳的就算
+      for (final cd in cands.take(3).cast<Map>()) {
+        final id = '${cd['id'] ?? ''}';
+        final key = '${cd['accesskey'] ?? ''}';
+        if (id.isEmpty || key.isEmpty) continue;
+        final d = await ctx.httpGetJSON(
+            'https://lyrics.kugou.com/download?ver=1&client=pc&id=$id'
+            '&accesskey=${Uri.encodeComponent(key)}&fmt=lrc&charset=utf8');
+        final raw = '${d['content'] ?? ''}';
+        if (raw.isEmpty) continue;
+        final lrc = utf8.decode(base64.decode(raw));
+        final lines = Lrc.parse(lrc);
+        if (lines.isEmpty) continue;
+        // 翻译：同一 id 再要一次 fmt=tlrc，失败就算了（可有可无）
+        try {
+          final tr = await ctx.httpGetJSON(
+              'https://lyrics.kugou.com/download?ver=1&client=pc&id=$id'
+              '&accesskey=${Uri.encodeComponent(key)}&fmt=tlrc&charset=utf8');
+          final traw = '${tr['content'] ?? ''}';
+          if (traw.isNotEmpty) {
+            final tl = Lrc.parse(utf8.decode(base64.decode(traw)));
+            if (tl.isNotEmpty) return Lrc.merge(lines, tl);
+          }
+        } catch (_) {}
+        return lines;
+      }
+    } catch (e) {
+      Log.w('lyrics', '酷狗 失败: $e');
+    }
+    return null;
+  }
+
     Future<List<LrcLine>?> lrclibBlock() {
       final list = <Future<List<LrcLine>?> Function()>[
         for (final v in variants) () => _lrclibGetAttempt(v, artist, durMs),
@@ -268,15 +363,32 @@ class LyricsWidget extends BuiltinController {
       return _trySeq(list, 0);
     }
 
+    Future<List<LrcLine>?> kugouBlock() {
+      final list = <Future<List<LrcLine>?> Function()>[
+        for (final v in variants) () => _kugouAttempt(v, artist, durMs),
+        // 兜底：只搜原标题。酷狗的曲库对中文歌名覆盖不错，歌名被翻译成
+        // 另一门语言时这条路径靠"歌手 + 时长"两条信号兜住。
+        () => _kugouAttempt(title, artist, durMs),
+      ];
+      return _trySeq(list, 0);
+    }
+
     final src = '${_settings['source'] ?? 'auto'}';
-    Future<List<LrcLine>?> run() {
+    // 用 async/await 而不是 .then().then() 链：链式写法下第一个 then 没有
+    // 返回类型上下文，会被推成 Object 再传染到后面几环（analyze 报
+    // "The returned type 'Object' isn't returnable"）。
+    Future<List<LrcLine>?> run() async {
       if (src == 'lrclib') {
-        return lrclibBlock().then((r) => r ?? neteaseBlock());
+        return await lrclibBlock() ?? await kugouBlock() ?? await neteaseBlock();
+      }
+      if (src == 'kugou') {
+        return await kugouBlock() ?? await neteaseBlock() ?? await lrclibBlock();
       }
       if (src == 'netease') {
-        return neteaseBlock().then((r) => r ?? lrclibBlock());
+        return await neteaseBlock() ?? await kugouBlock() ?? await lrclibBlock();
       }
-      return neteaseBlock().then((r) => r ?? lrclibBlock());
+      // auto：网易云 → 酷狗 → LRCLIB
+      return await neteaseBlock() ?? await kugouBlock() ?? await lrclibBlock();
     }
 
     // 结果也记一笔：命中多少行 / 全线落空。和上面那条配对，

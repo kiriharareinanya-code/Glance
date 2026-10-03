@@ -135,8 +135,9 @@ const List<BuiltinSpec> kBuiltinSpecs = [
         'label': '歌词来源',
         'desc': '网易云中文歌覆盖更好；LRCLIB 是开放歌词库，欧美歌更全',
         'options': [
-          {'value': 'auto', 'label': '网易云优先，找不到再试 LRCLIB'},
+          {'value': 'auto', 'label': '网易云 → 酷狗 → LRCLIB'},
           {'value': 'netease', 'label': '只用网易云'},
+          {'value': 'kugou', 'label': '只用酷狗'},
           {'value': 'lrclib', 'label': '只用 LRCLIB'},
         ],
         'default': 'auto'

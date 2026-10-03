@@ -216,6 +216,19 @@ class Lrc {
     return out;
   }
 
+  /// 剥掉歌名尾部的「- xxx」「(xxx)」「（xxx）」后缀。
+  ///
+  /// 照 Lyricify 的 NameMatch 做法：它在比较前会把 `(` 之后的内容单独
+  /// 拆出来比。目的是让「天元 - 纯音乐」和「天元」认成同一首。
+  static String _stripNameTail(String s) {
+    var out = s;
+    for (final sep in [' - ', ' – ', ' — ', '(', '（', '[', '【']) {
+      final i = out.indexOf(sep);
+      if (i > 0) out = out.substring(0, i);
+    }
+    return out.trim();
+  }
+
   static final _junkRe =
       RegExp(r'(伴奏|instrumental|remix|dj版|纯享|翻自|cover|live|现场|demo|加速|减速|钢琴版|吉他版)',
           caseSensitive: false);
@@ -249,39 +262,77 @@ class Lrc {
       // （实测：いよわ「黄金数」总分只有 14，判成"没找到"）。
       // 真正的"是不是同一首"交给时长去判，见下面。
       if (na.isNotEmpty && an.isNotEmpty) {
-        if (an.contains(na) || na.contains(an)) {
-          score += 60;
+        // 列表比对（Lyricify 的 ArtistMatch）：多艺人时逐个命中算命中数。
+        // 群星/Various 这类合辑署名单独放过——它的歌名里通常没有真正的歌名，
+        // 靠它匹配反而会误杀。
+        const various = ['various', '群星', '群星荟萃', ' Various Artists'];
+        if (an.contains('various') || na.contains('various') ||
+            an.contains('群星') || na.contains('群星')) {
+          // 不表态
         } else {
-          score -= 15;
+          final la = na.split('/').where((e) => e.isNotEmpty).toList();
+          final lb = an.split('/').where((e) => e.isNotEmpty).toList();
+          var hit = 0;
+          for (final x in la) {
+            for (final y in lb) {
+              if (x == y || x.contains(y) || y.contains(x)) {
+                hit++;
+                break;
+              }
+            }
+          }
+          if (hit > 0) {
+            score += hit >= la.length ? 60 : (la.length == 1 ? 45 : 40);
+          } else if (la.length == 1 && lb.length > 1 && lb.any((e) => la[0].contains(e))) {
+            score += 40;   // 单艺人在多艺人列表里
+          } else {
+            score -= 15;
+          }
         }
       }
 
-      // 时长：3 秒内视为一致。
+      // 时长：五档（照 Lyricify 的 DurationMatch）。
       //
-      // 权重从 +50 提到 +80：在"歌名被翻译、歌手名被罗马字化"的场景里，
-      // 时长是**唯一还靠谱**的信号（同一首歌各平台时长差异通常在 1 秒内，
-      // 不同歌撞上同一时长的概率很低）。提到 80 之后，一个时长吻合的候选
-      // 即使歌手名完全对不上，也能独立撑过 60 分的门槛。
-      //
-      // 实测（同一批真实候选）：目标歌 14 → 69 分命中；时长差 10~12 秒的
-      // 近似候选仍在 -30 以下被拒，没有误选风险。
+      // 原实现只有"≤3 秒 +80、超过按秒扣分"两档，3.2 秒和 12 秒得到的
+      // 分数几乎一样，区分度不够。Lyricify 的分档更细：完全相等 7 分、
+      // <0.3 秒 6 分、<0.7 秒 5 分、<1.5 秒 4 分、<3.5 秒 2 分，
+      // ≥3.5 秒直接判不匹配（0 分且不再给任何补救机会）。
       final dur = (s['duration'] as num?)?.toInt() ?? 0;
       if (durMs > 0 && dur > 0) {
         final diff = (dur - durMs).abs();
-        if (diff <= 3000) {
-          score += 80;
+        if (diff == 0) {
+          score += 70;
+        } else if (diff < 300) {
+          score += 66;
+        } else if (diff < 700) {
+          score += 62;
+        } else if (diff < 1500) {
+          score += 56;
+        } else if (diff < 3500) {
+          score += 40;
         } else {
-          score -= min(50, (diff - 3000) / 1000 * 3);
+          // 差 3.5 秒以上基本不是同一首，扣分并在此后不再加分
+          score -= min(45, (diff - 3500) / 1000 * 3);
         }
       }
 
       // 标题只加分不重扣（繁简、异体字、翻译名都会让字面对不上）。
       // 歌手单独搜时 nt 为空，必须跳过，否则 indexOf('') 恒成立。
+      // 歌名先剥掉「- 」「(」「（」这类分隔符后的内容再比（Lyricify 的
+      // NameMatch）。真实场景：「天元 - 纯音乐」和「天元」是同一首，
+      // 旧规则走 contains 只能拿到 25 分，加上时长也够不到门槛。
+      final snCore = _stripNameTail(sn);
       if (nt.isNotEmpty && sn.isNotEmpty) {
         if (sn == nt) {
           score += 40;
+        } else if (snCore == nt || snCore == _stripNameTail(nt)) {
+          // 剥掉后缀后完全一致 —— 与原标题同级
+          score += 38;
         } else if (sn.contains(nt) || nt.contains(sn)) {
           score += 25;
+        } else if (snCore.isNotEmpty &&
+            (snCore.contains(nt) || nt.contains(snCore))) {
+          score += 20;
         } else {
           final si = sim(sn, nt);
           if (si >= 0.3) score += (si * 30).round();
