@@ -170,7 +170,7 @@ class LyricsWidget extends BuiltinController {
     if (query.isEmpty) return null;
     final songs = await _searchNeteaseSongs(query, artistOnly ? 30 : 10);
     if (songs == null) return null;
-    final song = Lrc.pickSong(songs, vTitle, artist, durMs);
+    final song = Lrc.pickSongStrictFirst(songs, vTitle, artist, durMs);
     if (song == null) return null;
     return _lyricsFromNeteaseSong(song);
   }
@@ -214,7 +214,7 @@ class LyricsWidget extends BuiltinController {
         '_synced': it['syncedLyrics'],
       });
     }
-    final song = Lrc.pickSong(songs, vTitle, artist, durMs);
+    final song = Lrc.pickSongStrictFirst(songs, vTitle, artist, durMs);
     if (song == null) return null;
     final arr = _stripCredits(Lrc.parse('${song['_synced']}'));
     return arr.isNotEmpty ? arr : null;
@@ -304,7 +304,7 @@ class LyricsWidget extends BuiltinController {
       if (songs.isEmpty) return null;
       Log.i('lyrics', '酷狗 搜索「$keyword」→ ${songs.length} 首');
 
-      final song = Lrc.pickSong(songs, keyword, artist, durMs);
+      final song = Lrc.pickSongStrictFirst(songs, keyword, artist, durMs);
       if (song == null) {
         Log.i('lyrics', '酷狗候选都没过匹配门槛');
         return null;

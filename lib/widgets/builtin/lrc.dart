@@ -8,6 +8,8 @@ library;
 
 import 'dart:math';
 
+import '../../core/logger.dart';
+
 /// 一句歌词：t 是毫秒，s 是原文，tr 是翻译（merge 之后才有）
 class LrcLine {
   LrcLine({required this.t, required this.s, this.tr = ''});
@@ -235,9 +237,24 @@ class Lrc {
 
   /// 从搜索结果里挑一首。够不到门槛（60 分）就返回 null，
   /// 宁可显示"没找到"，也不要贴一首别的歌的歌词。
+  ///
+  /// [allowStripTail] 控制"剥掉 ` - ` / `(` 后缀再比"这一档。默认两遍跑：
+  /// 先严格按原标题选；**严格匹配达不到门槛**才放宽到剥后缀。
+  /// 这样《XXX (Chinese Version)》不会去匹配《XXX》的另一个语言版本。
+  static Map<String, Object?>? pickSongStrictFirst(
+      List<Map<String, Object?>> songs, String title, String artist,
+      int durMs) {
+    final strict = pickSong(songs, title, artist, durMs, allowStripTail: false);
+    if (strict != null) return strict;
+    return pickSong(songs, title, artist, durMs, allowStripTail: true);
+  }
+
   static Map<String, Object?>? pickSong(
-      List<Map<String, Object?>> songs, String title, String artist, int durMs) {
+      List<Map<String, Object?>> songs, String title, String artist, int durMs,
+      {bool allowStripTail = true}) {
     if (songs.isEmpty) return null;
+    Log.i('lyrics', '匹配「$title」/「$artist」${durMs}ms '
+        '候选 ${songs.length} 首${allowStripTail ? '（含剥后缀）' : '（严格）'}');
     final nt = norm(title);
     final na = norm(artist);
     Map<String, Object?>? best;
@@ -325,14 +342,16 @@ class Lrc {
       if (nt.isNotEmpty && sn.isNotEmpty) {
         if (sn == nt) {
           score += 40;
-        } else if (snCore == nt || snCore == _stripNameTail(nt)) {
-          // 剥掉后缀后完全一致 —— 与原标题同级
-          score += 38;
+        } else if (allowStripTail &&
+            (snCore == nt || snCore == _stripNameTail(nt))) {
+          // 剥掉后缀后一致：只作**次选**（分数明显低于完全相等），
+          // 否则同名不同版本（English / Chinese version）会失去区分度。
+          score += 12;
         } else if (sn.contains(nt) || nt.contains(sn)) {
           score += 25;
-        } else if (snCore.isNotEmpty &&
+        } else if (allowStripTail && snCore.isNotEmpty &&
             (snCore.contains(nt) || nt.contains(snCore))) {
-          score += 20;
+          score += 8;
         } else {
           final si = sim(sn, nt);
           if (si >= 0.3) score += (si * 30).round();
@@ -350,6 +369,21 @@ class Lrc {
         best = s;
       }
     }
+    // 候选明细：这类"选错版本"的问题只能靠它定位——光看"命中 N 行"
+    // 根本不知道是从多少首里挑的、挑中的那首标题时长对不对。
+    for (var i = 0; i < songs.length; i++) {
+      final s = songs[i];
+      final names = [
+        for (final a in (s['artists'] as List?)?.cast<Object?>() ??
+            const <Object?>[])
+          '${(a as Map)['name'] ?? ''}',
+      ];
+      final dur = (s['duration'] as num?)?.toInt() ?? 0;
+      final diff = durMs > 0 && dur > 0 ? (dur - durMs).abs() ~/ 1000 : -1;
+      Log.i('lyrics', '  候选${i + 1}: 「${s['name']}」/「${names.join('/')}」'
+          '${diff >= 0 ? " 时长差 ${diff}s" : ''}');
+    }
+
     return bestScore >= 60 ? best : null;
   }
 }
