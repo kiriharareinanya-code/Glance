@@ -170,9 +170,30 @@ class LyricsWidget extends BuiltinController {
     if (query.isEmpty) return null;
     final songs = await _searchNeteaseSongs(query, artistOnly ? 30 : 10);
     if (songs == null) return null;
-    final song = Lrc.pickSongStrictFirst(songs, vTitle, artist, durMs);
-    if (song == null) return null;
-    return _lyricsFromNeteaseSong(song);
+    final want = Lrc.wantedLyricLang(vTitle);
+    if (want != null) {
+      Log.i('lyrics', '要求${want == 'zh' ? '中文' : '英文'}歌词');
+    }
+    // 逐个候选试：同名不同语言版本（时长也一样）时，只有靠歌词实际语言
+    // 才分得开。选中的那个语言不符就拉黑它、换下一个，最多试 3 个。
+    final tried = <String>{};
+    for (var round = 0; round < 3; round++) {
+      final pool =
+          songs.where((s) => !tried.contains('${s['id']}')).toList();
+      if (pool.isEmpty) return null;
+      final song = Lrc.pickSongStrictFirst(pool, vTitle, artist, durMs);
+      if (song == null) return null;
+      tried.add('${song['id']}');
+      final lines = await _lyricsFromNeteaseSong(song);
+      if (lines == null) continue;
+      if (!Lrc.langOk(want, lines)) {
+        Log.i('lyrics', '「${song['name']}」是${Lrc.lyricLangOf(lines) == 'zh' ? '中文' : '英文'}版，'
+            '与要求不符，换下一个候选');
+        continue;
+      }
+      return lines;
+    }
+    return null;
   }
 
   Future<List<LrcLine>?> _lrclibGetAttempt(
@@ -285,6 +306,7 @@ class LyricsWidget extends BuiltinController {
         Log.w('lyrics', '酷狗 搜索无结果 keyword=$keyword');
         return null;
       }
+      final want = Lrc.wantedLyricLang(keyword);
       final songs = <Map<String, Object?>>[];
       for (final it in info.cast<Object?>()) {
         final m = it as Map;
@@ -323,7 +345,7 @@ class LyricsWidget extends BuiltinController {
       if (cands == null || cands.isEmpty) return null;
 
       // 逐个候选试取词：第一个能解出带时间戳的就算
-      for (final cd in cands.take(3).cast<Map>()) {
+      for (final cd in cands.take(5).cast<Map>()) {
         final id = '${cd['id'] ?? ''}';
         final key = '${cd['accesskey'] ?? ''}';
         if (id.isEmpty || key.isEmpty) continue;
@@ -335,6 +357,11 @@ class LyricsWidget extends BuiltinController {
         final lrc = utf8.decode(base64.decode(raw));
         final lines = Lrc.parse(lrc);
         if (lines.isEmpty) continue;
+        if (!Lrc.langOk(want, lines)) {
+          Log.i('lyrics', '酷狗候选「${cd['song']}」是'
+              '${Lrc.lyricLangOf(lines) == 'zh' ? '中文' : '英文'}版，与要求不符');
+          continue;
+        }
         // 翻译：同一 id 再要一次 fmt=tlrc，失败就算了（可有可无）
         try {
           final tr = await ctx.httpGetJSON(

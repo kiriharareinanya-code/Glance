@@ -218,6 +218,54 @@ class Lrc {
     return out;
   }
 
+  /// 从歌名里读出"这段词该是什么语言"。认不出返回 null（= 不挑语言）。
+  ///
+  /// 认这些写法（括号里的也算，因为整串都会扫）：
+  ///   中文：Chinese / CN Ver / Mandarin / 中文 / 国语 / 粤语
+  ///   英文：English / Eng Ver / EN Ver / 英文
+  /// 为什么需要它：中英文两个版本**时长完全相同**、曲库标题也可能一模一样，
+  /// 时长和标题都区分不出来，只有歌词本身的语言靠得住。
+  static String? wantedLyricLang(String title) {
+    final t = title.toLowerCase();
+    if (['chinese', 'cn ver', 'cnver', 'mandarin', '国语', '中文', '粤语']
+        .any(t.contains)) {
+      return 'zh';
+    }
+    if (['english', 'eng ver', 'engver', 'en ver', 'enver', '英文']
+        .any(t.contains)) {
+      return 'en';
+    }
+    return null;
+  }
+
+  /// 判断一份歌词实际是什么语言：前 40 行里中文字符占的比例，20% 就算中文。
+  ///
+  /// 阈值 20%：中日韩歌的汉字占比远超它；欧美歌基本为零（就算有也只一两个字）。
+  static String lyricLangOf(List<LrcLine> lines) {
+    var zh = 0;
+    var latin = 0;
+    for (final l in lines.take(40)) {
+      for (final ch in l.s.split('')) {
+        final c = ch.codeUnitAt(0);
+        if (c >= 0x4E00 && c <= 0x9FFF) {
+          zh++;
+        } else if (c < 128) {
+          latin++;
+        }
+      }
+    }
+    if (zh == 0 && latin == 0) return 'unknown';
+    return zh * 4 >= latin ? 'zh' : 'en';
+  }
+
+  /// 这份歌词符不符合要求。判断不出来就放行——宁可给一份可能对的。
+  static bool langOk(String? want, List<LrcLine> lines) {
+    if (want == null) return true;
+    final got = lyricLangOf(lines);
+    if (got == 'unknown') return true;
+    return got == want;
+  }
+
   /// 剥掉歌名尾部的「- xxx」「(xxx)」「（xxx）」后缀。
   ///
   /// 照 Lyricify 的 NameMatch 做法：它在比较前会把 `(` 之后的内容单独
