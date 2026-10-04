@@ -1,9 +1,10 @@
 // Ported from Lyricify.Lyrics.Helper/Searchers/KugouSearcher.cs (Apache-2.0, WXRIW/Lyricify-Lyrics-Helper)
 //
-// `final group = track.group; if (group != null && group.isNotEmpty)`。
+// 上游 KugouSearcher.cs:23 用 `if (track.Group is { Count: > 0 } group)` 展开子曲目；
+// Dart 侧 `Song.group` 是非空 List，`is { Count: > 0 }` 的判空部分恒成立，
+// 所以这里只保留 `isNotEmpty`（等价，不改行为）。
 library;
 
-import '../providers/web/kugou/response.dart' as kg;
 import '../providers/web/providers.dart';
 import 'isearcher.dart';
 import 'kugou_search_result.dart';
@@ -31,7 +32,7 @@ class KugouSearcher extends Searcher {
       for (final track in results) {
         search.add(KugouSearchResult.fromSong(track));
         final group = track.group;
-        if (group != null && group.isNotEmpty) {
+        if (group.isNotEmpty) {
           for (final subTrack in group) {
             search.add(KugouSearchResult.fromSong(subTrack));
           }

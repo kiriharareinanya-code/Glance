@@ -5,7 +5,6 @@
 library;
 
 import '../models/track_metadata.dart';
-import '../providers/web/lrclib/api.dart' as lrclib;
 import '../providers/web/providers.dart';
 import 'helpers/compare_helper.dart';
 import 'isearcher.dart';

@@ -12,8 +12,10 @@ import '../models/lyrics_data.dart';
 import '../models/lyrics_types.dart';
 
 class GenerateHelper {
-  ///
-  ///
+  /// 生成歌词字符串
+  /// @param lyrics 用于生成的源歌词数据
+  /// @param lyricsType 需要生成的歌词字符串的类型
+  /// @returns 生成出的歌词字符串，若为空或生成失败则为 `null`
   static String? generateString(LyricsData lyrics, LyricsTypes lyricsType) {
     final result = switch (lyricsType) {
       LyricsTypes.lyricifySyllable =>

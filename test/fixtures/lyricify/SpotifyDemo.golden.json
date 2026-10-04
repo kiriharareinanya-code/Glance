@@ -1,0 +1,187 @@
+{
+  "file": {
+    "type": "Spotify",
+    "syncTypes": "LineSynced",
+    "attributes": null,
+    "krcHash": null
+  },
+  "writers": null,
+  "trackMetadata": null,
+  "lines": [
+    {
+      "kind": "LineInfo",
+      "text": "Today I'm not myself",
+      "startTime": 50500,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "♪",
+      "startTime": 54440,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "And you, you're someone else",
+      "startTime": 58560,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "♪",
+      "startTime": 63560,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "And all these rules don't fit",
+      "startTime": 67010,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "♪",
+      "startTime": 71800,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "And all that starts can quit",
+      "startTime": 75270,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "What a peculiar state we're in",
+      "startTime": 81630,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "What a peculiar state we're in",
+      "startTime": 89880,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "♪",
+      "startTime": 96780,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Let's play a game where all of the lives we lead can change",
+      "startTime": 100310,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "♪",
+      "startTime": 113070,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Let's play a game where nothing that we can see, the same",
+      "startTime": 116340,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "But we'll find other pieces to the puzzles",
+      "startTime": 130320,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Slipping out under the locks",
+      "startTime": 134910,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I could show you how many moves to checkmate, right now",
+      "startTime": 138860,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "We could take apart this life we're building and pack it up inside a box",
+      "startTime": 147170,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "All that really matters is we're doing it right now, right now",
+      "startTime": 155250,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "♪",
+      "startTime": 165690,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "But we'll find other pieces to the puzzles",
+      "startTime": 229110,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "Slipping out under the locks",
+      "startTime": 233270,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "I could show you how many moves to checkmate, right now",
+      "startTime": 236820,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "We could take apart this life we're building and pack it up inside a box",
+      "startTime": 245790,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "All that really matters is we're doing it right now, right now",
+      "startTime": 254130,
+      "endTime": null,
+      "alignment": "Unspecified"
+    },
+    {
+      "kind": "LineInfo",
+      "text": "",
+      "startTime": 262840,
+      "endTime": null,
+      "alignment": "Unspecified"
+    }
+  ]
+}

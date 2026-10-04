@@ -59,7 +59,6 @@ class LyricsTypeDetector {
     caseSensitive: false,
   );
 
-  ///
   static LyricsRawTypes detect(String input) {
     if (input.trim().isEmpty) return LyricsRawTypes.unknown;
 
@@ -281,7 +280,6 @@ class LyricsTypeDetector {
     return null;
   }
 
-  ///
   static Iterable<XmlElement> _descendantsAndSelf(XmlElement root) sync* {
     yield root;
     yield* root.descendantElements;

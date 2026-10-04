@@ -1,6 +1,11 @@
 // Ported from Lyricify.Lyrics.Helper/Generators/LyricifyLinesGenerator.cs (Apache-2.0, WXRIW/Lyricify-Lyrics-Helper)
 //
 // C# → Dart：
+//
+// PORT NOTE: 上游 `sb.AppendLine()`（LyricifyLinesGenerator.cs:33/42）写的是
+//   `Environment.NewLine`，在 Windows 上就是 `\r\n`。Dart 侧固定写 `\r\n`
+//   （不跟 `Platform.lineTerminator`），这样「生成 → 解析 → 再生成」的往返
+//   在任何平台上都是逐字节一致的。
 library;
 
 import '../models/line_info.dart';

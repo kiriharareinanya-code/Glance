@@ -231,6 +231,9 @@ class LrcParser {
           }
 
           break;
+        // 上游 LrcParser.cs:240-241 `default: throw new ArgumentOutOfRangeException();`
+        // Dart 的 switch 已穷举全部 CurrentState 成员，该分支不可达，仅为保真保留。
+        // ignore: unreachable_switch_default
         default:
           throw RangeError('state');
       }
@@ -423,6 +426,9 @@ class LrcParser {
           }
 
           break;
+        // 上游 LrcParser.cs:446-448 `default: throw new ArgumentOutOfRangeException();`
+        // Dart 的 switch 已穷举全部 CurrentState 成员，该分支不可达，仅为保真保留。
+        // ignore: unreachable_switch_default
         default:
           throw RangeError('state');
       }
@@ -442,7 +448,6 @@ class LrcParser {
     buffer.write(curChar);
   }
 
-  ///
   static String _finalizeLine(
     StringBuffer buffer,
     String input,

@@ -10,9 +10,7 @@ library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vectra/lyrics/engine.dart';
 import 'package:vectra/lyrics/lyrics_log.dart';
-import 'package:vectra/lyrics/models/track_metadata.dart';
 import 'package:vectra/lyrics/searchers/helpers/compare_helper.dart';
-import 'package:vectra/lyrics/searchers/searchers.dart';
 
 void main() {
   // 把日志接到 stdout，否则探针全被 noopLog 吞掉
@@ -39,13 +37,13 @@ void main() {
       preferLang: 'zh',
       stripInfoLines: false,
     );
+    final data = r?.data;
+    final lines = data?.lines;
     // ignore: avoid_print
-    print('=== 结论: ${r == null ? '没找到' : '找到 ${r.data?.lines?.length} 行'} ===');
-    if (r?.data?.lines != null) {
-      for (final l in r!.data!.lines!.take(8)) {
-        // ignore: avoid_print
-        print('   ${l.startTime}ms  ${l.text}');
-      }
+    print('=== 结论: ${lines == null ? '没找到' : '找到 ${lines.length} 行'} ===');
+    for (final l in (lines ?? const []).take(8)) {
+      // ignore: avoid_print
+      print('   ${l.startTime}ms  ${l.text}');
     }
   }, timeout: const Timeout(Duration(seconds: 120)));
 
@@ -60,9 +58,11 @@ void main() {
         preferLang: 'zh',
         stripInfoLines: false,
       );
-      final n = r?.data?.lines?.length ?? 0;
+      final data = r?.data;
+      final lines = data?.lines;
+      final n = lines?.length ?? 0;
       // ignore: avoid_print
-      print('[$pref] ${n == 0 ? '无' : '$n 行  首行: ${r!.data!.lines!.first.text}'}');
+      print('[$pref] ${n == 0 ? '无' : '$n 行  首行: ${lines!.first.text}'}');
     }
   }, timeout: const Timeout(Duration(seconds: 180)));
 }

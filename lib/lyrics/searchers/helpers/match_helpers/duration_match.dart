@@ -3,8 +3,10 @@
 //
 library;
 
-///
-///
+  /// 比较时长匹配程度
+  /// @param name1 原曲目时长
+  /// @param name2 搜索得到的曲目时长
+  /// @returns 时长匹配程度
 DurationMatchType? compareDuration(int? duration1, int? duration2) {
   if (duration1 == null ||
       duration2 == null ||
@@ -22,7 +24,7 @@ DurationMatchType? compareDuration(int? duration1, int? duration2) {
   return DurationMatchType.noMatch;
 }
 
-///
+  /// 时长匹配程度
 enum DurationMatchType {
   perfect,
   veryHigh,
@@ -55,6 +57,6 @@ extension DurationMatchTypeScore on DurationMatchType {
   }
 }
 
-///
+/// 时长匹配程度得分
 int matchScoreOfDuration(DurationMatchType? matchType) =>
     matchType?.matchScore ?? 0;

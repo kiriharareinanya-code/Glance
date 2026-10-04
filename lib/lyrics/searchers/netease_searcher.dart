@@ -27,7 +27,7 @@ class NeteaseSearcher extends Searcher {
     lyricsLog('[探针·网易云] 进入 searchForResults: 「$searchString」 useNew=$useNewSearchFirst');
     final search = <ISearchResult>[];
 
-    dynamic? result;
+    dynamic result;
     if (useNewSearchFirst) {
       try {
         result = await Providers.neteaseApi.searchNew(searchString);

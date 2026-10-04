@@ -1,0 +1,3892 @@
+{
+  "file": {
+    "type": "Ttml",
+    "syncTypes": "SyllableSynced",
+    "attributes": [
+      [
+        "leadingSilence",
+        "0.300"
+      ]
+    ],
+    "krcHash": null
+  },
+  "writers": [
+    "Ryan Tedder"
+  ],
+  "trackMetadata": {
+    "title": null,
+    "artist": null,
+    "album": null,
+    "durationMs": 257286
+  },
+  "lines": [
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Lately I've been, I've been losing sleep",
+      "startTime": 358,
+      "endTime": 4933,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Lately ",
+          "startTime": 358,
+          "endTime": 1694
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 1694,
+          "endTime": 2181
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been, ",
+          "startTime": 2181,
+          "endTime": 2854
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 2854,
+          "endTime": 3122
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 3122,
+          "endTime": 3402
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "losing ",
+          "startTime": 3402,
+          "endTime": 3747
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sleep",
+          "startTime": 3747,
+          "endTime": 4933
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Dreaming about the things that we could be",
+      "startTime": 5245,
+      "endTime": 9109,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Dreaming ",
+          "startTime": 5245,
+          "endTime": 5941
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about ",
+          "startTime": 5941,
+          "endTime": 6412
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 6412,
+          "endTime": 6718
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things ",
+          "startTime": 6718,
+          "endTime": 7176
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 7176,
+          "endTime": 7468
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 7468,
+          "endTime": 7979
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 7979,
+          "endTime": 8372
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 8372,
+          "endTime": 9109
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But, baby, I've been, I've been praying hard",
+      "startTime": 9169,
+      "endTime": 13858,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But, ",
+          "startTime": 9169,
+          "endTime": 9407
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby, ",
+          "startTime": 9407,
+          "endTime": 10598
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 10598,
+          "endTime": 11055
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been, ",
+          "startTime": 11055,
+          "endTime": 11627
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 11627,
+          "endTime": 12008
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 12008,
+          "endTime": 12276
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "praying ",
+          "startTime": 12276,
+          "endTime": 12740
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hard",
+          "startTime": 12740,
+          "endTime": 13858
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Said no more counting dollars, we'll be counting stars",
+      "startTime": 14145,
+      "endTime": 18776,
+      "alignment": "Left",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Said ",
+          "startTime": 14145,
+          "endTime": 14509
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "no ",
+          "startTime": 14509,
+          "endTime": 14780
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "more ",
+          "startTime": 14780,
+          "endTime": 15190
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 15190,
+          "endTime": 15619
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dollars, ",
+          "startTime": 15619,
+          "endTime": 16159
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we'll ",
+          "startTime": 16159,
+          "endTime": 16433
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 16433,
+          "endTime": 16713
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 16713,
+          "endTime": 17218
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 17218,
+          "endTime": 18776
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Yeah, we'll be counting stars",
+      "startTime": 19189,
+      "endTime": 23044,
+      "alignment": "Left",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Yeah, ",
+          "startTime": 19189,
+          "endTime": 19543
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we'll ",
+          "startTime": 19543,
+          "endTime": 19900
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 19900,
+          "endTime": 20180
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 20180,
+          "endTime": 21334
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 21334,
+          "endTime": 23044
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I see this life like a swinging vine",
+      "startTime": 37774,
+      "endTime": 40324,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 37774,
+          "endTime": 37874
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "see ",
+          "startTime": 37874,
+          "endTime": 38242
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "this ",
+          "startTime": 38242,
+          "endTime": 38488
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "life ",
+          "startTime": 38488,
+          "endTime": 39084
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "like ",
+          "startTime": 39084,
+          "endTime": 39323
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 39323,
+          "endTime": 39448
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "swinging ",
+          "startTime": 39448,
+          "endTime": 39855
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "vine",
+          "startTime": 39855,
+          "endTime": 40324
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Swing my heart across the line",
+      "startTime": 40404,
+      "endTime": 42389,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Swing ",
+          "startTime": 40404,
+          "endTime": 40681
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 40681,
+          "endTime": 40949
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "heart ",
+          "startTime": 40949,
+          "endTime": 41336
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "across ",
+          "startTime": 41336,
+          "endTime": 41681
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 41681,
+          "endTime": 41841
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "line",
+          "startTime": 41841,
+          "endTime": 42389
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "In my face is flashing signs",
+      "startTime": 42453,
+      "endTime": 44413,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "In ",
+          "startTime": 42453,
+          "endTime": 42569
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 42569,
+          "endTime": 42760
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "face ",
+          "startTime": 42760,
+          "endTime": 43224
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is ",
+          "startTime": 43224,
+          "endTime": 43462
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "flashing ",
+          "startTime": 43462,
+          "endTime": 43902
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "signs",
+          "startTime": 43902,
+          "endTime": 44413
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Seek it out and ye shall find",
+      "startTime": 44628,
+      "endTime": 46298,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Seek ",
+          "startTime": 44628,
+          "endTime": 44835
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 44835,
+          "endTime": 44947
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "out ",
+          "startTime": 44947,
+          "endTime": 45238
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 45238,
+          "endTime": 45518
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ye ",
+          "startTime": 45518,
+          "endTime": 45637
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "shall ",
+          "startTime": 45637,
+          "endTime": 45869
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "find",
+          "startTime": 45869,
+          "endTime": 46298
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Old, but I'm not that old",
+      "startTime": 46308,
+      "endTime": 48236,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Old, ",
+          "startTime": 46308,
+          "endTime": 47019
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "but ",
+          "startTime": 47019,
+          "endTime": 47189
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 47189,
+          "endTime": 47335
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "not ",
+          "startTime": 47335,
+          "endTime": 47541
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 47541,
+          "endTime": 47796
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "old",
+          "startTime": 47796,
+          "endTime": 48236
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Young, but I'm not that bold",
+      "startTime": 48398,
+      "endTime": 50224,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Young, ",
+          "startTime": 48398,
+          "endTime": 49056
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "but ",
+          "startTime": 49056,
+          "endTime": 49175
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 49175,
+          "endTime": 49312
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "not ",
+          "startTime": 49312,
+          "endTime": 49562
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 49562,
+          "endTime": 49823
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "bold",
+          "startTime": 49823,
+          "endTime": 50224
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "And I don't think the world is sold",
+      "startTime": 50224,
+      "endTime": 52142,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And ",
+          "startTime": 50224,
+          "endTime": 50324
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 50324,
+          "endTime": 50514
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "don't ",
+          "startTime": 50514,
+          "endTime": 50805
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "think ",
+          "startTime": 50805,
+          "endTime": 51049
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 51049,
+          "endTime": 51311
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "world ",
+          "startTime": 51311,
+          "endTime": 51596
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is ",
+          "startTime": 51596,
+          "endTime": 51709
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sold",
+          "startTime": 51709,
+          "endTime": 52142
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "On just doing what we're told",
+      "startTime": 52416,
+      "endTime": 54123,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "On ",
+          "startTime": 52416,
+          "endTime": 52592
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "just ",
+          "startTime": 52592,
+          "endTime": 52854
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "doing ",
+          "startTime": 52854,
+          "endTime": 53199
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "what ",
+          "startTime": 53199,
+          "endTime": 53348
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we're ",
+          "startTime": 53348,
+          "endTime": 53586
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "told",
+          "startTime": 53586,
+          "endTime": 54123
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I feel something so right doing the wrong thing",
+      "startTime": 54772,
+      "endTime": 61777,
+      "alignment": "Left",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 54772,
+          "endTime": 56679
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feel ",
+          "startTime": 56679,
+          "endTime": 57125
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "something ",
+          "startTime": 57125,
+          "endTime": 57631
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "so ",
+          "startTime": 57631,
+          "endTime": 58190
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "right ",
+          "startTime": 58190,
+          "endTime": 59184
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "doing ",
+          "startTime": 59184,
+          "endTime": 59690
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 59690,
+          "endTime": 59928
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "wrong ",
+          "startTime": 59928,
+          "endTime": 60398
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thing",
+          "startTime": 60398,
+          "endTime": 61777
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "And I feel something so wrong doing the right thing",
+      "startTime": 62372,
+      "endTime": 69701,
+      "alignment": "Left",
+      "syllableCount": 10,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And ",
+          "startTime": 62372,
+          "endTime": 62732
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 62732,
+          "endTime": 64428
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feel ",
+          "startTime": 64428,
+          "endTime": 64928
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "something ",
+          "startTime": 64928,
+          "endTime": 65409
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "so ",
+          "startTime": 65409,
+          "endTime": 65990
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "wrong ",
+          "startTime": 65990,
+          "endTime": 66923
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "doing ",
+          "startTime": 66923,
+          "endTime": 67418
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 67418,
+          "endTime": 67795
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "right ",
+          "startTime": 67795,
+          "endTime": 68218
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thing",
+          "startTime": 68218,
+          "endTime": 69701
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I couldn't lie, couldn't lie, couldn't lie",
+      "startTime": 70232,
+      "endTime": 73669,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 70232,
+          "endTime": 70355
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "couldn't ",
+          "startTime": 70355,
+          "endTime": 70941
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lie, ",
+          "startTime": 70941,
+          "endTime": 71388
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "couldn't ",
+          "startTime": 71388,
+          "endTime": 71906
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lie, ",
+          "startTime": 71906,
+          "endTime": 72334
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "couldn't ",
+          "startTime": 72334,
+          "endTime": 72913
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lie",
+          "startTime": 72913,
+          "endTime": 73669
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Everything that kills me, makes me feel alive",
+      "startTime": 73933,
+      "endTime": 78087,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Everything ",
+          "startTime": 73933,
+          "endTime": 75268
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 75268,
+          "endTime": 75691
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "kills ",
+          "startTime": 75691,
+          "endTime": 76282
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me, ",
+          "startTime": 76282,
+          "endTime": 76727
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "makes ",
+          "startTime": 76727,
+          "endTime": 77069
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 77069,
+          "endTime": 77229
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feel ",
+          "startTime": 77229,
+          "endTime": 77494
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "alive",
+          "startTime": 77494,
+          "endTime": 78087
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Lately I've been, I've been losing sleep ",
+      "startTime": 77833,
+      "endTime": 81430,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Lately ",
+          "startTime": 77833,
+          "endTime": 78835
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 78835,
+          "endTime": 79292
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been, ",
+          "startTime": 79292,
+          "endTime": 79836
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 79836,
+          "endTime": 80058
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 80058,
+          "endTime": 80277
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "losing ",
+          "startTime": 80277,
+          "endTime": 80584
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sleep ",
+          "startTime": 80584,
+          "endTime": 81430
+        }
+      ],
+      "subLine": {
+        "kind": "SyllableLineInfo",
+        "text": "(Hey!)",
+        "startTime": 81430,
+        "endTime": 81635,
+        "alignment": "Left",
+        "syllableCount": 1,
+        "syllables": [
+          {
+            "kind": "SyllableInfo",
+            "text": "(Hey!)",
+            "startTime": 81430,
+            "endTime": 81635
+          }
+        ]
+      }
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Dreaming about the things that we could be",
+      "startTime": 81899,
+      "endTime": 85403,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Dreaming ",
+          "startTime": 81899,
+          "endTime": 82543
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about ",
+          "startTime": 82543,
+          "endTime": 82933
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 82933,
+          "endTime": 83138
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things ",
+          "startTime": 83138,
+          "endTime": 83560
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 83560,
+          "endTime": 83787
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 83787,
+          "endTime": 84223
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 84223,
+          "endTime": 84792
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 84792,
+          "endTime": 85403
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But, baby, I've been, I've been praying hard",
+      "startTime": 85403,
+      "endTime": 89217,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But, ",
+          "startTime": 85403,
+          "endTime": 85597
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby, ",
+          "startTime": 85597,
+          "endTime": 86641
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 86641,
+          "endTime": 87112
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been, ",
+          "startTime": 87112,
+          "endTime": 87688
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 87688,
+          "endTime": 87901
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 87901,
+          "endTime": 88133
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "praying ",
+          "startTime": 88133,
+          "endTime": 88526
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hard",
+          "startTime": 88526,
+          "endTime": 89217
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Said no more counting dollars, we'll be counting stars",
+      "startTime": 89715,
+      "endTime": 93581,
+      "alignment": "Left",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Said ",
+          "startTime": 89715,
+          "endTime": 90014
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "no ",
+          "startTime": 90014,
+          "endTime": 90279
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "more ",
+          "startTime": 90279,
+          "endTime": 90632
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 90632,
+          "endTime": 91156
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dollars, ",
+          "startTime": 91156,
+          "endTime": 91673
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we'll ",
+          "startTime": 91673,
+          "endTime": 91923
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 91923,
+          "endTime": 92149
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 92149,
+          "endTime": 92548
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 92548,
+          "endTime": 93581
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Lately I've been, I've been losing sleep ",
+      "startTime": 93651,
+      "endTime": 97112,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Lately ",
+          "startTime": 93651,
+          "endTime": 94479
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 94479,
+          "endTime": 95019
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been, ",
+          "startTime": 95019,
+          "endTime": 95548
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 95548,
+          "endTime": 95773
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 95773,
+          "endTime": 96035
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "losing ",
+          "startTime": 96035,
+          "endTime": 96444
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sleep ",
+          "startTime": 96444,
+          "endTime": 97112
+        }
+      ],
+      "subLine": {
+        "kind": "SyllableLineInfo",
+        "text": "(Hey!)",
+        "startTime": 97112,
+        "endTime": 97314,
+        "alignment": "Left",
+        "syllableCount": 1,
+        "syllables": [
+          {
+            "kind": "SyllableInfo",
+            "text": "(Hey!)",
+            "startTime": 97112,
+            "endTime": 97314
+          }
+        ]
+      }
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Dreaming about the things that we could be",
+      "startTime": 97756,
+      "endTime": 101031,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Dreaming ",
+          "startTime": 97756,
+          "endTime": 98277
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about ",
+          "startTime": 98277,
+          "endTime": 98654
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 98654,
+          "endTime": 98856
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things ",
+          "startTime": 98856,
+          "endTime": 99282
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 99282,
+          "endTime": 99514
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 99514,
+          "endTime": 99867
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 99867,
+          "endTime": 100526
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 100526,
+          "endTime": 101031
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But, baby, I've been, I've been praying hard",
+      "startTime": 101162,
+      "endTime": 105174,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But, ",
+          "startTime": 101162,
+          "endTime": 101367
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby, ",
+          "startTime": 101367,
+          "endTime": 102344
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 102344,
+          "endTime": 102874
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been, ",
+          "startTime": 102874,
+          "endTime": 103438
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 103438,
+          "endTime": 103735
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 103735,
+          "endTime": 104046
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "praying ",
+          "startTime": 104046,
+          "endTime": 104426
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hard",
+          "startTime": 104426,
+          "endTime": 105174
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Said no more counting dollars, we'll be, we'll be counting stars",
+      "startTime": 105575,
+      "endTime": 110614,
+      "alignment": "Left",
+      "syllableCount": 11,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Said ",
+          "startTime": 105575,
+          "endTime": 105912
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "no ",
+          "startTime": 105912,
+          "endTime": 106147
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "more ",
+          "startTime": 106147,
+          "endTime": 106379
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 106379,
+          "endTime": 106864
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dollars, ",
+          "startTime": 106864,
+          "endTime": 107380
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we'll ",
+          "startTime": 107380,
+          "endTime": 107630
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be, ",
+          "startTime": 107630,
+          "endTime": 108322
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we'll ",
+          "startTime": 108322,
+          "endTime": 108570
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 108570,
+          "endTime": 108782
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 108782,
+          "endTime": 109296
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 109296,
+          "endTime": 110614
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I feel your love and I feel it burn",
+      "startTime": 116434,
+      "endTime": 119001,
+      "alignment": "Left",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 116434,
+          "endTime": 116534
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feel ",
+          "startTime": 116534,
+          "endTime": 116893
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 116893,
+          "endTime": 117261
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 117261,
+          "endTime": 117836
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 117836,
+          "endTime": 118013
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 118013,
+          "endTime": 118126
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feel ",
+          "startTime": 118126,
+          "endTime": 118334
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 118334,
+          "endTime": 118454
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 118454,
+          "endTime": 119001
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Down this river, every turn",
+      "startTime": 119218,
+      "endTime": 121064,
+      "alignment": "Left",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Down ",
+          "startTime": 119218,
+          "endTime": 119543
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "this ",
+          "startTime": 119543,
+          "endTime": 119787
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river, ",
+          "startTime": 119787,
+          "endTime": 120304
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "every ",
+          "startTime": 120304,
+          "endTime": 120679
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "turn",
+          "startTime": 120679,
+          "endTime": 121064
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Hope is a four-letter word",
+      "startTime": 121154,
+      "endTime": 123058,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Hope ",
+          "startTime": 121154,
+          "endTime": 121372
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is ",
+          "startTime": 121372,
+          "endTime": 121621
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 121621,
+          "endTime": 121806
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "four-",
+          "startTime": 121806,
+          "endTime": 122109
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "letter ",
+          "startTime": 122109,
+          "endTime": 122621
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "word",
+          "startTime": 122621,
+          "endTime": 123058
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Make that money, watch it burn",
+      "startTime": 123135,
+      "endTime": 125004,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Make ",
+          "startTime": 123135,
+          "endTime": 123347
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 123347,
+          "endTime": 123614
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money, ",
+          "startTime": 123614,
+          "endTime": 124108
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "watch ",
+          "startTime": 124108,
+          "endTime": 124388
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 124388,
+          "endTime": 124638
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 124638,
+          "endTime": 125004
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Old, but I'm not that old",
+      "startTime": 125092,
+      "endTime": 126951,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Old, ",
+          "startTime": 125092,
+          "endTime": 125905
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "but ",
+          "startTime": 125905,
+          "endTime": 126029
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 126029,
+          "endTime": 126143
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "not ",
+          "startTime": 126143,
+          "endTime": 126375
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 126375,
+          "endTime": 126636
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "old",
+          "startTime": 126636,
+          "endTime": 126951
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Young, but I'm not that bold",
+      "startTime": 127052,
+      "endTime": 128956,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Young, ",
+          "startTime": 127052,
+          "endTime": 127824
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "but ",
+          "startTime": 127824,
+          "endTime": 127970
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 127970,
+          "endTime": 128079
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "not ",
+          "startTime": 128079,
+          "endTime": 128321
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 128321,
+          "endTime": 128614
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "bold",
+          "startTime": 128614,
+          "endTime": 128956
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "And I don't think the world is sold",
+      "startTime": 128978,
+      "endTime": 130858,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And ",
+          "startTime": 128978,
+          "endTime": 129078
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 129078,
+          "endTime": 129255
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "don't ",
+          "startTime": 129255,
+          "endTime": 129481
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "think ",
+          "startTime": 129481,
+          "endTime": 129731
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 129731,
+          "endTime": 129999
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "world ",
+          "startTime": 129999,
+          "endTime": 130278
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is ",
+          "startTime": 130278,
+          "endTime": 130504
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sold",
+          "startTime": 130504,
+          "endTime": 130858
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "On just doing what we're told",
+      "startTime": 131145,
+      "endTime": 132886,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "On ",
+          "startTime": 131145,
+          "endTime": 131279
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "just ",
+          "startTime": 131279,
+          "endTime": 131523
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "doing ",
+          "startTime": 131523,
+          "endTime": 132023
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "what ",
+          "startTime": 132023,
+          "endTime": 132261
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we're ",
+          "startTime": 132261,
+          "endTime": 132499
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "told",
+          "startTime": 132499,
+          "endTime": 132886
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "And I feel something so wrong doing the right thing",
+      "startTime": 133219,
+      "endTime": 140469,
+      "alignment": "Left",
+      "syllableCount": 10,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And ",
+          "startTime": 133219,
+          "endTime": 133520
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 133520,
+          "endTime": 135298
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feel ",
+          "startTime": 135298,
+          "endTime": 135703
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "something ",
+          "startTime": 135703,
+          "endTime": 136230
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "so ",
+          "startTime": 136230,
+          "endTime": 136892
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "wrong ",
+          "startTime": 136892,
+          "endTime": 137833
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "doing ",
+          "startTime": 137833,
+          "endTime": 138345
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 138345,
+          "endTime": 138577
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "right ",
+          "startTime": 138577,
+          "endTime": 138999
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thing",
+          "startTime": 138999,
+          "endTime": 140469
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I couldn't lie, couldn't lie, couldn't lie",
+      "startTime": 141062,
+      "endTime": 144499,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 141062,
+          "endTime": 141339
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "couldn't ",
+          "startTime": 141339,
+          "endTime": 141875
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lie, ",
+          "startTime": 141875,
+          "endTime": 142244
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "couldn't ",
+          "startTime": 142244,
+          "endTime": 142880
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lie, ",
+          "startTime": 142880,
+          "endTime": 143183
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "couldn't ",
+          "startTime": 143183,
+          "endTime": 143694
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lie",
+          "startTime": 143694,
+          "endTime": 144499
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Everything that drowns me, makes me wanna fly",
+      "startTime": 144752,
+      "endTime": 148957,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Everything ",
+          "startTime": 144752,
+          "endTime": 146074
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 146074,
+          "endTime": 146660
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "drowns ",
+          "startTime": 146660,
+          "endTime": 147185
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me, ",
+          "startTime": 147185,
+          "endTime": 147659
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "makes ",
+          "startTime": 147659,
+          "endTime": 147949
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 147949,
+          "endTime": 148129
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "wanna ",
+          "startTime": 148129,
+          "endTime": 148443
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fly",
+          "startTime": 148443,
+          "endTime": 148957
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Lately I've been, I've been losing sleep ",
+      "startTime": 148732,
+      "endTime": 152211,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Lately ",
+          "startTime": 148732,
+          "endTime": 149747
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 149747,
+          "endTime": 150146
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been, ",
+          "startTime": 150146,
+          "endTime": 150636
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 150636,
+          "endTime": 150866
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 150866,
+          "endTime": 151101
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "losing ",
+          "startTime": 151101,
+          "endTime": 151427
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sleep ",
+          "startTime": 151427,
+          "endTime": 152211
+        }
+      ],
+      "subLine": {
+        "kind": "SyllableLineInfo",
+        "text": "(Hey!)",
+        "startTime": 152211,
+        "endTime": 152377,
+        "alignment": "Left",
+        "syllableCount": 1,
+        "syllables": [
+          {
+            "kind": "SyllableInfo",
+            "text": "(Hey!)",
+            "startTime": 152211,
+            "endTime": 152377
+          }
+        ]
+      }
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Dreaming about the things that we could be",
+      "startTime": 152824,
+      "endTime": 156088,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Dreaming ",
+          "startTime": 152824,
+          "endTime": 153327
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about ",
+          "startTime": 153327,
+          "endTime": 153803
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 153803,
+          "endTime": 153916
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things ",
+          "startTime": 153916,
+          "endTime": 154350
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 154350,
+          "endTime": 154582
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 154582,
+          "endTime": 155082
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 155082,
+          "endTime": 155570
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 155570,
+          "endTime": 156088
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But, baby, I've been, I've been praying hard",
+      "startTime": 156190,
+      "endTime": 160126,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But, ",
+          "startTime": 156190,
+          "endTime": 156425
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby, ",
+          "startTime": 156425,
+          "endTime": 157418
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 157418,
+          "endTime": 157935
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been, ",
+          "startTime": 157935,
+          "endTime": 158605
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 158605,
+          "endTime": 158838
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 158838,
+          "endTime": 159099
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "praying ",
+          "startTime": 159099,
+          "endTime": 159444
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hard",
+          "startTime": 159444,
+          "endTime": 160126
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Said no more counting dollars, we'll be counting stars",
+      "startTime": 160718,
+      "endTime": 164190,
+      "alignment": "Left",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Said ",
+          "startTime": 160718,
+          "endTime": 160942
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "no ",
+          "startTime": 160942,
+          "endTime": 161168
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "more ",
+          "startTime": 161168,
+          "endTime": 161412
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 161412,
+          "endTime": 161923
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dollars, ",
+          "startTime": 161923,
+          "endTime": 162459
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we'll ",
+          "startTime": 162459,
+          "endTime": 162697
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 162697,
+          "endTime": 162929
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 162929,
+          "endTime": 163321
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 163321,
+          "endTime": 164190
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Lately I've been, I've been losing sleep",
+      "startTime": 164418,
+      "endTime": 168063,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Lately ",
+          "startTime": 164418,
+          "endTime": 165316
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 165316,
+          "endTime": 165816
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been, ",
+          "startTime": 165816,
+          "endTime": 166474
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 166474,
+          "endTime": 166712
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 166712,
+          "endTime": 166986
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "losing ",
+          "startTime": 166986,
+          "endTime": 167283
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sleep",
+          "startTime": 167283,
+          "endTime": 168063
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Dreaming about the things that we could be",
+      "startTime": 168579,
+      "endTime": 171949,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Dreaming ",
+          "startTime": 168579,
+          "endTime": 169154
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about ",
+          "startTime": 169154,
+          "endTime": 169534
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 169534,
+          "endTime": 169796
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things ",
+          "startTime": 169796,
+          "endTime": 170064
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 170064,
+          "endTime": 170290
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 170290,
+          "endTime": 170802
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 170802,
+          "endTime": 171307
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 171307,
+          "endTime": 171949
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But, baby, I've been, I've been praying hard",
+      "startTime": 172047,
+      "endTime": 175903,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But, ",
+          "startTime": 172047,
+          "endTime": 172318
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby, ",
+          "startTime": 172318,
+          "endTime": 173222
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 173222,
+          "endTime": 173695
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been, ",
+          "startTime": 173695,
+          "endTime": 174359
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 174359,
+          "endTime": 174597
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 174597,
+          "endTime": 174835
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "praying ",
+          "startTime": 174835,
+          "endTime": 175210
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hard",
+          "startTime": 175210,
+          "endTime": 175903
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Said no more counting dollars, we'll be, we'll be counting stars",
+      "startTime": 176315,
+      "endTime": 181395,
+      "alignment": "Left",
+      "syllableCount": 11,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Said ",
+          "startTime": 176315,
+          "endTime": 176687
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "no ",
+          "startTime": 176687,
+          "endTime": 176854
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "more ",
+          "startTime": 176854,
+          "endTime": 177139
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 177139,
+          "endTime": 177657
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dollars, ",
+          "startTime": 177657,
+          "endTime": 178175
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we'll ",
+          "startTime": 178175,
+          "endTime": 178441
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be, ",
+          "startTime": 178441,
+          "endTime": 179178
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we'll ",
+          "startTime": 179178,
+          "endTime": 179417
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 179417,
+          "endTime": 179656
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 179656,
+          "endTime": 180067
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 180067,
+          "endTime": 181395
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Oh, take that money, watch it burn",
+      "startTime": 182804,
+      "endTime": 185832,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh, ",
+          "startTime": 182804,
+          "endTime": 183976
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "take ",
+          "startTime": 183976,
+          "endTime": 184297
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 184297,
+          "endTime": 184517
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money, ",
+          "startTime": 184517,
+          "endTime": 184841
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "watch ",
+          "startTime": 184841,
+          "endTime": 185121
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 185121,
+          "endTime": 185344
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 185344,
+          "endTime": 185832
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Sink in the river, the lessons I've learned",
+      "startTime": 185885,
+      "endTime": 187893,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 185885,
+          "endTime": 186305
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 186305,
+          "endTime": 186418
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 186418,
+          "endTime": 186555
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river, ",
+          "startTime": 186555,
+          "endTime": 186781
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 186781,
+          "endTime": 186912
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 186912,
+          "endTime": 187304
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 187304,
+          "endTime": 187495
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 187495,
+          "endTime": 187893
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Take that money, watch it burn",
+      "startTime": 188031,
+      "endTime": 189784,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 188031,
+          "endTime": 188296
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 188296,
+          "endTime": 188558
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money, ",
+          "startTime": 188558,
+          "endTime": 188909
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "watch ",
+          "startTime": 188909,
+          "endTime": 189212
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 189212,
+          "endTime": 189409
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 189409,
+          "endTime": 189784
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Sink in the river, the lessons I've learned",
+      "startTime": 189794,
+      "endTime": 191739,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 189794,
+          "endTime": 190179
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 190179,
+          "endTime": 190364
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 190364,
+          "endTime": 190496
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river, ",
+          "startTime": 190496,
+          "endTime": 190682
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 190682,
+          "endTime": 190856
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 190856,
+          "endTime": 191162
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 191162,
+          "endTime": 191373
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 191373,
+          "endTime": 191739
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Take that money, watch it burn",
+      "startTime": 191940,
+      "endTime": 193716,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 191940,
+          "endTime": 192336
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 192336,
+          "endTime": 192574
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money, ",
+          "startTime": 192574,
+          "endTime": 192758
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "watch ",
+          "startTime": 192758,
+          "endTime": 192961
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 192961,
+          "endTime": 193240
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 193240,
+          "endTime": 193716
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Sink in the river, the lessons I've learned",
+      "startTime": 193764,
+      "endTime": 195737,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 193764,
+          "endTime": 194154
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 194154,
+          "endTime": 194273
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 194273,
+          "endTime": 194404
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river, ",
+          "startTime": 194404,
+          "endTime": 194636
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 194636,
+          "endTime": 194767
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 194767,
+          "endTime": 195160
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 195160,
+          "endTime": 195356
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 195356,
+          "endTime": 195737
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Take that money, watch it burn",
+      "startTime": 195838,
+      "endTime": 197603,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 195838,
+          "endTime": 196169
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 196169,
+          "endTime": 196424
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money, ",
+          "startTime": 196424,
+          "endTime": 196787
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "watch ",
+          "startTime": 196787,
+          "endTime": 197085
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 197085,
+          "endTime": 197281
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 197281,
+          "endTime": 197603
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Sink in the river, the lessons I've learned",
+      "startTime": 197691,
+      "endTime": 199701,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 197691,
+          "endTime": 198071
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 198071,
+          "endTime": 198248
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 198248,
+          "endTime": 198432
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river, ",
+          "startTime": 198432,
+          "endTime": 198658
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 198658,
+          "endTime": 198795
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 198795,
+          "endTime": 199128
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 199128,
+          "endTime": 199228
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 199228,
+          "endTime": 199701
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Everything that kills me, makes me feel alive",
+      "startTime": 199848,
+      "endTime": 207107,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Everything ",
+          "startTime": 199848,
+          "endTime": 201311
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 201311,
+          "endTime": 201805
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "kills ",
+          "startTime": 201805,
+          "endTime": 202552
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me, ",
+          "startTime": 202552,
+          "endTime": 205676
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "makes ",
+          "startTime": 205676,
+          "endTime": 205950
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 205950,
+          "endTime": 206134
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feel ",
+          "startTime": 206134,
+          "endTime": 206403
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "alive",
+          "startTime": 206403,
+          "endTime": 207107
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Lately I've been, I've been losing sleep ",
+      "startTime": 206666,
+      "endTime": 210231,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Lately ",
+          "startTime": 206666,
+          "endTime": 207658
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 207658,
+          "endTime": 208108
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been, ",
+          "startTime": 208108,
+          "endTime": 208677
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 208677,
+          "endTime": 208907
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 208907,
+          "endTime": 209084
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "losing ",
+          "startTime": 209084,
+          "endTime": 209353
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sleep ",
+          "startTime": 209353,
+          "endTime": 210231
+        }
+      ],
+      "subLine": {
+        "kind": "SyllableLineInfo",
+        "text": "(Hey!)",
+        "startTime": 210231,
+        "endTime": 210421,
+        "alignment": "Left",
+        "syllableCount": 1,
+        "syllables": [
+          {
+            "kind": "SyllableInfo",
+            "text": "(Hey!)",
+            "startTime": 210231,
+            "endTime": 210421
+          }
+        ]
+      }
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Dreaming about the things that we could be",
+      "startTime": 210849,
+      "endTime": 214102,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Dreaming ",
+          "startTime": 210849,
+          "endTime": 211406
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about ",
+          "startTime": 211406,
+          "endTime": 211876
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 211876,
+          "endTime": 212143
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things ",
+          "startTime": 212143,
+          "endTime": 212429
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 212429,
+          "endTime": 212661
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 212661,
+          "endTime": 213161
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 213161,
+          "endTime": 213643
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 213643,
+          "endTime": 214102
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But, baby, I've been, I've been praying hard",
+      "startTime": 214267,
+      "endTime": 218085,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But, ",
+          "startTime": 214267,
+          "endTime": 214516
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby, ",
+          "startTime": 214516,
+          "endTime": 215416
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 215416,
+          "endTime": 215986
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been, ",
+          "startTime": 215986,
+          "endTime": 216517
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 216517,
+          "endTime": 216771
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 216771,
+          "endTime": 216956
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "praying ",
+          "startTime": 216956,
+          "endTime": 217356
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hard",
+          "startTime": 217356,
+          "endTime": 218085
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Said no more counting dollars, we'll be counting stars",
+      "startTime": 218564,
+      "endTime": 222082,
+      "alignment": "Left",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Said ",
+          "startTime": 218564,
+          "endTime": 218875
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "no ",
+          "startTime": 218875,
+          "endTime": 219197
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "more ",
+          "startTime": 219197,
+          "endTime": 219483
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 219483,
+          "endTime": 220006
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dollars, ",
+          "startTime": 220006,
+          "endTime": 220530
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we'll ",
+          "startTime": 220530,
+          "endTime": 220768
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 220768,
+          "endTime": 221000
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 221000,
+          "endTime": 221398
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 221398,
+          "endTime": 222082
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Lately I've been, I've been losing sleep",
+      "startTime": 222455,
+      "endTime": 225988,
+      "alignment": "Left",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Lately ",
+          "startTime": 222455,
+          "endTime": 223428
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 223428,
+          "endTime": 223876
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been, ",
+          "startTime": 223876,
+          "endTime": 224371
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 224371,
+          "endTime": 224607
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 224607,
+          "endTime": 224923
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "losing ",
+          "startTime": 224923,
+          "endTime": 225193
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sleep",
+          "startTime": 225193,
+          "endTime": 225988
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Dreaming about the things that we could be",
+      "startTime": 226593,
+      "endTime": 229904,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Dreaming ",
+          "startTime": 226593,
+          "endTime": 227126
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about ",
+          "startTime": 227126,
+          "endTime": 227608
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 227608,
+          "endTime": 227876
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things ",
+          "startTime": 227876,
+          "endTime": 228137
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 228137,
+          "endTime": 228381
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 228381,
+          "endTime": 228875
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could ",
+          "startTime": 228875,
+          "endTime": 229381
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 229381,
+          "endTime": 229904
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But, baby, I've been, I've been praying hard",
+      "startTime": 230102,
+      "endTime": 233936,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But, ",
+          "startTime": 230102,
+          "endTime": 230385
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby, ",
+          "startTime": 230385,
+          "endTime": 231295
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 231295,
+          "endTime": 231761
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been, ",
+          "startTime": 231761,
+          "endTime": 232270
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 232270,
+          "endTime": 232572
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "been ",
+          "startTime": 232572,
+          "endTime": 232896
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "praying ",
+          "startTime": 232896,
+          "endTime": 233288
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hard",
+          "startTime": 233288,
+          "endTime": 233936
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Said no more counting dollars, we'll be, we'll be counting stars",
+      "startTime": 234452,
+      "endTime": 239244,
+      "alignment": "Left",
+      "syllableCount": 10,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Said ",
+          "startTime": 234452,
+          "endTime": 234702
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "no ",
+          "startTime": 234702,
+          "endTime": 234966
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "more ",
+          "startTime": 234966,
+          "endTime": 235236
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 235236,
+          "endTime": 235735
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dollars, ",
+          "startTime": 235735,
+          "endTime": 236252
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we'll ",
+          "startTime": 236252,
+          "endTime": 236466
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be, ",
+          "startTime": 236466,
+          "endTime": 237267
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we'll be ",
+          "startTime": 237267,
+          "endTime": 237714
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "counting ",
+          "startTime": 237714,
+          "endTime": 238238
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stars",
+          "startTime": 238238,
+          "endTime": 239244
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Take that money, watch it burn",
+      "startTime": 238204,
+      "endTime": 239921,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 238204,
+          "endTime": 238304
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 238304,
+          "endTime": 238695
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money, ",
+          "startTime": 238695,
+          "endTime": 239136
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "watch ",
+          "startTime": 239136,
+          "endTime": 239403
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 239403,
+          "endTime": 239503
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 239503,
+          "endTime": 239921
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Sink in the river, the lessons I've learned",
+      "startTime": 239946,
+      "endTime": 241950,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 239946,
+          "endTime": 240352
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 240352,
+          "endTime": 240529
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 240529,
+          "endTime": 240695
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river, ",
+          "startTime": 240695,
+          "endTime": 240979
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 240979,
+          "endTime": 241163
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 241163,
+          "endTime": 241514
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 241514,
+          "endTime": 241614
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 241614,
+          "endTime": 241950
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Take that money, watch it burn",
+      "startTime": 242085,
+      "endTime": 243872,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 242085,
+          "endTime": 242332
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 242332,
+          "endTime": 242588
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money, ",
+          "startTime": 242588,
+          "endTime": 242945
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "watch ",
+          "startTime": 242945,
+          "endTime": 243260
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 243260,
+          "endTime": 243481
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 243481,
+          "endTime": 243872
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Sink in the river, the lessons I've learned",
+      "startTime": 243908,
+      "endTime": 245887,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 243908,
+          "endTime": 244291
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 244291,
+          "endTime": 244439
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 244439,
+          "endTime": 244557
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river, ",
+          "startTime": 244557,
+          "endTime": 244857
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 244857,
+          "endTime": 244994
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 244994,
+          "endTime": 245304
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 245304,
+          "endTime": 245404
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 245404,
+          "endTime": 245887
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Take that money, watch it burn",
+      "startTime": 246047,
+      "endTime": 247845,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 246047,
+          "endTime": 246372
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 246372,
+          "endTime": 246628
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money, ",
+          "startTime": 246628,
+          "endTime": 246984
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "watch ",
+          "startTime": 246984,
+          "endTime": 247294
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 247294,
+          "endTime": 247508
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 247508,
+          "endTime": 247845
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Sink in the river, the lessons I've learned",
+      "startTime": 247911,
+      "endTime": 249908,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 247911,
+          "endTime": 248280
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 248280,
+          "endTime": 248464
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 248464,
+          "endTime": 248598
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river, ",
+          "startTime": 248598,
+          "endTime": 248908
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 248908,
+          "endTime": 249027
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 249027,
+          "endTime": 249301
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 249301,
+          "endTime": 249401
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 249401,
+          "endTime": 249908
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Take that money, watch it burn",
+      "startTime": 249964,
+      "endTime": 251753,
+      "alignment": "Left",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 249964,
+          "endTime": 250211
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 250211,
+          "endTime": 250461
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "money, ",
+          "startTime": 250461,
+          "endTime": 250836
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "watch ",
+          "startTime": 250836,
+          "endTime": 251122
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 251122,
+          "endTime": 251330
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "burn",
+          "startTime": 251330,
+          "endTime": 251753
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Sink in the river, the lessons I've learned",
+      "startTime": 251830,
+      "endTime": 253793,
+      "alignment": "Left",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Sink ",
+          "startTime": 251830,
+          "endTime": 252232
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 252232,
+          "endTime": 252333
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 252333,
+          "endTime": 252452
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "river, ",
+          "startTime": 252452,
+          "endTime": 252696
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 252696,
+          "endTime": 252821
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lessons ",
+          "startTime": 252821,
+          "endTime": 253226
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I've ",
+          "startTime": 253226,
+          "endTime": 253422
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "learned",
+          "startTime": 253422,
+          "endTime": 253793
+        }
+      ]
+    }
+  ]
+}

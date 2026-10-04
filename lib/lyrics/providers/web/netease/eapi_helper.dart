@@ -92,7 +92,6 @@ class EapiHelper {
   static Uint8List decrypt(List<int> cipherBuffer) =>
       aesDecrypt(cipherBuffer, eapiKey, null);
 
-  ///
   static Uint8List aesEncrypt(
     List<int> buffer,
     List<int> key,

@@ -152,6 +152,14 @@ class YrcParser {
     return lines;
   }
 
+  /// 上游 YrcParser.cs:173 `ParseOnlyLyrics`
+  ///
+  /// PORT NOTE: 上游 `new SyllableLineInfo(karaokeWordInfos)` 会走
+  /// Models/LineInfo.cs:54-57 的构造函数 `Syllables = syllables.ToList()`，
+  /// 也就是**复制**一份；而紧接着上游 YrcParser.cs:196 / :326 立刻
+  /// `karaokeWordInfos.Clear()`。Dart 的 SyllableLineInfo 构造函数保存的是同一个
+  /// List 引用（lib/lyrics/models/line_info.dart，不在本 worker 的改动范围内），
+  /// 直接透传会让所有已产出的行都被 Clear 成空行，所以这里显式复制。
   static List<LineInfo> parseOnlyLyrics(String input) {
     final lines = <SyllableLineInfo>[];
     final karaokeWordInfos = <SyllableInfo>[];
@@ -173,7 +181,7 @@ class YrcParser {
               wordTimespan,
               wordTimespan + wordDuration,
             ));
-            lines.add(SyllableLineInfo(karaokeWordInfos));
+            lines.add(SyllableLineInfo([...karaokeWordInfos]));
             karaokeWordInfos.clear();
             lyricStringBuilder.clear();
             state = CurrentState.none;
@@ -303,7 +311,7 @@ class YrcParser {
             wordTimespan,
             wordTimespan + wordDuration,
           ));
-          lines.add(SyllableLineInfo(karaokeWordInfos));
+          lines.add(SyllableLineInfo([...karaokeWordInfos]));
           karaokeWordInfos.clear();
           lyricStringBuilder.clear();
         }
@@ -312,7 +320,6 @@ class YrcParser {
     return <LineInfo>[...lines];
   }
 
-  ///
   static final RegExp _unicodeNumber = RegExp(r'^\p{N}$', unicode: true);
 
   static bool _isNumber(String curChar) {

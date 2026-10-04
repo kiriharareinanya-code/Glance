@@ -396,6 +396,76 @@ flutter test test\lyrics\<你的测试文件>       # 必须全绿
 | `Models/ITrackMetadata.cs` + `Models/TrackMetadata.cs` | `models/track_metadata.dart` | 同上 |
 | `Providers/Web/BaseApi.cs` 的 `JsonUtils` | `json_utils.dart` | 独立成文件 |
 
+### 7.1 验收脚本（不要靠人肉数）
+
+上面这张表是人写的，会烂。真正把关的是 `tool/` 下这几个脚本，它们对着
+**本地固定的上游副本**跑，改完代码跑一遍就知道有没有抄漏：
+
+| 脚本 | 回答的问题 | 判定 |
+|---|---|---|
+| `pwsh -File tool\verify_port.ps1` | 一条龙：完整性 → 契约 → 成员保真 → analyze → 全量测试 | 任一关不过返回非 0 |
+| `python tool\check_contracts.py` | 第 0/3.6/4.18 节的硬约定：出处注释、不许 import Flutter、关键方法没被改名、LICENSE/NOTICE 在 | 任一不合规返回非 0 |
+| `dotnet run --project tool/upstream_goldengen -- test/fixtures/lyricify _out` | **用真正的上游 C# 重新生成全部黄金样本**，逐字节比对 | 有差异即失败 |
+| `python tool\port_audit.py` | 上游 110 个 `.cs` 是否都有对应 Dart 文件；哪个文件**抄薄了**（行数比 < 0.55） | 缺文件即失败 |
+| `python tool\member_audit.py` | 有没有**抄漏某个方法/字段**（按成员名比对，行数对比看不出来） | 输出疑似缺失清单 |
+| `python tool\gen_artist_pairs.py --apply` | 从上游重新生成 `ArtistHelper` 的 2077 条艺人表 | 人工核对过条数 |
+| `python tool\restore_doc_comments.py --apply` | 把上游被剥掉的 `///` 中文注释按成员名写回去（**已跑过**；改动与删行必须合成一趟倒序应用，用行号分别记录会错位） | 对不上名字的一律不动 |
+| `dart run tool\lyricify_live_check.dart "歌名" "歌手" 时长秒 来源` | 真实网络下引擎是否真的选出歌词 | 需要联网 |
+
+`port_audit.py` 当前输出：上游 14514 行 → 我们 17632 行，**110/110 有对应实现**。
+
+### 7.2 黄金样本：全部 12 份都由上游 C# 生成
+
+`test/fixtures/lyricify/*.golden.json` 是判定"行为是否与上游一致"的 ground truth。
+它们**不是**手写的，也不是 Dart 端自己生成的（自己证明自己等于没证明）——
+`tool/upstream_goldengen/` 是一个 .NET 控制台程序，直接 ProjectReference
+`refs/Lyricify-Lyrics-Helper` 的上游工程，用**上游的解析器**跑 fixture 再序列化。
+
+```powershell
+dotnet run --project tool/upstream_goldengen -- test/fixtures/lyricify _out
+# 然后逐字节比对 _out 与 test/fixtures/lyricify —— 当前是 12/12 完全一致
+```
+
+| fixture | 上游类型 | 行数 | golden |
+|---|---|---|---|
+| `LrcDemo` | Lrc | 100 | ✅ |
+| `QrcDemo` | Qrc | 39 | ✅ |
+| `KrcDemo` | Krc | 98 | ✅ |
+| `YrcDemo` | Yrc | 102 | ✅ |
+| `LyricifySyllableDemo` | LyricifySyllable | 54 | ✅ |
+| `LsMixQrcDemo` | LyricifySyllable | 32 | ✅ |
+| `LyricifyLinesDemo` | LyricifyLines | 53 | ✅ |
+| `AppleSyllableDemo` | Ttml | 69 | ✅ 本轮补 |
+| `SpotifyDemo` | Spotify（行同步） | 25 | ✅ 本轮补 |
+| `SpotifySyllableDemo` | Spotify（逐字） | 129 | ✅ 本轮补 |
+| `SpotifyUnsyncedDemo` | Spotify（无同步） | 27 | ✅ 本轮补 |
+| `MusixmatchDemo` | Musixmatch | 28 | ✅ 本轮补 |
+
+本轮开工时只有前 7 份，**TTML / Spotify / Musixmatch 三个解析器从来没有跟上游输出
+比对过**——而它们恰恰是最容易在 agent、背景人声、translations、pronunciation、
+`FullSyllableInfo.subItems` 上出错的地方。补齐后这 12 份全部可复现。
+
+注意 `AppleSyllableDemo` 的取法：它是 Apple 的 JSON **信封**
+（`{"data":[{"type":"syllable-lyrics","attributes":{"ttml":"<tt .../>"}}]}`），
+`ParseHelper.cs:33-45` 里**没有** `AppleJson` 分支（会返回 null），是
+`Providers/Web/AppleMusic/Api.cs` 拆出 `data[].attributes.ttml` 之后再交给
+`TtmlParser` 的——生成器照抄了这条路径。用 `LyricsRawTypes.Ttml` 直接喂整个信封
+会解析出 0 行，那是类型选错，不是 bug。
+
+**已知的误报**（`member_audit.py` 会报但其实是对的，不要去"修"）：
+C# 接口 `ILineInfo` 按契约变成 Dart 抽象类 `LineInfo`；C# 嵌套 DTO 提升为顶层并带前缀
+（`GetTokenResponse.TaskType` → `GetTokenTaskType`）；`_lock`/`HttpClient`/`CreateRequest`
+按 3.2 契约换成 `LyricsHttpClient`；`JsonUtils` 移到 `json_utils.dart`；
+`RegexOptions.Compiled` 无对应物（见第 6 节第 6 条）；`CHSWord`/`CHTWord` 移到
+`chinese_converter_tables.dart` 并加了 `k` 前缀。
+
+脚本本身已经把三类纯命名差异归一化掉了（比较前统一小写、去掉分隔符、放行单/复数），
+所以剩下的报项基本都是**跨文件引用**而非漏抄：
+`Searchers/Helpers/MatchHelpers/*.cs` 里的 `CompareHelper`、`GetMatchScore`
+住在 `compare_helper.dart`，按文件比对自然看不见；
+`switch` 是 C# 关键字（JSON 字段名）。**判定方式是逐个 grep 确认符号真的存在**，
+不要看着清单就补代码。当前 26 个文件命中，全属此类。
+
 ## 8. 进度
 
 - [x] 定位源码、固定上游提交、许可核查
@@ -404,11 +474,63 @@ flutter test test\lyrics\<你的测试文件>       # 必须全绿
 - [x] W-B TTML/Spotify/Musixmatch + 全部生成器
 - [x] W-C 通用助手（StringHelper / MathHelper / ChineseHelper，含上游 CHSWord/CHTWord 原文 4804 对）
 - [x] W-C2 类型识别 + ParseHelper/OffsetHelper + 全部优化助手
-- [x] W-D 网易云/QQ/酷狗/LRCLIB（含 eapi AES-128-ECB + MD5）
+- [x] W-D 网易云/QQ/酷狗/LRCLIB（含 eapi AES-128-ECB + MD5，weapi/eapi 均按上游 `FormUrlEncodedContent` 发表单）
 - [x] W-E Musixmatch/Spotify/AppleMusic/SodaMusic
 - [x] W-F Searcher 体系 + Artist/Name/Duration 匹配 + SearchHelper/ProviderHelper
 - [x] W-G ArtistHelper 艺人名表（2077 条，与上游逐条一致）
 - [x] 宿主接线（context POST/自定义头、engine、engine_sources 各源 bridge、lyrics_view 渲染模型）
-- [ ] 歌词卡片接入（进行中）
-- [ ] 全量验证（analyze 干净 + 全部测试绿 + 真机真接口）
+- [x] 歌词卡片接入（engine → lyrics_view → 逐字高亮，含滚轮浏览/点击定位）
+- [x] 全量验证（analyze 干净 + 全部测试绿 + 真机真接口）
+  - `flutter analyze lib test` → **No issues found**（0 error / 0 warning / 0 info）
+  - `flutter test` → **329 全绿**
+  - 12 份 golden 由上游 C# 重新生成后 **12/12 逐字节一致**
+  - 实网：`lyricify_live_check.dart` 搜索 → 打分 → 取词 → 解析 → 渲染跑通
+
+### 8.1 一次真实的翻车（留档，别再犯）
+
+移植规模这么大，"写完了"不等于"对了"。本轮开工时的实际状态：
+
+1. `lib/lyrics/searchers/helpers/artist_helper.dart` 的 2077 条艺人表是**空列表**——
+   编译通过、单测通过，但功能等于没有。**行数对比能看出来**（0.02），成员名对比看不出来。
+2. 提交 `61e9c7c` 把 5151 行端口测试（parsers/generators/helpers/providers/searchers/
+   artist_helper）**删掉了**。删掉之后 `flutter test` 全绿，于是看起来"没问题"。
+   恢复后跑一次：**51 个失败**——其中既有实现偏离上游，也有测试自己写错（对错要逐条
+   回到上游 `.cs` 判定，见各 worker 的报告）。
+3. `test/lyrics/searchers_test.dart` 写入时编码管道坏了，150 个 U+FFFD 把中文字符串
+   截断，**文件根本编译不过**，而且因为它编译不过，同目录其他测试的错误也会被掩盖。
+4. 上游的中文 `///` 注释在移植时被整体剥掉，只剩空的 `///`（69 个文件）。
+5. **把注释写回去的脚本自己把代码删了。** `restore_doc_comments.py` 先按行号落"插入"、
+   再按**落插入之前的行号**落"删空注释行"，两趟的行号已经错位，于是删掉了正确的代码行。
+   表面症状是 118 个编译错误；**真正可怕的是其中两处编译得过**：
+   - `Explicit._replaceAt` 少了 `replacement +` 一行 → 掩码词被**整个删掉**而不是替换掉；
+   - `StringHelper.canStartNewLine` 少了 `return true;` → 恒返回 false。
+   靠 `flutter analyze` 抓不到这两个（0 错误时它们照样能编译）。抓它们靠的是
+   `git diff HEAD -- <文件> | grep '^-' | grep -v '^-\s*//'`——**逐行扫非注释的删除项**。
+
+   修法：把"插入"和"删除"合并成同一趟 `(行号, 删行?, 替换文本)` 的倒序应用。
+
+   连带教训：脚本改源码时，`ReadAllText` 失败会让 `$t` 变成 `$null`，
+   随后的 `WriteAllText($p, $null, $enc)` 会**把文件写成 0 字节**，而
+   `flutter analyze` 对空文件报的是 "No issues found"。本轮因此丢了
+   `engine.dart` / `engine_sources.dart` / `lrc.dart` 三个文件，靠 `git checkout HEAD --` 找回。
+
+### 8.2 实网跑出来的一个"不是 bug 的 bug"
+
+`dart run tool/lyricify_live_check.dart 青花瓷 周杰伦 240 netease` 实网跑通
+（搜索 → 打分 → 取词 → 解析 → 渲染，1.4s），但返回的是 **LRC / lineSynced，0 个音节**——
+周杰伦的歌拿不到逐字。看着像 bug，逐行对回上游却是**完全一致**的：
+
+- 上游 `Netease/Api.cs:225-246` `GetLyricNew` 的参数是 `yv:"0"`、`ytv:"0"`、`yrv:"0"`；
+- 网易云 `/eapi/song/lyric/v1` 里 `yv` 就是"要不要返回 yrc 逐字"，传 `0` 即**关闭**；
+- 上游自己的 doc comment（`Api.cs:219`）还写着「获得新版歌词结果（含逐字）」。
+
+也就是说 Lyricify 自己关掉了逐字，我们照抄了，所以行为一致。上游要 `yv:"1"` 才有逐字。
+
+**处置：保持不变。** 本移植的契约是"行为与上游一致"，不是"比上游好用"；擅自把 `yv`
+改成 `1` 就是制造一处没有出处的偏差。真要逐字，走 LRCLIB 那条路（本仓库已经接了）。
+记在这里，免得下次看到实网结果缺音节时，又以为是移植漏了东西而"顺手修一下"。
+
+教训：**"编译通过"和"测试全绿"都不能证明移植正确**。判据必须是
+"对着上游源码逐条核对"，而第 7.1 节的脚本就是为此存在的。测试失败时**删测试是最坏的选择**
+——它把唯一的证伪手段拿掉了。
 

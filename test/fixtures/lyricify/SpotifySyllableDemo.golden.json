@@ -1,0 +1,5688 @@
+{
+  "file": {
+    "type": "Spotify",
+    "syncTypes": "SyllableSynced",
+    "attributes": null,
+    "krcHash": null
+  },
+  "writers": null,
+  "trackMetadata": null,
+  "lines": [
+    {
+      "kind": "SyllableLineInfo",
+      "text": "The club isn't the best place",
+      "startTime": 9595,
+      "endTime": 11101,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "The ",
+          "startTime": 9595,
+          "endTime": 9776
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "club ",
+          "startTime": 9784,
+          "endTime": 10056
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "isn't ",
+          "startTime": 10104,
+          "endTime": 10422
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 10434,
+          "endTime": 10570
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "best ",
+          "startTime": 10652,
+          "endTime": 10834
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "place",
+          "startTime": 10875,
+          "endTime": 11101
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "to find a lover",
+      "startTime": 11175,
+      "endTime": 11961,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 11175,
+          "endTime": 11311
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "find ",
+          "startTime": 11325,
+          "endTime": 11507
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 11568,
+          "endTime": 11614
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lover",
+          "startTime": 11689,
+          "endTime": 11961
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "So the bar is where I go",
+      "startTime": 11989,
+      "endTime": 13520,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "So ",
+          "startTime": 11989,
+          "endTime": 12125
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 12163,
+          "endTime": 12299
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "bar ",
+          "startTime": 12340,
+          "endTime": 12476
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is ",
+          "startTime": 12660,
+          "endTime": 12841
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "where ",
+          "startTime": 12895,
+          "endTime": 13076
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 13128,
+          "endTime": 13218
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "go",
+          "startTime": 13429,
+          "endTime": 13520
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Me and my friends at the table",
+      "startTime": 14682,
+      "endTime": 16187,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Me ",
+          "startTime": 14682,
+          "endTime": 14773
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 14819,
+          "endTime": 14955
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 15018,
+          "endTime": 15109
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "friends ",
+          "startTime": 15154,
+          "endTime": 15472
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "at ",
+          "startTime": 15517,
+          "endTime": 15608
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 15746,
+          "endTime": 15883
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ta",
+          "startTime": 15903,
+          "endTime": 15994
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ble",
+          "startTime": 16008,
+          "endTime": 16187
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "doing shots drinking fast",
+      "startTime": 16198,
+      "endTime": 17391,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "do",
+          "startTime": 16198,
+          "endTime": 16289
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ing ",
+          "startTime": 16291,
+          "endTime": 16425
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "shots ",
+          "startTime": 16595,
+          "endTime": 16777
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "drink",
+          "startTime": 16863,
+          "endTime": 17045
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ing ",
+          "startTime": 17052,
+          "endTime": 17187
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fast",
+          "startTime": 17209,
+          "endTime": 17391
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "and then we talk slow",
+      "startTime": 17431,
+      "endTime": 18566,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 17431,
+          "endTime": 17567
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "then ",
+          "startTime": 17588,
+          "endTime": 17770
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 17786,
+          "endTime": 17877
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "talk ",
+          "startTime": 17923,
+          "endTime": 18149
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "slow",
+          "startTime": 18385,
+          "endTime": 18566
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "You come over",
+      "startTime": 19534,
+      "endTime": 20140,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "You ",
+          "startTime": 19534,
+          "endTime": 19670
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 19710,
+          "endTime": 19892
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "over",
+          "startTime": 19913,
+          "endTime": 20140
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "and start up a conversation",
+      "startTime": 20148,
+      "endTime": 21340,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 20148,
+          "endTime": 20284
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "start ",
+          "startTime": 20292,
+          "endTime": 20473
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "up ",
+          "startTime": 20488,
+          "endTime": 20578
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 20651,
+          "endTime": 20696
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "con",
+          "startTime": 20755,
+          "endTime": 20891
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ver",
+          "startTime": 20906,
+          "endTime": 21040
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sa",
+          "startTime": 21062,
+          "endTime": 21151
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "tion",
+          "startTime": 21160,
+          "endTime": 21340
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "with just me and trust me",
+      "startTime": 21356,
+      "endTime": 22727,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 21356,
+          "endTime": 21538
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "just ",
+          "startTime": 21554,
+          "endTime": 21826
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 21911,
+          "endTime": 22002
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 22186,
+          "endTime": 22322
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "trust ",
+          "startTime": 22355,
+          "endTime": 22582
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me",
+          "startTime": 22636,
+          "endTime": 22727
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'll give it a chance now",
+      "startTime": 22812,
+      "endTime": 24405,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'll ",
+          "startTime": 22812,
+          "endTime": 22994
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "give ",
+          "startTime": 23008,
+          "endTime": 23190
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it ",
+          "startTime": 23204,
+          "endTime": 23340
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 23381,
+          "endTime": 23426
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "chance ",
+          "startTime": 23537,
+          "endTime": 23810
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "now",
+          "startTime": 24223,
+          "endTime": 24405
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Take my hand stop,",
+      "startTime": 24478,
+      "endTime": 25482,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Take ",
+          "startTime": 24478,
+          "endTime": 24659
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 24706,
+          "endTime": 24797
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hand ",
+          "startTime": 24850,
+          "endTime": 25032
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "stop,",
+          "startTime": 25301,
+          "endTime": 25482
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "put Van the man on the jukebox",
+      "startTime": 25588,
+      "endTime": 27063,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "put ",
+          "startTime": 25588,
+          "endTime": 25747
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Van ",
+          "startTime": 25764,
+          "endTime": 25900
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 25921,
+          "endTime": 26057
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "man ",
+          "startTime": 26078,
+          "endTime": 26214
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 26248,
+          "endTime": 26338
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 26385,
+          "endTime": 26521
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "juke",
+          "startTime": 26555,
+          "endTime": 26736
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "box",
+          "startTime": 26927,
+          "endTime": 27063
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "and then we start to dance",
+      "startTime": 27221,
+      "endTime": 28688,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 27221,
+          "endTime": 27357
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "then ",
+          "startTime": 27456,
+          "endTime": 27637
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 27763,
+          "endTime": 27853
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "start ",
+          "startTime": 28017,
+          "endTime": 28244
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to ",
+          "startTime": 28279,
+          "endTime": 28369
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dance",
+          "startTime": 28461,
+          "endTime": 28688
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "And now I'm singing like",
+      "startTime": 28710,
+      "endTime": 29799,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And ",
+          "startTime": 28710,
+          "endTime": 28846
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "now ",
+          "startTime": 28879,
+          "endTime": 29016
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 29075,
+          "endTime": 29211
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "singing ",
+          "startTime": 29217,
+          "endTime": 29580
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "like",
+          "startTime": 29617,
+          "endTime": 29799
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Girl you know I want your love",
+      "startTime": 29957,
+      "endTime": 31973,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Girl ",
+          "startTime": 29957,
+          "endTime": 30184
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 30290,
+          "endTime": 30426
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "know ",
+          "startTime": 30519,
+          "endTime": 30700
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 30858,
+          "endTime": 30903
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "want ",
+          "startTime": 31085,
+          "endTime": 31312
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 31433,
+          "endTime": 31660
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 31746,
+          "endTime": 31973
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Your love was handmade",
+      "startTime": 32301,
+      "endTime": 33586,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Your ",
+          "startTime": 32301,
+          "endTime": 32483
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 32569,
+          "endTime": 32751
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "was ",
+          "startTime": 32817,
+          "endTime": 32999
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hand",
+          "startTime": 33066,
+          "endTime": 33247
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "made",
+          "startTime": 33359,
+          "endTime": 33586
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "for somebody like me",
+      "startTime": 33653,
+      "endTime": 35037,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "for ",
+          "startTime": 33653,
+          "endTime": 33835
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "some",
+          "startTime": 33941,
+          "endTime": 34168
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body ",
+          "startTime": 34267,
+          "endTime": 34537
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "like ",
+          "startTime": 34555,
+          "endTime": 34781
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me",
+          "startTime": 34901,
+          "endTime": 35037
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on now follow my lead",
+      "startTime": 35508,
+      "endTime": 37009,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 35508,
+          "endTime": 35644
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 35682,
+          "endTime": 35773
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "now ",
+          "startTime": 35817,
+          "endTime": 35953
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fol",
+          "startTime": 36122,
+          "endTime": 36258
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "low ",
+          "startTime": 36270,
+          "endTime": 36451
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 36470,
+          "endTime": 36606
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lead",
+          "startTime": 36827,
+          "endTime": 37009
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I may be crazy don't mind me",
+      "startTime": 37461,
+      "endTime": 39458,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 37461,
+          "endTime": 37506
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "may ",
+          "startTime": 37617,
+          "endTime": 37844
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 37894,
+          "endTime": 38030
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "crazy ",
+          "startTime": 38064,
+          "endTime": 38427
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "don't ",
+          "startTime": 38701,
+          "endTime": 38928
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "mind ",
+          "startTime": 39008,
+          "endTime": 39190
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me",
+          "startTime": 39276,
+          "endTime": 39458
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Say boy let's not talk too much",
+      "startTime": 39570,
+      "endTime": 41907,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Say ",
+          "startTime": 39570,
+          "endTime": 39842
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "boy ",
+          "startTime": 39910,
+          "endTime": 40137
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "let's ",
+          "startTime": 40484,
+          "endTime": 40757
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "not ",
+          "startTime": 40791,
+          "endTime": 41018
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "talk ",
+          "startTime": 41072,
+          "endTime": 41344
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "too ",
+          "startTime": 41425,
+          "endTime": 41606
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "much",
+          "startTime": 41725,
+          "endTime": 41907
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Grab on my waist",
+      "startTime": 42372,
+      "endTime": 43317,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Grab ",
+          "startTime": 42372,
+          "endTime": 42553
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 42600,
+          "endTime": 42691
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 42894,
+          "endTime": 42985
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "waist",
+          "startTime": 43044,
+          "endTime": 43317
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "and put that body on me",
+      "startTime": 43430,
+      "endTime": 44970,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 43430,
+          "endTime": 43566
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "put ",
+          "startTime": 43626,
+          "endTime": 43852
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 43919,
+          "endTime": 44101
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body ",
+          "startTime": 44239,
+          "endTime": 44466
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 44533,
+          "endTime": 44715
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me",
+          "startTime": 44879,
+          "endTime": 44970
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on now follow my lead",
+      "startTime": 45552,
+      "endTime": 46987,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 45552,
+          "endTime": 45666
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 45702,
+          "endTime": 45793
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "now ",
+          "startTime": 45833,
+          "endTime": 45969
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fol",
+          "startTime": 46192,
+          "endTime": 46306
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "low ",
+          "startTime": 46349,
+          "endTime": 46462
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 46499,
+          "endTime": 46590
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lead",
+          "startTime": 46806,
+          "endTime": 46987
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come come on now Follow my lead",
+      "startTime": 47119,
+      "endTime": 48946,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 47119,
+          "endTime": 47346
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 47452,
+          "endTime": 47566
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 47616,
+          "endTime": 47752
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "now ",
+          "startTime": 47779,
+          "endTime": 47961
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Fol",
+          "startTime": 48092,
+          "endTime": 48229
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "low ",
+          "startTime": 48249,
+          "endTime": 48385
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 48426,
+          "endTime": 48516
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lead",
+          "startTime": 48719,
+          "endTime": 48946
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'm in love",
+      "startTime": 50822,
+      "endTime": 51298,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 50822,
+          "endTime": 50914
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 50959,
+          "endTime": 51096
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 51116,
+          "endTime": 51298
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "with the shape of you",
+      "startTime": 51430,
+      "endTime": 52604,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 51430,
+          "endTime": 51611
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 51619,
+          "endTime": 51755
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "shape ",
+          "startTime": 51815,
+          "endTime": 52042
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "of ",
+          "startTime": 52115,
+          "endTime": 52297
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you",
+          "startTime": 52468,
+          "endTime": 52604
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "We push and pull",
+      "startTime": 53252,
+      "endTime": 53884,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "We ",
+          "startTime": 53252,
+          "endTime": 53388
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "push ",
+          "startTime": 53395,
+          "endTime": 53532
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 53546,
+          "endTime": 53682
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "pull",
+          "startTime": 53702,
+          "endTime": 53884
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "like a magnet do",
+      "startTime": 54016,
+      "endTime": 55053,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "like ",
+          "startTime": 54016,
+          "endTime": 54152
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 54231,
+          "endTime": 54322
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "mag",
+          "startTime": 54388,
+          "endTime": 54524
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "net ",
+          "startTime": 54610,
+          "endTime": 54837
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "do",
+          "startTime": 54963,
+          "endTime": 55053
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Although my heart is falling too",
+      "startTime": 55683,
+      "endTime": 57561,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Although ",
+          "startTime": 55683,
+          "endTime": 55888
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 55910,
+          "endTime": 56000
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "heart ",
+          "startTime": 56062,
+          "endTime": 56289
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is ",
+          "startTime": 56491,
+          "endTime": 56672
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fall",
+          "startTime": 56857,
+          "endTime": 56993
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ing ",
+          "startTime": 57144,
+          "endTime": 57323
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "too",
+          "startTime": 57425,
+          "endTime": 57561
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'm in love with your body",
+      "startTime": 58339,
+      "endTime": 59863,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 58339,
+          "endTime": 58430
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 58509,
+          "endTime": 58600
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 58633,
+          "endTime": 58814
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 58920,
+          "endTime": 59079
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 59110,
+          "endTime": 59246
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body",
+          "startTime": 59273,
+          "endTime": 59863
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Last night you were in my room",
+      "startTime": 60795,
+      "endTime": 62803,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Last ",
+          "startTime": 60795,
+          "endTime": 61022
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "night ",
+          "startTime": 61067,
+          "endTime": 61339
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 61385,
+          "endTime": 61521
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "were ",
+          "startTime": 61612,
+          "endTime": 61793
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 61839,
+          "endTime": 61975
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 62172,
+          "endTime": 62263
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "room",
+          "startTime": 62395,
+          "endTime": 62803
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "And now my bed sheets",
+      "startTime": 63283,
+      "endTime": 64306,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And ",
+          "startTime": 63283,
+          "endTime": 63419
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "now ",
+          "startTime": 63446,
+          "endTime": 63582
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 63596,
+          "endTime": 63687
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "bed ",
+          "startTime": 63720,
+          "endTime": 63856
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sheets",
+          "startTime": 64034,
+          "endTime": 64306
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "smell like you",
+      "startTime": 64399,
+      "endTime": 65130,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "smell ",
+          "startTime": 64399,
+          "endTime": 64626
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "like ",
+          "startTime": 64713,
+          "endTime": 64894
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you",
+          "startTime": 64948,
+          "endTime": 65130
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Every day discovering",
+      "startTime": 65196,
+      "endTime": 66303,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Every ",
+          "startTime": 65196,
+          "endTime": 65536
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "day ",
+          "startTime": 65588,
+          "endTime": 65701
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dis",
+          "startTime": 65751,
+          "endTime": 65865
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "cov",
+          "startTime": 65895,
+          "endTime": 66009
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "er",
+          "startTime": 66045,
+          "endTime": 66159
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ing",
+          "startTime": 66189,
+          "endTime": 66303
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "something brand new",
+      "startTime": 66470,
+      "endTime": 67579,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "some",
+          "startTime": 66470,
+          "endTime": 66651
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thing ",
+          "startTime": 66763,
+          "endTime": 67036
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "brand ",
+          "startTime": 67188,
+          "endTime": 67460
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "new",
+          "startTime": 67443,
+          "endTime": 67579
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'm in love with your body",
+      "startTime": 68370,
+      "endTime": 69855,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 68370,
+          "endTime": 68461
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 68501,
+          "endTime": 68637
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 68651,
+          "endTime": 68832
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 68899,
+          "endTime": 69081
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 69095,
+          "endTime": 69276
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body",
+          "startTime": 69310,
+          "endTime": 69855
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Oh I, Oh I, Oh I, Oh I,",
+      "startTime": 69931,
+      "endTime": 72282,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 69931,
+          "endTime": 70203
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 70254,
+          "endTime": 70300
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 70572,
+          "endTime": 70708
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 70890,
+          "endTime": 70935
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 71207,
+          "endTime": 71480
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 71537,
+          "endTime": 71583
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 71888,
+          "endTime": 72161
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I,",
+          "startTime": 72236,
+          "endTime": 72282
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "- I'm in love with your body",
+      "startTime": 73320,
+      "endTime": 74699,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "- I'm ",
+          "startTime": 73320,
+          "endTime": 73456
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 73490,
+          "endTime": 73626
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 73653,
+          "endTime": 73835
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 73915,
+          "endTime": 74051
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 74084,
+          "endTime": 74220
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body",
+          "startTime": 74313,
+          "endTime": 74699
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Oh I, Oh I, Oh I, Oh I,",
+      "startTime": 74992,
+      "endTime": 77336,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 74992,
+          "endTime": 75128
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 75306,
+          "endTime": 75351
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 75626,
+          "endTime": 75762
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 75932,
+          "endTime": 75978
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 76233,
+          "endTime": 76415
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 76566,
+          "endTime": 76611
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 76892,
+          "endTime": 77029
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I,",
+          "startTime": 77291,
+          "endTime": 77336
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "- I'm in love with your body",
+      "startTime": 78355,
+      "endTime": 79705,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "- I'm ",
+          "startTime": 78355,
+          "endTime": 78446
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 78492,
+          "endTime": 78583
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 78630,
+          "endTime": 78811
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 78937,
+          "endTime": 79118
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 79139,
+          "endTime": 79321
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body",
+          "startTime": 79341,
+          "endTime": 79705
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Oh I, Oh I, Oh I, Oh I,",
+      "startTime": 79916,
+      "endTime": 82267,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 79916,
+          "endTime": 80007
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 80243,
+          "endTime": 80288
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 80602,
+          "endTime": 80738
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 80896,
+          "endTime": 80941
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 81203,
+          "endTime": 81475
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 81562,
+          "endTime": 81607
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 81836,
+          "endTime": 82063
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I,",
+          "startTime": 82221,
+          "endTime": 82267
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "- I'm in love with your body",
+      "startTime": 83306,
+      "endTime": 84772,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "- I'm ",
+          "startTime": 83306,
+          "endTime": 83397
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 83430,
+          "endTime": 83566
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 83580,
+          "endTime": 83807
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 83880,
+          "endTime": 84062
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 84083,
+          "endTime": 84264
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body",
+          "startTime": 84318,
+          "endTime": 84772
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Every day discovering",
+      "startTime": 85273,
+      "endTime": 86333,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Every ",
+          "startTime": 85273,
+          "endTime": 85523
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "day ",
+          "startTime": 85537,
+          "endTime": 85673
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dis",
+          "startTime": 85702,
+          "endTime": 85838
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "cov",
+          "startTime": 85868,
+          "endTime": 86004
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "er",
+          "startTime": 86037,
+          "endTime": 86172
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ing",
+          "startTime": 86199,
+          "endTime": 86333
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "something brand new",
+      "startTime": 86499,
+      "endTime": 87549,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "some",
+          "startTime": 86499,
+          "endTime": 86726
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thing ",
+          "startTime": 86793,
+          "endTime": 86995
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "brand ",
+          "startTime": 87093,
+          "endTime": 87366
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "new",
+          "startTime": 87413,
+          "endTime": 87549
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'm in love",
+      "startTime": 88393,
+      "endTime": 88927,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 88393,
+          "endTime": 88484
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 88563,
+          "endTime": 88653
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 88700,
+          "endTime": 88927
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "with the shape of you",
+      "startTime": 88994,
+      "endTime": 89934,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 88994,
+          "endTime": 89130
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 89163,
+          "endTime": 89300
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "shape ",
+          "startTime": 89353,
+          "endTime": 89580
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "of ",
+          "startTime": 89699,
+          "endTime": 89790
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you",
+          "startTime": 89888,
+          "endTime": 89934
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "One week",
+      "startTime": 89960,
+      "endTime": 90351,
+      "alignment": "Unspecified",
+      "syllableCount": 2,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "One ",
+          "startTime": 89960,
+          "endTime": 90096
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "week",
+          "startTime": 90169,
+          "endTime": 90351
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "in we let the story begin",
+      "startTime": 90391,
+      "endTime": 91703,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 90391,
+          "endTime": 90527
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we ",
+          "startTime": 90639,
+          "endTime": 90730
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "let ",
+          "startTime": 90763,
+          "endTime": 90900
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 90907,
+          "endTime": 91043
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "story ",
+          "startTime": 91057,
+          "endTime": 91375
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be",
+          "startTime": 91390,
+          "endTime": 91527
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "gin",
+          "startTime": 91567,
+          "endTime": 91703
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "We're going out",
+      "startTime": 91854,
+      "endTime": 92540,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "We",
+          "startTime": 91854,
+          "endTime": 91945
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "'re ",
+          "startTime": 91952,
+          "endTime": 92041
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "go",
+          "startTime": 92050,
+          "endTime": 92186
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ing ",
+          "startTime": 92200,
+          "endTime": 92336
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "out",
+          "startTime": 92358,
+          "endTime": 92540
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "on our first date",
+      "startTime": 92683,
+      "endTime": 93701,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 92683,
+          "endTime": 92820
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "our ",
+          "startTime": 92903,
+          "endTime": 93039
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "first ",
+          "startTime": 93193,
+          "endTime": 93420
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "date",
+          "startTime": 93519,
+          "endTime": 93701
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "You and me are thrifty",
+      "startTime": 94545,
+      "endTime": 95594,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "You ",
+          "startTime": 94545,
+          "endTime": 94681
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 94695,
+          "endTime": 94831
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me ",
+          "startTime": 94852,
+          "endTime": 94942
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "are ",
+          "startTime": 95113,
+          "endTime": 95249
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thrifty",
+          "startTime": 95276,
+          "endTime": 95594
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "So go all you can eat",
+      "startTime": 95786,
+      "endTime": 96705,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "So ",
+          "startTime": 95786,
+          "endTime": 95876
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "go ",
+          "startTime": 95929,
+          "endTime": 96020
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "all ",
+          "startTime": 96060,
+          "endTime": 96196
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 96217,
+          "endTime": 96398
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "can ",
+          "startTime": 96406,
+          "endTime": 96542
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "eat",
+          "startTime": 96569,
+          "endTime": 96705
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Fill up your bag",
+      "startTime": 96902,
+      "endTime": 97560,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Fill ",
+          "startTime": 96902,
+          "endTime": 97038
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "up ",
+          "startTime": 97059,
+          "endTime": 97150
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 97177,
+          "endTime": 97313
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "bag",
+          "startTime": 97333,
+          "endTime": 97560
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "and I fill up a plate",
+      "startTime": 97653,
+      "endTime": 98690,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 97653,
+          "endTime": 97789
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 97849,
+          "endTime": 97895
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fill ",
+          "startTime": 97960,
+          "endTime": 98096
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "up ",
+          "startTime": 98137,
+          "endTime": 98227
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 98332,
+          "endTime": 98378
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "plate",
+          "startTime": 98463,
+          "endTime": 98690
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "We talk for hours",
+      "startTime": 99443,
+      "endTime": 100159,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "We ",
+          "startTime": 99443,
+          "endTime": 99533
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "talk ",
+          "startTime": 99580,
+          "endTime": 99716
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "for ",
+          "startTime": 99730,
+          "endTime": 99866
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hours",
+          "startTime": 99887,
+          "endTime": 100159
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "and hours about the sweet",
+      "startTime": 100220,
+      "endTime": 101264,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 100220,
+          "endTime": 100356
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hours ",
+          "startTime": 100409,
+          "endTime": 100636
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "about ",
+          "startTime": 100683,
+          "endTime": 100910
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 100958,
+          "endTime": 101094
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sweet",
+          "startTime": 101128,
+          "endTime": 101264
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "and the sour",
+      "startTime": 101297,
+      "endTime": 101832,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 101297,
+          "endTime": 101434
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 101454,
+          "endTime": 101636
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sour",
+          "startTime": 101650,
+          "endTime": 101832
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "And how your family's doing ok",
+      "startTime": 101963,
+      "endTime": 103621,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And ",
+          "startTime": 101963,
+          "endTime": 102100
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "how ",
+          "startTime": 102146,
+          "endTime": 102283
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 102297,
+          "endTime": 102433
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fam",
+          "startTime": 102453,
+          "endTime": 102589
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ily's ",
+          "startTime": 102610,
+          "endTime": 102880
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "do",
+          "startTime": 103067,
+          "endTime": 103158
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ing ",
+          "startTime": 103217,
+          "endTime": 103354
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ok",
+          "startTime": 103439,
+          "endTime": 103621
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Leave and get in a taxi,",
+      "startTime": 104571,
+      "endTime": 105584,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Leave ",
+          "startTime": 104571,
+          "endTime": 104640
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 104724,
+          "endTime": 104860
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "get ",
+          "startTime": 104907,
+          "endTime": 105043
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 105116,
+          "endTime": 105206
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 105259,
+          "endTime": 105305
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "taxi,",
+          "startTime": 105403,
+          "endTime": 105584
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "then kiss in the backseat",
+      "startTime": 105960,
+      "endTime": 106965,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "then ",
+          "startTime": 105960,
+          "endTime": 106142
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "kiss ",
+          "startTime": 106163,
+          "endTime": 106299
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 106332,
+          "endTime": 106423
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 106457,
+          "endTime": 106593
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "back",
+          "startTime": 106607,
+          "endTime": 106788
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "seat",
+          "startTime": 106829,
+          "endTime": 106965
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Tell the driver",
+      "startTime": 106986,
+      "endTime": 107591,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Tell ",
+          "startTime": 106986,
+          "endTime": 107122
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 107149,
+          "endTime": 107285
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "driver",
+          "startTime": 107319,
+          "endTime": 107591
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "make the radio play",
+      "startTime": 107626,
+      "endTime": 108800,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "make ",
+          "startTime": 107626,
+          "endTime": 107807
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 107828,
+          "endTime": 107964
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ra",
+          "startTime": 108030,
+          "endTime": 108121
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dio ",
+          "startTime": 108213,
+          "endTime": 108506
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "play",
+          "startTime": 108618,
+          "endTime": 108800
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "And I'm singing like",
+      "startTime": 108925,
+      "endTime": 109847,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And ",
+          "startTime": 108925,
+          "endTime": 109061
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 109199,
+          "endTime": 109336
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "singing ",
+          "startTime": 109374,
+          "endTime": 109601
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "like",
+          "startTime": 109665,
+          "endTime": 109847
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Girl you know I want your love",
+      "startTime": 110027,
+      "endTime": 112045,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Girl ",
+          "startTime": 110027,
+          "endTime": 110254
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 110318,
+          "endTime": 110454
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "know ",
+          "startTime": 110566,
+          "endTime": 110748
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 110904,
+          "endTime": 110949
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "want ",
+          "startTime": 111152,
+          "endTime": 111379
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 111485,
+          "endTime": 111712
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 111818,
+          "endTime": 112045
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Your love was handmade",
+      "startTime": 112330,
+      "endTime": 113456,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Your ",
+          "startTime": 112330,
+          "endTime": 112511
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 112547,
+          "endTime": 112729
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "was ",
+          "startTime": 112804,
+          "endTime": 112986
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hand",
+          "startTime": 112996,
+          "endTime": 113177
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "made",
+          "startTime": 113275,
+          "endTime": 113456
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "for somebody like me",
+      "startTime": 113636,
+      "endTime": 114959,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "for ",
+          "startTime": 113636,
+          "endTime": 113817
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "some",
+          "startTime": 113901,
+          "endTime": 114151
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body ",
+          "startTime": 114206,
+          "endTime": 114477
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "like ",
+          "startTime": 114572,
+          "endTime": 114799
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me",
+          "startTime": 114868,
+          "endTime": 114959
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on now follow my lead",
+      "startTime": 115495,
+      "endTime": 117002,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 115495,
+          "endTime": 115631
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 115660,
+          "endTime": 115751
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "now ",
+          "startTime": 115778,
+          "endTime": 115959
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fol",
+          "startTime": 116078,
+          "endTime": 116214
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "low ",
+          "startTime": 116231,
+          "endTime": 116412
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 116453,
+          "endTime": 116544
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lead",
+          "startTime": 116775,
+          "endTime": 117002
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I may be crazy, don't mind me",
+      "startTime": 117463,
+      "endTime": 119356,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I ",
+          "startTime": 117463,
+          "endTime": 117508
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "may ",
+          "startTime": 117598,
+          "endTime": 117825
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 117946,
+          "endTime": 118037
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "crazy, ",
+          "startTime": 118090,
+          "endTime": 118407
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "don't ",
+          "startTime": 118643,
+          "endTime": 118915
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "mind ",
+          "startTime": 118982,
+          "endTime": 119164
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me",
+          "startTime": 119265,
+          "endTime": 119356
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Say boy let's not talk too much",
+      "startTime": 119640,
+      "endTime": 121978,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Say ",
+          "startTime": 119640,
+          "endTime": 119844
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "boy ",
+          "startTime": 119940,
+          "endTime": 120122
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "let's ",
+          "startTime": 120493,
+          "endTime": 120584
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "not ",
+          "startTime": 120820,
+          "endTime": 121001
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "talk ",
+          "startTime": 121133,
+          "endTime": 121360
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "too ",
+          "startTime": 121429,
+          "endTime": 121565
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "much",
+          "startTime": 121751,
+          "endTime": 121978
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Grab on my waist",
+      "startTime": 122369,
+      "endTime": 123277,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Grab ",
+          "startTime": 122369,
+          "endTime": 122506
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 122561,
+          "endTime": 122652
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 122800,
+          "endTime": 122937
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "waist",
+          "startTime": 123005,
+          "endTime": 123277
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "and put that body on me",
+      "startTime": 123432,
+      "endTime": 124968,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 123432,
+          "endTime": 123568
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "put ",
+          "startTime": 123680,
+          "endTime": 123862
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that ",
+          "startTime": 123950,
+          "endTime": 124131
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body ",
+          "startTime": 124268,
+          "endTime": 124495
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 124577,
+          "endTime": 124713
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me",
+          "startTime": 124877,
+          "endTime": 124968
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on now follow my lead",
+      "startTime": 125421,
+      "endTime": 127089,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 125421,
+          "endTime": 125603
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 125643,
+          "endTime": 125734
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "now ",
+          "startTime": 125800,
+          "endTime": 125936
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fol",
+          "startTime": 126205,
+          "endTime": 126364
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "low ",
+          "startTime": 126379,
+          "endTime": 126538
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 126562,
+          "endTime": 126698
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lead",
+          "startTime": 126863,
+          "endTime": 127089
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come come on now follow my lead",
+      "startTime": 127152,
+      "endTime": 129024,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 127152,
+          "endTime": 127379
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 127466,
+          "endTime": 127602
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 127661,
+          "endTime": 127752
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "now ",
+          "startTime": 127805,
+          "endTime": 127941
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fol",
+          "startTime": 128112,
+          "endTime": 128248
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "low ",
+          "startTime": 128282,
+          "endTime": 128418
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 128456,
+          "endTime": 128592
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lead",
+          "startTime": 128752,
+          "endTime": 129024
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'm in love",
+      "startTime": 130837,
+      "endTime": 131328,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 130837,
+          "endTime": 130974
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 131003,
+          "endTime": 131139
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 131147,
+          "endTime": 131328
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "with the shape of you",
+      "startTime": 131464,
+      "endTime": 132554,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 131464,
+          "endTime": 131623
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 131634,
+          "endTime": 131770
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "shape ",
+          "startTime": 131804,
+          "endTime": 132031
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "of ",
+          "startTime": 132113,
+          "endTime": 132295
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you",
+          "startTime": 132418,
+          "endTime": 132554
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "We push and pull",
+      "startTime": 133158,
+      "endTime": 133851,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "We ",
+          "startTime": 133158,
+          "endTime": 133294
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "push ",
+          "startTime": 133319,
+          "endTime": 133455
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 133472,
+          "endTime": 133608
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "pull",
+          "startTime": 133624,
+          "endTime": 133851
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "like a magnet do",
+      "startTime": 133985,
+      "endTime": 135038,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "like ",
+          "startTime": 133985,
+          "endTime": 134144
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 134168,
+          "endTime": 134259
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "mag",
+          "startTime": 134312,
+          "endTime": 134448
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "net ",
+          "startTime": 134590,
+          "endTime": 134884
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "do",
+          "startTime": 134947,
+          "endTime": 135038
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Although my heart is falling too",
+      "startTime": 135796,
+      "endTime": 137535,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Although ",
+          "startTime": 135796,
+          "endTime": 135978
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 136010,
+          "endTime": 136101
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "heart ",
+          "startTime": 136180,
+          "endTime": 136452
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is ",
+          "startTime": 136563,
+          "endTime": 136699
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fall",
+          "startTime": 136811,
+          "endTime": 136993
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ing ",
+          "startTime": 137103,
+          "endTime": 137237
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "too",
+          "startTime": 137399,
+          "endTime": 137535
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'm in love with your body",
+      "startTime": 138352,
+      "endTime": 139812,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 138352,
+          "endTime": 138488
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 138526,
+          "endTime": 138617
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 138648,
+          "endTime": 138875
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 138962,
+          "endTime": 139143
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 139157,
+          "endTime": 139339
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body",
+          "startTime": 139358,
+          "endTime": 139812
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Last night you were in my room",
+      "startTime": 140895,
+      "endTime": 142648,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Last ",
+          "startTime": 140895,
+          "endTime": 141076
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "night ",
+          "startTime": 141217,
+          "endTime": 141489
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 141535,
+          "endTime": 141671
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "were ",
+          "startTime": 141691,
+          "endTime": 141828
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 141857,
+          "endTime": 141948
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 142157,
+          "endTime": 142248
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "room",
+          "startTime": 142466,
+          "endTime": 142648
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "And now my bed sheets",
+      "startTime": 143233,
+      "endTime": 144254,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And ",
+          "startTime": 143233,
+          "endTime": 143369
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "now ",
+          "startTime": 143402,
+          "endTime": 143539
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 143563,
+          "endTime": 143654
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "bed ",
+          "startTime": 143698,
+          "endTime": 143880
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sheets",
+          "startTime": 143981,
+          "endTime": 144254
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "smell like you",
+      "startTime": 144325,
+      "endTime": 145084,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "smell ",
+          "startTime": 144325,
+          "endTime": 144598
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "like ",
+          "startTime": 144661,
+          "endTime": 144888
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you",
+          "startTime": 144948,
+          "endTime": 145084
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Every day discovering",
+      "startTime": 145327,
+      "endTime": 146329,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Every ",
+          "startTime": 145327,
+          "endTime": 145576
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "day ",
+          "startTime": 145588,
+          "endTime": 145724
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dis",
+          "startTime": 145740,
+          "endTime": 145877
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "cov",
+          "startTime": 145888,
+          "endTime": 146025
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "er",
+          "startTime": 146041,
+          "endTime": 146177
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ing",
+          "startTime": 146193,
+          "endTime": 146329
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "something brand new",
+      "startTime": 146546,
+      "endTime": 147657,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "some",
+          "startTime": 146546,
+          "endTime": 146773
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thing ",
+          "startTime": 146842,
+          "endTime": 147067
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "brand ",
+          "startTime": 147216,
+          "endTime": 147398
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "new",
+          "startTime": 147521,
+          "endTime": 147657
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Well I'm in love with your body",
+      "startTime": 148257,
+      "endTime": 149536,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Well ",
+          "startTime": 148257,
+          "endTime": 148325
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 148392,
+          "endTime": 148483
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 148518,
+          "endTime": 148654
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 148683,
+          "endTime": 148865
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 149001,
+          "endTime": 149137
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 149171,
+          "endTime": 149307
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body",
+          "startTime": 149354,
+          "endTime": 149536
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Oh I, Oh I, Oh I, Oh I,",
+      "startTime": 149944,
+      "endTime": 152224,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 149944,
+          "endTime": 150080
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 150283,
+          "endTime": 150329
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 150634,
+          "endTime": 150815
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 150917,
+          "endTime": 150962
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 151217,
+          "endTime": 151399
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 151526,
+          "endTime": 151572
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 151861,
+          "endTime": 151997
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I,",
+          "startTime": 152179,
+          "endTime": 152224
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "- I'm in love with your body",
+      "startTime": 153351,
+      "endTime": 154494,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "- I'm ",
+          "startTime": 153351,
+          "endTime": 153419
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 153486,
+          "endTime": 153622
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 153660,
+          "endTime": 153796
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 153938,
+          "endTime": 154075
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 154095,
+          "endTime": 154231
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body",
+          "startTime": 154267,
+          "endTime": 154494
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Oh I, Oh I, Oh I, Oh I,",
+      "startTime": 154918,
+      "endTime": 157179,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 154918,
+          "endTime": 155009
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 155214,
+          "endTime": 155259
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 155532,
+          "endTime": 155714
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 155858,
+          "endTime": 155904
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 156185,
+          "endTime": 156321
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 156529,
+          "endTime": 156574
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 156799,
+          "endTime": 156980
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I,",
+          "startTime": 157134,
+          "endTime": 157179
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "- I'm in love with your body",
+      "startTime": 158327,
+      "endTime": 159585,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "- I'm ",
+          "startTime": 158327,
+          "endTime": 158395
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 158475,
+          "endTime": 158566
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 158636,
+          "endTime": 158818
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 158915,
+          "endTime": 159051
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 159080,
+          "endTime": 159216
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body",
+          "startTime": 159267,
+          "endTime": 159585
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Oh I, Oh I, Oh I, Oh I,",
+      "startTime": 159886,
+      "endTime": 162252,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 159886,
+          "endTime": 160022
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 160217,
+          "endTime": 160262
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 160576,
+          "endTime": 160667
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 160870,
+          "endTime": 160915
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 161174,
+          "endTime": 161311
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I, ",
+          "startTime": 161531,
+          "endTime": 161577
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh ",
+          "startTime": 161867,
+          "endTime": 162003
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I,",
+          "startTime": 162206,
+          "endTime": 162252
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "- I'm in love with your body",
+      "startTime": 163325,
+      "endTime": 164832,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "- I'm ",
+          "startTime": 163325,
+          "endTime": 163394
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 163469,
+          "endTime": 163560
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 163612,
+          "endTime": 163839
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 163943,
+          "endTime": 164080
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 164113,
+          "endTime": 164249
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body",
+          "startTime": 164287,
+          "endTime": 164832
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Every day",
+      "startTime": 165271,
+      "endTime": 165734,
+      "alignment": "Unspecified",
+      "syllableCount": 2,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Every ",
+          "startTime": 165271,
+          "endTime": 165544
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "day",
+          "startTime": 165598,
+          "endTime": 165734
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "discovering something brand new",
+      "startTime": 165750,
+      "endTime": 167656,
+      "alignment": "Unspecified",
+      "syllableCount": 8,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "dis",
+          "startTime": 165750,
+          "endTime": 165886
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "cov",
+          "startTime": 165907,
+          "endTime": 166043
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "er",
+          "startTime": 166059,
+          "endTime": 166196
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ing ",
+          "startTime": 166216,
+          "endTime": 166352
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "some",
+          "startTime": 166521,
+          "endTime": 166748
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thing ",
+          "startTime": 166812,
+          "endTime": 167083
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "brand ",
+          "startTime": 167135,
+          "endTime": 167407
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "new",
+          "startTime": 167474,
+          "endTime": 167656
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'm in love",
+      "startTime": 168402,
+      "endTime": 168901,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 168402,
+          "endTime": 168470
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 168558,
+          "endTime": 168649
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 168719,
+          "endTime": 168901
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "with the shape of you",
+      "startTime": 168972,
+      "endTime": 170101,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 168972,
+          "endTime": 169153
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 169163,
+          "endTime": 169300
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "shape ",
+          "startTime": 169342,
+          "endTime": 169524
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "of ",
+          "startTime": 169690,
+          "endTime": 169826
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you",
+          "startTime": 169965,
+          "endTime": 170101
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on be my baby come on",
+      "startTime": 170265,
+      "endTime": 172258,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 170265,
+          "endTime": 170401
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 170461,
+          "endTime": 170552
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 170783,
+          "endTime": 170965
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 171101,
+          "endTime": 171192
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 171258,
+          "endTime": 171485
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 171867,
+          "endTime": 172049
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on",
+          "startTime": 172168,
+          "endTime": 172258
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on be my baby come on",
+      "startTime": 172747,
+      "endTime": 174775,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 172747,
+          "endTime": 172883
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 172947,
+          "endTime": 173038
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 173278,
+          "endTime": 173414
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 173539,
+          "endTime": 173675
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 173726,
+          "endTime": 173953
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 174379,
+          "endTime": 174584
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on",
+          "startTime": 174684,
+          "endTime": 174775
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on be my baby come on",
+      "startTime": 175259,
+      "endTime": 177319,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 175259,
+          "endTime": 175395
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 175455,
+          "endTime": 175545
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 175768,
+          "endTime": 175904
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 176042,
+          "endTime": 176179
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 176221,
+          "endTime": 176448
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 176883,
+          "endTime": 177110
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on",
+          "startTime": 177183,
+          "endTime": 177319
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on be my baby come on",
+      "startTime": 177749,
+      "endTime": 179769,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 177749,
+          "endTime": 177931
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 177954,
+          "endTime": 178135
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 178276,
+          "endTime": 178412
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 178568,
+          "endTime": 178658
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 178724,
+          "endTime": 178951
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 179364,
+          "endTime": 179591
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on",
+          "startTime": 179678,
+          "endTime": 179769
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on be my baby come on",
+      "startTime": 180279,
+      "endTime": 182263,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 180279,
+          "endTime": 180415
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 180470,
+          "endTime": 180606
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 180779,
+          "endTime": 180870
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 181075,
+          "endTime": 181166
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 181215,
+          "endTime": 181442
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 181863,
+          "endTime": 182090
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on",
+          "startTime": 182172,
+          "endTime": 182263
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on be my baby come on",
+      "startTime": 182769,
+      "endTime": 184830,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 182769,
+          "endTime": 182905
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 182965,
+          "endTime": 183056
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 183287,
+          "endTime": 183378
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 183579,
+          "endTime": 183715
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 183731,
+          "endTime": 183958
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 184410,
+          "endTime": 184592
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on",
+          "startTime": 184693,
+          "endTime": 184830
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on be my baby come on",
+      "startTime": 185268,
+      "endTime": 187240,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 185268,
+          "endTime": 185404
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 185473,
+          "endTime": 185563
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 185782,
+          "endTime": 185872
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 186073,
+          "endTime": 186210
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 186230,
+          "endTime": 186457
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 186861,
+          "endTime": 187088
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on",
+          "startTime": 187149,
+          "endTime": 187240
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on be my baby come on",
+      "startTime": 187758,
+      "endTime": 189730,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 187758,
+          "endTime": 187895
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 187980,
+          "endTime": 188117
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 188289,
+          "endTime": 188380
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 188572,
+          "endTime": 188709
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 188725,
+          "endTime": 188997
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 189308,
+          "endTime": 189535
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on",
+          "startTime": 189639,
+          "endTime": 189730
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'm in love",
+      "startTime": 190889,
+      "endTime": 191349,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 190889,
+          "endTime": 191025
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 191045,
+          "endTime": 191136
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 191167,
+          "endTime": 191349
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "with the shape of you",
+      "startTime": 191520,
+      "endTime": 192605,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 191520,
+          "endTime": 191656
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 191681,
+          "endTime": 191817
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "shape ",
+          "startTime": 191842,
+          "endTime": 192069
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "of ",
+          "startTime": 192208,
+          "endTime": 192344
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you",
+          "startTime": 192469,
+          "endTime": 192605
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "We push and pull",
+      "startTime": 193253,
+      "endTime": 193864,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "We ",
+          "startTime": 193253,
+          "endTime": 193344
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "push ",
+          "startTime": 193392,
+          "endTime": 193528
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and ",
+          "startTime": 193557,
+          "endTime": 193694
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "pull",
+          "startTime": 193727,
+          "endTime": 193864
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "like a magnet do",
+      "startTime": 194015,
+      "endTime": 195050,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "like ",
+          "startTime": 194015,
+          "endTime": 194151
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a ",
+          "startTime": 194189,
+          "endTime": 194280
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "mag",
+          "startTime": 194341,
+          "endTime": 194477
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "net ",
+          "startTime": 194655,
+          "endTime": 194882
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "do",
+          "startTime": 194959,
+          "endTime": 195050
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Although my heart is falling too",
+      "startTime": 195726,
+      "endTime": 197599,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Although ",
+          "startTime": 195726,
+          "endTime": 195953
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 195996,
+          "endTime": 196086
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "heart ",
+          "startTime": 196170,
+          "endTime": 196442
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is ",
+          "startTime": 196531,
+          "endTime": 196713
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "fall",
+          "startTime": 196836,
+          "endTime": 197063
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ing ",
+          "startTime": 197180,
+          "endTime": 197359
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "too",
+          "startTime": 197463,
+          "endTime": 197599
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'm in love with your body",
+      "startTime": 198320,
+      "endTime": 199942,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 198320,
+          "endTime": 198457
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 198495,
+          "endTime": 198631
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 198651,
+          "endTime": 198878
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 199013,
+          "endTime": 199149
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 199183,
+          "endTime": 199319
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body",
+          "startTime": 199352,
+          "endTime": 199942
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Last night you were in my room",
+      "startTime": 200885,
+      "endTime": 202651,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Last ",
+          "startTime": 200885,
+          "endTime": 201112
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "night ",
+          "startTime": 201216,
+          "endTime": 201443
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you ",
+          "startTime": 201512,
+          "endTime": 201648
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "were ",
+          "startTime": 201682,
+          "endTime": 201818
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 201851,
+          "endTime": 201942
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 202143,
+          "endTime": 202279
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "room",
+          "startTime": 202470,
+          "endTime": 202651
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "And now my bed sheets",
+      "startTime": 203210,
+      "endTime": 204322,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And ",
+          "startTime": 203210,
+          "endTime": 203346
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "now ",
+          "startTime": 203375,
+          "endTime": 203511
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 203536,
+          "endTime": 203627
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "bed ",
+          "startTime": 203693,
+          "endTime": 203920
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "sheets",
+          "startTime": 204050,
+          "endTime": 204322
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "smell like you",
+      "startTime": 204350,
+      "endTime": 205105,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "smell ",
+          "startTime": 204350,
+          "endTime": 204577
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "like ",
+          "startTime": 204668,
+          "endTime": 204895
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you",
+          "startTime": 204969,
+          "endTime": 205105
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Every day discovering",
+      "startTime": 205273,
+      "endTime": 206346,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Every ",
+          "startTime": 205273,
+          "endTime": 205523
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "day ",
+          "startTime": 205556,
+          "endTime": 205693
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dis",
+          "startTime": 205731,
+          "endTime": 205867
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "cov",
+          "startTime": 205892,
+          "endTime": 206026
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "er",
+          "startTime": 206044,
+          "endTime": 206180
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ing",
+          "startTime": 206209,
+          "endTime": 206346
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "something brand new",
+      "startTime": 206501,
+      "endTime": 207608,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "some",
+          "startTime": 206501,
+          "endTime": 206728
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thing ",
+          "startTime": 206819,
+          "endTime": 207089
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "brand ",
+          "startTime": 207132,
+          "endTime": 207360
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "new",
+          "startTime": 207472,
+          "endTime": 207608
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Well I'm in love with your body",
+      "startTime": 208221,
+      "endTime": 209921,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Well ",
+          "startTime": 208221,
+          "endTime": 208289
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 208352,
+          "endTime": 208488
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 208513,
+          "endTime": 208649
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 208661,
+          "endTime": 208842
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 208992,
+          "endTime": 209128
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 209157,
+          "endTime": 209293
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body",
+          "startTime": 209331,
+          "endTime": 209921
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on be my baby come on",
+      "startTime": 210295,
+      "endTime": 212281,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 210295,
+          "endTime": 210432
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 210483,
+          "endTime": 210574
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 210773,
+          "endTime": 210954
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 211093,
+          "endTime": 211184
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 211261,
+          "endTime": 211487
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 211875,
+          "endTime": 212057
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on",
+          "startTime": 212190,
+          "endTime": 212281
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on be my baby come on",
+      "startTime": 212795,
+      "endTime": 213287,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 212795,
+          "endTime": 212931
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 212977,
+          "endTime": 213068
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 213212,
+          "endTime": 213222
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 213230,
+          "endTime": 213239
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 213247,
+          "endTime": 213257
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 213263,
+          "endTime": 213272
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on",
+          "startTime": 213278,
+          "endTime": 213287
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'm in love with your body",
+      "startTime": 213328,
+      "endTime": 215001,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 213328,
+          "endTime": 213464
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 213502,
+          "endTime": 213638
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 213676,
+          "endTime": 213903
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 213977,
+          "endTime": 214113
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 214146,
+          "endTime": 214283
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body",
+          "startTime": 214320,
+          "endTime": 215001
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on be my baby come on",
+      "startTime": 215204,
+      "endTime": 217334,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 215204,
+          "endTime": 215341
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 215426,
+          "endTime": 215517
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 215701,
+          "endTime": 215837
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 216062,
+          "endTime": 216198
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 216227,
+          "endTime": 216409
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 216898,
+          "endTime": 217079
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on",
+          "startTime": 217198,
+          "endTime": 217334
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on be my baby come on",
+      "startTime": 217756,
+      "endTime": 218359,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 217756,
+          "endTime": 217892
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 217965,
+          "endTime": 218055
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 218285,
+          "endTime": 218294
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 218302,
+          "endTime": 218311
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 218319,
+          "endTime": 218329
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 218335,
+          "endTime": 218344
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on",
+          "startTime": 218350,
+          "endTime": 218359
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'm in love with your body",
+      "startTime": 218396,
+      "endTime": 219543,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 218396,
+          "endTime": 218533
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 218549,
+          "endTime": 218685
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 218697,
+          "endTime": 218924
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 219028,
+          "endTime": 219164
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 219191,
+          "endTime": 219327
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body",
+          "startTime": 219361,
+          "endTime": 219543
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on be my baby come on",
+      "startTime": 220279,
+      "endTime": 222242,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 220279,
+          "endTime": 220416
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 220450,
+          "endTime": 220586
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 220780,
+          "endTime": 220871
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 221070,
+          "endTime": 221206
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 221255,
+          "endTime": 221437
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 221865,
+          "endTime": 222092
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on",
+          "startTime": 222151,
+          "endTime": 222242
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Come on be my baby come on",
+      "startTime": 222775,
+      "endTime": 223305,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Come ",
+          "startTime": 222775,
+          "endTime": 222912
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on ",
+          "startTime": 222953,
+          "endTime": 223044
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "be ",
+          "startTime": 223229,
+          "endTime": 223238
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my ",
+          "startTime": 223249,
+          "endTime": 223258
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "baby ",
+          "startTime": 223265,
+          "endTime": 223274
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "come ",
+          "startTime": 223282,
+          "endTime": 223291
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "on",
+          "startTime": 223296,
+          "endTime": 223305
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'm in love with your body",
+      "startTime": 223396,
+      "endTime": 224546,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 223396,
+          "endTime": 223532
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 223566,
+          "endTime": 223703
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love ",
+          "startTime": 223737,
+          "endTime": 223918
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 224042,
+          "endTime": 224178
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your ",
+          "startTime": 224201,
+          "endTime": 224338
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "body",
+          "startTime": 224365,
+          "endTime": 224546
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Every day discovering",
+      "startTime": 225319,
+      "endTime": 226315,
+      "alignment": "Unspecified",
+      "syllableCount": 6,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Every ",
+          "startTime": 225319,
+          "endTime": 225568
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "day ",
+          "startTime": 225587,
+          "endTime": 225723
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "dis",
+          "startTime": 225736,
+          "endTime": 225872
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "cov",
+          "startTime": 225885,
+          "endTime": 226021
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "er",
+          "startTime": 226034,
+          "endTime": 226168
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ing",
+          "startTime": 226179,
+          "endTime": 226315
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "something brand new",
+      "startTime": 226446,
+      "endTime": 227702,
+      "alignment": "Unspecified",
+      "syllableCount": 4,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "some",
+          "startTime": 226446,
+          "endTime": 226673
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "thing ",
+          "startTime": 226785,
+          "endTime": 227101
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "brand ",
+          "startTime": 227129,
+          "endTime": 227402
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "new",
+          "startTime": 227475,
+          "endTime": 227702
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'm in love",
+      "startTime": 228390,
+      "endTime": 228858,
+      "alignment": "Unspecified",
+      "syllableCount": 3,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'm ",
+          "startTime": 228390,
+          "endTime": 228526
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "in ",
+          "startTime": 228546,
+          "endTime": 228637
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 228677,
+          "endTime": 228858
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "with the shape of you",
+      "startTime": 228984,
+      "endTime": 230194,
+      "alignment": "Unspecified",
+      "syllableCount": 5,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "with ",
+          "startTime": 228984,
+          "endTime": 229120
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the ",
+          "startTime": 229162,
+          "endTime": 229299
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "shape ",
+          "startTime": 229358,
+          "endTime": 229631
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "of ",
+          "startTime": 229679,
+          "endTime": 229906
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you",
+          "startTime": 230012,
+          "endTime": 230194
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "",
+      "startTime": 230418,
+      "endTime": 230420,
+      "alignment": "Unspecified",
+      "syllableCount": 1,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "",
+          "startTime": 230418,
+          "endTime": 230420
+        }
+      ]
+    }
+  ]
+}

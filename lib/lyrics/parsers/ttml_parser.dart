@@ -39,7 +39,6 @@ bool _isNs(XmlElement el, String nsUri, String local) =>
 String? _attrNs(XmlElement el, String nsUri, String local) =>
     el.getAttribute(local, namespaceUri: nsUri);
 
-///
 String _stringValue(XmlElement element) =>
     element.descendants.whereType<XmlText>().map((t) => t.value).join();
 

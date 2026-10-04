@@ -334,7 +334,6 @@ class Lrc {
         // 列表比对（Lyricify 的 ArtistMatch）：多艺人时逐个命中算命中数。
         // 群星/Various 这类合辑署名单独放过——它的歌名里通常没有真正的歌名，
         // 靠它匹配反而会误杀。
-        const various = ['various', '群星', '群星荟萃', ' Various Artists'];
         if (an.contains('various') || na.contains('various') ||
             an.contains('群星') || na.contains('群星')) {
           // 不表态

@@ -6,7 +6,10 @@ library;
 import '../../../helpers/general/chinese_helper.dart';
 import '../../../helpers/general/string_helper.dart';
 
-///
+  /// 比较曲目名或专辑名匹配程度
+  /// @param name1 原曲目名
+  /// @param name2 搜索得到的曲目名
+  /// @returns 名称匹配程度
 NameMatchType? compareName(String? name1, String? name2) {
   if (isNullOrWhiteSpace(name1) || isNullOrWhiteSpace(name2)) return null;
 
@@ -53,8 +56,8 @@ NameMatchType? compareName(String? name1, String? name2) {
   name1 = name1.replaceAll('acoustic version', 'acoustic');
   name2 = name2.replaceAll('acoustic version', 'acoustic');
 
-  if ((name1.replaceAll(' - ', ' (').trim() + ')').replaceAll(' ', '') ==
-      (name2.replaceAll(' - ', ' (').trim() + ')').replaceAll(' ', '')) {
+  if ('${name1.replaceAll(' - ', ' (').trim()})'.replaceAll(' ', '') ==
+      '${name2.replaceAll(' - ', ' (').trim()})'.replaceAll(' ', '')) {
     return NameMatchType.veryHigh;
   }
 
@@ -201,7 +204,7 @@ NameMatchType _downgrade(NameMatchType t) {
   }
 }
 
-///
+  /// 名称匹配程度
 enum NameMatchType {
   perfect,
   veryHigh,
@@ -234,7 +237,7 @@ extension NameMatchTypeScore on NameMatchType {
   }
 }
 
-///
+/// 名称匹配程度得分
 int matchScoreOfName(NameMatchType? matchType) => matchType?.matchScore ?? 0;
 
 /// C# `string.IsNullOrWhiteSpace(string?)`。

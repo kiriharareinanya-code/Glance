@@ -1,6 +1,11 @@
 // Ported from Lyricify.Lyrics.Helper/Generators/QrcGenerator.cs (Apache-2.0, WXRIW/Lyricify-Lyrics-Helper)
 //
 // C# → Dart：
+//   `StringBuilder` → `StringBuffer`；`sb.AppendLine()` → `sb.write('\r\n')`。
+//
+// PORT NOTE: 上游 `sb.AppendLine()`（QrcGenerator.cs:55）写的是 `Environment.NewLine`，
+//   在 Windows 上就是 `\r\n`。Dart 侧固定写 `\r\n`（不跟 `Platform.lineTerminator`），
+//   这样「生成 → 解析 → 再生成」的往返在任何平台上都是逐字节一致的。
 library;
 
 import '../models/line_info.dart';
@@ -30,10 +35,16 @@ class QrcGenerator {
 
 void _appendLine(StringBuffer sb, SyllableLineInfo line,
     [bool isSubLine = false]) {
+  // 添加行信息（QrcGenerator.cs:33-38）
   sb.write('[');
-  sb.write(line.startTime);
+  // PORT NOTE: 上游是 `sb.Append(line.StartTime)`，形参是 `int?`。C# 的
+  // `StringBuilder.Append(int?)` 在 null 时**什么都不追加**；Dart 的 `sb.write(null)`
+  // 会写出字面量 "null"。这里显式还原上游的 null → 空串行为。
+  final startTime = line.startTime;
+  if (startTime != null) sb.write(startTime);
   sb.write(',');
-  sb.write(line.duration);
+  final duration = line.duration;
+  if (duration != null) sb.write(duration);
   sb.write(']');
 
   for (final syllable in line.syllables) {

@@ -22,7 +22,6 @@ class Api extends BaseApi {
     return resp;
   }
 
-  ///
   Future<SearchLyricsResponse?> getSearchLyrics(
       {String? keywords, int? duration, String? hash}) async {
     var durationPara = '';

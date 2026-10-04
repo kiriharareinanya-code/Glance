@@ -18,7 +18,7 @@ class MusixmatchSearcher implements ISearcher {
 
   MusixmatchSearcher() : this.withApi(Providers.musixmatchApi);
 
-  MusixmatchSearcher.withApi(mx.Api api) : api = api;
+  MusixmatchSearcher.withApi(this.api);
 
   @override
   String get name => 'Musixmatch';

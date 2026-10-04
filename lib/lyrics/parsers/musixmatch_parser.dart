@@ -18,7 +18,7 @@ import 'lrc_parser.dart';
 import 'models/musixmatch.dart';
 
 class MusixmatchParser {
-  ///
+  /// @param ignoreSyllable 忽略逐字歌词
   static LyricsData? parse(String rawJson, [bool ignoreSyllable = false]) {
     final jsonObj = _tryDecodeObject(rawJson);
     if (jsonObj == null) return null;
@@ -133,7 +133,6 @@ Map<String, dynamic> _getMessage(Map<String, dynamic> call) =>
 Map<String, dynamic> _getBody(Map<String, dynamic> call) =>
     asObj(_getMessage(call)['body']);
 
-///
 bool _checkHeader200(Map<String, dynamic> getObj) {
   final headerValue = _getMessage(getObj)['header'];
   if (headerValue is! Map) return false;

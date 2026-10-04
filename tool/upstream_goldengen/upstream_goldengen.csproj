@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    黄金样本生成器：用**真正的上游 C# 解析器**跑 fixture，产出 test/fixtures/lyricify/*.golden.json
+
+    为什么需要它：黄金样本是判定"移植是否与上游一致"的 ground truth。
+    只靠人肉改 JSON 会失真，只靠 Dart 端自己生成更糟（自己证明自己）。
+    这个工具直接 ProjectReference 上游工程，用上游代码出答案。
+
+    它**不是**应用的一部分，Flutter 构建不会碰它。
+
+    用法（在项目根目录跑，参数依次是：fixture 目录、输出目录）：
+      dotnet run  项目路径 tool/upstream_goldengen  test/fixtures/lyricify  _out
+    然后逐字节比对 _out 与 test/fixtures/lyricify，既有 7 份必须 7/7 相同，
+    相同才说明这个生成器可信，新样本才有资格当 ground truth。
+
+    上游源码位置：默认是 docs/lyricify-port.md 第 0 节记的那个本地副本。
+    换机器用 -p:UpstreamHelperDir=路径 覆盖。
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>GoldenGen</RootNamespace>
+    <AssemblyName>goldengen</AssemblyName>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <NoWarn>$(NoWarn);CS0618;CA1416</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <UpstreamHelperDir Condition="'$(UpstreamHelperDir)' == ''">$(MSBuildThisFileDirectory)..\..\..\..\deepseek-harness\default-workspace\refs\Lyricify-Lyrics-Helper\Lyricify.Lyrics.Helper</UpstreamHelperDir>
+  </PropertyGroup>
+
+  <Target Name="CheckUpstream" BeforeTargets="ResolveProjectReferences">
+    <Error Condition="!Exists('$(UpstreamHelperDir)\Lyricify.Lyrics.Helper.csproj')"
+           Text="找不到上游工程：$(UpstreamHelperDir)\Lyricify.Lyrics.Helper.csproj。先按 docs/lyricify-port.md 第 0 节拿到 WXRIW/Lyricify-Lyrics-Helper 的本地副本，再用 -p:UpstreamHelperDir=该目录 指定。" />
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="$(UpstreamHelperDir)\Lyricify.Lyrics.Helper.csproj" />
+  </ItemGroup>
+
+</Project>

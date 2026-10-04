@@ -6,8 +6,10 @@ library;
 import '../../../helpers/general/chinese_helper.dart';
 
 
-///
-///
+  /// 比较艺人匹配程度
+  /// @param artist1 原曲目的艺人
+  /// @param artist2 搜索得到的曲目的艺人
+  /// @returns 艺人匹配程度
 ArtistMatchType? compareArtist(List<String>? artist1, List<String>? artist2) {
   if (artist1 == null || artist2 == null) return null;
 
@@ -78,7 +80,7 @@ ArtistMatchType? compareArtist(List<String>? artist1, List<String>? artist2) {
   return ArtistMatchType.noMatch;
 }
 
-///
+  /// 艺人匹配程度
 enum ArtistMatchType {
   perfect,
   veryHigh,
@@ -111,7 +113,7 @@ extension ArtistMatchTypeScore on ArtistMatchType {
   }
 }
 
-///
+/// 艺人匹配程度得分
 int matchScoreOfArtist(ArtistMatchType? matchType) =>
     matchType?.matchScore ?? 0;
 

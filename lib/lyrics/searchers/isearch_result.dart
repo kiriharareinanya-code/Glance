@@ -19,13 +19,13 @@ abstract class ISearchResult {
 
   List<String>? get albumArtists;
 
-  ///
+  /// 专辑艺人名
   String get albumArtist => (albumArtists ?? <String>[]).join(', ');
 
   int? get durationMs;
 
   MatchType? get matchType;
 
-  ///
+  /// 设置匹配程度
   void setMatchType(MatchType? matchType);
 }

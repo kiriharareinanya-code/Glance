@@ -163,7 +163,9 @@ class Api extends BaseApi {
       'csrf_token': '',
     };
 
-    final raw = await postRawAsync(url, prepare(jsonEncode(data)));
+    // PORT NOTE: `Prepare` 返回 `Dictionary<string,string>`，上游走 `BaseApi.cs:38` 的
+    // `FormUrlEncodedContent`（见 `prepare` 上的说明），故用 `postFormAsync` 而不是 `postRawAsync`。
+    final raw = await postFormAsync(url, prepare(jsonEncode(data)));
 
     return decodeAs(raw, AlbumResult.fromJson);
   }
@@ -180,7 +182,8 @@ class Api extends BaseApi {
       'n': '1000',
     };
 
-    final raw = await postRawAsync(url, prepare(jsonEncode(data)));
+    // PORT NOTE: 表单体而非 JSON 体，见 `prepare` 上的 PORT NOTE（`BaseApi.cs:38`）。
+    final raw = await postFormAsync(url, prepare(jsonEncode(data)));
 
     return decodeAs(raw, PlaylistResult.fromJson);
   }
@@ -202,7 +205,8 @@ class Api extends BaseApi {
       'csrf_token': '',
     };
 
-    final raw = await postRawAsync(url, prepare(jsonEncode(data)));
+    // PORT NOTE: 表单体而非 JSON 体，见 `prepare` 上的 PORT NOTE（`BaseApi.cs:38`）。
+    final raw = await postFormAsync(url, prepare(jsonEncode(data)));
 
     return decodeAs(raw, LyricResult.fromJson);
   }
@@ -248,7 +252,8 @@ class Api extends BaseApi {
       'csrf_token': '',
     };
 
-    final raw = await postRawAsync(url, prepare(jsonEncode(data)));
+    // PORT NOTE: 表单体而非 JSON 体，见 `prepare` 上的 PORT NOTE（`BaseApi.cs:38`）。
+    final raw = await postFormAsync(url, prepare(jsonEncode(data)));
 
     return decodeAs(raw, SongUrls.fromJson);
   }
@@ -275,7 +280,8 @@ class Api extends BaseApi {
         'csrf_token': '',
       };
 
-      final raw = await postRawAsync(url, prepare(jsonEncode(data)));
+      // PORT NOTE: 表单体而非 JSON 体，见 `prepare` 上的 PORT NOTE（`BaseApi.cs:38`）。
+      final raw = await postFormAsync(url, prepare(jsonEncode(data)));
 
       return decodeAs(raw, DetailResult.fromJson);
     } catch (_) {
@@ -284,12 +290,20 @@ class Api extends BaseApi {
   }
 
 
-  String prepare(String raw) {
-    final data = <String, String>{
+  /// PORT NOTE: 上游 `Prepare` 返回的是 `Dictionary<string, string>`（`Api.cs:309`），
+  /// 所以这里保持 `Map<String, String>`（**不**再序列化成 JSON 字符串）。调用点写的是
+  /// `PostAsync(url, Prepare(...))`，C# 重载决议命中的是 `BaseApi.cs:38` 的
+  /// `PostAsync(string url, Dictionary<string, string> paramDict)` → `FormUrlEncodedContent`，
+  /// 因此上游 weapi 请求体是 `application/x-www-form-urlencoded` 的表单
+  /// （`params=<base64>&encSecKey=<hex>`），不是 JSON。eapi 那条路同理，见
+  /// `EapiHelper.cs:41` 的 `new FormUrlEncodedContent(data2)`。
+  /// 我们早先误用了 `postRawAsync`（`BaseApi.cs:77` 的 `PostAsync(url, string)`）发 JSON 体，
+  /// 现已改回 `postFormAsync`（`BaseApi.cs:38` 的等价物）。
+  Map<String, String> prepare(String raw) {
+    return <String, String>{
       'params': aesEncode(aesEncode(raw, nonce), _secretKey),
       'encSecKey': encSecKey,
     };
-    return jsonEncode(data);
   }
 
   // encrypt mod

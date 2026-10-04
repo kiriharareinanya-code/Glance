@@ -23,3 +23,26 @@ MS-WEB/
 plugins/dist/
 .sentry-native/
 flutter_*.log
+
+# 本机自证脚本（_diag/）：靠 win32 抓自己机器的窗口，换机器没意义。
+# 只在排查时用，不进仓库。
+_diag/
+
+# 滚轮浏览测试导出的 PNG：每次跑都会重出
+test/_browse_shots/
+
+# 端口验收（tool/verify_port.ps1）跑出来的临时产物
+tool/_testout.txt
+tool/_fail_*.txt
+tool/_an.txt
+tool/__pycache__/
+test/**/tmp_debug_test.dart
+
+# 上游黄金样本生成器（tool/upstream_goldengen）的 .NET 构建产物
+tool/upstream_goldengen/bin/
+tool/upstream_goldengen/obj/
+_out/
+_out_*/
+
+# 排查期间的一次性脚本/备份（.tmp_*）
+.tmp_*

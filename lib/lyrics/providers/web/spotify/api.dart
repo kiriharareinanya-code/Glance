@@ -545,7 +545,6 @@ class Api extends BaseApi {
     return trimmed.length <= 180 ? trimmed : trimmed.substring(0, 180);
   }
 
-  ///
   static String _urlEncode(String value) => Uri.encodeQueryComponent(value);
 
 

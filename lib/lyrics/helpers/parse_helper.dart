@@ -21,7 +21,9 @@ import '../parsers/yrc_parser.dart';
 class ParseHelper {
   ParseHelper._();
 
-  ///
+  /// 解析歌词
+  /// @param lyrics 歌词字符串
+  /// @returns 解析后的歌词数据
   static LyricsData? parseLyrics(
     String lyrics, [
     LyricsRawTypes? lyricsRawType,

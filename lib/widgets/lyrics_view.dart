@@ -83,27 +83,40 @@ class LyricsLine {
     return ((posMs - start) / (end - start)).clamp(0.0, 1.0);
   }
 
+  /// 逐字（卡拉OK）高亮推进到第几个字——**带小数**。
   ///
-  int charsSungAt(int posMs) {
+  /// 返回 0 ~ [text.length] 的浮点：整数部分是完全唱完的字数，小数部分
+  /// 是**正在唱的那个字内部**唱到了百分之几。UI 拿它画"已唱变亮"，
+  /// 所以边界能落在字的中间，一路平滑推过去。
+  ///
+  /// 判定基准是音节的 **start**（开始发声）而不是 end：音节的 start~end
+  /// 就是这个字实际发声的区间，在区间内按比例推进即可。**这里不做
+  /// 取整**——取整会把整个音节压成"最后那一帧才 +1"，字整整晚一个音节
+  /// 才亮，行越多偏得越多（这就是之前逐字歌词"慢半拍"的成因）。
+  ///
+  /// [leadMs] 是**提前量**（毫秒），用来吸收歌词源时间戳与实际人声的
+  /// 偏差：各家标的时间点略有出入，而人眼察觉"这个字亮了"的阈值在
+  /// 亮度中段，滞后一点点就会被读成"慢了半拍"。默认 0 = 完全相信
+  /// 歌词源标的时间。
+  double sungCharsF(int posMs, {int leadMs = 0}) {
+    final p = posMs - leadMs;
     if (syllables.isEmpty) {
-      final p = progressAt(posMs);
-      return (text.length * p).floor();
+      return text.length * progressAt(p);
     }
-    var n = 0;
+    var n = 0.0;
     for (final s in syllables) {
-      if (posMs >= s.end) {
-        n += s.text.length;
-      } else if (posMs > s.start) {
-        final span = s.end - s.start;
-        final ratio = span <= 0 ? 1.0 : (posMs - s.start) / span;
-        n += (s.text.length * ratio).floor();
-        break;
-      } else {
-        break;
-      }
+      if (p < s.start) break;
+      final span = s.end - s.start;
+      final ratio = span <= 0 ? 1.0 : ((p - s.start) / span).clamp(0.0, 1.0);
+      n += s.text.length * ratio;
+      if (ratio < 1.0) break; // 还在这个字里，后面的字没开始
     }
-    return n;
+    return n.clamp(0.0, text.length.toDouble());
   }
+
+  /// 已唱到的**整数字符**数（UI 只切整行颜色时用；要平滑推进用
+  /// [sungCharsF]）。等价于 `sungCharsF(pos).floor()`。
+  int charsSungAt(int posMs) => sungCharsF(posMs).floor();
 
   Map<String, Object?> toJson() => {
         't': start,

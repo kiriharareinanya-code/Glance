@@ -184,7 +184,9 @@ class KrcTranslationParser {
     return false;
   }
 
-  ///
+  /// 提取 KRC 中的翻译
+  /// @param krc KRC 歌词
+  /// @returns 翻译 List，若无翻译，则返回 null
   static List<String>? getTranslationFromKrc(String krc) {
     if (!krc.contains('[language:')) return null;
 
@@ -221,7 +223,9 @@ class KrcTranslationParser {
     }
   }
 
-  ///
+  /// 提取 KRC 中的翻译原始数据
+  /// @param krc KRC 歌词
+  /// @returns 翻译 List，若无翻译，则返回 null
   static krc_model.KugouTranslation? getTranslationRawFromKrc(String krc) {
     if (!krc.contains('[language:')) return null;
 

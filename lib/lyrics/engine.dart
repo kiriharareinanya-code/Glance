@@ -14,7 +14,6 @@ import 'models/track_metadata.dart';
 import 'searchers/helpers/compare_helper.dart';
 import 'searchers/isearcher.dart';
 import 'searchers/searchers.dart';
-import 'searchers/searchers_helper.dart';
 import 'engine_sources.dart';
 
 class LyricsFetchOutcome {
@@ -127,7 +126,7 @@ class LyricsEngine {
       } catch (e) {
         final st = StackTrace.current;
         lyricsLog('${bridge.displayName} 搜索失败：$e', warn: true);
-        lyricsLog('堆栈：' + st.toString(), warn: true);
+        lyricsLog('堆栈：$st', warn: true);
         continue;
       }
       if (results.isEmpty) {

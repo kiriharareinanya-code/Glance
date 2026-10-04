@@ -11,7 +11,7 @@ class KrcAdditionalInfo extends GeneralAdditionalInfo {
   String? hash;
 }
 
-///
+  /// 适用于 Spotify 歌词的附加信息
 class SpotifyAdditionalInfo implements IAdditionalFileInfo {
   SpotifyAdditionalInfo(
     this.provider,

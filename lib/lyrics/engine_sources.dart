@@ -7,12 +7,10 @@ import 'helpers/parse_helper.dart';
 import 'helpers/types/type_helper.dart';
 import 'json_utils.dart';
 import 'lyrics_log.dart';
-import 'models/file_info.dart';
 import 'models/line_info.dart';
 import 'models/lyrics_data.dart';
 import 'models/lyrics_types.dart';
 import 'models/track_metadata.dart';
-import 'providers/web/base_api.dart';
 import 'providers/web/providers.dart';
 import 'searchers/applemusic_search_result.dart';
 import 'searchers/isearcher.dart';
@@ -116,9 +114,7 @@ class NeteaseBridge extends LyricsSourceBridge {
     } catch (e) {
       lyricsLog('网易云 eapi 取词失败，回退 weapi：$e', warn: true);
     }
-    if (lyric == null) {
-      lyric = await Providers.neteaseApi.getLyric(id);
-    }
+    lyric ??= await Providers.neteaseApi.getLyric(id);
     if (lyric == null) return null;
 
     final yrcText = asStr(lyric.yrc?.lyric);

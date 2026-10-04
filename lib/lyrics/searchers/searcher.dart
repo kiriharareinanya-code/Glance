@@ -54,8 +54,13 @@ abstract class Searcher implements ISearcher {
   Future<List<ISearchResult>> searchForResultsByTrack(TrackMetadata track,
       [bool fullSearch = false]) async {
     lyricsLog('[探针] searchForResultsByTrack 入口 title=${track.title}');
+    // PORT NOTE: 上游 Searcher.cs:59 是
+    //   `$"{track.Title} {track.Artist?.Replace(", ", " ")} {track.Album}".Replace(" - ", " ").Trim()`
+    // C# 的字符串插值遇到 null 字段得到的是**空串**（`"" + " " + ""` → Trim 后 `""`）；
+    // Dart 的 `'${null}'` 会写出字面量 `"null"`，把搜索串污染成 `"Song A null"`。
+    // 这里逐个补 `?? ''` 还原上游行为（level 1 / level 2 的插值见 :79 / :80）。
     var searchString =
-        '${track.title} ${track.artist?.replaceAll(', ', ' ')} ${track.album}'
+        '${track.title ?? ''} ${track.artist?.replaceAll(', ', ' ') ?? ''} ${track.album ?? ''}'
             .replaceAll(' - ', ' ')
             .trim();
     final searchResults = <ISearchResult>[];
@@ -83,12 +88,14 @@ abstract class Searcher implements ISearcher {
         final String newSearchString;
         switch (level) {
           case 1:
-            newSearchString = '$newTitle ${track.artist?.replaceAll(', ', ' ')}'
-                .replaceAll(' - ', ' ')
-                .trim();
+            newSearchString =
+                '${newTitle ?? ''} ${track.artist?.replaceAll(', ', ' ') ?? ''}'
+                    .replaceAll(' - ', ' ')
+                    .trim();
             break;
           case 2:
-            newSearchString = '$newTitle'.replaceAll(' - ', ' ').trim();
+            newSearchString =
+                (newTitle ?? '').replaceAll(' - ', ' ').trim();
             break;
           default:
             newSearchString = '';

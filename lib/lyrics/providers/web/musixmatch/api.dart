@@ -384,8 +384,15 @@ class Api extends BaseApi {
     }
   }
 
+  // PORT NOTE: 上游 `GetMatchedTrack`（`MusixMatch/Api.cs:469-476`）用的是字面量索引
+  // `calls?["matcher.track.get"]`——这个 key 自身带点号，不能用按 '.' 拆路径的
+  // `jget`，否则永远取不到（会去找 macro_calls.matcher.track.get.message…）。
   static GetTrackTrack? _getMatchedTrack(Map<String, dynamic>? response) {
-    final track = jget(getBody(response), 'macro_calls.matcher.track.get.message.body.track');
+    final calls = jget(getBody(response), 'macro_calls');
+    final matcher = calls is Map ? calls['matcher.track.get'] : null;
+    final message = matcher is Map ? matcher['message'] : null;
+    final body = message is Map ? message['body'] : null;
+    final track = body is Map ? body['track'] : null;
     return track is Map ? GetTrackTrack.fromJson(asObj(track)) : null;
   }
 

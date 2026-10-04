@@ -2,7 +2,6 @@
 //
 library;
 
-import '../providers/web/lrclib/response.dart' as lrclib;
 import 'helpers/compare_helper.dart';
 import 'isearcher.dart';
 import 'lrclib_searcher.dart';

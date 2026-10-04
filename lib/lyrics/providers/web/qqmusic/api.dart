@@ -34,7 +34,13 @@ class Api extends BaseApi {
 
   static final DateTime _dtFrom = DateTime(1970, 1, 1, 8, 0, 0, 0);
 
+  // PORT NOTE: 上游 `VerbatimXmlMappingDict`（`QQMusic/Api.cs:17-23`）——之前这里
+  // 是空字典，导致 `GetLyricsAsync` 永远取不到 content/contentts 而返回 null。
   static final Map<String, String> verbatimXmlMappingDict = {
+    'content': 'orig', // 原文
+    'contentts': 'ts', // 译文
+    'contentroma': 'roma', // 罗马音
+    'Lyric_1': 'lyric', // 解压后的内容
   };
 
   Future<resp.MusicFcgApiResult?> search(

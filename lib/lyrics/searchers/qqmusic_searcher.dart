@@ -34,7 +34,7 @@ class QQMusicSearcher extends Searcher {
       for (final track in results) {
         search.add(QQMusicSearchResult.fromSong(track as dynamic));
         final group = track.group;
-        if (group != null && group.isNotEmpty) {
+        if (group.isNotEmpty) {
           for (final subTrack in group) {
             search.add(QQMusicSearchResult.fromSong(subTrack as dynamic));
           }

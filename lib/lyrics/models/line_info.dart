@@ -98,8 +98,14 @@ class TextLineInfo extends LineInfo {
 }
 
 class SyllableLineInfo extends LineInfo {
+  // PORT NOTE（别名语义）: 上游 `LineInfo.cs:54-57` 的构造是
+  // `Syllables = syllables.ToList();`——**复制**一份。这里也复制，
+  // 否则调用方复用并 Clear/Remove 源 List 时，已经建好的行会被连坐清空
+  // （YrcParser.cs:196/326 就是紧接着 Clear() 的那种用法）。
   SyllableLineInfo([List<SyllableInfo>? syllables])
-      : syllables = syllables ?? <SyllableInfo>[];
+      : syllables = syllables == null
+            ? <SyllableInfo>[]
+            : List<SyllableInfo>.of(syllables);
 
   List<SyllableInfo> syllables;
 
@@ -113,6 +119,11 @@ class SyllableLineInfo extends LineInfo {
   @override
   int? get startTime =>
       _startTime ??= syllables.isEmpty ? null : syllables.first.startTime;
+
+  // PORT NOTE（空音节）: 上游 `ILineInfo`/`LineInfo.cs` 取 `Syllables.First()`，
+  // 空列表会抛 InvalidOperationException。这里返回 null 而不是抛——
+  // 这是本移植里**有意**的偏离：解析器会产生"有行、无音节"的行（例如 YRC 的
+  // 信息行），抛异常会让整个文件解析失败。Dart 里用可空类型表达同一件事更自然。
 
   @override
   int? get endTime =>

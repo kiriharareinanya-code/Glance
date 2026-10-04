@@ -28,7 +28,26 @@ Vectra / Glance — Lyricify 歌词逻辑移植说明（NOTICE）
   7. 去掉了上游的 RegexOptions.Compiled（Dart 无此概念），语义等价。
   8. 未移植上游与本项目无关的部分（如 .sln/.csproj 工程文件、Demo 程序）。
   9. 新增宿主适配层（本目录内非上游文件）：http/lyrics_http.dart、json_utils.dart、
-     lyrics_log.dart、engine.dart。
+     lyrics_log.dart、engine.dart、engine_sources.dart。
+ 10. 命名空间扁平化：C# 里 8 个在线源各自有同名 `Api` 类（靠 namespace 区分），
+     Dart 无命名空间，按 docs/lyricify-port.md 第 3.7 节改用**前缀导入**，
+     类型写作 `ne.Api` / `qq.Api` 等；C# 的嵌套类型（如 `GetTokenResponse.TaskType`）
+     提升为同文件顶层并带前缀（`GetTokenTaskType`）。
+ 11. 接口合并：`ILineInfo` / `ISyllableInfo` / `ITrackMetadata` / `IFullLineInfo`
+     按 Dart 惯例改成抽象类或 mixin（`LineInfo` / `SyllableInfo` /
+     `TrackMetadata` / `FullLineInfoMixin`），成员签名不变。
+
+12. 舍入语义补齐：上游 `StringHelper.ComputeTextSame` 用 `(decimal)ratio * 100`
+      加 `Math.Round(..., 2)`，走的是 .NET `decimal` + `MidpointRounding.ToEven`
+      （银行家舍入）。`decimal` 在 `dart:core` 里并不存在，而 `package:decimal`
+      属新增依赖、当前项目的依赖白名单不允许，因此改用**十进制字符串算术**
+      复刻该舍入（`StringHelper._roundToEven` / `_incrementDecimal`）。已对
+      18 组中点值用真实 CLR 输出核验（2.675→2.68、3.125→3.12、9.375→9.38、
+      15.625→15.62 等）。同理，`int.Parse` 的空白/符号/溢出行为由
+      `StringHelper._mp` 逐条对齐。
+
+以上 12 条之外没有其它改动。凡是行为与上游不同的地方，都在对应文件的
+`// PORT NOTE:` 注释里逐处说明；验收脚本见 docs/lyricify-port.md 第 7.1 节。
 
 每个移植文件顶部都标了它来自上游的哪个文件，便于逐行对照。
 

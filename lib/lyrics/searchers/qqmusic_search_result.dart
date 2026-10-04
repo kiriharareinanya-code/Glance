@@ -19,9 +19,11 @@ class QQMusicSearchResult extends ISearchResult {
   );
 
   /// Ported from Lyricify.Lyrics.Helper/Searchers/QQMusicSearchResult.cs (Apache-2.0)
+  // 上游 QQMusicSearchResult.cs:23 是 `song.Singer.Select(s => s.Name).ToArray()`，
+  // 没有判空，所以这里也不加 `?? []`。
   factory QQMusicSearchResult.fromSong(qq.Song song) => QQMusicSearchResult(
         song.title,
-        [for (final s in song.singer ?? <qq.Singer>[]) s.name],
+        [for (final s in song.singer) s.name],
         song.album?.title ?? '',
         null,
         song.interval * 1000,

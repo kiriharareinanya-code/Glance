@@ -10,7 +10,7 @@ import 'decrypter.dart';
 import 'model.dart';
 
 class Helper {
-  ///
+  /// 通过 ID 和 AccessKey 获取解密后的歌词
   static String? getLyrics(String id, String accessKey) {
     throw UnsupportedError(
       'KRC Helper.getLyrics 是同步 API，但下载歌词必须发网络请求；'
@@ -18,7 +18,7 @@ class Helper {
     );
   }
 
-  ///
+  /// 通过 ID 和 AccessKey 获取加密的歌词
   static String? getEncryptedLyrics(String id, String accessKey) {
     throw UnsupportedError(
       'KRC Helper.getEncryptedLyrics 是同步 API，但下载歌词必须发网络请求；'

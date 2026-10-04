@@ -177,11 +177,20 @@ class Api extends BaseApi {
   }
 
   ///
+  /// 上游 `ShouldRefreshAccessToken`（`AppleMusic/Api.cs:250-259`）：
+  /// 401 一律刷新；403 只有在 `ContentType.MediaType == "application/octet-stream"`
+  /// 且 `ContentLength.GetValueOrDefault() == 0`（响应没带 Content-Length 也算 0）时才刷新。
   static bool shouldRefreshAccessToken(LyricsHttpResponse response) {
     if (response.statusCode == 401) return true;
     if (response.statusCode != 403) return false;
 
-    return response.body.isEmpty;
+    final mediaType = (response.contentType ?? '')
+        .split(';')
+        .first
+        .trim()
+        .toLowerCase();
+    return mediaType == 'application/octet-stream' &&
+        (response.contentLength ?? 0) == 0;
   }
 
   Future<String> getAsyncWithAccessTokenRetry(String url,

@@ -13,7 +13,10 @@ import '../searchers/searchers_helper.dart';
 class SearchHelper {
   SearchHelper._();
 
-  ///
+  /// 搜索指定曲目的对应曲目
+  /// @param track 指定曲目
+  /// @param searcher 搜索提供者
+  /// @returns 对应曲目
   static Future<ISearchResult?> search(TrackMetadata track, Searchers searcher,
           [MatchType? minimumMatch]) =>
       searchWithSearcher(

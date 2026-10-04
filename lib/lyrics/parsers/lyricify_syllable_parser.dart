@@ -143,7 +143,7 @@ class SyllableLineInfoWithSubLineState extends SyllableLineInfo {
       (text.startsWith('(') || text.startsWith('（')) &&
       (text.endsWith(')') || text.endsWith('）'));
 
-  ///
+  /// 创建一个 SyllableLineInfo 实例，以便与 SyllableLineInfoWithSubLineState 完全分离
   static SyllableLineInfo getSyllableLineInfo(
     SyllableLineInfoWithSubLineState syllableLineInfoWithSubLineState,
   ) {

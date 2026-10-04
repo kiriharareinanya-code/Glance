@@ -19,7 +19,7 @@ class Yrc {
     }
   }
 
-  ///
+  /// 针对 YRC 歌词格式的优化
   static void standardizeYrcLyrics(SyllableLineInfo line) {
     final list = line.syllables;
 

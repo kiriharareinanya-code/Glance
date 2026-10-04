@@ -682,7 +682,6 @@ class AppleMusic {
     return leftOk && rightOk;
   }
 
-  ///
   static bool _isLetter(String ch) {
     if (ch.isEmpty) return false;
     if (_isUpper(ch) || _isLower(ch)) return true;
@@ -713,7 +712,6 @@ class AppleMusic {
     return lower == ch && upper != ch;
   }
 
-  ///
   static String _toUpperInvariant(String ch) {
     final upper = ch.toUpperCase();
     return upper.length == 1 ? upper : ch;

@@ -37,13 +37,11 @@ class SyllableWordMerger {
     return _isChineseOrJapanese(character.codeUnitAt(0));
   }
 
-  ///
   static bool isWhiteSpace(String character) {
     if (character.isEmpty) return false;
     return _isWhiteSpace(character.codeUnitAt(0));
   }
 
-  ///
   static bool isLetterOrDigit(String character) {
     if (character.isEmpty) return false;
     return _isLetterOrDigit(character.codeUnitAt(0));

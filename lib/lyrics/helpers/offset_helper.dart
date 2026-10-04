@@ -18,7 +18,6 @@ class OffsetHelper {
     }
   }
 
-  ///
   static void addOffsetLine(LineInfo line, int offset) {
     if (line is SyllableLineInfo) {
       addOffsetSyllableLine(line, offset);

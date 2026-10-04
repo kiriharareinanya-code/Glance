@@ -3,6 +3,10 @@
 // C# → Dart：
 //   `StringBuilder` → `StringBuffer`；`sb.AppendLine(x)` → `sb.writeln(x)`。
 //   `string.Empty` → `''`。
+//
+// PORT NOTE: 上游 `sb.AppendLine()`（LrcGenerator.cs:54/61/66）写的是 `Environment.NewLine`，
+//   在 Windows 上就是 `\r\n`。Dart 侧固定写 `\r\n`（不跟 `Platform.lineTerminator`），
+//   这样「生成 → 解析 → 再生成」的往返在任何平台上都是逐字节一致的。
 library;
 
 import '../models/line_info.dart';
@@ -10,7 +14,11 @@ import '../models/lyrics_data.dart';
 import '../helpers/general/string_helper.dart';
 
 class LrcGenerator {
-  ///
+  /// 生成 LRC 字符串
+  /// @param lyricsData 用于生成的源歌词数据
+  /// @param endTimeOutputType 作为行末时间的空行的输出类型
+  /// @param subLinesOutputType 子行的输出方式
+  /// @returns 生成出的 LRC 字符串
   static String generate(
     LyricsData lyricsData, [
     EndTimeOutputType endTimeOutputType = EndTimeOutputType.huge,
@@ -70,7 +78,12 @@ bool _shouldAddLine(List<LineInfo> lines, LineInfo line, bool withSub, int index
     EndTimeOutputType endTimeOutputType) {
   final endTime = withSub ? line.endTimeWithSubLine : line.endTime;
   if (endTime == null) return false;
-  if ((line.endTime ?? 0) <= 0) return false;
+  // PORT NOTE: 上游是 `if (line.EndTime <= 0) return false;`（LrcGenerator.cs:74），
+  // `line.EndTime` 是 `int?`，C# 的 lifted 比较在 null 时结果是 **false**（即不 return），
+  // 所以「行本身没有结束时间、但子行有」时上游会继续往下走。写成 `(line.endTime ?? 0) <= 0`
+  // 会把 null 当成 0 而提前 return，属于行为差异，这里按上游还原。
+  final lineEndTime = line.endTime;
+  if (lineEndTime != null && lineEndTime <= 0) return false;
   if (endTimeOutputType == EndTimeOutputType.all) return true;
   if (endTimeOutputType == EndTimeOutputType.huge) {
     if (index + 1 >= lines.length) return true;

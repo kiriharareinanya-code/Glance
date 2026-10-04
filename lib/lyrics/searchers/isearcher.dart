@@ -21,11 +21,10 @@ abstract class ISearcher {
 
   Searchers get searcherType;
 
-  ///
+  /// 搜索最佳匹配的曲目
   Future<ISearchResult?> searchForResult(TrackMetadata track,
       [MatchType? minimumMatch]);
 
-  ///
   Future<List<ISearchResult>> searchForResultsByTrack(TrackMetadata track,
       [bool fullSearch = false]);
 

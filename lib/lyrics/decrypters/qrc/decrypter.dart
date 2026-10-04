@@ -12,7 +12,9 @@ import 'des_helper.dart';
 class Decrypter {
   static final List<int> qqKey = ascii.encode(r'!@#)(*$%123ZXC!@!@#)(NHL');
 
-  ///
+  /// 解密 QRC 歌词
+  /// @param encryptedLyrics 加密的歌词
+  /// @returns 解密后的 QRC 歌词
   static String? decryptLyrics(String encryptedLyrics) {
     final encryptedTextByte = hexStringToByteArray(encryptedLyrics);
     final data = List<int>.filled(encryptedTextByte.length, 0);

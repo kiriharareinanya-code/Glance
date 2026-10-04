@@ -78,7 +78,10 @@ class XmlUtils {
     return content.trim();
   }
 
-  ///
+  /// 递归查找 XML DOM
+  /// @param xmlNode 根节点
+  /// @param mappingDict 节点名和结果名的映射
+  /// @param resDict 结果集
   static void recursionFindElement(
     XmlNode xmlNode,
     Map<String, String> mappingDict,

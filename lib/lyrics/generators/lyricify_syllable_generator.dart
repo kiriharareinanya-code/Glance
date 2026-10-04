@@ -1,6 +1,15 @@
 // Ported from Lyricify.Lyrics.Helper/Generators/LyricifySyllableGenerator.cs (Apache-2.0, WXRIW/Lyricify-Lyrics-Helper)
 //
 // C# → Dart：
+//
+// PORT NOTE: 上游 `sb.AppendLine()`（LyricifySyllableGenerator.cs:65）写的是
+//   `Environment.NewLine`，在 Windows 上就是 `\r\n`。Dart 侧固定写 `\r\n`
+//   （不跟 `Platform.lineTerminator`），这样「生成 → 解析 → 再生成」的往返
+//   在任何平台上都是逐字节一致的。
+// PORT NOTE: 上游 `sb.Append(item.StartTime)` / `sb.Append(((ISyllableInfo)item).Duration)`
+//   （:71-73）的形参是非空 `int`（见 Models/ISyllableInfo.cs），所以这里不需要判空；
+//   行头的 `sb.Append(line.LyricsAlignment ...)`（:35-47）写的是常量 3/4/5/6/7/8，
+//   `sb.write(int)` 与之等价。
 library;
 
 import '../models/line_info.dart';

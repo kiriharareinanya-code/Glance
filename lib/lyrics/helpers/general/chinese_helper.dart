@@ -58,7 +58,6 @@ class ChineseHelper {
     return ChineseConverter.convertToSimplifiedChinese(text);
   }
 
-  ///
   static bool isTraditional(String? text) {
     if (text == null) return false;
     final sc = toSC(text);
@@ -71,7 +70,6 @@ class ChineseHelper {
   }
 }
 
-///
 class ChineseConverter {
   static Map<int, String>? _chsToChtDict;
   static Map<int, String>? _chtToChsDict;
@@ -86,7 +84,6 @@ class ChineseConverter {
     return _convertByDictionary(str, _chsToChtDict!);
   }
 
-  ///
   static String _convertByDictionary(String? str, Map<int, String> dict) {
     if (str == null || str.isEmpty) return '';
 
@@ -129,8 +126,6 @@ class ChineseConverter {
     return sb.toString();
   }
 
-  ///
-  ///
   static void _ensureDictionary() {
     if (_chsToChtDict != null && _chtToChsDict != null) return;
 
@@ -148,7 +143,6 @@ class ChineseConverter {
     _chtToChsDict = chtToChs;
   }
 
-  ///
   static List<int> _parseTextElementStarts(String str) {
     final starts = <int>[];
     var i = 0;
@@ -170,7 +164,6 @@ class ChineseConverter {
     return starts;
   }
 
-  ///
   static bool _isCombiningMark(int cu) =>
       (cu >= 0x0300 && cu <= 0x036F) || // Combining Diacritical Marks
       (cu >= 0x0483 && cu <= 0x0489) || // Cyrillic

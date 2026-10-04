@@ -64,7 +64,8 @@ class AttributesHelper {
     return (offset, index);
   }
 
-  ///
+  /// 将 Attributes 信息解析到 LyricsData 中
+  /// @returns Offset 值，若 Attributes 中没有，则为 `null`
   static int? parseGeneralAttributesToLyricsData(
     LyricsData data,
     List<String> lines,
@@ -112,12 +113,17 @@ class AttributesHelper {
   }
 
   static bool isAttributeLine(String line) {
-    return line.startsWith('[') && line.endsWith(']') && line.contains(':');
+    final trimmed = line.trim(); // 防止 \r 干扰
+    return trimmed.startsWith('[') &&
+        trimmed.endsWith(']') &&
+        trimmed.contains(':');
   }
 
   static MapEntry<String, String> getAttribute(String line) {
-    final key = StringHelper.between(line, '[', ':');
-    final value = line.substring(line.indexOf(':') + 1, line.length - 1);
+    final trimmed = line.trim(); // 防止 \r 干扰
+    final key = StringHelper.between(trimmed, '[', ':');
+    final value =
+        trimmed.substring(trimmed.indexOf(':') + 1, trimmed.length - 1);
     return MapEntry<String, String>(key, value);
   }
 }

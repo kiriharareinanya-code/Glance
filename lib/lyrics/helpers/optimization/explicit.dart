@@ -9,7 +9,10 @@ library;
 class Explicit {
   Explicit._();
 
-  ///
+  /// 处理字符串中的 Explicit 内容
+  /// @param str 要处理的字符串
+  /// @param strong 是否是增强处理 (完全屏蔽为星号)
+  /// @returns 处理后的字符串
   static String clean(String str, [bool strong = false]) {
     if (strong) {
       str = fixExplicit(str)

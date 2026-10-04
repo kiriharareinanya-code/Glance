@@ -11,10 +11,24 @@ import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 
 class LyricsHttpResponse {
-  const LyricsHttpResponse({required this.statusCode, required this.body});
+  const LyricsHttpResponse({
+    required this.statusCode,
+    required this.body,
+    this.contentType,
+    this.contentLength,
+  });
 
   final int statusCode;
   final String body;
+
+  /// `Content-Type` 原始头（可能带 `; charset=...`，由调用方自行取 media type）。
+  ///
+  /// PORT NOTE: 上游对应 `HttpContentHeaders.ContentType`（例如 Apple Music
+  /// `ShouldRefreshAccessToken` 需要比较 `MediaType == application/octet-stream`）。
+  final String? contentType;
+
+  /// `Content-Length` 头；服务端没给时为 null（上游 `GetValueOrDefault() == 0`）。
+  final int? contentLength;
 
   bool get ok => statusCode >= 200 && statusCode < 300;
 
@@ -104,6 +118,8 @@ class DirectLyricsHttpClient implements LyricsHttpClient {
     return LyricsHttpResponse(
       statusCode: res.statusCode,
       body: utf8.decode(res.bodyBytes, allowMalformed: true),
+      contentType: res.headers['content-type'],
+      contentLength: int.tryParse(res.headers['content-length'] ?? ''),
     );
   }
 }

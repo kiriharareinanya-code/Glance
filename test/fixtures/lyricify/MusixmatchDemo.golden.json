@@ -1,0 +1,2793 @@
+{
+  "file": {
+    "type": "Musixmatch",
+    "syncTypes": "SyllableSynced",
+    "attributes": null,
+    "krcHash": null
+  },
+  "writers": null,
+  "trackMetadata": {
+    "title": null,
+    "artist": null,
+    "album": null,
+    "durationMs": null
+  },
+  "lines": [
+    {
+      "kind": "SyllableLineInfo",
+      "text": "When, when we came home",
+      "startTime": 7780,
+      "endTime": 12304,
+      "alignment": "Unspecified",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "When,",
+          "startTime": 7780,
+          "endTime": 9618
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 9618,
+          "endTime": 10618
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "when",
+          "startTime": 10618,
+          "endTime": 10944
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 10944,
+          "endTime": 11038
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we",
+          "startTime": 11038,
+          "endTime": 11217
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 11217,
+          "endTime": 11267
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "came",
+          "startTime": 11267,
+          "endTime": 11535
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 11535,
+          "endTime": 11634
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "home",
+          "startTime": 11634,
+          "endTime": 12304
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Worn to the bones",
+      "startTime": 13730,
+      "endTime": 15360,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Worn",
+          "startTime": 13730,
+          "endTime": 14282
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 14282,
+          "endTime": 14492
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to",
+          "startTime": 14492,
+          "endTime": 14609
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 14609,
+          "endTime": 14664
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the",
+          "startTime": 14664,
+          "endTime": 14802
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 14802,
+          "endTime": 14855
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "bones",
+          "startTime": 14855,
+          "endTime": 15360
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I told myself, this could get rough",
+      "startTime": 17560,
+      "endTime": 21753,
+      "alignment": "Unspecified",
+      "syllableCount": 13,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I",
+          "startTime": 17560,
+          "endTime": 17575
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 17575,
+          "endTime": 17867
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "told",
+          "startTime": 17867,
+          "endTime": 18129
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 18129,
+          "endTime": 18225
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "myself,",
+          "startTime": 18225,
+          "endTime": 19632
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 19632,
+          "endTime": 20218
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "this",
+          "startTime": 20218,
+          "endTime": 20400
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 20400,
+          "endTime": 20456
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could",
+          "startTime": 20456,
+          "endTime": 20748
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 20748,
+          "endTime": 20814
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "get",
+          "startTime": 20814,
+          "endTime": 21059
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 21059,
+          "endTime": 21345
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "rough",
+          "startTime": 21345,
+          "endTime": 21753
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "And when, when I was off, which happened a lot",
+      "startTime": 22200,
+      "endTime": 30025,
+      "alignment": "Unspecified",
+      "syllableCount": 19,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "And",
+          "startTime": 22200,
+          "endTime": 22479
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 22479,
+          "endTime": 22513
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "when,",
+          "startTime": 22513,
+          "endTime": 23925
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 23925,
+          "endTime": 24902
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "when",
+          "startTime": 24902,
+          "endTime": 25100
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 25100,
+          "endTime": 25362
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I",
+          "startTime": 25362,
+          "endTime": 25435
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 25435,
+          "endTime": 25517
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "was",
+          "startTime": 25517,
+          "endTime": 25777
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 25777,
+          "endTime": 25864
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "off,",
+          "startTime": 25864,
+          "endTime": 27431
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 27431,
+          "endTime": 28490
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "which",
+          "startTime": 28490,
+          "endTime": 28787
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 28787,
+          "endTime": 28840
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "happened",
+          "startTime": 28840,
+          "endTime": 29357
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 29357,
+          "endTime": 29454
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "a",
+          "startTime": 29454,
+          "endTime": 29500
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 29500,
+          "endTime": 29528
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lot",
+          "startTime": 29528,
+          "endTime": 30025
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "You came to me and said, that's enough",
+      "startTime": 32070,
+      "endTime": 36310,
+      "alignment": "Unspecified",
+      "syllableCount": 15,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "You",
+          "startTime": 32070,
+          "endTime": 32431
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 32431,
+          "endTime": 32478
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "came",
+          "startTime": 32478,
+          "endTime": 32891
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 32891,
+          "endTime": 33011
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to",
+          "startTime": 33011,
+          "endTime": 33120
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 33120,
+          "endTime": 33186
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me",
+          "startTime": 33186,
+          "endTime": 33395
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 33395,
+          "endTime": 34347
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and",
+          "startTime": 34347,
+          "endTime": 34823
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 34823,
+          "endTime": 35228
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "said,",
+          "startTime": 35228,
+          "endTime": 35595
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 35595,
+          "endTime": 35640
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that's",
+          "startTime": 35640,
+          "endTime": 35935
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 35935,
+          "endTime": 36013
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "enough",
+          "startTime": 36013,
+          "endTime": 36310
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Oh, I know that this love is pain",
+      "startTime": 37080,
+      "endTime": 41476,
+      "alignment": "Unspecified",
+      "syllableCount": 15,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh,",
+          "startTime": 37080,
+          "endTime": 37779
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 37779,
+          "endTime": 38519
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I",
+          "startTime": 38519,
+          "endTime": 38747
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 38747,
+          "endTime": 38863
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "know",
+          "startTime": 38863,
+          "endTime": 39342
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 39342,
+          "endTime": 39439
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that",
+          "startTime": 39439,
+          "endTime": 39686
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 39686,
+          "endTime": 39783
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "this",
+          "startTime": 39783,
+          "endTime": 40063
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 40063,
+          "endTime": 40151
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 40151,
+          "endTime": 40533
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 40533,
+          "endTime": 40651
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is",
+          "startTime": 40651,
+          "endTime": 40744
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 40744,
+          "endTime": 40806
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "pain",
+          "startTime": 40806,
+          "endTime": 41476
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "But we can't cut it from out these veins, no",
+      "startTime": 43710,
+      "endTime": 50250,
+      "alignment": "Unspecified",
+      "syllableCount": 19,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "But",
+          "startTime": 43710,
+          "endTime": 43930
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 43930,
+          "endTime": 44002
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we",
+          "startTime": 44002,
+          "endTime": 44080
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 44080,
+          "endTime": 44122
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "can't",
+          "startTime": 44122,
+          "endTime": 45002
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 45002,
+          "endTime": 45619
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "cut",
+          "startTime": 45619,
+          "endTime": 46374
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 46374,
+          "endTime": 46489
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "it",
+          "startTime": 46489,
+          "endTime": 46823
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 46823,
+          "endTime": 46910
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "from",
+          "startTime": 46910,
+          "endTime": 47201
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 47201,
+          "endTime": 47280
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "out",
+          "startTime": 47280,
+          "endTime": 47654
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 47654,
+          "endTime": 47737
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "these",
+          "startTime": 47737,
+          "endTime": 48141
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 48141,
+          "endTime": 48306
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "veins,",
+          "startTime": 48306,
+          "endTime": 49193
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 49193,
+          "endTime": 49562
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "no",
+          "startTime": 49562,
+          "endTime": 50250
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "So I'll hit the lights and you lock the doors",
+      "startTime": 51770,
+      "endTime": 55474,
+      "alignment": "Unspecified",
+      "syllableCount": 19,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "So",
+          "startTime": 51770,
+          "endTime": 51924
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 51924,
+          "endTime": 52003
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'll",
+          "startTime": 52003,
+          "endTime": 52283
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 52283,
+          "endTime": 52362
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hit",
+          "startTime": 52362,
+          "endTime": 52609
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 52609,
+          "endTime": 52669
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the",
+          "startTime": 52669,
+          "endTime": 52788
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 52788,
+          "endTime": 52836
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lights",
+          "startTime": 52836,
+          "endTime": 53320
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 53320,
+          "endTime": 53368
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and",
+          "startTime": 53368,
+          "endTime": 53600
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 53600,
+          "endTime": 53660
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you",
+          "startTime": 53660,
+          "endTime": 53876
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 53876,
+          "endTime": 53968
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lock",
+          "startTime": 53968,
+          "endTime": 54324
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 54324,
+          "endTime": 54390
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the",
+          "startTime": 54390,
+          "endTime": 54501
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 54501,
+          "endTime": 54540
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "doors",
+          "startTime": 54540,
+          "endTime": 55474
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "We ain't leaving this room 'til we both feel more",
+      "startTime": 57700,
+      "endTime": 62133,
+      "alignment": "Unspecified",
+      "syllableCount": 19,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "We",
+          "startTime": 57700,
+          "endTime": 58015
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 58015,
+          "endTime": 58066
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ain't",
+          "startTime": 58066,
+          "endTime": 58271
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 58271,
+          "endTime": 58332
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "leaving",
+          "startTime": 58332,
+          "endTime": 58906
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 58906,
+          "endTime": 59039
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "this",
+          "startTime": 59039,
+          "endTime": 59202
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 59202,
+          "endTime": 59266
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "room",
+          "startTime": 59266,
+          "endTime": 59704
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 59704,
+          "endTime": 59764
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "'til",
+          "startTime": 59764,
+          "endTime": 59915
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 59915,
+          "endTime": 59981
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we",
+          "startTime": 59981,
+          "endTime": 60096
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 60096,
+          "endTime": 60156
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "both",
+          "startTime": 60156,
+          "endTime": 60413
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 60413,
+          "endTime": 60576
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feel",
+          "startTime": 60576,
+          "endTime": 60748
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 60748,
+          "endTime": 60792
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "more",
+          "startTime": 60792,
+          "endTime": 62133
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Don't walk away, don't roll your eyes",
+      "startTime": 64750,
+      "endTime": 68729,
+      "alignment": "Unspecified",
+      "syllableCount": 13,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Don't",
+          "startTime": 64750,
+          "endTime": 65097
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 65097,
+          "endTime": 65158
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "walk",
+          "startTime": 65158,
+          "endTime": 65397
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 65397,
+          "endTime": 65473
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "away,",
+          "startTime": 65473,
+          "endTime": 66139
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 66139,
+          "endTime": 66521
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "don't",
+          "startTime": 66521,
+          "endTime": 66797
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 66797,
+          "endTime": 66865
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "roll",
+          "startTime": 66865,
+          "endTime": 67154
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 67154,
+          "endTime": 67226
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your",
+          "startTime": 67226,
+          "endTime": 67474
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 67474,
+          "endTime": 67540
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "eyes",
+          "startTime": 67540,
+          "endTime": 68729
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "They say love is pain, well darling, let's hurt tonight",
+      "startTime": 70340,
+      "endTime": 74922,
+      "alignment": "Unspecified",
+      "syllableCount": 19,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "They",
+          "startTime": 70340,
+          "endTime": 70631
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 70631,
+          "endTime": 70679
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "say",
+          "startTime": 70679,
+          "endTime": 70813
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 70813,
+          "endTime": 70875
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 70875,
+          "endTime": 71035
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 71035,
+          "endTime": 71108
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is",
+          "startTime": 71108,
+          "endTime": 71247
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 71247,
+          "endTime": 71315
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "pain,",
+          "startTime": 71315,
+          "endTime": 71748
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 71748,
+          "endTime": 71852
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "well",
+          "startTime": 71852,
+          "endTime": 72073
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 72073,
+          "endTime": 72120
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "darling,",
+          "startTime": 72120,
+          "endTime": 72542
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 72542,
+          "endTime": 72664
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "let's",
+          "startTime": 72664,
+          "endTime": 72889
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 72889,
+          "endTime": 72963
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hurt",
+          "startTime": 72963,
+          "endTime": 73156
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 73156,
+          "endTime": 73280
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "tonight",
+          "startTime": 73280,
+          "endTime": 74922
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Ah-ooh-ooh, ah-ooh-ooh",
+      "startTime": 76950,
+      "endTime": 82269,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Ah-",
+          "startTime": 76950,
+          "endTime": 77589
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ooh-",
+          "startTime": 77589,
+          "endTime": 78110
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ooh,",
+          "startTime": 78110,
+          "endTime": 79545
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 79545,
+          "endTime": 80582
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ah-",
+          "startTime": 80582,
+          "endTime": 80896
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ooh-",
+          "startTime": 80896,
+          "endTime": 81501
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ooh",
+          "startTime": 81501,
+          "endTime": 82269
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "When, when you came home",
+      "startTime": 85069,
+      "endTime": 89763,
+      "alignment": "Unspecified",
+      "syllableCount": 9,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "When,",
+          "startTime": 85069,
+          "endTime": 86545
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 86545,
+          "endTime": 87702
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "when",
+          "startTime": 87702,
+          "endTime": 88100
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 88100,
+          "endTime": 88218
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you",
+          "startTime": 88218,
+          "endTime": 88488
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 88488,
+          "endTime": 88608
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "came",
+          "startTime": 88608,
+          "endTime": 88905
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 88905,
+          "endTime": 88969
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "home",
+          "startTime": 88969,
+          "endTime": 89763
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Worn to the bones",
+      "startTime": 91370,
+      "endTime": 93307,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Worn",
+          "startTime": 91370,
+          "endTime": 91887
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 91887,
+          "endTime": 92184
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "to",
+          "startTime": 92184,
+          "endTime": 92327
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 92327,
+          "endTime": 92403
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the",
+          "startTime": 92403,
+          "endTime": 92552
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 92552,
+          "endTime": 92610
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "bones",
+          "startTime": 92610,
+          "endTime": 93307
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I told myself, this could get rough",
+      "startTime": 94940,
+      "endTime": 99143,
+      "alignment": "Unspecified",
+      "syllableCount": 13,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I",
+          "startTime": 94940,
+          "endTime": 94955
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 94955,
+          "endTime": 95123
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "told",
+          "startTime": 95123,
+          "endTime": 95355
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 95355,
+          "endTime": 95653
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "myself,",
+          "startTime": 95653,
+          "endTime": 96839
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 96839,
+          "endTime": 97722
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "this",
+          "startTime": 97722,
+          "endTime": 97915
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 97915,
+          "endTime": 97992
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "could",
+          "startTime": 97992,
+          "endTime": 98329
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 98329,
+          "endTime": 98403
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "get",
+          "startTime": 98403,
+          "endTime": 98592
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 98592,
+          "endTime": 98706
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "rough",
+          "startTime": 98706,
+          "endTime": 99143
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Oh, I know you're feeling insane",
+      "startTime": 99770,
+      "endTime": 104316,
+      "alignment": "Unspecified",
+      "syllableCount": 11,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Oh,",
+          "startTime": 99770,
+          "endTime": 100563
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 100563,
+          "endTime": 101072
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I",
+          "startTime": 101072,
+          "endTime": 101141
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 101141,
+          "endTime": 101270
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "know",
+          "startTime": 101270,
+          "endTime": 101614
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 101614,
+          "endTime": 101793
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you're",
+          "startTime": 101793,
+          "endTime": 102236
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 102236,
+          "endTime": 102306
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "feeling",
+          "startTime": 102306,
+          "endTime": 102973
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 102973,
+          "endTime": 103056
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "insane",
+          "startTime": 103056,
+          "endTime": 104316
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Tell me something that I can explain, oh",
+      "startTime": 106670,
+      "endTime": 113084,
+      "alignment": "Unspecified",
+      "syllableCount": 15,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Tell",
+          "startTime": 106670,
+          "endTime": 106882
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 106882,
+          "endTime": 106925
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me",
+          "startTime": 106925,
+          "endTime": 106995
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 106995,
+          "endTime": 107050
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "something",
+          "startTime": 107050,
+          "endTime": 108342
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 108342,
+          "endTime": 108990
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that",
+          "startTime": 108990,
+          "endTime": 109304
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 109304,
+          "endTime": 109500
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I",
+          "startTime": 109500,
+          "endTime": 109574
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 109574,
+          "endTime": 109691
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "can",
+          "startTime": 109691,
+          "endTime": 109968
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 109968,
+          "endTime": 110217
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "explain,",
+          "startTime": 110217,
+          "endTime": 111850
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 111850,
+          "endTime": 111957
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "oh",
+          "startTime": 111957,
+          "endTime": 113084
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I'll hit the lights and you lock the doors",
+      "startTime": 114580,
+      "endTime": 119239,
+      "alignment": "Unspecified",
+      "syllableCount": 17,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I'll",
+          "startTime": 114580,
+          "endTime": 114966
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 114966,
+          "endTime": 115178
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hit",
+          "startTime": 115178,
+          "endTime": 115343
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 115343,
+          "endTime": 115405
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the",
+          "startTime": 115405,
+          "endTime": 115567
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 115567,
+          "endTime": 115617
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lights",
+          "startTime": 115617,
+          "endTime": 116321
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 116321,
+          "endTime": 116425
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and",
+          "startTime": 116425,
+          "endTime": 116600
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 116600,
+          "endTime": 116676
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you",
+          "startTime": 116676,
+          "endTime": 116874
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 116874,
+          "endTime": 116952
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lock",
+          "startTime": 116952,
+          "endTime": 117163
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 117163,
+          "endTime": 117217
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the",
+          "startTime": 117217,
+          "endTime": 117484
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 117484,
+          "endTime": 117538
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "doors",
+          "startTime": 117538,
+          "endTime": 119239
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Tell me all of the things that you couldn't before",
+      "startTime": 120430,
+      "endTime": 125133,
+      "alignment": "Unspecified",
+      "syllableCount": 19,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Tell",
+          "startTime": 120430,
+          "endTime": 120723
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 120723,
+          "endTime": 120827
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "me",
+          "startTime": 120827,
+          "endTime": 120976
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 120976,
+          "endTime": 121063
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "all",
+          "startTime": 121063,
+          "endTime": 121377
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 121377,
+          "endTime": 121544
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "of",
+          "startTime": 121544,
+          "endTime": 121670
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 121670,
+          "endTime": 121768
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the",
+          "startTime": 121768,
+          "endTime": 122014
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 122014,
+          "endTime": 122094
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things",
+          "startTime": 122094,
+          "endTime": 122531
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 122531,
+          "endTime": 122621
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that",
+          "startTime": 122621,
+          "endTime": 122868
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 122868,
+          "endTime": 122947
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you",
+          "startTime": 122947,
+          "endTime": 123117
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 123117,
+          "endTime": 123189
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "couldn't",
+          "startTime": 123189,
+          "endTime": 123758
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 123758,
+          "endTime": 123818
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "before",
+          "startTime": 123818,
+          "endTime": 125133
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Don't walk away, don't roll your eyes",
+      "startTime": 127430,
+      "endTime": 131386,
+      "alignment": "Unspecified",
+      "syllableCount": 13,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Don't",
+          "startTime": 127430,
+          "endTime": 127822
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 127822,
+          "endTime": 127873
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "walk",
+          "startTime": 127873,
+          "endTime": 128085
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 128085,
+          "endTime": 128169
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "away,",
+          "startTime": 128169,
+          "endTime": 128665
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 128665,
+          "endTime": 128912
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "don't",
+          "startTime": 128912,
+          "endTime": 129327
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 129327,
+          "endTime": 129390
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "roll",
+          "startTime": 129390,
+          "endTime": 129693
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 129693,
+          "endTime": 129810
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "your",
+          "startTime": 129810,
+          "endTime": 130054
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 130054,
+          "endTime": 130164
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "eyes",
+          "startTime": 130164,
+          "endTime": 131386
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "They say love is pain, well darling, let's hurt tonight",
+      "startTime": 133180,
+      "endTime": 137358,
+      "alignment": "Unspecified",
+      "syllableCount": 19,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "They",
+          "startTime": 133180,
+          "endTime": 133352
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 133352,
+          "endTime": 133400
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "say",
+          "startTime": 133400,
+          "endTime": 133544
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 133544,
+          "endTime": 133609
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 133609,
+          "endTime": 133771
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 133771,
+          "endTime": 133824
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is",
+          "startTime": 133824,
+          "endTime": 133960
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 133960,
+          "endTime": 134014
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "pain,",
+          "startTime": 134014,
+          "endTime": 134375
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 134375,
+          "endTime": 134547
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "well",
+          "startTime": 134547,
+          "endTime": 134747
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 134747,
+          "endTime": 134823
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "darling,",
+          "startTime": 134823,
+          "endTime": 135408
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 135408,
+          "endTime": 135484
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "let's",
+          "startTime": 135484,
+          "endTime": 135689
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 135689,
+          "endTime": 135745
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hurt",
+          "startTime": 135745,
+          "endTime": 136050
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 136050,
+          "endTime": 136219
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "tonight",
+          "startTime": 136219,
+          "endTime": 137358
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "If this love is pain, well darling, let's hurt, oh tonight",
+      "startTime": 139669,
+      "endTime": 146566,
+      "alignment": "Unspecified",
+      "syllableCount": 21,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "If",
+          "startTime": 139669,
+          "endTime": 139959
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 139959,
+          "endTime": 140012
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "this",
+          "startTime": 140012,
+          "endTime": 140198
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 140198,
+          "endTime": 140260
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 140260,
+          "endTime": 140439
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 140439,
+          "endTime": 140478
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is",
+          "startTime": 140478,
+          "endTime": 140535
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 140535,
+          "endTime": 140586
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "pain,",
+          "startTime": 140586,
+          "endTime": 141066
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 141066,
+          "endTime": 141237
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "well",
+          "startTime": 141237,
+          "endTime": 141359
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 141359,
+          "endTime": 141440
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "darling,",
+          "startTime": 141440,
+          "endTime": 141882
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 141882,
+          "endTime": 142174
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "let's",
+          "startTime": 142174,
+          "endTime": 142395
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 142395,
+          "endTime": 142501
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hurt,",
+          "startTime": 142501,
+          "endTime": 144345
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 144345,
+          "endTime": 145327
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "oh",
+          "startTime": 145327,
+          "endTime": 145458
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 145458,
+          "endTime": 145874
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "tonight",
+          "startTime": 145874,
+          "endTime": 146566
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Ah-ooh-ooh, ah-ooh-ooh",
+      "startTime": 152220,
+      "endTime": 158287,
+      "alignment": "Unspecified",
+      "syllableCount": 7,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Ah-",
+          "startTime": 152220,
+          "endTime": 152867
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ooh-",
+          "startTime": 152867,
+          "endTime": 153401
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ooh,",
+          "startTime": 153401,
+          "endTime": 155237
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 155237,
+          "endTime": 156274
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ah-",
+          "startTime": 156274,
+          "endTime": 156617
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ooh-",
+          "startTime": 156617,
+          "endTime": 157339
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "ooh",
+          "startTime": 157339,
+          "endTime": 158287
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "So you hit the lights and I'll lock the doors",
+      "startTime": 160980,
+      "endTime": 164773,
+      "alignment": "Unspecified",
+      "syllableCount": 19,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "So",
+          "startTime": 160980,
+          "endTime": 161223
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 161223,
+          "endTime": 161281
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "you",
+          "startTime": 161281,
+          "endTime": 161446
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 161446,
+          "endTime": 161506
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hit",
+          "startTime": 161506,
+          "endTime": 161655
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 161655,
+          "endTime": 161807
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the",
+          "startTime": 161807,
+          "endTime": 162023
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 162023,
+          "endTime": 162082
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lights",
+          "startTime": 162082,
+          "endTime": 162461
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 162461,
+          "endTime": 162594
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "and",
+          "startTime": 162594,
+          "endTime": 162754
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 162754,
+          "endTime": 162813
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "I'll",
+          "startTime": 162813,
+          "endTime": 163106
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 163106,
+          "endTime": 163166
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "lock",
+          "startTime": 163166,
+          "endTime": 163424
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 163424,
+          "endTime": 163512
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the",
+          "startTime": 163512,
+          "endTime": 163659
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 163659,
+          "endTime": 163709
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "doors",
+          "startTime": 163709,
+          "endTime": 164773
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "Let's say all of the things that we couldn't before",
+      "startTime": 166520,
+      "endTime": 170975,
+      "alignment": "Unspecified",
+      "syllableCount": 19,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "Let's",
+          "startTime": 166520,
+          "endTime": 166871
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 166871,
+          "endTime": 166958
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "say",
+          "startTime": 166958,
+          "endTime": 167120
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 167120,
+          "endTime": 167186
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "all",
+          "startTime": 167186,
+          "endTime": 167327
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 167327,
+          "endTime": 167418
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "of",
+          "startTime": 167418,
+          "endTime": 167692
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 167692,
+          "endTime": 167756
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "the",
+          "startTime": 167756,
+          "endTime": 167909
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 167909,
+          "endTime": 167952
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "things",
+          "startTime": 167952,
+          "endTime": 168379
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 168379,
+          "endTime": 168437
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "that",
+          "startTime": 168437,
+          "endTime": 168625
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 168625,
+          "endTime": 168678
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "we",
+          "startTime": 168678,
+          "endTime": 168880
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 168880,
+          "endTime": 168975
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "couldn't",
+          "startTime": 168975,
+          "endTime": 169423
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 169423,
+          "endTime": 169600
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "before",
+          "startTime": 169600,
+          "endTime": 170975
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "I won't walk away, won't roll my eyes",
+      "startTime": 173760,
+      "endTime": 177409,
+      "alignment": "Unspecified",
+      "syllableCount": 15,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "I",
+          "startTime": 173760,
+          "endTime": 173770
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 173770,
+          "endTime": 174118
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "won't",
+          "startTime": 174118,
+          "endTime": 174377
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 174377,
+          "endTime": 174426
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "walk",
+          "startTime": 174426,
+          "endTime": 174640
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 174640,
+          "endTime": 174708
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "away,",
+          "startTime": 174708,
+          "endTime": 175425
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 175425,
+          "endTime": 175508
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "won't",
+          "startTime": 175508,
+          "endTime": 175742
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 175742,
+          "endTime": 175830
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "roll",
+          "startTime": 175830,
+          "endTime": 176112
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 176112,
+          "endTime": 176216
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "my",
+          "startTime": 176216,
+          "endTime": 176435
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 176435,
+          "endTime": 176542
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "eyes",
+          "startTime": 176542,
+          "endTime": 177409
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "They say love is pain, well darling, let's hurt tonight",
+      "startTime": 179200,
+      "endTime": 183387,
+      "alignment": "Unspecified",
+      "syllableCount": 19,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "They",
+          "startTime": 179200,
+          "endTime": 179497
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 179497,
+          "endTime": 179556
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "say",
+          "startTime": 179556,
+          "endTime": 179729
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 179729,
+          "endTime": 179782
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 179782,
+          "endTime": 179988
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 179988,
+          "endTime": 180035
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is",
+          "startTime": 180035,
+          "endTime": 180100
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 180100,
+          "endTime": 180195
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "pain,",
+          "startTime": 180195,
+          "endTime": 180567
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 180567,
+          "endTime": 180669
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "well",
+          "startTime": 180669,
+          "endTime": 180980
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 180980,
+          "endTime": 181029
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "darling,",
+          "startTime": 181029,
+          "endTime": 181559
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 181559,
+          "endTime": 181653
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "let's",
+          "startTime": 181653,
+          "endTime": 181953
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 181953,
+          "endTime": 182020
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "hurt",
+          "startTime": 182020,
+          "endTime": 182423
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 182423,
+          "endTime": 182548
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "tonight",
+          "startTime": 182548,
+          "endTime": 183387
+        }
+      ]
+    },
+    {
+      "kind": "SyllableLineInfo",
+      "text": "If this love is pain, then honey let's love tonight",
+      "startTime": 185770,
+      "endTime": 190858,
+      "alignment": "Unspecified",
+      "syllableCount": 19,
+      "syllables": [
+        {
+          "kind": "SyllableInfo",
+          "text": "If",
+          "startTime": 185770,
+          "endTime": 186117
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 186117,
+          "endTime": 186175
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "this",
+          "startTime": 186175,
+          "endTime": 186380
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 186380,
+          "endTime": 186422
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 186422,
+          "endTime": 186653
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 186653,
+          "endTime": 186715
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "is",
+          "startTime": 186715,
+          "endTime": 186805
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 186805,
+          "endTime": 186861
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "pain,",
+          "startTime": 186861,
+          "endTime": 187378
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 187378,
+          "endTime": 187547
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "then",
+          "startTime": 187547,
+          "endTime": 187708
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 187708,
+          "endTime": 187762
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "honey",
+          "startTime": 187762,
+          "endTime": 188207
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 188207,
+          "endTime": 188449
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "let's",
+          "startTime": 188449,
+          "endTime": 188715
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 188715,
+          "endTime": 188779
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "love",
+          "startTime": 188779,
+          "endTime": 189403
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": " ",
+          "startTime": 189403,
+          "endTime": 190136
+        },
+        {
+          "kind": "SyllableInfo",
+          "text": "tonight",
+          "startTime": 190136,
+          "endTime": 190858
+        }
+      ]
+    }
+  ]
+}

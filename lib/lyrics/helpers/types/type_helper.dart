@@ -10,7 +10,9 @@ import 'lyrics_type_detector.dart';
 class TypeHelper {
   TypeHelper._();
 
-  ///
+  /// 识别歌词的类型
+  /// @param lyrics 歌词字符串
+  /// @returns `LyricsRawTypes`, 如果没有识别成功则会返回 `LyricsRawTypes.unknown`.
   static LyricsRawTypes getLyricsTypes(String lyrics) =>
       LyricsTypeDetector.detect(lyrics);
 
@@ -103,7 +105,9 @@ class TypeHelper {
     return type != null ? getDisplayName(type) : name.trim();
   }
 
-  ///
+  /// 字符串是否是指定的歌词类型
+  /// @param lyrics 歌词字符串
+  /// @param type 歌词类型
   static bool isLyricsType(String lyrics, Object types) {
     if (types is LyricsTypes) {
       if (types == LyricsTypes.unknown) return false;
@@ -122,7 +126,6 @@ class TypeHelper {
       final type = getLyricsType(rawType);
       return type != LyricsTypes.unknown && types.contains(type);
     }
-
     return false;
   }
 
