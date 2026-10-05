@@ -110,6 +110,11 @@ SnapResult resolve(
   final mL = moving.left, mR = moving.right, mCX = moving.centerX;
   final mT = moving.top, mB = moving.bottom, mCY = moving.centerY;
 
+  // 候选留白只有 {0, gutter} 两个值，且整个 resolve 里都不变。
+  // 以前它写在遍历每张卡的循环体里，等于每帧每张卡各 new 两个哈希 Set——
+  // 拖拽时这是唯一每帧都跑的热路径，gutter 是常量，集合也该只建一次。
+  final gaps = <double>{0, gutter};
+
   for (final o in others) {
     final oL = o.left, oR = o.right, oCX = o.centerX;
     final oT = o.top, oB = o.bottom, oCY = o.centerY;
@@ -123,7 +128,7 @@ SnapResult resolve(
     consider('x', oR, oR - mL, _GuideRef('v', oR, o));
 
     // 贴合：放到对方右侧 / 左侧。gutter 为 0 时集合退化成 {0}，只跑一轮。
-    for (final gap in <double>{0, gutter}) {
+    for (final gap in gaps) {
       consider('x', oR + gap, (oR + gap) - mL, _GuideRef('v', oR, o));
       consider('x', oL - moving.w - gap, (oL - gap) - mR, _GuideRef('v', oL, o));
     }
@@ -135,7 +140,7 @@ SnapResult resolve(
     consider('y', oT - moving.h, oT - mB, _GuideRef('h', oT, o));
     consider('y', oB, oB - mT, _GuideRef('h', oB, o));
 
-    for (final gap in <double>{0, gutter}) {
+    for (final gap in gaps) {
       consider('y', oB + gap, (oB + gap) - mT, _GuideRef('h', oB, o));
       consider('y', oT - moving.h - gap, (oT - gap) - mB, _GuideRef('h', oT, o));
     }

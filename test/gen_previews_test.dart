@@ -11,6 +11,7 @@
 ///     flutter test test/gen_previews_test.dart
 ///
 /// 然后把产物提交进仓库。运行时（panel_preview.dart）只读图，零请求零定时器。
+@Tags(['gen'])
 library;
 
 import 'dart:convert';

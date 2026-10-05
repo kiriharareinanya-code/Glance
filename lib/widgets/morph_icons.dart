@@ -38,6 +38,25 @@ const Map<String, List<String>> kMorphIconPaths = {
   'add': ['M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z'],
 };
 
+/// 拼好的完整 SVG 字符串：图标名 → `<svg …><path …/></svg>`。
+///
+/// 静止态的 `IconImage.svg` 每次拿这串去解析+栅格化，而外层的
+/// NodeAnimatedColor 在 260ms 的颜色过渡里**每帧**重建一次——每帧一次
+/// `List.join(' ')` + 字符串插值 + 整串 SVG 重新解析。path 数据是常量，
+/// 拼好的整串当然也是常量，所以按名字记住第一次拼的结果，之后直接查表。
+///
+/// 惰性：用到的那个图标第一次出现时才拼，从没用过的名字连字符串都不生成
+/// （上面那个 map 是顶层 final，同样惰性初始化）。
+final Map<String, String> _morphIconSvg = {};
+
+/// 静止态渲染用的 SVG（见 [_morphIconSvg]）。[name] 必须已在
+/// [kMorphIconPaths] 里。
+String morphIconSvg(String name) => _morphIconSvg.putIfAbsent(
+      name,
+      () => '<svg viewBox="0 0 24 24" fill="#000">'
+          '<path d="${kMorphIconPaths[name]!.join(' ')}"/></svg>',
+    );
+
 /// 名字在形变表里就返回 IconGeometry 的键，否则 null（回退字体图标）
 String? morphIconKey(String? name) =>
     name != null && kMorphIconPaths.containsKey(name) ? 'icon:$name' : null;
@@ -179,9 +198,10 @@ class _MorphableIconState extends State<MorphableIcon> {
         duration: kNodeMorphDuration,
       );
     }
+    // 整串 SVG 是查表来的（见 morphIconSvg）：同一个图标每次拿到的都是
+    // 同一个 String 实例，图标层连重新解析都省了。
     return IconImage.svg(
-      '<svg viewBox="0 0 24 24" fill="#000">'
-      '<path d="${kMorphIconPaths[widget.name]!.join(' ')}"/></svg>',
+      morphIconSvg(widget.name!), // toKey != null ⇒ name 不为 null
       size: widget.size,
       color: widget.color,
     );

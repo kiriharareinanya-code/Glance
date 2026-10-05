@@ -7,18 +7,21 @@
 ///   - 语言偏好（中/英）与"全不符时返回兜底候选"
 ///   - 信息行裁剪（stripInfoLines）与"裁空就不裁"
 ///   - 单源失败/抛异常不影响后续来源
+///   - **逐字格式（YRC）在管线出口降级成纯文本行**（砍掉逐字功能后新增）
 library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vectra/lyrics/engine.dart';
 import 'package:vectra/lyrics/engine_sources.dart';
 import 'package:vectra/lyrics/helpers/parse_helper.dart';
+import 'package:vectra/lyrics/models/line_info.dart';
 import 'package:vectra/lyrics/models/lyrics_data.dart';
 import 'package:vectra/lyrics/models/lyrics_types.dart';
 import 'package:vectra/lyrics/models/track_metadata.dart';
 import 'package:vectra/lyrics/searchers/helpers/compare_helper.dart';
 import 'package:vectra/lyrics/searchers/isearcher.dart';
 import 'package:vectra/lyrics/searchers/searchers.dart';
+import 'package:vectra/widgets/lyrics_view.dart';
 
 /// 一个可控的假 Searcher：返回预先排好序（或故意乱序）的候选列表。
 class _FakeSearcher implements ISearcher {
@@ -105,6 +108,7 @@ class _FakeBridge implements LyricsSourceBridge {
     this.lyricsByTitle = const {},
     this.failingTitles = const {},
     this.throwTitles = const {},
+    this.rawType,
   });
 
   @override
@@ -116,7 +120,7 @@ class _FakeBridge implements LyricsSourceBridge {
   @override
   final ISearcher searcher;
 
-  /// title → LRC 文本
+  /// title → 歌词原文
   final Map<String, String> lyricsByTitle;
 
   /// 这些 title 返回 null（拿不到歌词）
@@ -124,6 +128,12 @@ class _FakeBridge implements LyricsSourceBridge {
 
   /// 这些 title 抛异常
   final Set<String> throwTitles;
+
+  /// 按哪种格式解析 [lyricsByTitle] 里的原文。null = 交给类型检测。
+  ///
+  /// 逐字格式（YRC/KRC/QRC/TTML）必须显式指定：它们的原文长得跟 LRC
+  /// 完全不像，自动检测在合成的短样本上未必认得出来。
+  final LyricsRawTypes? rawType;
 
   /// 被取过词的 title 顺序
   final List<String> fetched = <String>[];
@@ -135,9 +145,22 @@ class _FakeBridge implements LyricsSourceBridge {
     if (failingTitles.contains(result.title)) return null;
     final raw = lyricsByTitle[result.title];
     if (raw == null) return null;
-    return ParseHelper.parseLyrics(raw, LyricsRawTypes.lrc);
+    return ParseHelper.parseLyrics(raw, rawType);
   }
 }
+
+/// 逐字格式的 YRC 原文（每行若干音节，音节带起止时间）。
+///
+/// 抄自真实网易云 YRC：`[行起点,行终点](音节起点,音节时长,0)文本`。
+/// 解析出来的行是 `SyllableLineInfo`，行文本和行时间**全靠音节累积**——
+/// 所以砍掉逐字功能后，这些行必须先被降级成纯文本行才对。
+const _yrcSyllable = '''
+[0,2000](0,500,0)你(500,500,0)好(1000,500,0)世(1500,500,0)界
+[2000,4000](2000,1000,0)第二行歌词
+[4000,6000](4000,1000,0)第三行歌词
+[6000,8000](6000,1000,0)第四行歌词
+''';
+
 
 const _lrcZh = '''
 [ti:测试]
@@ -394,5 +417,105 @@ void main() {
     );
 
     expect(out, isNull);
+  });
+
+  group('逐字格式降级（砍掉逐字后新增）', () {
+    // 这一组锁的是"砍逐字"这件事在数据侧的收口：YRC/KRC/QRC/TTML 仍要
+    // 解析（行文本和行时间是从音节累积来的），但**出引擎时必须已经是纯
+    // 文本行**。以前渲染层靠 `isSyllable` 分支画卡拉OK擦除，现在那个分支
+    // 没了——漏掉降级的后果不是报错，而是歌词变成音节碎片拼的怪字符串，
+    // 或者行时间变成 0（音节行降级前 startTime/endTime 依赖 refreshProperties
+    // 被正确调用过），所以必须在管线出口就钉住。
+
+    test('YRC 进、纯文本行出：文本与行时间都从音节累积而来', () async {
+      final bridge = _FakeBridge(
+        searcherType: Searchers.netease,
+        displayName: 'Netease',
+        searcher: _FakeSearcher([
+          _FakeResult('歌', ['某人'], 8000, MatchType.perfect),
+        ]),
+        lyricsByTitle: {'歌': _yrcSyllable},
+        rawType: LyricsRawTypes.yrc,
+      );
+
+      final out = await engineWith([bridge]).fetch(
+        title: '歌',
+        artist: '某人',
+        durationMs: 8000,
+      );
+
+      expect(out, isNotNull);
+      final lines = out!.data.lines!;
+      // 一行都不能是音节行了。
+      expect(lines.whereType<SyllableLineInfo>(), isEmpty,
+          reason: '出引擎时必须已降级；漏掉的话渲染层会拿到音节行');
+      // 文本是**音节拼起来的完整句子**，不是碎片。
+      expect(lines.first.text, '你好世界');
+      // 行时间来自「第一个音节的起点 ~ 最后一个音节的终点」。
+      expect(lines.first.startTime, 0);
+      expect(lines.first.endTime, 2000);
+      expect(lines[1].text, '第二行歌词');
+      expect(lines[1].startTime, 2000);
+      // 行终点取**最后一个音节的终点**（= 音节起点 + 音节时长），不是
+      // YRC 行头里的第二个数。行头 `[2000,4000]` 的 4000 是"这行到什么时候
+      // 完"，而音节表 `(2000,1000,0)` 自己算出的终点是 3000——两者不等，
+      // 上游取的确实是后者（`SyncDowngrade.cs` 用 `syllables.Last().EndTime`）。
+      expect(lines[1].endTime, 3000);
+      // 同步类型不许再自称逐字（否则缓存里的 sync 字段会撒谎）。
+      expect(out.data.file!.syncTypes, SyncTypes.lineSynced);
+    });
+
+    test('降级是幂等的：已经是文本行时原样通过（LRC 不受影响）', () async {
+      final bridge = _FakeBridge(
+        searcherType: Searchers.netease,
+        displayName: 'Netease',
+        searcher: _FakeSearcher([
+          _FakeResult('歌', ['某人'], 8000, MatchType.perfect),
+        ]),
+        lyricsByTitle: {'歌': _lrcZh},
+        rawType: LyricsRawTypes.lrc,
+      );
+
+      final out = await engineWith([bridge]).fetch(
+        title: '歌',
+        artist: '某人',
+        durationMs: 8000,
+      );
+
+      expect(out, isNotNull);
+      final lines = out!.data.lines!;
+      expect(lines.first.text, '第一句中文歌词');
+      expect(lines.first.startTime, 1000);
+      // LRC 格式本身没有行终点，所以 endTime 是 null。降级必须**原样放过**
+      // 文本行（幂等），不能顺手补一个 0 或别的值——那会让
+      // `LyricsLine.progressAt` 的零长行分支被误触发。
+      expect(lines.first.endTime, isNull);
+      expect(out.data.file!.syncTypes, SyncTypes.lineSynced);
+    });
+
+    test('降级后仍能正常转成渲染模型（不留音节概念）', () async {
+      final bridge = _FakeBridge(
+        searcherType: Searchers.netease,
+        displayName: 'Netease',
+        searcher: _FakeSearcher([
+          _FakeResult('歌', ['某人'], 8000, MatchType.perfect),
+        ]),
+        lyricsByTitle: {'歌': _yrcSyllable},
+        rawType: LyricsRawTypes.yrc,
+      );
+
+      final out = await engineWith([bridge]).fetch(
+        title: '歌',
+        artist: '某人',
+        durationMs: 8000,
+      );
+
+      final view = LyricsView.fromData(out!.data, sourceName: 'Netease');
+      expect(view.lines.first.text, '你好世界');
+      expect(view.lines.first.start, 0);
+      expect(view.lines.first.end, 2000);
+      expect(view.indexAt(0), 0);
+      expect(view.indexAt(2500), 1);
+    });
   });
 }

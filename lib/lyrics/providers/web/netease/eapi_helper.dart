@@ -146,11 +146,24 @@ extension NeteaseEapiExtensions on String {
 }
 
 extension NeteaseEapiBytesExtensions on List<int> {
-  String toHexStringLower() =>
-      map((b) => (b & 0xff).toRadixString(16).padLeft(2, '0')).join();
+  // PERF: `map(...).join()` allocated one intermediate String per byte plus an
+  // Iterable and a List. A StringBuffer writes straight into the final buffer.
+  String toHexStringLower() {
+    final sb = StringBuffer();
+    for (var i = 0; i < length; i++) {
+      sb.write((this[i] & 0xff).toRadixString(16).padLeft(2, '0'));
+    }
+    return sb.toString();
+  }
 
-  String toHexStringUpper() =>
-      map((b) => (b & 0xff).toRadixString(16).padLeft(2, '0').toUpperCase()).join();
+  String toHexStringUpper() {
+    final sb = StringBuffer();
+    for (var i = 0; i < length; i++) {
+      sb.write(
+          (this[i] & 0xff).toRadixString(16).padLeft(2, '0').toUpperCase());
+    }
+    return sb.toString();
+  }
 
   String toBase64String() => base64.encode(this);
 

@@ -199,6 +199,94 @@ void main() {
       );
     });
 
+    // ---- 时长否决闸（上游没有，为修用户实拍问题加的）----
+    //
+    // 用户实拍《阳光下的星星》（真 207.8s）只看到开头几行，日志显示
+    // 「命中：时长差 75.7s 匹配 prettyHigh 共 45 行」。原因见
+    // `CompareHelper.compareTrackMultiArtist` 里的说明：时长分被归一化稀释，
+    // 标题 7 + 歌手 7 就够判 Perfect/prettyHigh，门槛是 medium，于是照样取词。
+    // 后果是歌词时间戳全在 4 分钟之后，而歌只有 3:52。
+    test('时长差极大但标题歌手全对 → 直接 NoMatch（不能只看标题）', () {
+      final track = multiTrack(
+        title: '阳光下的星星',
+        artists: ['金海心'],
+        durationMs: 207814,
+      );
+      // 时长差 36% / 39%：同名不同曲（现场版、剪辑版）。
+      for (final wrong in [283514, 126714, 130000]) {
+        final result = FakeSearchResult(
+          title: '阳光下的星星',
+          artists: ['金海心'],
+          album: '',
+          albumArtists: null,
+          durationMs: wrong,
+        );
+        expect(
+          CompareHelper.compareTrack(track, result),
+          MatchType.noMatch,
+          reason: '候选时长 $wrong 与真值 207814 差太多，不该进候选池',
+        );
+      }
+    });
+
+    test('时长在正常版本差异范围内 → 不受否决闸影响', () {
+      final track = multiTrack(
+        title: '阳光下的星星',
+        artists: ['金海心'],
+        durationMs: 207814,
+      );
+      // +9.6% / +19.2%：加长 intro、现场版都属正常，仍该进候选池。
+      for (final ok in [227814, 247814]) {
+        final result = FakeSearchResult(
+          title: '阳光下的星星',
+          artists: ['金海心'],
+          album: '',
+          albumArtists: null,
+          durationMs: ok,
+        );
+        expect(
+          CompareHelper.compareTrack(track, result),
+          isNot(MatchType.noMatch),
+          reason: '候选时长 $ok 只差 20~40 秒，是正常的版本差异，不该被否',
+        );
+      }
+    });
+
+    test('阈值用相对比例：长歌差同样秒数占比小，不该被否', () {
+      // 8 分钟的歌差 40 秒 = 8%，远小于 25%。
+      final track = multiTrack(
+        title: 'Long',
+        artists: ['A'],
+        durationMs: 480000,
+      );
+      final result = FakeSearchResult(
+        title: 'Long',
+        artists: ['A'],
+        album: '',
+        albumArtists: null,
+        durationMs: 520000,
+      );
+      expect(CompareHelper.compareTrack(track, result), isNot(MatchType.noMatch));
+    });
+
+    test('时长缺失（null）时不启用否决闸', () {
+      // 很多源不返回时长，这时候只能靠标题歌手判断，不能因为拿不到时长
+      // 就把候选全否掉——那会导致"所有源都没有歌词"。
+      final track = multiTrack(
+        title: 'Song',
+        artists: ['Artist'],
+        durationMs: 207814,
+      );
+      final result = FakeSearchResult(
+        title: 'Song',
+        artists: ['Artist'],
+        album: '',
+        albumArtists: null,
+        durationMs: null,
+      );
+      expect(CompareHelper.compareTrack(track, result), isNot(MatchType.noMatch));
+    });
+
     test('艺人跨文字（简繁）→ toSC 后命中 → Perfect', () {
       // ArtistMatch 里先 `ToLowerInvariant().ToSC(true)`（上游 ArtistMatch.cs:22-25），
       // 所以简繁应视为同一个。

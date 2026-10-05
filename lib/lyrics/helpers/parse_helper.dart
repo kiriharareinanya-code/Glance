@@ -11,7 +11,6 @@ import 'types/type_helper.dart';
 import '../parsers/krc_parser.dart';
 import '../parsers/lrc_parser.dart';
 import '../parsers/lyricify_lines_parser.dart';
-import '../parsers/lyricify_syllable_parser.dart';
 import '../parsers/musixmatch_parser.dart';
 import '../parsers/qrc_parser.dart';
 import '../parsers/spotify_parser.dart';
@@ -31,8 +30,6 @@ class ParseHelper {
     final type = lyricsRawType ?? TypeHelper.getLyricsTypes(lyrics);
 
     switch (type) {
-      case LyricsRawTypes.lyricifySyllable:
-        return LyricifySyllableParser.parse(lyrics);
       case LyricsRawTypes.lyricifyLines:
         return LyricifyLinesParser.parse(lyrics);
       case LyricsRawTypes.lrc:

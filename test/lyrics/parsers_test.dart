@@ -3,8 +3,8 @@
 // 断言基线来自**上游 C# 代码本身**：
 //   用 `Lyricify.Lyrics.Demo` 引用的同一个 `Lyricify.Lyrics.Helper` 程序集，
 //   对同一批 `RawLyrics/*.txt` 调用 LrcParser/QrcParser/KrcParser/YrcParser/
-//   LyricifySyllableParser/LyricifyLinesParser，把结果序列化成
-//   `*.golden.json`（构建/生成脚本是一次性的，不随仓库交付）。
+//   LyricifyLinesParser，把结果序列化成 `*.golden.json`
+//   （构建/生成脚本是一次性的，不随仓库交付）。
 // 所以本文件里的 `*.golden.json` 就是"上游行为"的等价物，不是我自己算的期望值。
 //
 // 加密向量同理：`QrcEncrypted.txt` / `KrcToken.txt` 是用上游 `DESHelper`（加密方向）
@@ -27,7 +27,6 @@ import 'package:vectra/lyrics/models/lyrics_types.dart';
 import 'package:vectra/lyrics/parsers/krc_parser.dart';
 import 'package:vectra/lyrics/parsers/lrc_parser.dart';
 import 'package:vectra/lyrics/parsers/lyricify_lines_parser.dart';
-import 'package:vectra/lyrics/parsers/lyricify_syllable_parser.dart';
 import 'package:vectra/lyrics/parsers/musixmatch_parser.dart';
 import 'package:vectra/lyrics/parsers/qrc_parser.dart';
 import 'package:vectra/lyrics/parsers/spotify_parser.dart';
@@ -393,79 +392,6 @@ void main() {
       expect(lyrics.length, 1);
       expect((lyrics.single as SyllableLineInfo).syllables.length, 3);
       expect((lyrics.single as SyllableLineInfo).syllables[0].text, 'Lately');
-    });
-  });
-
-  group('LyricifySyllableParser', () {
-    test('LyricifySyllableDemo 与上游逐行一致（54 行 / 1 条背景人声子行）', () {
-      final data = LyricifySyllableParser.parse(_fixture('LyricifySyllableDemo.txt'));
-      _expectSameAsGolden(_describe(data), 'LyricifySyllableDemo');
-
-      // PORT NOTE: 上游把 Type 写成 LyricsTypes.Qrc（不是 LyricifySyllable）
-      expect(data.file!.type, LyricsTypes.qrc);
-      expect(data.file!.syncTypes, SyncTypes.syllableSynced);
-      final info = data.file!.additionalInfo as GeneralAdditionalInfo;
-      expect(info.attributes!.single.key, 'from');
-      expect(info.attributes!.single.value, 'AppleSyllable');
-
-      final lines = data.lines!.cast<SyllableLineInfo>();
-      expect(lines.length, 54);
-      expect(lines.first.text, "Hate to give the satisfaction asking how you're doing now");
-      expect(lines.first.startTime, 14872);
-      expect(lines.last.text, 'Bleeding me dry like a goddamn vampire');
-      expect(lines.last.startTime, 203364);
-      expect(lines.where((l) => l.subLine != null).length, 1);
-    });
-
-    test('LsMixQrcDemo 与上游逐行一致（32 行 / 4 条背景人声子行）', () {
-      final data = LyricifySyllableParser.parse(_fixture('LsMixQrcDemo.txt'));
-      _expectSameAsGolden(_describe(data), 'LsMixQrcDemo');
-
-      final lines = data.lines!;
-      expect(lines.length, 32);
-      expect(lines.where((l) => l.subLine != null).length, 4);
-      expect(data.trackMetadata!.title, 'Stop and Stare');
-      expect(data.trackMetadata!.artist, 'OneRepublic');
-    });
-
-    test('行首 [p] 决定背景人声与对唱视图', () {
-      final background = LyricifySyllableParser.parseLyricsLine('[6]a(0,100)');
-      expect(background!.isBackgroundVocals, isTrue);
-      final main = LyricifySyllableParser.parseLyricsLine('[3]a(0,100)');
-      expect(main!.isBackgroundVocals, isFalse);
-      final left = LyricifySyllableParser.parseLyricsLine('[4]a(0,100)');
-      expect(left!.lyricsAlignment, LyricsAlignment.left);
-      expect(left.isBackgroundVocals, isFalse);
-      final right = LyricifySyllableParser.parseLyricsLine('[5]a(0,100)');
-      expect(right!.lyricsAlignment, LyricsAlignment.right);
-      final plain = LyricifySyllableParser.parseLyricsLine('[0]a(0,100)');
-      expect(plain!.lyricsAlignment, LyricsAlignment.unspecified);
-      expect(plain.isBackgroundVocals, isNull);
-    });
-
-    test('头尾括号的行会被并入上一行作为子行', () {
-      // 上游 LyricifySyllableParser.cs:83-96 的第二个循环里，
-      // 并入上一行的条件是 `i >= list.Count || IsNotBackgroundVocals(list[i + 1])`（:89），
-      // 但它跑在 `for (int i = 1; i < list.Count; i++)` 里，`i >= list.Count` 恒为 false，
-      // 于是必然要求存在 `list[i + 1]`。
-      // 括号行后面**还有**一行歌词时才会走并入分支：
-      final data = LyricifySyllableParser.parse(
-        '[0]main line(0,1000)\n[0](background)(1000,500)\n[0]next line(1500,500)',
-      );
-      expect(data.lines!.length, 2);
-      expect(data.lines![0].text, 'main line');
-      expect(data.lines![0].subLine!.text, '(background)');
-      expect(data.lines![0].subLine!.subLine, isNull);
-      expect(data.lines![1].text, 'next line');
-
-      // 括号行正好是最后一行时 `list[i + 1]` 越界——上游同样如此
-      // （.NET ArgumentOutOfRangeException / Dart RangeError），照实断言。
-      expect(
-        () => LyricifySyllableParser.parse(
-          '[0]main line(0,1000)\n[0](background)(1000,500)',
-        ),
-        throwsRangeError,
-      );
     });
   });
 

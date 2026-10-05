@@ -7,6 +7,23 @@ class DESHelper {
   static const int encrypt = 1;
   static const int decrypt = 0;
 
+  // PERF: reusable Feistel scratch buffers.
+  //
+  // Before, every [_f] round allocated a fresh `List<int>.filled(6, 0)` and every
+  // [crypt] allocated a fresh `List<int>.filled(2, 0)`. 3DES runs `crypt` 3x
+  // with 16 rounds each, so a single 8-byte block burned **48 + 3 = 51** list
+  // allocations; a 20-80 kB QRC payload (2.5k-10k blocks) allocated ~150k-500k
+  // short-lived lists just for bookkeeping.
+  //
+  // Sharing one static buffer is safe because DES here is a single synchronous
+  // computation with no re-entrancy: [_f] and [crypt] are only ever reached
+  // through [tripleDESCrypt] -> [tripleDESKeySetup]/[keySchedule] setup and a
+  // linear block loop, and no callback can re-enter them. Each isolate
+  // (the `compute` offload in `decrypter.dart` included) gets its own copy of
+  // these statics, so there is no cross-isolate sharing either.
+  static final List<int> _stateScratch = List<int>.filled(2, 0);
+  static final List<int> _lrgStateScratch = List<int>.filled(6, 0);
+
   static int _bitnum(List<int> a, int b, int c) =>
       ((a[(b ~/ 32) * 4 + 3 - (b % 32) ~/ 8] >> (7 - (b % 8))) & 0x01) << c;
 
@@ -288,7 +305,7 @@ class DESHelper {
   }
 
   static int _f(int state, List<int> key) {
-    final lrgstate = List<int>.filled(6, 0);
+    final lrgstate = _lrgStateScratch;
     int t1, t2;
 
     t1 = _bitnumintl(state, 31, 0) |
@@ -378,7 +395,7 @@ class DESHelper {
 
   ///
   static void crypt(List<int> input, List<int> output, List<List<int>> key) {
-    final state = List<int>.filled(2, 0);
+    final state = _stateScratch;
     int idx, t;
 
     _ip(state, input);

@@ -311,6 +311,8 @@ class Lrc {
     final na = norm(artist);
     Map<String, Object?>? best;
     var bestScore = -1e9;
+    // best 那首的**歌名得分**，单独留一份给循环后的否决闸用。
+    var bestNameScore = 0.0;
 
     for (var i = 0; i < songs.length; i++) {
       final s = songs[i];
@@ -393,24 +395,28 @@ class Lrc {
       // NameMatch）。真实场景：「天元 - 纯音乐」和「天元」是同一首，
       // 旧规则走 contains 只能拿到 25 分，加上时长也够不到门槛。
       final snCore = _stripNameTail(sn);
+      // 这一首的歌名得分。**单独记下来**是因为"歌名完全不像"要能一票否决，
+      // 见循环之后那道闸。合并进 score 之后就看不出这分是从哪来的了。
+      double nameScore = 0;
       if (nt.isNotEmpty && sn.isNotEmpty) {
         if (sn == nt) {
-          score += 40;
+          nameScore = 40.0;
         } else if (allowStripTail &&
             (snCore == nt || snCore == _stripNameTail(nt))) {
           // 剥掉后缀后一致：只作**次选**（分数明显低于完全相等），
           // 否则同名不同版本（English / Chinese version）会失去区分度。
-          score += 12;
+          nameScore = 12.0;
         } else if (sn.contains(nt) || nt.contains(sn)) {
-          score += 25;
+          nameScore = 25.0;
         } else if (allowStripTail && snCore.isNotEmpty &&
             (snCore.contains(nt) || nt.contains(snCore))) {
-          score += 8;
+          nameScore = 8.0;
         } else {
           final si = sim(sn, nt);
-          if (si >= 0.3) score += (si * 30).round();
+          if (si >= 0.3) nameScore = si * 30;
         }
       }
+      score += nameScore;
 
       // 原曲名里本来就写着 Live/Remix 时不该扣
       if (_junkRe.hasMatch(sn) && !_junkRe.hasMatch(title)) score -= 70;
@@ -421,6 +427,7 @@ class Lrc {
       if (score > bestScore) {
         bestScore = score;
         best = s;
+        bestNameScore = nameScore;
       }
     }
     // 候选明细：这类"选错版本"的问题只能靠它定位——光看"命中 N 行"
@@ -436,6 +443,28 @@ class Lrc {
       final diff = durMs > 0 && dur > 0 ? (dur - durMs).abs() ~/ 1000 : -1;
       Log.i('lyrics', '  候选${i + 1}: 「${s['name']}」/「${names.join('/')}」'
           '${diff >= 0 ? " 时长差 ${diff}s" : ''}');
+    }
+
+    // ---- 歌名否决闸：歌名完全不像的，一律不选 ----
+    //
+    // 歌手和时长都对，**不代表是同一首歌** ——「翻唱专辑」正好就是这个形状：
+    // 同一个歌手、长度接近（甚至完全一致），但唱的是别人的歌。
+    //
+    // 实测（用户截图）：「嚣张」/「en王翊恩」。网易云没有 en 的原版《嚣张》，
+    // 于是走"只搜歌手"兜底，拿到他翻唱的 30 首；其中「最佳损友」（他翻唱
+    // 陈奕迅那首）**歌手匹配 +60、时长差仅 2s +66**，总分碾压，而歌名
+    // 「最佳损友」和「嚣张」一个字都不沾。旧规则"标题只加分不重扣"让它
+    // 顺利过关，屏幕上就放起了陈奕迅那首的词。用户原话是"这歌词根本不对"。
+    //
+    // 所以：**歌名必须至少有一点像**（同 / 包含 / 剥后缀 / 相似度 ≥ 0.3）。
+    // 这一条会牺牲"歌名被翻译成外语"的场景（那时歌名相似度是 0），但那种
+    // 情况本来就该由"只搜歌手"的兜底之外的路径去救——放它进来只会换来
+    // 一首完全不相干的歌词，比"没找到"糟糕得多。
+    if (best != null && bestNameScore <= 0) {
+      Log.i('lyrics',
+          '✗ 拒绝「${best['name']}」：歌手/时长都对得上，但歌名与「$title」完全不像'
+          '（翻唱专辑的典型形状）');
+      return null;
     }
 
     return bestScore >= 60 ? best : null;

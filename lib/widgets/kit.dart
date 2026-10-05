@@ -189,7 +189,12 @@ class _PluginSliderState extends State<PluginSlider> {
 
   void _update(double dx, double width) {
     if (width <= 0) return;
-    setState(() => _dragging = (dx / width).clamp(0.0, 1.0));
+    final next = (dx / width).clamp(0.0, 1.0);
+    // 值没变就别 setState：高轮询率/高精度鼠标在原地微微抖动时，move 事件
+    // 的上报频率远高于 60Hz，每次都重建一遍滑块纯属白烧——而且 setState
+    // 会顺着祖先的重绘边界把整张卡片拖下水。
+    if (next == _dragging) return;
+    setState(() => _dragging = next);
   }
 
   @override
@@ -230,46 +235,52 @@ class _PluginSliderState extends State<PluginSlider> {
                 }
               : null,
           behavior: HitTestBehavior.opaque,
-          child: SizedBox(
-            height: _hitHeight,
-            width: double.infinity,
-            child: Center(
-              child: Stack(
-                alignment: Alignment.centerLeft,
-                children: [
-                  Container(
-                    height: widget.height,
-                    decoration: BoxDecoration(
-                      color: widget.background,
-                      borderRadius: BorderRadius.circular(widget.height / 2),
-                    ),
-                  ),
-                  FractionallySizedBox(
-                    widthFactor: v,
-                    child: Container(
+          // 拖拽期间每帧都要重画滑块本身，外面围一层重绘边界，免得脏标记
+          // 一路冒到包着它的歌词卡边界上去，把整张卡（封面 + 控件 + 整列
+          // 歌词）都重画一遍。命中判定不受影响（RepaintBoundary 照常参与
+          // hit test，Listener 仍在它外面）。
+          child: RepaintBoundary(
+            child: SizedBox(
+              height: _hitHeight,
+              width: double.infinity,
+              child: Center(
+                child: Stack(
+                  alignment: Alignment.centerLeft,
+                  children: [
+                    Container(
                       height: widget.height,
                       decoration: BoxDecoration(
-                        color: widget.enabled
-                            ? widget.color
-                            : widget.color.withValues(alpha: 0.35),
+                        color: widget.background,
                         borderRadius: BorderRadius.circular(widget.height / 2),
                       ),
                     ),
-                  ),
-                  // 拖拽中才显示滑块，平时保持截图里那种干净的细条
-                  if (_dragging != null)
-                    Align(
-                      alignment: Alignment(v * 2 - 1, 0),
+                    FractionallySizedBox(
+                      widthFactor: v,
                       child: Container(
-                        width: 10,
-                        height: 10,
+                        height: widget.height,
                         decoration: BoxDecoration(
-                          color: widget.color,
-                          shape: BoxShape.circle,
+                          color: widget.enabled
+                              ? widget.color
+                              : widget.color.withValues(alpha: 0.35),
+                          borderRadius: BorderRadius.circular(widget.height / 2),
                         ),
                       ),
                     ),
-                ],
+                    // 拖拽中才显示滑块，平时保持截图里那种干净的细条
+                    if (_dragging != null)
+                      Align(
+                        alignment: Alignment(v * 2 - 1, 0),
+                        child: Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                            color: widget.color,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -323,6 +334,11 @@ class _FlipSwapState extends State<FlipSwap>
   @override
   void didUpdateWidget(FlipSwap old) {
     super.didUpdateWidget(old);
+    // _ctrl 是 late final：只在建 State 时用了一次 widget.duration，此后再没
+    // 接过。duration 是开放出来让调用方按自己的节奏给的（见字段注释），不接上
+    // 就等于调用方改了也永远不生效——控制器握着建库时的旧值跑完全程。
+    // 正在播的那一次动画不受影响（模拟器自带时长快照），下一次翻面才用新的。
+    if (widget.duration != old.duration) _ctrl.duration = widget.duration;
     if (widget.flipKey != _prevKey) {
       _prevKey = widget.flipKey;
       // value=0 在前脸 → forward 到 1（翻到后脸）
@@ -358,21 +374,37 @@ class _FlipSwapState extends State<FlipSwap>
           children: [
             // 前脸：t<0.5 时可见，t>=0.5 时隐藏
             if (t < 0.5)
-              Transform(
-                alignment: Alignment.bottomCenter,
-                transform: Matrix4.identity()
-                  ..setEntry(3, 2, 0.0012)
-                  ..rotateX(frontAngle),
-                child: Opacity(opacity: frontOpacity, child: widget.front),
+              RepaintBoundary(
+                // 外层边界只管"脏在哪"：矩阵每帧都变，脏标记会一路冒到外面
+                // 那张卡的重绘边界上去。
+                child: Transform(
+                  alignment: Alignment.bottomCenter,
+                  transform: Matrix4.identity()
+                    ..setEntry(3, 2, 0.0012)
+                    ..rotateX(frontAngle),
+                  child: Opacity(
+                    opacity: frontOpacity,
+                    // 内层边界才是省钱的那一层：opacity<1 会开 saveLayer，
+                    // 没有边界时整张脸（几百行文字）每帧重新栅格化一遍；有
+                    // 了它内容只画一次，之后每帧只是把缓存好的图层按新的
+                    // alpha 和矩阵合成。
+                    child: RepaintBoundary(child: widget.front),
+                  ),
+                ),
               ),
             // 后脸：t>=0.5 时可见，t<0.5 时隐藏
             if (t >= 0.5)
-              Transform(
-                alignment: Alignment.bottomCenter,
-                transform: Matrix4.identity()
-                  ..setEntry(3, 2, 0.0012)
-                  ..rotateX(backAngle),
-                child: Opacity(opacity: backOpacity, child: widget.back),
+              RepaintBoundary(
+                child: Transform(
+                  alignment: Alignment.bottomCenter,
+                  transform: Matrix4.identity()
+                    ..setEntry(3, 2, 0.0012)
+                    ..rotateX(backAngle),
+                  child: Opacity(
+                    opacity: backOpacity,
+                    child: RepaintBoundary(child: widget.back),
+                  ),
+                ),
               ),
           ],
         );

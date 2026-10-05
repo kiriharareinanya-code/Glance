@@ -92,6 +92,26 @@ class WeatherWidget extends BuiltinController {
     return v ?? 99;
   }
 
+  // ---- 常量色 ----
+  //
+  // nodeColor 每次都要 substring 掉 '#'、按位数重组字符串、再 int.parse。
+  // 下面这几个在文件里写死、每次 build 都要用到，做成 static final 解析一次。
+  static final _accent = nodeColor('#7CC7FF'); // 当前天气那行的小圆点
+  static final _chipBg = nodeColor('#FFFFFF12'); // 体感/湿度/风/UV 胶囊
+  static final _cellBg = nodeColor('#FFFFFF0A'); // 5 天预报的普通日
+  static final _todayBg = nodeColor('#FFFFFF1C'); // 5 天预报的今天
+  static final _todayLine = nodeColor('#FFFFFF2E'); // 今天那格的描边
+  static final _errorDot = nodeColor('#FF9E7D'); // 失败态标题前的小圆点
+  static final _retryBg = nodeColor('#FFFFFF14'); // 重试按钮
+
+  /// 颜色字符串 → Color 的按串缓存（图标色那一族每次 build 都要问好几遍：
+  /// 当前图标、5 天预报、12 小时逐时）。键集只有十几个图标色加几种透明度后缀，
+  /// 缓存住比反复解析划算。
+  static final Map<String, Color> _colorMemo = {};
+
+  static Color _memoColor(String hex) =>
+      _colorMemo.putIfAbsent(hex, () => nodeColor(hex));
+
   @override
   void mount() {
     _draw();
@@ -119,6 +139,53 @@ class WeatherWidget extends BuiltinController {
       if (_refreshTimer != null) ctx.clearTimer(_refreshTimer!);
       if (_flipTimer != null) ctx.clearTimer(_flipTimer!);
     });
+  }
+
+  // ---- 前脸 / 后脸 ----
+
+  /// 已经建好的两脸（缓存，见 [_faceWidget]）。
+  Widget? _frontCache;
+  Widget? _backCache;
+
+  /// 缓存的成立条件。两脸是下面这些量的**纯函数**：数据、城市、行数、前景色、
+  /// 卡片尺寸、动画开关、设置对象——差一个就整组重建。
+  ///
+  /// 卡尺寸这一项别省：[_framed] / [_grid] 都是照 `ctx.size` 算布局的，拿旧
+  /// 几何去画新尺寸就是画歪了（卡片拖过尺寸之后才会露出来）。
+  ({
+    Map<String, Object?> data,
+    _Loc loc,
+    int rows,
+    Color fg,
+    Size size,
+    bool animate,
+    Map<String, Object?> settings,
+  })? _faceCacheKey;
+
+  /// 取某一脸（[front] 为 true 取正面）。
+  ///
+  /// 自动翻面只改 [_face] 这个字符串，数据/尺寸一个字都没变——原来这里照样把
+  /// 两张脸各重建一遍（~275 行、~120 个 widget，外加一堆字段解析与取色）。
+  /// 缓存住之后只有**首次**（或数据、尺寸、设置真的变了）才重建；翻面时拿到
+  /// 的是同一个 Widget 实例，`Element.updateChild` 会直接短路，整棵子树
+  /// 连 build 都不进。
+  Widget _faceWidget(bool front, Color fg) {
+    final key = (
+      data: _data!,
+      loc: _loc!,
+      rows: ctx.grid.rows,
+      fg: fg,
+      size: ctx.size,
+      animate: ctx.animate,
+      settings: ctx.settings,
+    );
+    if (_faceCacheKey != key) {
+      _frontCache =
+          _buildFront(_data!, _loc!, key.rows, key.fg);
+      _backCache = _buildBack(_data!, key.rows, key.fg);
+      _faceCacheKey = key;
+    }
+    return (front ? _frontCache : _backCache)!;
   }
 
   // ---- 前脸：当前天气 + 5 天预报（原生 Widget）----
@@ -239,7 +306,7 @@ class WeatherWidget extends BuiltinController {
                       width: 4,
                       height: 4,
                       decoration: BoxDecoration(
-                          color: nodeColor('#7CC7FF'),
+                          color: _accent,
                           borderRadius: BorderRadius.circular(2)),
                     ),
                     // 城市名可能比可用宽度长（"内蒙古自治区锡林郭勒盟"那种），
@@ -277,14 +344,14 @@ class WeatherWidget extends BuiltinController {
                 width: iconBox,
                 height: iconBox,
                 decoration: BoxDecoration(
-                  color: nodeColor('${_iconColorOf(curCode)}26'),
+                  color: _memoColor('${_iconColorOf(curCode)}26'),
                   borderRadius: BorderRadius.circular(iconBox / 2),
                 ),
                 child: Center(
                   child: NodeIcon(
                       name: _iconOf(curCode),
                       size: narrow ? 17 : 22,
-                      color: nodeColor(_iconColorOf(curCode)),
+                      color: _memoColor(_iconColorOf(curCode)),
                       animate: ctx.animate),
                 ),
               ),
@@ -322,7 +389,7 @@ class WeatherWidget extends BuiltinController {
               padding:
                   const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
               decoration: BoxDecoration(
-                color: nodeColor('#FFFFFF12'),
+                color: _chipBg,
                 borderRadius: BorderRadius.circular(9),
               ),
               child: Row(
@@ -347,11 +414,15 @@ class WeatherWidget extends BuiltinController {
         (_nest(fd, ['temperature', 'value']) as List?)?.cast<Object?>() ?? [];
     final wtrs =
         (_nest(fd, ['weather', 'value']) as List?)?.cast<Object?>() ?? [];
+    // 今天只取一次：原来循环里 DateTime.now() 调 5 次、Duration 造 5 个，
+    // 而 5 格里"今天"是同一个时刻。
+    final today = DateTime.now();
+    const oneDay = Duration(days: 1);
     for (var i = 0; i < 5; i++) {
       final hi = _numOf(temps.length > i ? _from(temps[i]) : null);
       final lo = _numOf(temps.length > i ? _to(temps[i]) : null);
       final wcode = _codeOf(i < wtrs.length ? _from(wtrs[i]) : null);
-      final d = DateTime.now().add(Duration(days: i));
+      final d = today.add(oneDay * i);
       const wk = ['日', '一', '二', '三', '四', '五', '六'];
       final label = i == 0 ? '今天' : '周${wk[d.weekday % 7]}';
       final cellKids = <Widget>[
@@ -359,7 +430,7 @@ class WeatherWidget extends BuiltinController {
         NodeIcon(
             name: _iconOf(wcode),
             size: 15,
-            color: nodeColor(_iconColorOf(wcode)),
+            color: _memoColor(_iconColorOf(wcode)),
             animate: ctx.animate),
       ];
       if (hi != null) {
@@ -376,11 +447,9 @@ class WeatherWidget extends BuiltinController {
         padding: EdgeInsets.symmetric(
             vertical: compact ? 2 : 6, horizontal: 2),
         decoration: BoxDecoration(
-          color: nodeColor(i == 0 ? '#FFFFFF1C' : '#FFFFFF0A'),
+          color: i == 0 ? _todayBg : _cellBg,
           borderRadius: BorderRadius.circular(10),
-          border: i == 0
-              ? Border.all(color: nodeColor('#FFFFFF2E'))
-              : null,
+          border: i == 0 ? Border.all(color: _todayLine) : null,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -430,7 +499,7 @@ class WeatherWidget extends BuiltinController {
             NodeIcon(
                 name: _iconOf(hc),
                 size: 14,
-                color: nodeColor(_iconColorOf(hc)),
+                color: _memoColor(_iconColorOf(hc)),
                 animate: ctx.animate),
             Text('${_asNum(hTemps[k]).round()}°',
                 textAlign: TextAlign.center,
@@ -514,7 +583,7 @@ class WeatherWidget extends BuiltinController {
                   width: 4,
                   height: 4,
                   decoration: BoxDecoration(
-                      color: nodeColor('#FF9E7D'),
+                      color: _errorDot,
                       borderRadius: BorderRadius.circular(2)),
                 ),
                 Text('天气不可用',
@@ -537,7 +606,7 @@ class WeatherWidget extends BuiltinController {
                 padding:
                     const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
                 decoration: BoxDecoration(
-                  color: nodeColor('#FFFFFF14'),
+                  color: _retryBg,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text('重试', style: _ts(fg, size: 11)),
@@ -550,8 +619,8 @@ class WeatherWidget extends BuiltinController {
     }
 
     Widget body(Color fg) {
-      final front = _buildFront(_data!, _loc!, ctx.grid.rows, fg);
-      final back = _buildBack(_data!, ctx.grid.rows, fg);
+      final front = _faceWidget(true, fg);
+      final back = _faceWidget(false, fg);
       if (!ctx.animate) return front;
       // 翻面动画跟着停留时长一起放慢（kFlipAnim）：600ms 配上 8s 停留
       // 显得很急，900ms 配 30s 停留才像"翻页"而不是"闪一下"。
@@ -691,14 +760,21 @@ class WeatherWidget extends BuiltinController {
     ctx.storageSetLocal('cityCodes', all);
   }
 
+  /// 去掉结尾的行政区划后缀（市/区/县/省/盟/旗/镇/乡）。
+  ///
+  /// 正则编译不便宜，而 [_cityVariants] 每次城市搜索都要问一次。
+  static final _adminSuffixRe = RegExp(r'[市区县省盟旗镇乡]$');
+
+  /// toy1 的 JSONP 包裹里取 `[...]` 的内容（外层括号之外的部分）。
+  static final _jsonpBodyRe = RegExp(r'\[([\s\S]*)\]');
+
   /// 查询变体：先原样，再去掉行政区划后缀。
   ///
   /// toy1 只认不带后缀的简称（实测：「株洲」✓ /「株洲市」✗ /「天元区」✗），
   /// 所以带后缀的输入要能自动退化一次。
   static List<String> _cityVariants(String raw) {
     final out = <String>[raw];
-    final stripped =
-        raw.replaceAll(RegExp(r'[市区县省盟旗镇乡]$'), '').trim();
+    final stripped = raw.replaceAll(_adminSuffixRe, '').trim();
     if (stripped.isNotEmpty && stripped != raw) out.add(stripped);
     return out;
   }
@@ -737,7 +813,7 @@ class WeatherWidget extends BuiltinController {
     });
     if (r['ok'] != true) return null;
     final text = '${r['data']}';
-    final m = RegExp(r'\[([\s\S]*)\]').firstMatch(text);
+    final m = _jsonpBodyRe.firstMatch(text);
     if (m == null) return null;
     List<Object?> arr;
     try {

@@ -53,6 +53,25 @@ class CompareHelper {
     final durationMatch = duration_match.compareDuration(
         track.durationMs, searchResult.durationMs);
 
+    // **时长否决闸**（上游没有，见下面说明）。
+    //
+    // 上游把时长当成一个普通加权项参与总分，问题是**归一化会把它稀释掉**：
+    // 时长差 75.7 秒 → `noMatch` → 时长得分 0，但标题 7 + 歌手 7 = 14，
+    // `availableScore` 缩到 16.6 后 `14 × 25.2/16.6 = 21.2 > 21`，
+    // **照样判成 Perfect**。实测《阳光下的星星》（207.8s）匹配到 283.5s
+    // 的现场版仍拿 `prettyHigh`，于是歌词被取走并写进缓存——但行时间戳在
+    // 4 分钟之后，歌才 3:52，用户看到的是"只有开头几行"。
+    //
+    // 时长差大到一定程度，就不是"同一首歌的不同版本"了（现场版、加速版、
+    //  remix 通常也就差 10~20%）。差 25% 以上基本可以断定是**另一首歌**
+    // （同名不同曲在网易云上非常多）。这种候选必须直接否掉，不能再指望
+    // 分数体系去表达"标题对了但时长完全不对"这种自相矛盾的证据。
+    if (durationMatch == duration_match.DurationMatchType.noMatch &&
+        _durationDiffRatioExceeds(track.durationMs, searchResult.durationMs,
+            0.25)) {
+      return MatchType.noMatch;
+    }
+
     double totalScore = 0;
     totalScore += name_match.matchScoreOfName(trackMatch);
     totalScore += artist_match.matchScoreOfArtist(artistMatch);
@@ -75,6 +94,18 @@ class CompareHelper {
     if (totalScore > 8) return MatchType.low;
     if (totalScore > 3) return MatchType.veryLow;
     return MatchType.noMatch;
+  }
+
+  /// 时长差是否超过**相对比例** [ratio]。
+  ///
+  /// 用相对值而不是绝对值，因为"差多少算太多"取决于歌长：3 分钟的歌差
+  /// 30 秒是 17%（可疑），但 8 分钟的协奏曲差 30 秒只有 6%（正常）。
+  /// 取 `min(d1, d2)` 做分母——候选比原曲短很多时（如 8 分钟原曲 vs
+  /// 3 分钟剪辑版，差 62%）判定要更严。
+  static bool _durationDiffRatioExceeds(int? d1, int? d2, double ratio) {
+    if (d1 == null || d2 == null || d1 == 0 || d2 == 0) return false;
+    final shorter = d1 < d2 ? d1 : d2;
+    return (d1 - d2).abs() / shorter > ratio;
   }
 
   /// 候选的专辑名能否佐证"这就是同一首歌的译名版"。

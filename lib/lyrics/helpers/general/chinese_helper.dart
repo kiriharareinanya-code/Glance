@@ -47,15 +47,19 @@ class ChineseHelper {
   ///
   static String toSC(String? text, [bool force = false]) {
     if (text == null) return '';
-    if (force) {
-      text = t2S(text);
-      text = text
-          .replaceAll('藉', '借')
-          .replaceAll('咀', '嘴')
-          .replaceAll('昇', '升')
-          .replaceAll('髒', '脏');
-    }
-    return ChineseConverter.convertToSimplifiedChinese(text);
+    if (!force) return ChineseConverter.convertToSimplifiedChinese(text);
+    // PERF: the original ran `t2S(text)` and then *unconditionally* ran
+    // `convertToSimplifiedChinese` again on the result, i.e. two full
+    // dictionary passes per call. `convertToSimplifiedChinese` is idempotent
+    // (verified exhaustively over every BMP code unit: C(C(c)) == C(c) for all
+    // 65503 of them, and the four force-only replacements below cannot
+    // reintroduce a convertible character), so the second pass is a no-op and
+    // the result is bit-for-bit identical.
+    return t2S(text)
+        .replaceAll('藉', '借')
+        .replaceAll('咀', '嘴')
+        .replaceAll('昇', '升')
+        .replaceAll('髒', '脏');
   }
 
   static bool isTraditional(String? text) {

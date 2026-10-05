@@ -3,7 +3,7 @@
 library;
 
 import 'helpers/optimization/info_lines.dart';
-import 'helpers/optimization/syllable_word_merger.dart';
+import 'helpers/optimization/sync_downgrade.dart';
 import 'helpers/parse_helper.dart';
 import 'helpers/types/type_helper.dart';
 import 'lyrics_log.dart';
@@ -152,7 +152,13 @@ class LyricsEngine {
               warn: true);
           continue;
         }
-        if (data == null || (data.lines?.isEmpty ?? true)) continue;
+        if (data == null) continue;
+        // 判据和 bridge 层一致：**行数不为 0 不等于有词**。
+        // 历史上出现过一份 38 行里 36 行文本为空的 YRC（模型层引用共享 bug
+        // 留下的坏数据），只查 `isEmpty` 会让它当成命中返回，屏幕上只剩
+        // 开头两行制作名单。空行占比过半就当这份数据不可用，换下一个候选。
+        final fetched = data.lines ?? const <LineInfo>[];
+        if (fetched.isEmpty || !hasRealLyrics(fetched)) continue;
 
         data = _optimize(data, stripInfoLines: stripInfoLines);
 
@@ -230,12 +236,24 @@ class LyricsEngine {
       }
     }
 
+    // **统一降级出口**（逐字功能下线后新增）。
+    //
+    // KRC/YRC/QRC/TTML 这几种逐字格式的 parser 会产出 `SyllableLineInfo`
+    // ——因为它们的行文本和行时间是从音节累积出来的，解析阶段离不开它。
+    // 但渲染层只认纯文本行（逐字擦除动画已下线），所以在这里一次性把
+    // 音节行降级掉。放在 `_optimize` 末尾而不是逐个改 parser，是因为：
+    // 改 parser 就得把"音节累积 → 拼文本"这套逻辑在 5 个文件里各抄一遍，
+    // 而降级是 Lyricify 自带的、上游就有保证的行为（`SyncDowngrade.cs`）。
+    //
+    // 降级是**幂等**的：已经是 `TextLineInfo` 的行原样返回，所以
+    // LRC 这类本来就没有音节的源不受影响。
     try {
-      for (final line in lines) {
-        if (line is SyllableLineInfo) SyllableWordMerger.merge(line);
-      }
+      SyncDowngrade.downgradeToLineSyncedList(lines);
+      // 降级后整份数据的同步类型不该再声称自己是逐字——否则日志和
+      // `LyricsView.encode()` 写出去的 `sync` 字段会继续撒谎。
+      if (data.file != null) data.file!.syncTypes = SyncTypes.lineSynced;
     } catch (e) {
-      lyricsLog('优化（逐字词合并）失败：$e', warn: true);
+      lyricsLog('优化（降级为文本行）失败：$e', warn: true);
     }
 
     return data;
@@ -262,7 +280,6 @@ class LyricsEngine {
 }
 
 String lyricsTypeDisplayName(LyricsTypes type) => switch (type) {
-      LyricsTypes.lyricifySyllable => 'Lyricify Syllable',
       LyricsTypes.lyricifyLines => 'Lyricify Lines',
       LyricsTypes.lrc => 'LRC',
       LyricsTypes.qrc => 'QRC',

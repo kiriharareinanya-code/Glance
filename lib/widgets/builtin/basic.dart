@@ -268,10 +268,15 @@ class TodoWidget extends BuiltinController {
   }
 
   /// due 距今天数：0=今天、1=明天、负数=已过 N 天。
-  static int? _daysFromToday(Object? due) {
+  ///
+  /// [today]（今天零点）由调用方一次算好传进来：[draw] 每次重绘取一次。
+  /// 原来每行都 `DateTime.now()` 再 `_midnight()` 一次——清单是用户自己堆的，
+  /// 三百行就是三百次时钟读取加三百个 DateTime，而同一帧里它们的结果
+  /// 必然一模一样。
+  static int? _daysFromToday(Object? due, DateTime today) {
     final d = _parseDate(due);
     if (d == null) return null;
-    return d.difference(_midnight(DateTime.now())).inDays;
+    return d.difference(today).inDays;
   }
 
   @override
@@ -315,10 +320,10 @@ class TodoWidget extends BuiltinController {
     draw();
   }
 
-  Widget _row(Map<String, Object?> item, Color fg) {
+  Widget _row(Map<String, Object?> item, Color fg, DateTime today) {
     final done = item['done'] == true;
     final editing = _editingId == item['id'];
-    final days = _daysFromToday(item['due']);
+    final days = _daysFromToday(item['due'], today);
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 6),
@@ -581,29 +586,33 @@ class TodoWidget extends BuiltinController {
         : items;
     final left = items.where((i) => i['done'] != true).length;
     _drawn = true;
+    // 整次重绘只问一次时钟（见 [_daysFromToday]）
+    final today = _midnight(DateTime.now());
 
     ctx.renderWidget(Builder(builder: (context) {
       final fg = DefaultTextStyle.of(context).style.color ?? Colors.white;
 
-      final rows = [
-        for (final item in shown) _row(item, fg),
-      ];
-
-      final list = SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: rows.isNotEmpty
-              ? withGaps(rows, 5)
-              : [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Text('还没有待办',
-                        style: TextStyle(
-                            fontSize: 11, color: fg.withValues(alpha: 0.28))),
-                  ),
-                ],
-        ),
-      );
+      // 清单是用户自己堆的，没有上限。原来 SingleChildScrollView + Column
+      // 在同一次 build 里把**每一行**都造出来，三百项就是三百次行构建。
+      // ListView.builder 只造视口附近那些，滚动行为与 SingleChildScrollView
+      // 完全一致（同一个 ScrollConfiguration 物理、没有滚动条、外层 Expanded
+      // 照样把它撑满），行距用每行的 top padding 补，与 withGaps 的效果相同。
+      final list = shown.isEmpty
+          ? SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Text('还没有待办',
+                    style: TextStyle(
+                        fontSize: 11, color: fg.withValues(alpha: 0.28))),
+              ),
+            )
+          : ListView.builder(
+              itemCount: shown.length,
+              itemBuilder: (context, i) => Padding(
+                padding: EdgeInsets.only(top: i == 0 ? 0 : 5),
+                child: _row(shown[i], fg, today),
+              ),
+            );
 
       return Column(
         children: withGaps([

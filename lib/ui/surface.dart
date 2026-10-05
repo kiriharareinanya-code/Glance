@@ -51,7 +51,7 @@ class DesktopSurface extends StatefulWidget {
   final AppState state;
   final Store store;
 
-  /// 插件内容由外部注入（QuickJS 运行时）
+  /// 卡片内容由外部注入（原生组件）
   final Widget Function(WidgetCard card, Size size) buildPluginBody;
 
   /// 右键卡片：打开控制面板并定位到这张卡片
@@ -81,7 +81,38 @@ class DesktopSurfaceState extends State<DesktopSurface> {
   WidgetCard? _dragCard;
   Offset _grabOffset = Offset.zero;
   bool _moved = false;
-  List<snap.Guide> _guides = const [];
+
+  /// 整场拖拽里只有被拖的那张卡在动，其余卡片一动不动。
+  ///
+  /// 所以这份"别人在哪"的矩形表在按下那一刻算一次就够，不必每帧重建 ——
+  /// 每帧重建等于每帧 N 次 Rect 分配，拖得越久越像在自己给自己制造垃圾。
+  List<snap.Rect> _dragOthers = const [];
+
+  /// 拖拽期间的窗口可视范围，同样按下时取一次（拖拽中窗口尺寸不会变）。
+  Size _dragBounds = Size.zero;
+
+  /// 每张卡一份的位置信号。
+  ///
+  /// 这是本文件最重要的一次结构性调整：以前拖拽每来一个 pointer move 就
+  /// setState 整个 surface，于是**每帧**都要重建 Stack 里全部 N 张卡——
+  /// 不光是定位那一行，是每张卡的 CardView 和插件正文（buildPluginBody）
+  /// 全部重跑一遍。5 张卡就是每帧 5 份插件渲染树，帧预算直接被吃光。
+  ///
+  /// 现在位置只写进这一个 notifier，由 [_CardTile] 自己监听：被拖的那张卡
+  /// 重建，其余卡片连 build 都不会进。surface 本身在拖拽期间一次也不重建。
+  final Map<String, ValueNotifier<Offset>> _pos =
+      <String, ValueNotifier<Offset>>{};
+
+  /// 正在被拖的卡片 id（null = 没在拖）。
+  ///
+  /// 拖拽期间所有卡片的位移动画都必须掐成零时长（见 [_animDuration] 的说明：
+  /// 跟手的和缓动的放在一起，整屏看起来在颤）。把它做成 notifier 而不是字段，
+  /// 是为了让"开始拖/结束拖"这两个瞬间不必重建整个 surface 就能生效。
+  final ValueNotifier<String?> _dragId = ValueNotifier<String?>(null);
+
+  /// 吸附辅助线。拖拽中每帧都在变，同样走 notifier，免得为它重建整个 surface。
+  final ValueNotifier<List<snap.Guide>> _guides =
+      ValueNotifier<List<snap.Guide>>(const []);
 
   // 触摸编辑模式
   String? _editingId;
@@ -113,8 +144,7 @@ class DesktopSurfaceState extends State<DesktopSurface> {
       final nx = snap.clamp(c.x, 0, math.max(0.0, bounds.width - size.w));
       final ny = snap.clamp(c.y, 0, math.max(0.0, bounds.height - size.h));
       if (nx != c.x || ny != c.y) {
-        c.x = nx;
-        c.y = ny;
+        _setPos(c, nx, ny);
         changed = true;
       }
     }
@@ -130,12 +160,53 @@ class DesktopSurfaceState extends State<DesktopSurface> {
   void dispose() {
     _longPressTimer?.cancel();
     _editIdleTimer?.cancel();
+    // 子元素在这个 State 的 dispose 之前就已经 unmount 掉了，它们的监听器
+    // 也都摘干净了，所以这里销毁信号是安全的。
+    _dragId.dispose();
+    _guides.dispose();
+    for (final n in _pos.values) {
+      n.dispose();
+    }
+    _pos.clear();
     super.dispose();
   }
 
   void _cancelLongPress() {
     _longPressTimer?.cancel();
     _longPressTimer = null;
+  }
+
+  // ---------------- 位置信号 ----------------
+
+  /// 挪动一张卡：数据字段和位置信号必须一起改，两边分家会让
+  /// "存档里的坐标"和"屏幕上的坐标"慢慢对不上。
+  ///
+  /// 注意这里**故意不调 setState**：坐标只影响 [_CardTile] 内部的
+  /// AnimatedPositioned，让它自己重建就够了，拖拽时不必重建整面墙。
+  void _setPos(WidgetCard c, double x, double y) {
+    c.x = x;
+    c.y = y;
+    _pos[c.id]?.value = Offset(x, y);
+  }
+
+  @override
+  void didUpdateWidget(DesktopSurface oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 外层（显示器插拔对账、面板改网格尺寸…）会直接改 card.x/y。改了就得把
+    // 位置信号拉齐，否则卡片数据已经挪了、tile 还按旧坐标画，动画会把它从
+    // 旧位置慢慢挪过来——看起来像"自己飘了一下"。
+    for (final c in _cards) {
+      _pos[c.id]?.value = Offset(c.x, c.y);
+    }
+    // 卡片被删掉后，它的信号没人用了，放掉（量级极小，但别让 Map 无限长）
+    if (_pos.length != _cards.length) {
+      final alive = {for (final c in _cards) c.id};
+      _pos.removeWhere((id, n) {
+        if (alive.contains(id)) return false;
+        n.dispose();
+        return true;
+      });
+    }
   }
 
   double get _dpr => MediaQuery.of(context).devicePixelRatio;
@@ -145,31 +216,43 @@ class DesktopSurfaceState extends State<DesktopSurface> {
   /// 把卡片矩形推给 native。对外公开，供外层在需要时确定性地重推一次。
   void pushRegion() => _pushRegion();
 
-  /// 上一次推给 native 的几何签名，用来判断"这一帧卡片的形状到底变没变"。
-  String? _lastRegionSig;
+  /// 上一次推给 native 的几何快照，用来判断"卡片形状到底变没变"。
+  ///
+  /// 这里存的是数值而不是一串拼出来的签名文本：这份检查在**每次 surface 重建
+  /// 之后**都要问一遍，而重建虽然比从前少了（拖拽不再重建整面墙），加卡/删卡/
+  /// 改尺寸/面板改设置这些路径仍然会触发。每次现拼一个几百字节的字符串只为
+  /// 跟上一轮比一比，是纯浪费——比对本身不分配，需要更新时才回填。
+  final List<Object> _geomSnapshot = <Object>[];
 
   /// 会影响窗口区域的所有量：每张卡片的位置和尺寸，加上圆角与缩放。
   /// 这些里面任何一个变了，native 那边的裁剪就过期了。
-  String _regionSig() {
-    final b = StringBuffer()
-      ..write(_settings.cardRadius)
-      ..write('@')
-      ..write(_dpr);
+  ///
+  /// 返回 true 表示和 [_geomSnapshot] 对不上（也就是几何变了）。
+  bool _geometryChanged() {
+    final cards = _cards;
+    if (_geomSnapshot.length != 2 + cards.length * 5) return true;
+    var i = 0;
+    if (_geomSnapshot[i++] != _settings.cardRadius) return true;
+    if (_geomSnapshot[i++] != _dpr) return true;
+    for (final c in cards) {
+      final s = _px(c);
+      if (_geomSnapshot[i++] != c.id) return true;
+      if (_geomSnapshot[i++] != c.x) return true;
+      if (_geomSnapshot[i++] != c.y) return true;
+      if (_geomSnapshot[i++] != s.w) return true;
+      if (_geomSnapshot[i++] != s.h) return true;
+    }
+    return false;
+  }
+
+  void _rememberGeometry() {
+    _geomSnapshot
+      ..clear()
+      ..addAll(<Object>[_settings.cardRadius, _dpr]);
     for (final c in _cards) {
       final s = _px(c);
-      b
-        ..write('|')
-        ..write(c.id)
-        ..write(',')
-        ..write(c.x)
-        ..write(',')
-        ..write(c.y)
-        ..write(',')
-        ..write(s.w)
-        ..write(',')
-        ..write(s.h);
+      _geomSnapshot.addAll(<Object>[c.id, c.x, c.y, s.w, s.h]);
     }
-    return b.toString();
   }
 
   /// 每帧落定后自检一次：卡片几何变了就把新区域推给 native。
@@ -188,7 +271,7 @@ class DesktopSurfaceState extends State<DesktopSurface> {
     // 拖拽期间 native 那边是整窗放开的（见 _onPointerMove 与 _endDrag 的注释），
     // 这时推区域等于把卡片重新裁回去，会拖到一半"卡"住。松手时 _endDrag 补推。
     if (_dragCard != null) return;
-    if (_regionSig() == _lastRegionSig) return;
+    if (!_geometryChanged()) return;
     _pushRegion();
   }
 
@@ -205,7 +288,7 @@ class DesktopSurfaceState extends State<DesktopSurface> {
         ),
     ];
     // 显式推送也要记账，否则自动对账会以为区域还是旧的，白推一次
-    _lastRegionSig = _regionSig();
+    _rememberGeometry();
     NativeBridge.setRegion(
       cards: cards,
       // 辅助线只在拖拽时出现，而拖拽期间区域整窗放开，无需为它加矩形
@@ -292,6 +375,16 @@ class DesktopSurfaceState extends State<DesktopSurface> {
     _dragCard = card;
     _grabOffset = e.localPosition - Offset(card.x, card.y);
     _moved = false;
+    // 吸附和防重叠都要拿"别人在哪"。整场拖拽只有被拖的这张在动，所以这两样
+    // 拖拽期间不变——按下时取一次即可，不必每个 pointer move 重算一遍。
+    _dragOthers = [
+      for (final c in _cards)
+        if (c.id != card.id) snap.Rect(c.x, c.y, _px(c).w, _px(c).h),
+    ];
+    _dragBounds = MediaQuery.of(context).size;
+    // 拖拽期间所有卡片的位移动画掐成零（见 _animDuration）。走 notifier 而不是
+    // setState：这一次全量重建是必要的，但只有"开始拖"这一次。
+    _dragId.value = card.id;
   }
 
   void _onPointerMove(PointerMoveEvent e) {
@@ -314,12 +407,9 @@ class DesktopSurfaceState extends State<DesktopSurface> {
     final size = _px(card);
     final target = e.localPosition - _grabOffset;
 
-    final others = <snap.Rect>[
-      for (final c in _cards)
-        if (c.id != card.id) snap.Rect(c.x, c.y, _px(c).w, _px(c).h),
-    ];
-
-    final bounds = MediaQuery.of(context).size;
+    // _dragOthers / _dragBounds 在 _beginDrag 里取过一次，整场拖拽不变
+    final others = _dragOthers;
+    final bounds = _dragBounds;
     late final snap.SnapResult r;
     if (_settings.snapEnabled) {
       r = snap.resolve(
@@ -369,13 +459,12 @@ class DesktopSurfaceState extends State<DesktopSurface> {
     }
     final stuck = nx != r.x || ny != r.y;
 
-    setState(() {
-      card.x = nx;
-      card.y = ny;
-      // 位置被挡回去时，原来算出来的对齐线已经不成立了，别再画
-      _guides = stuck ? const [] : r.guides;
-      _moved = true;
-    });
+    // 坐标只写进被拖那张卡自己的位置信号，由 _CardTile 重建它自己。
+    // 这里**不再 setState**——整面墙一帧都不必重建，其余卡片连 build 都不进。
+    _setPos(card, nx, ny);
+    // 位置被挡回去时，原来算出来的对齐线已经不成立了，别再画
+    _guides.value = stuck ? const [] : r.guides;
+    _moved = true;
     // 这里刻意不调 _pushRegion()：区域已整窗放开，拖拽结束时再恢复
   }
 
@@ -390,7 +479,11 @@ class DesktopSurfaceState extends State<DesktopSurface> {
     _dragPointer = null;
     _dragCard = null;
     _moved = false;
-    setState(() => _guides = const []);
+    _dragOthers = const [];
+    // 恢复位移动画（一次全量 tile 重建）。先清 _dragCard 再动信号，
+    // 这样紧接着的 _pushRegion 才不会被"拖拽中"这条挡掉。
+    _dragId.value = null;
+    _guides.value = const [];
     // 先关拖拽模式，再推区域，否则 native 会因为仍在拖拽而跳过这次裁剪
     NativeBridge.setDragging(false).then((_) => _pushRegion());
     if (moved && card != null) {
@@ -419,9 +512,11 @@ class DesktopSurfaceState extends State<DesktopSurface> {
 
   /// 拖拽中的卡片不能有位置动画：动画会让它落后于指针。
   /// 其它卡片、以及松手之后，都用缓动过渡。
+  ///
+  /// 注：这行曾经被 `【临时定位C】` 改成开头的 `return Duration.zero` 来隔离
+  /// 性能问题，后来忘了撤——后果是**卡片位移动画、以及设置里那个
+  /// 「动画效果」开关全部失效**（260ms 缓动永远走不到）。现已恢复。
   Duration _animDuration(WidgetCard card) {
-    return Duration.zero;  // 【临时定位C】
-    // ignore: dead_code
     if (!_settings.animations) return Duration.zero;
     // 拖拽期间**所有**卡片一律零时长，不只是被拖的那张。
     //
@@ -451,57 +546,143 @@ class DesktopSurfaceState extends State<DesktopSurface> {
         fit: StackFit.expand,
         children: [
           for (final card in _sortedByZ())
-            AnimatedPositioned(
+            _CardTile(
               // key 必须按卡片身份给。子节点是按 z 排序的，按下任意一张卡片都会
               // 改变 z、从而改变列表顺序；没有 key 时 Flutter 按下标复用 element，
-              // 同一个 AnimatedPositioned 会被换给另一张卡片，于是它从旧卡片的
+              // 同一个 tile 会被换给另一张卡片，于是它从旧卡片的
               // 位置动画到新卡片的位置 —— 表现为按下去的瞬间"抽一下"。
               key: ValueKey(card.id),
-              // 正在拖的那张必须零时长：动画会让它落后于指针，手感立刻就散了。
-              // 其余情况（吸附回正、改尺寸、被拉回可视区、面板里改网格）走缓动。
+              card: card,
+              position: _posOf(card),
+              // 拖拽信号：非 null 表示"有人在拖"，位移动画要掐成零时长
+              dragId: _dragId,
+              settings: _settings,
+              dataDir: widget.store.dir,
+              editing: _editingId == card.id,
               duration: _animDuration(card),
-              curve: Curves.easeOutCubic,
-              left: card.x,
-              top: card.y,
-              // RepaintBoundary：拖一张卡片时其余卡片的图层可以直接复用，
-              // 不必跟着整屏重绘。没有它，2560x1440 下每帧都要重画所有卡片，
-              // 掉帧就表现为拖影。
-              child: RepaintBoundary(
-                child: AnimatedSize(
-                  duration: Duration.zero,  // 【临时定位C】
-                  curve: Curves.easeOutCubic,
-                  alignment: Alignment.topLeft,
-                  child: CardView(
-                    card: card,
-                    settings: _settings,
-                    dataDir: widget.store.dir,
-                    width: _px(card).w,
-                    height: _px(card).h,
-                    editing: _editingId == card.id,
-                    // 插件按尺寸自己排版（比如歌词卡按高度算能放几行），
-                    // 给它的必须是刨掉 CardView 内边距之后的真实可用尺寸，
-                    // 不然算出来的内容天生比卡片能装下的更高，底部溢出。
-                    child: widget.buildPluginBody(
-                        card,
-                        Size(
-                          math.max(
-                              0, _px(card).w - CardView.contentPadding.horizontal),
-                          math.max(
-                              0, _px(card).h - CardView.contentPadding.vertical),
-                        )),
-                  ),
-                ),
-              ),
+              buildPluginBody: widget.buildPluginBody,
             ),
-          GuidesLayer(guides: _guides),
+          // 辅助线自带一层重绘边界：它拖动时每帧都变，没有边界就会把整面墙
+          // 的图层拖脏，让已经优化好的卡片绘制白做。
+          RepaintBoundary(
+            child: ValueListenableBuilder<List<snap.Guide>>(
+              valueListenable: _guides,
+              builder: (context, guides, _) => GuidesLayer(guides: guides),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  /// 取出（必要时创建）这张卡的位置信号。
+  ///
+  /// build 里只读不写：万一这里发现信号和数据对不上，也只是"下一帧被
+  /// [didUpdateWidget] 拉齐"，绝不在 build 中途 notify 监听器。
+  ValueNotifier<Offset> _posOf(WidgetCard c) {
+    final n = _pos[c.id];
+    if (n != null) return n;
+    final created = ValueNotifier(Offset(c.x, c.y));
+    _pos[c.id] = created;
+    return created;
   }
 
   List<WidgetCard> _sortedByZ() {
     final list = [..._cards];
     list.sort((a, b) => a.z.compareTo(b.z));
     return list;
+  }
+}
+
+/// 桌面层里的一张卡片。
+///
+/// 单独拆出来的唯一理由是**重建范围**：它自己监听 [position]，被拖的时候只有
+/// 它这一棵子树会重建，桌面层（以及其余 N-1 张卡）连 build 都不进。拆之前
+/// 一次拖拽要重建全部卡片，卡片一多插件正文（歌词/天气/日历）每帧都得重画，
+/// 60fps 的帧预算（16.7ms）根本不够分。
+class _CardTile extends StatelessWidget {
+  const _CardTile({
+    super.key,
+    required this.card,
+    required this.position,
+    required this.dragId,
+    required this.settings,
+    required this.dataDir,
+    required this.editing,
+    required this.duration,
+    required this.buildPluginBody,
+  });
+
+  final WidgetCard card;
+
+  /// 卡片位置。被拖时由 [DesktopSurfaceState._setPos] 每帧写入。
+  final ValueNotifier<Offset> position;
+
+  /// 正在被拖的卡片 id；非 null 时位移动画一律零时长
+  final ValueNotifier<String?> dragId;
+
+  final AppSettings settings;
+  final String dataDir;
+  final bool editing;
+  final Duration duration;
+  final Widget Function(WidgetCard card, Size size) buildPluginBody;
+
+  PxSize get _px => card.pxSize(settings.gridCell, settings.gridGap);
+
+  @override
+  Widget build(BuildContext context) {
+    // 两层监听：拖拽状态只在外层变（一次拖拽两次），位置在内层变（每帧）。
+    // 合成一个 listenable 反而更贵——每帧都要重新订阅一遍。
+    return ValueListenableBuilder<String?>(
+      valueListenable: dragId,
+      builder: (context, dragging, _) => ValueListenableBuilder<Offset>(
+        valueListenable: position,
+        builder: (context, pos, _) {
+          final size = _px;
+          // 正在拖的那张必须零时长：动画会让它落后于指针，手感立刻就散了。
+          // 其余卡片也一样——一动一静放在一起，整屏看起来就在颤（见 _animDuration）。
+          final dur = dragging != null ? Duration.zero : duration;
+          return AnimatedPositioned(
+            duration: dur,
+            curve: Curves.easeOutCubic,
+            left: pos.dx,
+            top: pos.dy,
+            // RepaintBoundary：拖一张卡片时其余卡片的图层可以直接复用，
+            // 不必跟着整屏重绘。没有它，2560x1440 下每帧都要重画所有卡片，
+            // 掉帧就表现为拖影。
+              child: RepaintBoundary(
+                child: AnimatedSize(
+                  // 同上：这行也被 `【临时定位C】` 掐成了 Duration.zero。
+                  // 原值是 `animations ? 280ms : Duration.zero`，恢复后
+                  // 「动画效果」开关才同时管到位移（260ms）和尺寸（280ms）。
+                  duration: settings.animations
+                      ? const Duration(milliseconds: 280)
+                      : Duration.zero,
+                  curve: Curves.easeOutCubic,
+                  alignment: Alignment.topLeft,
+                child: CardView(
+                  card: card,
+                  settings: settings,
+                  dataDir: dataDir,
+                  width: size.w,
+                  height: size.h,
+                  editing: editing,
+                  // 插件按尺寸自己排版（比如歌词卡按高度算能放几行），
+                  // 给它的必须是刨掉 CardView 内边距之后的真实可用尺寸，
+                  // 不然算出来的内容天生比卡片能装下的更高，底部溢出。
+                  child: buildPluginBody(
+                    card,
+                    Size(
+                      math.max(0, size.w - CardView.contentPadding.horizontal),
+                      math.max(0, size.h - CardView.contentPadding.vertical),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }

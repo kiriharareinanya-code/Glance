@@ -48,6 +48,21 @@ Future<void> _bootstrap(List<String> args) async {
 
   // 日志系统就绪后再干别的，后面每一行才能进文件
   Log.init(engine: 'main', dir: AppPaths.logsDir);
+
+  // 图片缓存上限收到 35 MiB（Flutter 默认 100 MiB 太宽松）。
+  //
+  // 原因：卡片自定义背景图走的是 `Image.file`，而且**没给 cacheWidth**
+  // ——按原分辨率解码。一张 4K 图（3840×2160）RGBA 就是 ~33 MB，
+  // 三张就把默认的 100 MiB 撑满，图片缓存会长期占着上百 MB 不放。
+  // 收到 35 MiB 之后，配上 ImageCache 自带的 LRU 淘汰，常用背景/logo
+  // 依然放得下，但不会再无节制地涨。
+  //
+  // 放这里而不是更晚：`maximumSizeBytes` 的 setter 会立刻做一次容量检查
+  // 并淘汰超出的条目，越早设越早生效，避免启动阶段先堆一批大图进去。
+  final imageCache = PaintingBinding.instance.imageCache;
+  imageCache.maximumSizeBytes = 35 << 20; // 35 MiB
+  Log.i('app', '图片缓存上限: ${imageCache.maximumSizeBytes >> 20} MiB');
+
   PerfProbe.start();  // 【临时诊断】每 3 秒 dump 帧耗时与构建次数
   // --verbose：把 debug 级日志也打出来（贴到文件里），排查用
   if (args.contains('--verbose')) {

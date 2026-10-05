@@ -5,6 +5,7 @@
 ///   flutter test test/lyrics/live_test.dart
 ///
 /// 注意：需要能直连外网（国内直连即可；Musixmatch 直连会超时，属预期）。
+@Tags(['live'])
 library;
 
 import 'package:flutter_test/flutter_test.dart';

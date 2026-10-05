@@ -23,7 +23,30 @@ class _CardBg {
   static final _lum = <String, double>{};
   static final revision = ValueNotifier<int>(0);
 
+  /// 同一张图在解码完成前反复调 _baseColor 时用：占位值 0.5（取色完成会 +1）。
   static double? luminance(String path) => _lum[path];
+
+  /// 这个文件在不在。
+  ///
+  /// existsSync() 是一次**同步**系统调用，而以前它被写在 build 路径上，
+  /// 而且一次 build 里会被问到三次（_brightBackdrop 走两次、_edge/_foreground
+  /// 各一次）。拖一张卡就是每帧 N 张卡 × 3 次磁盘问询——在机械盘、映射盘或
+  /// 杀软挂钩的文件系统上，单次 stat 就足够吃掉一帧。
+  ///
+  /// 这里把答案缓存 2 秒：面板开着期间这些文件只有"选中背景图"和"清除背景图"
+  /// 两个写入口，2 秒足够让任何外部改动（用户自己去删了图）被重新发现，
+  /// 而代价从"每个指针事件 N 次"降到"每 2 秒每个路径 1 次"。
+  static final _exists = <String, (bool, int)>{};
+
+  static bool exists(File f) {
+    final path = f.path;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final hit = _exists[path];
+    if (hit != null && now - hit.$2 < 2000) return hit.$1;
+    final v = f.existsSync();
+    _exists[path] = (v, now);
+    return v;
+  }
 
   static Future<void> ensure(String path) async {
     if (_lum.containsKey(path)) return;
@@ -95,7 +118,7 @@ class CardView extends StatelessWidget {
     final name = card.settings['bgImage'] as String?;
     if (name == null || name.isEmpty) return null;
     final f = File(p.join(dataDir, 'bg', name));
-    return f.existsSync() ? f : null;
+    return _CardBg.exists(f) ? f : null;
   }
 
   /// 卡片内容区四周的留白。插件运行时把"卡片外框尺寸"当成 ctx.size 报给
@@ -139,29 +162,31 @@ class CardView extends StatelessWidget {
   /// 直接糊在一起看不见（云母那条分支上次已经修过，毛玻璃这条漏了）。
   ///
   /// 主题设置仍然管着设置窗口的明暗，只是不再插手卡片。
-  bool get _brightBackdrop {
-    final bgf = _bgImageFile;
-    if (bgf != null) {
-      final l = _CardBg.luminance(bgf.path);
+  ///
+  /// [base] / [bgFile] 由 build 算好后传进来：这条链上会连带跑 HSL 换算，
+  /// 而 [_edge] 和 [_foreground] 都会用到它——一次 build 里重复算两遍纯属浪费。
+  bool _brightBackdrop(Color base, File? bgFile) {
+    if (bgFile != null) {
+      final l = _CardBg.luminance(bgFile.path);
       if (l != null) return l > 0.5;
     }
     if (settings.material == 'opaque') {
-      return _baseColor.computeLuminance() > 0.5;
+      return base.computeLuminance() > 0.5;
     }
     if (settings.material == 'mica') {
       // 云母必须看合成之后的颜色，不能直接看 cardColor —— 这正是
       // "白底 + 云母 = 永远黑字看不清" 的根因：底色只决定色板的色相和明暗
       // 档位，真正贴在屏幕上的是"色板 @ alpha 叠在壁纸上"的结果。
-      final a = _micaAlpha;
+      final a = _micaAlpha(base);
       final composite =
-          _micaBase.computeLuminance() * a +
+          _micaBase(base).computeLuminance() * a +
           Wallpaper.brightness.value * (1 - a);
       return composite > 0.5;
     }
     // 亚克力/毛玻璃：染色是薄薄一层，剩下的全是模糊壁纸透上来的。
     // glassTint 就是这层染色的不透明度，正好当混合权重用。
     final tint = settings.glassTint.clamp(0.0, 1.0);
-    final cardL = _baseColor.computeLuminance();
+    final cardL = base.computeLuminance();
     final blended = cardL * tint + Wallpaper.brightness.value * (1 - tint);
     return blended > 0.5;
   }
@@ -180,8 +205,8 @@ class CardView extends StatelessWidget {
   /// 底色本身没有饱和度时（纯白/纯灰/纯黑）补一点冷色：纯中性灰一上墙就显脏，
   /// 偏冷的色相才是这材质高级感的来源。色相取 221°，正是改版前那个写死的
   /// 0xFF1C2332 的色相，深色底的观感因此和以前保持一致。
-  Color get _micaBase {
-    final hsl = HSLColor.fromColor(_baseColor);
+  Color _micaBase(Color base) {
+    final hsl = HSLColor.fromColor(base);
     final neutral = hsl.saturation < 0.02;
     final hue = neutral ? 221.0 : hsl.hue;
     final sat = neutral ? 0.08 : hsl.saturation.clamp(0.0, 0.30);
@@ -206,15 +231,40 @@ class CardView extends StatelessWidget {
   ///
   /// 厚度独立于 glassTint —— 那是给亚克力调的，搬过来会让云母要么闷死
   /// 要么白蒙蒙。
-  double get _micaAlpha =>
-      HSLColor.fromColor(_baseColor).lightness > 0.5 ? 0.70 : 0.45;
+  double _micaAlpha(Color base) =>
+      HSLColor.fromColor(base).lightness > 0.5 ? 0.70 : 0.45;
 
-  /// 边框与内高光的取色随底色明暗自动翻转：浅色卡片上白色高光是看不见的。
+  /// 卡片**没有边框**。
   ///
-  /// 这里**不再**根据"是否全透"改成取色描边：用户明确要求完全透明，
-  /// 那么染色 0 就该是 0——不替他保留任何"最低可见度"。
-  Color get _edge =>
-      _brightBackdrop ? const Color(0x14000000) : const Color(0x1FFFFFFF);
+  /// 这不是"还没做"，是用户明确要求「**我要纯透明的**」——卡片边界交给
+  /// 毛玻璃材质本身去表达（Win11 的 Fluent 面板在深色壁纸上就是这么做的）。
+  ///
+  /// ## 不要再加边框：这里试过一整轮
+  ///
+  /// 从纯白细边一路试到"莫奈取色 + 自适应 + 通透"，五种画法全部被否：
+  ///
+  /// | 做法 | 被否的理由 |
+  /// |---|---|
+  /// | 1px 细边（alpha 0.12） | 边界太弱，"卡片没有边"→ 显廉价 |
+  /// | 顶亮底暗渐变 | 一头亮一头没有，暗背景上不自然 |
+  /// | 边缘叠白雾（向内 25px） | 深色桌面上是**发光的脏雾**，"太丑""突兀""抢眼" |
+  /// | 三层同心线 | 圆角处三层各自分离，像"描边加重" |
+  /// | 莫奈亮色 → 莫奈暗色 → 通透 | "不更加突兀了？"→ "好恶心"→ "我要纯透明的" |
+  ///
+  /// **规律**：往边上加任何东西，在深色桌面上都会变脏或变跳。加得越多越糟。
+  ///
+  /// 唯一的例外是**无色**的柔光（当前实现）—— 上面被否的全都带着颜色：
+  /// 灰白的边、渐变的边、发蓝的边、带壁纸色调的边。只有"模糊但无色"这一种
+  /// 既保留了材质的厚度感、又不引入任何色偏。用户原话：「**我要模糊透明！
+  /// 即模糊但是没色**」。所以下面这份实现是**无色**的，别再往里加颜色。
+  ///
+  /// ## 为什么无色就成立
+  ///
+  /// 有色时，颜色和壁纸的色相在**互相竞争**——不管深浅都会显得"跳"或"脏"。
+  /// 无色时它不参与竞争，只剩明暗差，视觉上退成"光在边缘上晕开"——
+  /// 这正是毛玻璃该有的样子。
+  Color _edge(bool bright) =>
+      bright ? const Color(0x14000000) : const Color(0x1FFFFFFF);
 
   /// 卡片内容的默认前景色。
   ///
@@ -223,12 +273,12 @@ class CardView extends StatelessWidget {
   /// 跟 dominantColor 对比度达标的颜色，不再是非黑即白，也可能带一点点
   /// 壁纸的色相倾向。这个开关跟卡片底色那个开关各自独立，可以只开一个：
   /// 比如底色还是手选的深灰，但文字想跟着壁纸的色调走。
-  Color get _foreground {
+  Color _foreground(bool bright) {
     if (settings.autoForegroundFromWallpaper) {
       final c = Wallpaper.dominantForeground.value;
       if (c != null) return c;
     }
-    return _brightBackdrop ? const Color(0xFF16181C) : const Color(0xFFFFFFFF);
+    return bright ? const Color(0xFF16181C) : const Color(0xFFFFFFFF);
   }
 
   /// 卡片填充色。
@@ -236,23 +286,34 @@ class CardView extends StatelessWidget {
   /// 不透明模式：直接用设置里的底色。
   /// 材质模式：只铺一层薄薄的染色，让 DWM 的模糊透上来。亚克力本身对比度低，
   /// 完全不铺一层的话文字会糊在背景里读不清，所以留一点点。
-  Color get _fill {
-    final c = _baseColor;
-    if (settings.material == 'opaque') return c;
+  Color _fill(Color base) {
+    if (settings.material == 'opaque') return base;
     // 云母：一层由用户底色推导出来的薄色板，alpha 压低让壁纸的色调从下面
     // 透出来（推导规则见 _micaBase / _micaAlpha）。
     //
     // 这里以前写死成 0xFF1C2332，导致"卡片底色"这个设置在云母下完全是个
     // 摆设——用户调了没反应，配上白底还会触发黑字看不清。
     if (settings.material == 'mica') {
-      return _micaBase.withValues(alpha: _micaAlpha);
+      return _micaBase(base).withValues(alpha: _micaAlpha(base));
     }
     // 亚克力：只铺一层薄薄的染色，让模糊壁纸透上来。
     //
     // alpha 就是用户设的染色强度，**不给任何下限**——染色 0 就全透，
     // 这是用户的明确要求（"我要透明"）。
-    return c.withValues(alpha: settings.glassTint.clamp(0.0, 1.0));
+    return base.withValues(alpha: settings.glassTint.clamp(0.0, 1.0));
   }
+
+  /// 卡片重建时需要被听听的四个信号。
+  ///
+  /// 合成结果**在所有卡片之间是同一份**，所以建一次就够。以前它在 build 里
+  /// 现建，每次重建都要 new 一个 Listenable 再让 AnimatedBuilder 退订重订
+  /// 一遍——N 张卡就 N 次。
+  static final _appearance = Listenable.merge([
+    Wallpaper.brightness,
+    Wallpaper.dominantColor,
+    Wallpaper.dominantForeground,
+    _CardBg.revision,
+  ]);
 
   @override
   Widget build(BuildContext context) {
@@ -265,15 +326,18 @@ class CardView extends StatelessWidget {
     // 这里**不再**监听 systemBrightness：卡片明暗只由壁纸和材质决定，
     // 系统深浅色切换不该让卡片重建（见 _brightBackdrop 的说明）。
     return AnimatedBuilder(
-      animation: Listenable.merge([
-        Wallpaper.brightness,
-        Wallpaper.dominantColor,
-        Wallpaper.dominantForeground,
-        _CardBg.revision,
-      ]),
+      animation: _appearance,
       builder: (context, _) {
+        // 底色、明暗、填充、前景、描边各只算一次。以前这些是 getter，
+        // _edge 和 _foreground 都要问一遍 _brightBackdrop，每次都重跑一遍
+        // HSL 换算和亮度合成——一次 build 里白算四五遍。
         final bgFile = _bgImageFile;
         if (bgFile != null) _CardBg.ensure(bgFile.path);
+        final base = _baseColor;
+        final bright = _brightBackdrop(base, bgFile);
+        final fill = _fill(base);
+        final foreground = _foreground(bright);
+        final edge = _edge(bright);
         return SizedBox(
           width: width,
           height: height,
@@ -317,7 +381,7 @@ class CardView extends StatelessWidget {
                         image: img,
                         radius: settings.cardRadius,
                         opaqueAt: settings.material == 'mica'
-                            ? (1 - _micaAlpha).clamp(0.30, 0.55)
+                            ? (1 - _micaAlpha(base)).clamp(0.30, 0.55)
                             : 1.0,
                         // 卡片在屏幕上的位置，用来算"该取壁纸的哪一块"
                         cardOrigin: Offset(card.x, card.y),
@@ -328,37 +392,52 @@ class CardView extends StatelessWidget {
               // 卡片本体
               ClipRRect(
                 borderRadius: BorderRadius.circular(settings.cardRadius),
-                child: Container(
-                  width: width,
-                  height: height,
-                  decoration: BoxDecoration(
-                    // 自定义背景图时图就是底，色板全部让位
-                    // 毛玻璃模式下底色只是一层染色，模糊的壁纸在它下面
-                    color: bgFile != null ? Colors.transparent : _fill,
-                    // 整圈细边框，不加任何高光/渐变。
-                    // 这不是阴影：阴影要画在卡片外面，而窗口区域正好裁在卡片边界上，
-                    // 画了也会被切掉，所以边框画在卡片内部。
-                    border: Border.all(color: _edge, width: 1),
-                    borderRadius: BorderRadius.circular(settings.cardRadius),
-                  ),
-                  padding: contentPadding,
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: DefaultTextStyle(
-                          style: TextStyle(
-                            color: _foreground,
-                            fontSize: 13,
-                            // 这里的 DefaultTextStyle 是替换式的（不带 merge），会把
-                            // 主题里传下来的 fontFamily 冲掉，必须显式带上全局字体
-                            fontFamily: 'TsukushiBMaru',
-                            decoration: TextDecoration.none,
+                child: Stack(
+                  children: [
+                    Container(
+                      width: width,
+                      height: height,
+                      decoration: BoxDecoration(
+                        // 自定义背景图时图就是底，色板全部让位
+                        // 毛玻璃模式下底色只是一层染色，模糊的壁纸在它下面
+                        color: bgFile != null ? Colors.transparent : fill,
+                        borderRadius:
+                            BorderRadius.circular(settings.cardRadius),
+                      ),
+                      padding: contentPadding,
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: DefaultTextStyle(
+                              style: TextStyle(
+                                color: foreground,
+                                fontSize: 13,
+                                // 这里的 DefaultTextStyle 是替换式的（不带 merge），会把
+                                // 主题里传下来的 fontFamily 冲掉，必须显式带上全局字体
+                                fontFamily: 'TsukushiBMaru',
+                                decoration: TextDecoration.none,
+                              ),
+                              child: child,
+                            ),
                           ),
-                          child: child,
+                        ],
+                      ),
+                    ),
+                    // 无色的柔光边：模糊，但**不带任何色相**。见 CardView._edge
+                    // 上面的说明——之前被否的五种画法全都因为带颜色。
+                    // IgnorePointer 防止这层挡住卡片的点击/拖拽。
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: CustomPaint(
+                          painter: _AcrylicBorderPainter(
+                            radius: settings.cardRadius,
+                            base: edge,
+                            bright: bright,
+                          ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               // 编辑模式的边框提示。不做抖动动画——那属于"特效"。
@@ -384,6 +463,71 @@ class CardView extends StatelessWidget {
   }
 }
 
+/// 卡片的边：**一条无色的柔光**（3px 描边 + 1.5px 模糊）。
+///
+/// ## 「模糊但没色」——这是唯一被接受的画法
+///
+/// 用户原话：「**我要模糊透明！即模糊但是没色**」。所以这里的"边"只有两件事：
+/// **模糊**（材质在边缘上的厚度感）+ **无色**（不带任何色相）。
+///
+/// 为什么"无色"是关键：之前被否的五种画法（灰白细边 / 顶亮底暗渐变 /
+/// 边缘白雾 / 三层同心线 / 莫奈取色）**全都带着颜色**。有色时，颜色会和壁纸的
+/// 色相互相竞争——深了显脏、浅了显跳。去掉颜色之后它就不参与竞争，只剩明暗差，
+/// 视觉上退成"光在边缘上晕开"，正是毛玻璃该有的样子。
+///
+/// 模糊半径 2.6px + 4px 描边：不加模糊的话这层就是一条线，之前用户直接判"廉价"；
+/// 加了之后边缘变成一条有厚度的光带，才是"通透的玻璃"。
+///
+/// 参数是按「**更淡 + 更弥散**」调出来的（用户反馈）：alpha ×0.85、描边 4px、
+/// 模糊 2.6px。描边和模糊**同比例放大**——只加模糊不加宽，晕开范围大了但
+/// 中心的量没变，反而更实。
+///
+/// ## 只能画在内侧
+///
+/// 窗口区域正好裁在卡片边界上，画到外面的部分会被直接切掉
+/// （见 [CardView.build] 里的说明），所以 `deflate(1)` 是必要的。
+class _AcrylicBorderPainter extends CustomPainter {
+  const _AcrylicBorderPainter({
+    required this.radius,
+    required this.base,
+    required this.bright,
+  });
+
+  final double radius;
+
+  /// 基准边色：由 `CardView._edge()` 给出，**只有黑或白**（0x14000000 /
+  /// 0x1FFFFFFF），不带任何色相——这是"没色"的来源。
+  final Color base;
+
+  /// 底色是否偏亮。亮底上的白色柔光看不见，所以要换成黑的。
+  final bool bright;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(rect.deflate(1), Radius.circular(radius)),
+      Paint()
+        ..style = PaintingStyle.stroke
+        // 描边和模糊**一起**加宽：用户要「多弥散一点」。只加模糊不加宽的话，
+        // 晕开范围变大了但中心的量没变，看起来反而更实；两者同比例放大
+        // 才是把这一层"摊开"而不是"加粗"。
+        ..strokeWidth = 4
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2.6)
+        // 更淡：×0.85（原来 ×1.15）。柔光是"氛围"而不是"线"，
+        // 存在感太强就会重新变成描边——那正是前几轮被否的东西。
+        // 亮底用黑柔光时压到 0.6：浅色卡上深边的可见度本来就比深底上的
+        // 白边高，不压会显得"描边加重"。
+        ..color = base.withValues(
+          alpha: (base.a * (bright ? 0.6 : 0.85)).clamp(0.0, 1.0),
+        ),
+    );
+  }
+
+  @override
+  bool shouldRepaint(_AcrylicBorderPainter old) =>
+      old.radius != radius || old.base != base || old.bright != bright;
+}
 
 /// 毛玻璃底：只取壁纸里属于这张卡片的那一块。
 ///

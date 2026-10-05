@@ -9,6 +9,9 @@
 // 配色（低饱和、放松）：夜蓝底 #16263C、山脊 #3A5470 / #2A4058 / #1E3145、
 // 月光暖米白 #F1E8D6。山脊只靠明度分层，不加第二种色相——这是"高级感"
 // 的来源：不靠饱和度与对比度，靠层次。
+@Tags(['gen'])
+library;
+
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;

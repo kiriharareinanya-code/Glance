@@ -91,6 +91,27 @@ List<LineInfo> _parseSecondary(String text, LyricsRawTypes fallback) {
   return data?.lines ?? const <LineInfo>[];
 }
 
+/// 这份歌词**到底有没有一句真词**。
+///
+/// `lines.isNotEmpty` 是不够的：网易云有些 YRC 会返回一堆"只有时间戳、
+/// 音节文本为空"的行（用户实拍《他不懂》《阳光下的星星》就是这样——
+/// 38 行里 36 行空，屏幕上只剩开头两行制作名单）。这种数据行数不为 0，
+/// 于是被当成命中**直接 return，把完好的 LRC 挡在门外**。
+///
+/// 判据不能是"所有行都空"——正常歌词也有个别空行（间奏）。
+/// 所以按**空行占比**看：超过一半是空的就当这份数据不可用。
+///
+/// 引擎层（[LyricsEngine.fetch]）也用这个判据做兜底：bridge 层已经过滤过
+/// 一轮，但同一份坏数据可能来自别的源，两层都要挡。
+bool hasRealLyrics(List<LineInfo>? lines) {
+  if (lines == null || lines.isEmpty) return false;
+  final withText = lines.where((l) => l.text.trim().isNotEmpty).length;
+  return withText * 2 >= lines.length;
+}
+
+/// 兼容旧调用点（bridge 内部沿用私有名）。
+bool _hasRealLyrics(List<LineInfo>? lines) => hasRealLyrics(lines);
+
 // ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 
@@ -121,22 +142,26 @@ class NeteaseBridge extends LyricsSourceBridge {
     if (yrcText.trim().isNotEmpty) {
       final data = ParseHelper.parseLyrics(yrcText, LyricsRawTypes.yrc);
       final lines = data?.lines;
-      if (lines != null && lines.isNotEmpty) {
-        _mergeLines(lines, _parseSecondary(asStr(lyric.ytlrc?.lyric), LyricsRawTypes.yrc));
+      // 必须查**有没有真词**，不能只查行数：见 [_hasRealLyrics]。
+      // 不可用时要**继续往下走 LRC**，而不是 return——LRC 那条路是好的，
+      // 白白丢掉它只会让用户看到一片空白。
+      if (_hasRealLyrics(lines)) {
+        _mergeLines(lines!, _parseSecondary(asStr(lyric.ytlrc?.lyric), LyricsRawTypes.yrc));
         _mergeLines(
             lines, _parseSecondary(asStr(lyric.yromalrc?.lyric), LyricsRawTypes.yrc),
             asRoma: true);
         lyricsLog('网易云 命中逐字 YRC ${lines.length} 行');
         return data;
       }
+      lyricsLog('网易云 YRC 解析出来全是空行，回退 LRC', warn: true);
     }
 
     final lrcText = asStr(lyric.lrc?.lyric);
     if (lrcText.trim().isEmpty) return null;
     final data = ParseHelper.parseLyrics(lrcText, LyricsRawTypes.lrc);
     final lines = data?.lines;
-    if (lines == null || lines.isEmpty) return null;
-    _mergeLines(lines, _parseSecondary(asStr(lyric.tlyric?.lyric), LyricsRawTypes.lrc));
+    if (!_hasRealLyrics(lines)) return null;
+    _mergeLines(lines!, _parseSecondary(asStr(lyric.tlyric?.lyric), LyricsRawTypes.lrc));
     _mergeLines(lines, _parseSecondary(asStr(lyric.romalrc?.lyric), LyricsRawTypes.lrc),
         asRoma: true);
     return data;
@@ -180,8 +205,8 @@ class QQMusicBridge extends LyricsSourceBridge {
 
     final data = _parseAuto(main, LyricsRawTypes.lrc);
     final lines = data?.lines;
-    if (lines == null || lines.isEmpty) return null;
-    _mergeLines(lines, _parseSecondary(trans, LyricsRawTypes.qrc));
+    if (!_hasRealLyrics(lines)) return null;
+    _mergeLines(lines!, _parseSecondary(trans, LyricsRawTypes.qrc));
     return data;
   }
 }
@@ -220,8 +245,8 @@ class KugouBridge extends LyricsSourceBridge {
         if (text == null || text.trim().isEmpty) continue;
         final data = ParseHelper.parseLyrics(text, LyricsRawTypes.krc);
         final lines = data?.lines;
-        if (lines == null || lines.isEmpty) continue;
-        lyricsLog('酷狗 命中 KRC ${lines.length} 行（候选 ${c.song ?? ''}）');
+        if (!_hasRealLyrics(lines)) continue;
+        lyricsLog('酷狗 命中 KRC ${lines!.length} 行（候选 ${c.song ?? ''}）');
         return data;
       } catch (e) {
         lyricsLog('酷狗候选「${c.song ?? ''}」取词失败：$e', warn: true);
@@ -259,7 +284,7 @@ class LRCLibBridge extends LyricsSourceBridge {
     if (synced.trim().isEmpty) return null;
     final data = ParseHelper.parseLyrics(synced, LyricsRawTypes.lrc);
     final lines = data?.lines;
-    if (lines == null || lines.isEmpty) return null;
+    if (!_hasRealLyrics(lines)) return null;
     return data;
   }
 }
@@ -284,7 +309,7 @@ class MusixmatchBridge extends LyricsSourceBridge {
     if (raw == null || raw.trim().isEmpty) return null;
     final data = ParseHelper.parseLyrics(raw, LyricsRawTypes.musixmatch);
     final lines = data?.lines;
-    if (lines == null || lines.isEmpty) return null;
+    if (!_hasRealLyrics(lines)) return null;
     return data;
   }
 }
@@ -310,11 +335,11 @@ class SodaMusicBridge extends LyricsSourceBridge {
 
     final data = _parseAuto(content, LyricsRawTypes.lrc);
     final lines = data?.lines;
-    if (lines == null || lines.isEmpty) return null;
+    if (!_hasRealLyrics(lines)) return null;
 
     final trans = '';
     if (trans.trim().isNotEmpty) {
-      _mergeLines(lines, _parseSecondary(trans, LyricsRawTypes.lrc));
+      _mergeLines(lines!, _parseSecondary(trans, LyricsRawTypes.lrc));
     }
     return data;
   }
@@ -341,7 +366,7 @@ class AppleMusicBridge extends LyricsSourceBridge {
     if (ttml.trim().isEmpty) return null;
     final data = ParseHelper.parseLyrics(ttml, LyricsRawTypes.ttml);
     final lines = data?.lines;
-    if (lines == null || lines.isEmpty) return null;
+    if (!_hasRealLyrics(lines)) return null;
     return data;
   }
 }
@@ -366,7 +391,7 @@ class SpotifyBridge extends LyricsSourceBridge {
     if (raw.trim().isEmpty) return null;
     final data = ParseHelper.parseLyrics(raw, LyricsRawTypes.spotify);
     final lines = data?.lines;
-    if (lines == null || lines.isEmpty) return null;
+    if (!_hasRealLyrics(lines)) return null;
     return data;
   }
 }

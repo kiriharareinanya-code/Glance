@@ -240,12 +240,6 @@ class Wallpaper {
     }
   }
 
-  /// 缩略图的长边。112 不是随手取的：`ColorScheme.fromImageProvider` 内部
-  /// 第一步就是把图缩到长边 112 再量化，这里对齐它。
-  ///
-  /// 实测过等价性（同一张图走"全图编码"和"先缩再编码"两条路）：结果不是
-  /// 逐位相同，但只差 1/255——#425E91 vs #435E91，红通道 66 vs 67。缩放
-  /// 滤镜不完全一致，量化落桶时偶尔差一格，视觉上分辨不出来。
   static const int _thumbSide = 112;
 
   /// 亮度统计和莫奈取色都从同一张缩略图上算。
@@ -425,7 +419,23 @@ class Wallpaper {
     }
   }
 
+  /// 壁纸文件的路径。
+  ///
+  /// 查一次要 fork 一个 `reg.exe` 出来——一次进程创建（Windows 上通常
+  /// 10~30ms，还带一堆 DLL 加载和杀软扫描）已经抵得上大半帧预算。而它以前
+  /// 是每次 [refresh] 都查一遍，动态壁纸下刷新间隔可以调到几十毫秒，等于
+  /// 每一帧都在拉起一个 reg.exe，能跑到的帧率先被进程创建卡死。
+  ///
+  /// 壁纸路径只在用户真的换了壁纸（或托盘「刷新壁纸模糊」）时才会变，
+  /// 所以记一份缓存，刷新时显式作废。
+  static String? _wallpaperPathCache;
+
+  /// 让下一帧重新去查注册表。托盘「刷新壁纸模糊」走这里。
+  static void invalidateWallpaperPath() => _wallpaperPathCache = null;
+
   static Future<String?> _wallpaperPath() async {
+    final cached = _wallpaperPathCache;
+    if (cached != null) return cached;
     try {
       final r = await Process.run(
           'reg', ['query', r'HKCU\Control Panel\Desktop', '/v', 'WallPaper']);
@@ -433,7 +443,7 @@ class Wallpaper {
           .firstMatch(r.stdout.toString());
       final path = m?.group(1)?.trim();
       if (path != null && path.isNotEmpty && await File(path).exists()) {
-        return path;
+        return _wallpaperPathCache = path;
       }
     } catch (_) {}
 
@@ -441,24 +451,34 @@ class Wallpaper {
     // 那张缓存成这个无扩展名的文件（内容其实是 JPEG）
     final appData = Platform.environment['APPDATA'];
     if (appData != null) {
-      final cached = File(p.join(
+      final cachedFile = File(p.join(
           appData, 'Microsoft', 'Windows', 'Themes', 'TranscodedWallpaper'));
-      if (await cached.exists()) return cached.path;
+      if (await cachedFile.exists()) {
+        return _wallpaperPathCache = cachedFile.path;
+      }
     }
     return null;
   }
 
   /// 饱和度矩阵。s=1 原样，s=0 全灰。
   /// 亮度权重用 Rec.709，和人眼感知一致——直接三分之一平均会让红色发暗。
+  ///
+  /// 矩阵只跟 s 有关，而 s 是设置里的常量，所以按值记一份：动态壁纸下
+  /// 每一帧都会走到这里，原来每帧 new 一个 16 元素的 List 再交给
+  /// ColorFilter，白白制造 GC 压力。
+  static final _matrices = <double, List<double>>{};
+
   static List<double> _saturationMatrix(double s) {
-    const lr = 0.2126, lg = 0.7152, lb = 0.0722;
-    final r = (1 - s) * lr, g = (1 - s) * lg, b = (1 - s) * lb;
-    return <double>[
-      r + s, g, b, 0, 0, //
-      r, g + s, b, 0, 0, //
-      r, g, b + s, 0, 0, //
-      0, 0, 0, 1, 0, //
-    ];
+    return _matrices.putIfAbsent(s, () {
+      const lr = 0.2126, lg = 0.7152, lb = 0.0722;
+      final r = (1 - s) * lr, g = (1 - s) * lg, b = (1 - s) * lb;
+      return <double>[
+        r + s, g, b, 0, 0, //
+        r, g + s, b, 0, 0, //
+        r, g, b + s, 0, 0, //
+        0, 0, 0, 1, 0, //
+      ];
+    });
   }
 
   /// 把模糊（和可选的去饱和）一次性烘焙进离屏图，之后每帧只是普通贴图

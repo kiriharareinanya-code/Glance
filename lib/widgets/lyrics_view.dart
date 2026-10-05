@@ -1,5 +1,8 @@
+/// 渲染层的歌词模型（`lib/widgets/lyrics_view.dart`）。
 ///
-///
+/// 把数据层的 `LineInfo` 收敛成渲染层唯一认识的形状：每行一段纯文本 +
+/// 行起止时间 + 译文。`lib/widgets/builtin/lyrics.dart` 只画这个，不再碰
+/// 数据层的类型。
 library;
 
 import 'dart:convert';
@@ -8,30 +11,13 @@ import '../lyrics/models/line_info.dart';
 import '../lyrics/models/lyrics_data.dart';
 import '../lyrics/models/lyrics_types.dart';
 
-class LyricsSyllable {
-  const LyricsSyllable({
-    required this.text,
-    required this.start,
-    required this.end,
-  });
-
-  final String text;
-
-  final int start;
-
-  final int end;
-
-  int get duration => end - start;
-
-  Map<String, Object?> toJson() => {'s': text, 'a': start, 'b': end};
-
-  static LyricsSyllable fromJson(Map<String, Object?> j) => LyricsSyllable(
-        text: '${j['s'] ?? ''}',
-        start: (j['a'] as num?)?.toInt() ?? 0,
-        end: (j['b'] as num?)?.toInt() ?? 0,
-      );
-}
-
+/// 渲染层的行模型。
+///
+/// **逐字（卡拉OK擦除）已下线**：原先这里有 [LyricsSyllable] 音节列表和
+/// `sungCharsF`/`charsSungAt` 两个推进函数。它们整个删掉了——数据侧
+/// （`lib/lyrics/`）仍会解析 KRC/YRC 的音节时间，但那是为了从逐字格式里
+/// 取出正确的行文本和行时间，管线末端由 `SyncDowngrade` 统一降级成纯文本行
+/// （见 `LyricsEngine._optimize`），到这里已经没有音节概念了。
 class LyricsLine {
   LyricsLine({
     required this.start,
@@ -41,8 +27,7 @@ class LyricsLine {
     this.roma = '',
     this.subText = '',
     this.alignment = LyricsAlignment.unspecified,
-    List<LyricsSyllable>? syllables,
-  }) : syllables = syllables ?? const <LyricsSyllable>[];
+  });
 
   final int start;
 
@@ -58,65 +43,15 @@ class LyricsLine {
 
   final LyricsAlignment alignment;
 
-  final List<LyricsSyllable> syllables;
-
-  bool get isSyllable => syllables.isNotEmpty;
-
+  /// 这一行在 [posMs] 时刻的播放进度（0~1）。
+  ///
+  /// 只有行级时间，没有音节，所以是**线性**的：行开始为 0，行结束为 1。
+  /// 逐字功能下线后 UI 不再消费这个值，保留是因为它是"某时刻这行唱到
+  /// 百分之几"这条语义唯一的实现，将来要做行内进度（例如进度条联动）会用到。
   double progressAt(int posMs) {
-    if (syllables.isNotEmpty) {
-      final total = end > start ? end - start : 0;
-      if (total <= 0) return 0;
-      var done = 0;
-      for (final s in syllables) {
-        if (posMs >= s.end) {
-          done += s.end - s.start;
-        } else if (posMs > s.start) {
-          done += posMs - s.start;
-          break;
-        } else {
-          break;
-        }
-      }
-      return (done / total).clamp(0.0, 1.0);
-    }
     if (end <= start) return posMs >= start ? 1 : 0;
     return ((posMs - start) / (end - start)).clamp(0.0, 1.0);
   }
-
-  /// 逐字（卡拉OK）高亮推进到第几个字——**带小数**。
-  ///
-  /// 返回 0 ~ [text.length] 的浮点：整数部分是完全唱完的字数，小数部分
-  /// 是**正在唱的那个字内部**唱到了百分之几。UI 拿它画"已唱变亮"，
-  /// 所以边界能落在字的中间，一路平滑推过去。
-  ///
-  /// 判定基准是音节的 **start**（开始发声）而不是 end：音节的 start~end
-  /// 就是这个字实际发声的区间，在区间内按比例推进即可。**这里不做
-  /// 取整**——取整会把整个音节压成"最后那一帧才 +1"，字整整晚一个音节
-  /// 才亮，行越多偏得越多（这就是之前逐字歌词"慢半拍"的成因）。
-  ///
-  /// [leadMs] 是**提前量**（毫秒），用来吸收歌词源时间戳与实际人声的
-  /// 偏差：各家标的时间点略有出入，而人眼察觉"这个字亮了"的阈值在
-  /// 亮度中段，滞后一点点就会被读成"慢了半拍"。默认 0 = 完全相信
-  /// 歌词源标的时间。
-  double sungCharsF(int posMs, {int leadMs = 0}) {
-    final p = posMs - leadMs;
-    if (syllables.isEmpty) {
-      return text.length * progressAt(p);
-    }
-    var n = 0.0;
-    for (final s in syllables) {
-      if (p < s.start) break;
-      final span = s.end - s.start;
-      final ratio = span <= 0 ? 1.0 : ((p - s.start) / span).clamp(0.0, 1.0);
-      n += s.text.length * ratio;
-      if (ratio < 1.0) break; // 还在这个字里，后面的字没开始
-    }
-    return n.clamp(0.0, text.length.toDouble());
-  }
-
-  /// 已唱到的**整数字符**数（UI 只切整行颜色时用；要平滑推进用
-  /// [sungCharsF]）。等价于 `sungCharsF(pos).floor()`。
-  int charsSungAt(int posMs) => sungCharsF(posMs).floor();
 
   Map<String, Object?> toJson() => {
         't': start,
@@ -126,7 +61,6 @@ class LyricsLine {
         if (roma.isNotEmpty) 'ro': roma,
         if (subText.isNotEmpty) 'sub': subText,
         if (alignment != LyricsAlignment.unspecified) 'al': alignment.name,
-        if (syllables.isNotEmpty) 'sy': [for (final s in syllables) s.toJson()],
       };
 
   static LyricsLine fromJson(Map<String, Object?> j) => LyricsLine(
@@ -141,10 +75,6 @@ class LyricsLine {
           'right' => LyricsAlignment.right,
           _ => LyricsAlignment.unspecified,
         },
-        syllables: [
-          for (final e in (j['sy'] as List?) ?? const <Object?>[])
-            LyricsSyllable.fromJson((e as Map).cast<String, Object?>()),
-        ],
       );
 }
 
@@ -155,9 +85,16 @@ class LyricsView {
     required this.syncTypes,
     this.sourceName = '',
     this.rawType = LyricsRawTypes.unknown,
-  });
+  }) : hasTranslation = lines.any((l) => l.trans.isNotEmpty);
 
   final List<LyricsLine> lines;
+
+  /// 这份歌词里**有没有任何一行带译文**。
+  ///
+  /// 行数据构造之后不再变（渲染只读它），所以构造时扫一遍存下结果。
+  /// 原来是每次读都现扫一遍的 O(n) getter，而它挂在歌词卡的 build 路径上
+  /// （见 LyricsWidget 的 `_songHasTrans`）——一行几百的歌词每帧白扫几百次。
+  final bool hasTranslation;
 
   final LyricsTypes type;
 
@@ -169,11 +106,10 @@ class LyricsView {
 
   bool get isEmpty => lines.isEmpty;
 
-  bool get hasTranslation => lines.any((l) => l.trans.isNotEmpty);
-
-  bool get hasSyllables => lines.any((l) => l.isSyllable);
-
+  /// [posMs] 时刻正在播的是第几行；还没进第一行返回 -1。
   ///
+  /// 走二分是因为渲染每帧都要问一次（要拿当前行算滚动锚点），行数上百时
+  /// 线性扫会白烧 CPU。
   int indexAt(int posMs) {
     if (lines.isEmpty) return -1;
     if (posMs < lines.first.start) return -1;
@@ -262,7 +198,11 @@ class LyricsView {
         orElse: () => LyricsRawTypes.unknown,
       );
 
+  /// 数据层 → 渲染层。译文按 [wantTranslation] 决定要不要带（设置里
+  /// 「显示翻译」关掉时传 false，省掉每行拼字符串的开销）。
   ///
+  /// 行按起点排序后再交出去：各源解析出来的行顺序不保证单调（QRC/YRC 会
+  /// 夹信息行），而 [indexAt] 的二分要求有序。
   static LyricsView fromData(
     LyricsData data, {
     String sourceName = '',
@@ -281,15 +221,6 @@ class LyricsView {
             );
       }
 
-      final syllables = <LyricsSyllable>[];
-      if (line is SyllableLineInfo) {
-        for (final s in line.syllables) {
-          if (s.text.isEmpty) continue;
-          syllables.add(LyricsSyllable(
-              text: s.text, start: s.startTime, end: s.endTime));
-        }
-      }
-
       out.add(LyricsLine(
         start: line.startTime ?? 0,
         end: line.endTime ?? 0,
@@ -298,7 +229,6 @@ class LyricsView {
         roma: wantTranslation ? (mixin?.pronunciation ?? '') : '',
         subText: line.subLine?.text ?? '',
         alignment: line.lyricsAlignment,
-        syllables: syllables,
       ));
     }
 
@@ -313,8 +243,10 @@ class LyricsView {
     );
   }
 
+  /// 直接从「起点 + 文本」三元组建渲染模型，不经过数据层。
   ///
-  ///
+  /// 只给调试/预览图用（[LyricsView] 的 `end` 全是 0，所以
+  /// [LyricsLine.progressAt] 走的是"到点就满"那一档）。
   static LyricsView fromSimpleLines(
     List<({int start, String text, String trans})> lines, {
     String sourceName = '',
@@ -332,7 +264,6 @@ class LyricsView {
   }
 
   static LyricsRawTypes _rawOfFromType(LyricsTypes t) => switch (t) {
-        LyricsTypes.lyricifySyllable => LyricsRawTypes.lyricifySyllable,
         LyricsTypes.lyricifyLines => LyricsRawTypes.lyricifyLines,
         LyricsTypes.lrc => LyricsRawTypes.lrc,
         LyricsTypes.qrc => LyricsRawTypes.qrc,

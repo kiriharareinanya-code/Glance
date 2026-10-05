@@ -5,8 +5,10 @@
 ///
 library;
 
+import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart' show compute;
 import 'package:xml/xml.dart';
 
 import '../../../decrypters/qrc/decrypter.dart';
@@ -26,11 +28,58 @@ enum SearchTypeEnum {
 }
 
 class Api extends BaseApi {
+  /// 当前使用的 cookie。未抓到时用 [_fallbackCookie]。
+  static String? _cookie;
+
+  /// 兜底 cookie：站点常见的游客追踪字段，值本身不敏感，
+  /// 目的是让请求**不是一次裸请求**。`uin`/`qm_keyst` 留空 = 游客态。
+  static const String _fallbackCookie =
+      'pgv_pvid=0; ts_uid=0; uin=; qqmusic_key=; qm_keyst=';
+
+  /// 首次搜索前抓一次真实游客 cookie（访问 y.qq.com 的 Set-Cookie）。
+  ///
+  /// 抓不到就退回 [_fallbackCookie] —— 有它比没有强，但不能指望它
+  /// 完全绕开限流：实测限流是**按 IP 和频率**来的，cookie 只是让请求
+  /// 看起来更"正常"，无法从根本上提高配额。
+  static Future<void> ensureVisitorCookie() async {
+    if (_cookie != null) return;
+    _cookie = _fallbackCookie;
+    try {
+      final client = HttpClient();
+      final req = await client.getUrl(Uri.parse('https://y.qq.com/'));
+      req.headers.set('User-Agent', BaseApi.userAgent);
+      final res = await req.close();
+      final jar = <String>[
+        for (final c in res.cookies) '${c.name}=${c.value}',
+      ];
+      await res.drain<void>();
+      client.close(force: true);
+      if (jar.isNotEmpty) {
+        _cookie = '${jar.join('; ')}; uin=; qqmusic_key=; qm_keyst=';
+      }
+    } catch (_) {
+      // 抓不到就用兜底，不阻断搜索。
+    }
+  }
   @override
   String? get httpRefer => 'https://c.y.qq.com/';
 
   @override
   Map<String, String>? get additionalHeaders => null;
+
+  /// 带上一份「游客 cookie」。
+  ///
+  /// 为什么需要：QQ 的搜索接口在**完全裸请求**下很容易被限流——实测同一个
+  /// 请求，第一次返回 42969 字节（15 首歌），连续几次之后就只剩 **900 字节
+  /// 且 songs 为空**（`code` 仍是 0，所以从状态码上看不出问题，只有体积
+  /// 反常）。带上 cookie 后请求看起来"像一个已经访问过站点的浏览器"，
+  /// 配额明显更宽。
+  ///
+  /// 这里不需要登录态：`uin`/`qm_keyst` 留空即可，起作用的是那两个
+  /// 由站点在首次访问时下发的追踪 cookie（下面的 `ensureVisitorCookie`
+  /// 会去抓真实值，抓不到就用这份兜底常量）。
+  @override
+  String? get httpCookie => _cookie;
 
   static final DateTime _dtFrom = DateTime(1970, 1, 1, 8, 0, 0, 0);
 
@@ -283,7 +332,12 @@ class Api extends BaseApi {
 
       String decompressText;
       try {
-        decompressText = Decrypter.decryptLyrics(value) ?? '';
+        // PERF: 3DES is ~100-400 ms of pure Dart for a 20-80 kB payload, all
+        // of it on the UI isolate. `decryptQrcLyrics` is top-level and pure, so
+        // it ships to a worker isolate. `compute` forwards the thrown exception
+        // verbatim (verified: FormatException / RangeError / ArgumentError all
+        // survive the boundary), so the null/error handling below is unchanged.
+        decompressText = await compute(decryptQrcLyrics, value) ?? '';
       } on FormatException {
         if (TypeHelper.isLyricsType(value, LyricsTypes.lrc)) {
           decompressText = value;

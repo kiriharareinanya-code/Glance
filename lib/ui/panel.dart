@@ -118,6 +118,17 @@ class _PanelColors {
   Color get danger => light ? Color(0xFFC62828) : Color(0xFFFF8A80);
 }
 
+/// 搜索框的关键词容器。
+///
+/// 就是个 [ValueNotifier]，多出来的只有 [ping]：搜索结果浮层的显隐除了关键词
+/// 还看焦点（[_ControlPanelState._onSearchFocusChanged]），而焦点变化不属于
+/// "值变了"，只能显式喊一嗓子让订阅者重画一次。
+class _SearchQuery extends ValueNotifier<String> {
+  _SearchQuery(super.value);
+
+  void ping() => notifyListeners();
+}
+
 class ControlPanel extends StatefulWidget {
   const ControlPanel({
     super.key,
@@ -181,7 +192,20 @@ class _ControlPanelState extends State<ControlPanel> {
   Offset? _autoScrollOrigin;
   double _autoScrollBase = 0;
   final FocusNode _searchFocus = FocusNode();
-  String _query = '';
+
+  /// 搜索关键词。用 [_SearchQuery] 承载：整个面板里读它的只有
+  /// [_searchResultsPanel] 那一块浮层，页面本体一处都不读。所以输入时
+  /// 完全没必要 setState——让浮层自己订阅就够了，敲一个字不必重建整页。
+  final _SearchQuery _query = _SearchQuery('');
+
+  /// 搜索框失焦/得焦也要让结果浮层重画：[_searchResultsPanel] 里那句
+  /// `!_searchFocus.hasFocus` 决定了浮层显隐，而焦点变化本身不会让面板
+  /// 走 setState。以前能藏住是因为点结果那条路径顺手做了 setState，
+  /// 现在那条路径不 setState 了（只改 [_tab]），所以把焦点事件也 ping 到同一个
+  /// notifier 上，浮层的显隐才有唯一的驱动源。
+  void _onSearchFocusChanged() {
+    if (mounted) _query.ping();
+  }
 
   /// 关于页的版本信息；异步加载，未就绪时显示"获取中…"
   PackageInfo? _pkgInfo;
@@ -213,6 +237,8 @@ class _ControlPanelState extends State<ControlPanel> {
     _lastBrightness = effectiveBrightness(_s);
     // 先拍一张基线，否则第一次改动会把所有设置项都算成"变了"
     _settingsSnapshot = widget.state.settings.toJson();
+    _searchFocus.addListener(_onSearchFocusChanged);
+    _primeBgFileCache();
     Log.i('panel', '打开设置窗口（页 $_tab）');
     PackageInfo.fromPlatform().then((info) {
       if (mounted) setState(() => _pkgInfo = info);
@@ -225,7 +251,7 @@ class _ControlPanelState extends State<ControlPanel> {
   /// 面板里改了任何设置。
   ///
   /// 界面自己立刻更新，但通知外层的那一下必须去抖：外层的 onChanged 会让
-  /// _revision 自增，从而**把所有插件卡片的 QuickJS 运行时全部销毁重建**，
+  /// _revision 自增，从而**把所有卡片的内容全部销毁重建**，
   /// 还会重新截屏 + 高斯模糊算壁纸。而 Slider 的 onChanged 是拖动期间每帧
   /// 都触发的——拖一下滑块就是每秒几十次全量重建，界面直接卡死。
   ///
@@ -252,9 +278,25 @@ class _ControlPanelState extends State<ControlPanel> {
   }
 
   void _commit() {
+    _commitLive();
+    setState(() {});
+  }
+
+  /// 拖动期间用的"轻量提交"：记账、存盘、通知外层的去抖全都照 [_commit] 来，
+  /// 唯独**不** setState。
+  ///
+  /// [_commit] 里那个 setState 会重建整页。Slider 的 onChanged 是拖动期间
+  /// 每帧都来的（每秒几十次），让整页跟着每帧重排是不能忍的——外观页四百多个
+  /// 控件、已放置页每张卡片一整套 fluent 控件，全是白做。所以拖动期间只走
+  /// 这里；[_DragSlider] 在松手时再补一次 [_commit]，把整页对齐到最终值
+  /// （"染色到 0 会怎样"那种挂在别的控件上的提示就是靠这一下更新的）。
+  ///
+  /// [_logSettingsDiff] 和 260ms 去抖**刻意**保持每帧都跑：前者是排查设置类
+  /// 问题唯一的线索（拖到一半卡了也要能看出改了什么），后者是为了不让外层的
+  /// onChanged 在拖动期间把插件运行时全销毁重建。
+  void _commitLive() {
     _logSettingsDiff();
     widget.store.save(widget.state);
-    setState(() {});
     // 立刻检查生效亮度：手动切换主题时希望面板外壳（背景 / fluent 控件的
     // 主题色）跟着变，不必等 260ms 去抖。
     _maybeBumpThemeRevision();
@@ -286,6 +328,8 @@ class _ControlPanelState extends State<ControlPanel> {
     }
     _searchCtrl.dispose();
     _searchFocus.dispose();
+    _sideW.dispose();
+    _query.dispose();
     for (final c in _pageScroll.values) {
       c.dispose();
     }
@@ -315,7 +359,7 @@ class _ControlPanelState extends State<ControlPanel> {
         if (!widget.embedded) _acrylicBackdrop(),
         body,
         ...[
-          if (!widget.embedded) _searchResultsPanel() ?? const SizedBox.shrink(),
+          if (!widget.embedded) _searchResultsPanel(),
         ],
       ],
     );
@@ -327,7 +371,6 @@ class _ControlPanelState extends State<ControlPanel> {
       // 允许的最小尺寸，手柄就跟着缩没了（surface.dart 里踩过同样的坑）
       return Stack(fit: StackFit.expand, children: [
         layered,
-        ...resizeHandles(NativeWindow.panel),
         ...resizeHandles(NativeWindow.panel),
         // 描边。窗口是无边框的，浅色主题下面板底色和浅色桌面/浅色应用背景
         // 挨在一起时几乎分不出边界，一圈淡黑色才能把窗口"框"出来。
@@ -378,6 +421,54 @@ class _ControlPanelState extends State<ControlPanel> {
     );
   }
 
+  // ---------------- 卡片背景图是否落盘（build 里绝不做同步 I/O） ----------------
+
+  /// 背景图文件名 -> 文件当前是不是真的在磁盘上。
+  ///
+  /// [_bgPicker] 以前在 build 里对每张卡片直接 `file.existsSync()`。已放置页
+  /// 每张卡片一次 stat，而 [_commit] 每改一次设置就重建整页，拖任何一个滑块
+  /// （每秒几十次）就是每秒几十次**阻塞**文件系统调用——主 isolate 被钉死，
+  /// 窗口直接卡住。
+  ///
+  /// 这张图只有本 widget 的两个按钮会创建/删除，但光靠那两个按钮还不够：
+  /// 卡片可以从备份里恢复出来（[_importBackup] 直接换掉整个 cards 列表），
+  /// 那时没人告诉过缓存。所以查不到的条目交给 [_bgFileReady] 异步 stat 一次，
+  /// 而不是默认猜"没有"——猜错的话缩略图会一直空着。
+  final Map<String, bool> _bgFiles = {};
+
+  /// 打开面板时先把已有卡片的背景图一次性问清楚。
+  ///
+  /// 只在开面板这一次做同步 stat：这样恢复出来的卡片第一帧就能显示缩略图，
+  /// 不用等异步那一来一回（一帧的闪一下也是闪一下）。
+  void _primeBgFileCache() {
+    final dir = p.join(widget.store.dir, 'bg');
+    for (final card in widget.state.cards) {
+      final name = card.settings['bgImage'] as String?;
+      if (name == null || name.isEmpty) continue;
+      _bgFiles[name] = File(p.join(dir, name)).existsSync();
+    }
+  }
+
+  /// 这个背景图在不在？缓存里没有就异步 stat 一次，本帧先按"不在"渲染
+  /// （和 existsSync() 返回 false 时的界面一模一样），回来后再刷新。
+  bool _bgFileReady(String name) {
+    final cached = _bgFiles[name];
+    if (cached != null) return cached;
+    // 别重复发起：build 在 stat 回来之前可能被调好几次（拖滑块、导入备份…），
+    // 每次都补一发 stat 只是白白往线程池里塞活。
+    if (!_bgStatsInFlight.add(name)) return false;
+    File(p.join(widget.store.dir, 'bg', name)).exists().then((ok) {
+      _bgStatsInFlight.remove(name);
+      if (!mounted || _bgFiles[name] == ok) return;
+      _bgFiles[name] = ok;
+      setState(() {});
+    });
+    return false;
+  }
+
+  /// 已经发起、还没回来的 stat（见 [_bgFileReady]）
+  final Set<String> _bgStatsInFlight = <String>{};
+
   // ---------------- Win11 设置风格的导航壳 ----------------
 
   /// 导航元数据（图标 + 标题）。**顺序即索引**：其他 3、关于 4——
@@ -419,8 +510,14 @@ class _ControlPanelState extends State<ControlPanel> {
   /// 1px 的线用鼠标去精确瞄准是折磨，[MouseRegion] 的 cursor 会提示这里能拖。
   static const double _sideHandleHit = 7;
 
-  /// 侧栏当前宽度。拖动期间直接改它并 setState，落手时写进设置持久化。
-  late double _sideW = _s.sidebarWidth.clamp(_sideMin, _sideMax);
+  /// 侧栏当前宽度。拖动期间直接改它，落手时写进设置持久化。
+  ///
+  /// 用 [ValueNotifier] 承载而不是裸字段 + setState：宽度**只有** [_sidebar]
+  /// 里那个 SizedBox 读它，而拖手柄是按指针频率触发的，走 setState 等于
+  /// 每动一下鼠标就把整个当前页（外观页四百多个控件）重建一遍。现在把宽度
+  /// 单独做成一个可监听的值，只有侧栏那一小块跟着重排。
+  late final ValueNotifier<double> _sideW =
+      ValueNotifier<double>(_s.sidebarWidth.clamp(_sideMin, _sideMax));
 
   /// 拖动会话的起点：按下时的指针 x 与当时的侧栏宽度。
   /// 用「起点 + 位移」而不是「指针 - 窗口左边」——后者在拖动中窗口若被
@@ -430,7 +527,7 @@ class _ControlPanelState extends State<ControlPanel> {
 
   void _onSideDragStart(DragStartDetails d) {
     _sideDragStartX = d.globalPosition.dx;
-    _sideDragStartW = _sideW;
+    _sideDragStartW = _sideW.value;
   }
 
   void _onSideDragUpdate(DragUpdateDetails d) {
@@ -438,22 +535,39 @@ class _ControlPanelState extends State<ControlPanel> {
     if (x0 == null) return;
     final next = (_sideDragStartW + (d.globalPosition.dx - x0))
         .clamp(_sideMin, _sideMax);
-    if (next == _sideW) return;
-    setState(() => _sideW = next);
+    if (next == _sideW.value) return;
+    _sideW.value = next;
   }
 
   void _onSideDragEnd(DragEndDetails d) {
     _sideDragStartX = null;
     // 落手才写盘：拖动过程中每帧都存一次会把磁盘刷成筛子
-    _s.sidebarWidth = _sideW;
+    _s.sidebarWidth = _sideW.value;
     widget.onChanged();
   }
 
   /// 双击手柄复位到默认宽度（和拖拽条双击还原一个习惯）
   void _resetSideWidth() {
-    setState(() => _sideW = kSidebarWidthDefault);
-    _s.sidebarWidth = _sideW;
+    _sideW.value = kSidebarWidthDefault;
+    _s.sidebarWidth = _sideW.value;
     widget.onChanged();
+  }
+
+  /// 外部把设置整个换掉之后（例如 [_importBackup]）跟着把侧栏宽度拉回一致。
+  ///
+  /// 注意只能拿当前设置和 [_sideW] 比，不能去比 oldWidget / newWidget 的
+  /// settings：AppState 是被外层持有的**同一个对象**，[_importBackup] 直接
+  /// 把它的 settings 字段换掉了，oldWidget.state.settings 读到的也已经是
+  /// 新值，两边永远相等，什么都检测不出来。
+  void _syncSideWidthFromSettings() {
+    final next = _s.sidebarWidth.clamp(_sideMin, _sideMax);
+    if (next != _sideW.value) _sideW.value = next;
+  }
+
+  @override
+  void didUpdateWidget(covariant ControlPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncSideWidthFromSettings();
   }
 
   /// 拖拽手柄：1px 发丝线 + 左右各 3px 热区，悬停/拖动时整条亮起主色。
@@ -462,7 +576,16 @@ class _ControlPanelState extends State<ControlPanel> {
   /// 横向 DragGestureRecognizer 会和内容区的纵向滚动竞争，方向判定后
   /// 只有真正横拖才被这里吃掉，垂直滚动照常穿透到下面的列表。
   Widget _sidebarResizer() {
-    final hot = _sideDragStartX != null;
+    // 拖动中高亮那一档读的是 [_sideDragStartX]。以前拖手柄走的是整页 setState，
+    // 这一行顺带就跟着重画了；现在拖动不再 setState，所以显式挂在 [_sideW] 上
+    // ——宽度每帧都在变，亮不亮跟着重建，和以前一致。
+    return ValueListenableBuilder<double>(
+      valueListenable: _sideW,
+      builder: (context, _, _) => _resizerVisual(_sideDragStartX != null),
+    );
+  }
+
+  Widget _resizerVisual(bool hot) {
     return MouseRegion(
       cursor: SystemMouseCursors.resizeLeftRight,
       child: GestureDetector(
@@ -605,9 +728,16 @@ class _ControlPanelState extends State<ControlPanel> {
   }
 
   Widget _sidebar() {
-    return SizedBox(
-      // 宽度由拖拽手柄控制（见 [_sidebarResizer]），双击手柄可复位
-      width: _sideW,
+    // 只有最外层那个 SizedBox 吃 [_sideW]，里面这一大坨（品牌卡 + 导航列表）
+    // 完全不关心宽度——所以宽度走 notifier、内容走 child，拖手柄时连侧栏
+    // 内部都不会重建，只有这个 SizedBox 改个宽度。
+    return ValueListenableBuilder<double>(
+      valueListenable: _sideW,
+      builder: (context, sideW, child) => SizedBox(
+        // 宽度由拖拽手柄控制（见 [_sidebarResizer]），双击手柄可复位
+        width: sideW,
+        child: child,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -748,8 +878,8 @@ class _ControlPanelState extends State<ControlPanel> {
     ('关于 版本 作者', 4, '关于'),
   ];
 
-  List<(String, int)> get _searchResults {
-    final q = _query.trim().toLowerCase();
+  List<(String, int)> _searchResults(String q0) {
+    final q = q0.trim().toLowerCase();
     if (q.isEmpty) return const [];
     return [
       for (final (keywords, tab, label) in _searchIndex)
@@ -773,68 +903,80 @@ class _ControlPanelState extends State<ControlPanel> {
           child: Icon(Icons.search, size: 14, color: _c.ink38),
         ),
         style: const TextStyle(fontSize: 12),
-        onChanged: (v) => setState(() => _query = v),
+        // 只写 notifier：整页没有一处读关键词，敲字不该重建整个面板。
+        // 浮层自己订阅 [_query]，见 [_searchResultsPanel]。
+        onChanged: (v) => _query.value = v,
       ),
     );
   }
 
   /// 搜索结果浮层：标题栏正下方拉出一个卡片，点结果跳页。
   /// 出现时是淡入 + 轻微上提的非线性动画，不是"啪"地闪现。
-  Widget? _searchResultsPanel() {
-    final results = _searchResults;
-    if (results.isEmpty || !_searchFocus.hasFocus) return null;
-    return Positioned(
-      top: 48,
-      left: 0,
-      right: 0,
-      child: Center(
-        child: TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0, end: 1),
-          duration: const Duration(milliseconds: 160),
-          curve: Curves.easeOutCubic,
-          builder: (context, t, child) => Opacity(
-            opacity: t,
-            child: Transform.translate(
-              offset: Offset(0, -6 * (1 - t)),
-              child: child,
-            ),
-          ),
-          child: Container(
-            width: 380,
-            decoration: BoxDecoration(
-              color: _c.card,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: _c.cardBorder),
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0x33000000),
-                  blurRadius: 16,
-                  offset: Offset(0, 6),
+  ///
+  /// 整块裹在 [ValueListenableBuilder] 里订阅 [_query]：输入和焦点变化都只
+  /// 走这一个通知，面板本体一次都不用重建。
+  Widget _searchResultsPanel() {
+    return ValueListenableBuilder<String>(
+      valueListenable: _query,
+      builder: (context, query, _) {
+        final results = _searchResults(query);
+        if (results.isEmpty || !_searchFocus.hasFocus) {
+          return const SizedBox.shrink();
+        }
+        return Positioned(
+          top: 48,
+          left: 0,
+          right: 0,
+          child: Center(
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: 1),
+              duration: const Duration(milliseconds: 160),
+              curve: Curves.easeOutCubic,
+              builder: (context, t, child) => Opacity(
+                opacity: t,
+                child: Transform.translate(
+                  offset: Offset(0, -6 * (1 - t)),
+                  child: child,
                 ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final (label, tab) in results)
-                  _searchResultRow(label, tab),
-              ],
+              ),
+              child: Container(
+                width: 380,
+                decoration: BoxDecoration(
+                  color: _c.card,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: _c.cardBorder),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x33000000),
+                      blurRadius: 16,
+                      offset: Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final (label, tab) in results)
+                      _searchResultRow(label, tab),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
   Widget _searchResultRow(String label, int tab) {
     return HoverButton(
       onPressed: () {
-        setState(() {
-          _tab = tab;
-          _query = '';
-          _searchCtrl.clear();
-          _searchFocus.unfocus();
-        });
+        // 只有换页要重建面板；关键词、清空输入框、失焦都走 notifier
+        // （unfocus 触发的那次 [_onSearchFocusChanged] 会让浮层自己收起来）
+        setState(() => _tab = tab);
+        _query.value = '';
+        _searchCtrl.clear();
+        _searchFocus.unfocus();
       },
       builder: (context, states) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
@@ -1006,6 +1148,12 @@ class _ControlPanelState extends State<ControlPanel> {
 
   Widget _library() {
     final plugins = builtinCatalog();
+    // 「已放置 N」那个角标以前是每个磁贴自己 where().length 扫一遍 cards：
+    // 磁贴数 × 卡片数 次比较，一次建页就是几百次。这里一次数成表往下传。
+    final placedBy = <String, int>{};
+    for (final c in widget.state.cards) {
+      placedBy[c.pluginId] = (placedBy[c.pluginId] ?? 0) + 1;
+    }
     return ListView(
       padding: const EdgeInsets.fromLTRB(28, 4, 28, 24),
       children: [
@@ -1043,7 +1191,7 @@ class _ControlPanelState extends State<ControlPanel> {
                   Widget tile(BuiltinSpec p) => SizedBox(
                         width: tileW,
                         height: previewH + infoH,
-                        child: _pluginCard(p),
+                        child: _pluginCard(p, placedBy),
                       );
 
                   return Wrap(
@@ -1066,8 +1214,8 @@ class _ControlPanelState extends State<ControlPanel> {
     );
   }
 
-  Widget _pluginCard(BuiltinSpec p) {
-    final placed = widget.state.cards.where((c) => c.pluginId == p.id).length;
+  Widget _pluginCard(BuiltinSpec p, Map<String, int> placedBy) {
+    final placed = placedBy[p.id] ?? 0;
     // singleton 随清单一并移除；内置组件允许多开，唯一限制是"每块屏最多一个"
     final screenFull = !(widget.canAdd?.call(p.id) ?? true);
     final blocked = screenFull;
@@ -1207,9 +1355,14 @@ class _ControlPanelState extends State<ControlPanel> {
           child: Text('还没有放置任何组件',
               style: TextStyle(color: _c.ink30, fontSize: 12)));
     }
-    return ListView(
+    // 按 builder 建而不是一次性 children:：每一行都是一整套 fluent 控件
+    // （背景图选择器 + 尺寸选择 + 每个设置项的控件），卡片多了以后一次性
+    // 全建出来纯属白费——滚动条/physics/外观都不变，builder 只是把
+    // viewport 外的行留到快滚到时再建。
+    return ListView.builder(
       padding: const EdgeInsets.fromLTRB(28, 4, 28, 24),
-      children: [for (final c in cards) _cardRow(c)],
+      itemCount: cards.length,
+      itemBuilder: (context, i) => _cardRow(cards[i]),
     );
   }
 
@@ -1318,10 +1471,13 @@ class _ControlPanelState extends State<ControlPanel> {
   /// 可读性由 card_view 按图片实测亮度自动翻转文字色，这里只把结果说出来。
   Widget _bgPicker(WidgetCard card) {
     final current = card.settings['bgImage'] as String?;
+    // 落没落盘查 [_bgFiles]（见 [_bgFileReady]），build 里不做同步 stat。
+    // file 只在确认存在时才建出来：下面两处用它的分支正好都是"确认存在"。
     final file = current == null || current.isEmpty
         ? null
-        : File(p.join(widget.store.dir, 'bg', current));
-    final fileReady = file != null && file.existsSync();
+        : (_bgFileReady(current)
+            ? File(p.join(widget.store.dir, 'bg', current))
+            : null);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -1332,7 +1488,7 @@ class _ControlPanelState extends State<ControlPanel> {
             width: 44,
             height: 44,
             color: _c.chipBg,
-            child: fileReady
+            child: file != null
                 ? Image.file(file, fit: BoxFit.cover, gaplessPlayback: true)
                 : Center(
                     child: Icon(Icons.image_outlined,
@@ -1351,7 +1507,7 @@ class _ControlPanelState extends State<ControlPanel> {
                 valueListenable: CardView.bgRevision,
                 builder: (context, _, _) {
                   String status;
-                  if (!fileReady) {
+                  if (file == null) {
                     status = '未设置 · 使用主题材质（云母/毛玻璃）';
                   } else {
                     final l = CardView.bgLuminance(file.path);
@@ -1381,8 +1537,14 @@ class _ControlPanelState extends State<ControlPanel> {
             if (current != null && current != name) {
               final old = File(p.join(dir.path, current));
               if (old.existsSync()) old.deleteSync();
+              // 换图顺手把旧文件从 [_bgFiles] 里摘掉，否则别的卡片要是碰巧
+              // 还指着同名文件，会读到一条"还在"的过期记录
+              _bgFiles.remove(current);
             }
             await File(path).copy(p.join(dir.path, name));
+            // 文件确实写下来了才登记——这样紧接着的 setState 就能直接显示
+            // 缩略图，不用等 build 里再去 stat 一趟
+            _bgFiles[name] = true;
             card.settings['bgImage'] = name;
             _commit();
             if (mounted) setState(() {});
@@ -1400,6 +1562,7 @@ class _ControlPanelState extends State<ControlPanel> {
               onPressed: () {
                 final old = File(p.join(widget.store.dir, 'bg', current));
                 if (old.existsSync()) old.deleteSync();
+                _bgFiles.remove(current);
                 card.settings.remove('bgImage');
                 _commit();
                 if (mounted) setState(() {});
@@ -1459,24 +1622,24 @@ class _ControlPanelState extends State<ControlPanel> {
         final v = ((current as num?)?.toDouble() ?? min).clamp(min, max);
         control = SizedBox(
           width: 220,
-          child: Row(children: [
-            Expanded(
-              child: Slider(
-                value: v,
-                min: min,
-                max: max,
-                divisions: ((max - min) / step).round().clamp(1, 1000),
-                onChanged: (nv) {
-                  card.settings[key] = snapNumber(nv, min, step);
-                  _commit();
-                },
-              ),
-            ),
-            SizedBox(
-                width: 34,
-                child: Text(formatNumber(v, step),
-                    style: TextStyle(fontSize: 11, color: _c.ink60))),
-          ]),
+          // 没有标签（标签在 [_settingField] 外面的那一列），所以只留滑块 + 数值
+          child: _DragSlider(
+            value: v,
+            min: min,
+            max: max,
+            divisions: ((max - min) / step).round().clamp(1, 1000),
+            // 显示的是**存下去**的那个值：滑块给的是连续值，而落盘前要按 step
+            // 对齐（见 [snapNumber]），显示跟着对齐后的值才不会和设置对不上
+            format: (dv) => formatNumber(
+                snapNumber(dv, min, step).toDouble(), step),
+            valueStyle: TextStyle(fontSize: 11, color: _c.ink60),
+            valueWidth: 34,
+            onChanged: (nv) {
+              card.settings[key] = snapNumber(nv, min, step);
+              _commitLive();
+            },
+            onCommit: _commit,
+          ),
         );
       default:
         control = SizedBox(
@@ -1551,10 +1714,12 @@ class _ControlPanelState extends State<ControlPanel> {
             // 侧栏宽度也能在这里调：鼠标拖那条分隔线是主要方式（见
             // [_sidebarResizer]），但拖到一半想精确还原/微调时，滑块或
             // 下面的"重置"更省事——两个入口改的是同一个值。
-            _slider('侧栏宽度', _sideW, _sideMin, _sideMax, 4, (v) {
-              setState(() => _sideW = v);
+            _slider('侧栏宽度', _sideW.value, _sideMin, _sideMax, 4, (v) {
+              // 宽度走 [_sideW] 的 notifier（侧栏立刻跟着变），别再 setState：
+              // 下面的 _commit 在松手时还会统一来一次
+              _sideW.value = v;
               _s.sidebarWidth = v;
-              _commit();
+              _commitLive();
             }, suffix: 'px'),
             Row(children: [
               Expanded(
@@ -1563,7 +1728,7 @@ class _ControlPanelState extends State<ControlPanel> {
               ),
               HyperlinkButton(
                 onPressed: () {
-                  setState(() => _sideW = kSidebarWidthDefault);
+                  _sideW.value = kSidebarWidthDefault;
                   _s.sidebarWidth = kSidebarWidthDefault;
                   _commit();
                 },
@@ -2551,8 +2716,10 @@ class _ControlPanelState extends State<ControlPanel> {
   /// 按 rune 切而不是按下标切：用户名带中文时 `substring` 会把字符劈成两半，
   /// 末尾留一个问号形的替换符，比超宽还难看。
   static String _elideMiddle(String s, int max) {
+    // runes 是惰性的：先问长度，别管用不用得上都先把整串拆成 List<String>
+    // （短路径——绝大多数路径都短——每建一行就省一次整串分配）
+    if (s.runes.length <= max) return s;
     final chars = s.runes.map(String.fromCharCode).toList();
-    if (chars.length <= max) return s;
     final head = (max - 1) ~/ 2;
     final tail = max - 1 - head;
     return '${chars.take(head).join()}…${chars.skip(chars.length - tail).join()}';
@@ -2582,37 +2749,37 @@ class _ControlPanelState extends State<ControlPanel> {
 
   // ---------------- 通用控件 ----------------
 
+  /// 设置面板的滑块行（标签 + 滑块 + 数值）。
+  ///
+  /// 只是个薄壳：真正会自己重建的是 [_DragSlider]，这里只负责把外观页这批
+  /// 滑块的共性（190px 标签、52px 数值、"多少 px / 百分比" 的写法）收在一处。
+  ///
+  /// [onChanged] 每帧都来（拖动期间），所以它只写设置 + 走 [_commitLive]；
+  /// 松手时 [_DragSlider] 自己再调一次 [onCommit]（这里是 [_commit]），
+  /// 让页面上别的控件跟最终值对齐。
   Widget _slider(String label, double value, double min, double max, double step,
       ValueChanged<double> onChanged,
       {String suffix = '', bool percent = false, int decimals = 0}) {
-    String shown() {
-      if (percent) return '${(value * 100).round()}%';
-      if (decimals > 0) return value.toStringAsFixed(decimals);
-      return '${value.round()}$suffix';
+    String shown(double v) {
+      if (percent) return '${(v * 100).round()}%';
+      if (decimals > 0) return v.toStringAsFixed(decimals);
+      return '${v.round()}$suffix';
     }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Row(children: [
-        SizedBox(
-            width: 190,
-            child: Text(label,
-                style: TextStyle(fontSize: 12, color: _c.ink70))),
-        Expanded(
-          child: Slider(
-            value: value.clamp(min, max),
-            min: min,
-            max: max,
-            divisions: ((max - min) / step).round(),
-            onChanged: onChanged,
-          ),
-        ),
-        SizedBox(
-            width: 52,
-            child: Text(shown(),
-                textAlign: TextAlign.end,
-                style: TextStyle(fontSize: 11, color: _c.ink60))),
-      ]),
+      child: _DragSlider(
+        label: label,
+        value: value.clamp(min, max),
+        min: min,
+        max: max,
+        divisions: ((max - min) / step).round(),
+        format: shown,
+        labelStyle: TextStyle(fontSize: 12, color: _c.ink70),
+        valueStyle: TextStyle(fontSize: 11, color: _c.ink60),
+        onChanged: onChanged,
+        onCommit: _commit,
+      ),
     );
   }
 
@@ -2672,6 +2839,112 @@ class _ControlPanelState extends State<ControlPanel> {
         ],
       ),
     );
+  }
+}
+
+/// 设置面板里的滑块行，拖动值自己留在自己的 State 里。
+///
+/// 为什么要单独一个 StatefulWidget：滑块的 onChanged 是**拖动期间每帧**都来的，
+/// 而 [_ControlPanelState] 的 [_commit] 每次都 setState —— 等于拖一下滑块就把
+/// 整个当前页重建一遍（外观页四百多个控件、已放置页每张卡片一整套 fluent 控件）。
+/// 跟组件库磁贴的 [_TileHover] 一个思路：只跟这一行有关的临时状态就放在这一行
+/// 自己身上，别去动整棵子树。本地值的用法和 widgets/kit.dart 里
+/// `PluginSlider._dragging` 完全一致。
+///
+/// 两条回调别搞混：
+///   * [onChanged] 每帧都来，负责把值写进设置并走 [_ControlPanelState._commitLive]
+///     （记账 + 去抖通知，不 setState）；
+///   * [onCommit] 只在松手时来一次，负责 [_ControlPanelState._commit] 里那个
+///     setState —— 页面上**别的**控件（比如"染色到 0 时会怎样"那段提示）靠这一下
+///     跟最终值对齐。
+///
+/// 键盘方向键同样会成对触发 onChangeStart/onChangeEnd（Material 的
+/// increase/decrease 各调一次），所以键盘操作也能正常提交。
+class _DragSlider extends StatefulWidget {
+  const _DragSlider({
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.divisions,
+    required this.format,
+    required this.onChanged,
+    required this.onCommit,
+    this.label,
+    this.labelStyle,
+    this.valueStyle,
+    this.valueWidth = 52,
+  });
+
+  /// 外部（设置里）记着的值。没在拖的时候显示它。
+  final double value;
+  final double min;
+  final double max;
+
+  /// 离散档位数；和以前一样由调用方按 step 算，语义不变
+  final int divisions;
+
+  /// 数值怎么写成人看的字（"%"、"120px"、两位小数…）。要收一个参数：
+  /// 拖动过程中显示的是本地值，不是外面传进来的 [value]。
+  final String Function(double) format;
+
+  /// 每帧都来的写穿回调
+  final ValueChanged<double> onChanged;
+
+  /// 松手时的提交回调
+  final VoidCallback onCommit;
+
+  /// 左边的标签；为 null 就是纯"滑块 + 数值"（插件 number 设置项那种）
+  final String? label;
+  final TextStyle? labelStyle;
+  final TextStyle? valueStyle;
+  final double valueWidth;
+
+  @override
+  State<_DragSlider> createState() => _DragSliderState();
+}
+
+class _DragSliderState extends State<_DragSlider> {
+  /// 拖动中的本地值；null 表示没在拖，显示组件给的值
+  double? _dragging;
+
+  void _handleChanged(double v) {
+    // 只有这一行的 setState：面板本体不参与，页面不重排
+    setState(() => _dragging = v);
+    widget.onChanged(v);
+  }
+
+  void _handleEnd() {
+    setState(() => _dragging = null);
+    widget.onCommit();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final v = (_dragging ?? widget.value).clamp(widget.min, widget.max);
+    return Row(children: [
+      if (widget.label != null)
+        SizedBox(
+          width: 190,
+          child: Text(widget.label!, style: widget.labelStyle),
+        ),
+      Expanded(
+        child: Slider(
+          value: v,
+          min: widget.min,
+          max: widget.max,
+          divisions: widget.divisions,
+          onChanged: _handleChanged,
+          // 取消拖动也会走到 onChangeEnd（_endInteraction 挂在 up/cancel/end
+          // 三处），所以不存在"拖到一半被抢走手势，本地值卡住"的情况
+          onChangeEnd: (_) => _handleEnd(),
+        ),
+      ),
+      SizedBox(
+        width: widget.valueWidth,
+        child: Text(widget.format(v),
+            textAlign: TextAlign.end, style: widget.valueStyle),
+      ),
+    ]);
   }
 }
 

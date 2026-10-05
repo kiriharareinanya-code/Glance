@@ -10,6 +10,14 @@ import '../kit.dart'
 import '../node_anim.dart' show kNodeAnimDuration;
 import 'lunar.dart';
 
+/// 一格算好的农历信息（按日缓存，见 [_lunarOf] 的说明）。
+class _LunarDay {
+  const _LunarDay(this.lunar, this.term, this.fest);
+  final LunarDate? lunar;
+  final String? term;
+  final ({String name, bool statutory})? fest;
+}
+
 class CalendarWidget extends BuiltinController {
   CalendarWidget(super.ctx);
 
@@ -24,6 +32,39 @@ class CalendarWidget extends BuiltinController {
   static const _accent = '#29B6F6'; // 今天的圆底
   static const _holiday = '#FF8A6B'; // 法定节假日
   static const _term = '#8FD6A0'; // 节气
+
+  /// 按日缓存的农历数据：`y*10000+m*100+d` → [_LunarDay]。
+  ///
+  /// [Lunar.fromSolar] 要先分配两个 `DateTime.utc`，再从 1900 年起逐年逐月
+  /// 扣减（~130 年 × 15 次位运算）；[Lunar.termOf] 还要跑两遍寿星公式。
+  /// [_cell] 对 42 格每格都问一遍，于是**每次 draw**（点一格、翻一月、改一项
+  /// 设置都算）都要把这 42 天重算一遍。日期是纯输入，结果永久有效，所以按
+  /// 日期记下来；换月/跨过午夜时整表作废（窗口里换成了另一批日期）。
+  final Map<int, _LunarDay> _lunarCache = {};
+
+  /// [_lunarCache] 的有效期（视图月 + 今天）。
+  String _lunarStamp = '';
+
+  void _expireLunarCache() {
+    final stamp = '$_viewYear-$_viewMonth/${_today.year}-${_today.month}'
+        '-${_today.day}';
+    if (stamp == _lunarStamp) return;
+    _lunarStamp = stamp;
+    _lunarCache.clear();
+  }
+
+  /// [y]-[m]-[d] 的农历/节气/节日，命中缓存就不再算。
+  _LunarDay _lunarOf(int y, int m, int day) => _lunarCache.putIfAbsent(
+        y * 10000 + m * 100 + day,
+        () {
+          final lunar = Lunar.fromSolar(y, m, day);
+          return _LunarDay(
+            lunar,
+            Lunar.termOf(y, m, day),
+            lunar != null ? Lunar.festivalOf(y, m, day, lunar) : null,
+          );
+        },
+      );
 
   @override
   void mount() {
@@ -107,6 +148,7 @@ class CalendarWidget extends BuiltinController {
       );
 
   void draw() {
+    _expireLunarCache();
     final showLunar = ctx.settings['lunar'] != false;
     final showFest = ctx.settings['festival'] != false;
     final mondayFirst = ctx.settings['mondayFirst'] != false;
@@ -125,8 +167,11 @@ class CalendarWidget extends BuiltinController {
     Widget body(Color fg) {
       // 固定 6 行 42 格：月份切换时高度不跳变
       final cells = <Widget>[];
+      // 首格只算一次：原来 42 次 `DateTime(y, m, 1-lead+i)` 每次都要重新做
+      // 一天的日期规范化，跨月那几天全靠它归一化。
+      final first = DateTime(_viewYear, _viewMonth + 1, 1 - lead);
       for (var i = 0; i < 42; i++) {
-        final d = DateTime(_viewYear, _viewMonth + 1, 1 - lead + i);
+        final d = DateTime(first.year, first.month, first.day + i);
         final inMonth = d.month == _viewMonth + 1;
         final col = i % 7;
         cells.add(_cell(
@@ -308,7 +353,8 @@ class CalendarWidget extends BuiltinController {
 
   /// 今日一行：农历全称 + 干支生肖
   Widget _todayStrip(Color fg) {
-    final l = Lunar.fromSolar(_today.year, _today.month, _today.day);
+    final today = _lunarOf(_today.year, _today.month, _today.day);
+    final l = today.lunar;
     if (l == null) return const SizedBox.shrink();
     final parts = <Widget>[
       _chip(
@@ -317,7 +363,7 @@ class CalendarWidget extends BuiltinController {
       Text('${Lunar.ganzhi(l.y)}年', style: _ts(fg, size: 12, opacity: 0.58)),
       Text('属${Lunar.zodiac(l.y)}', style: _ts(fg, size: 12, opacity: 0.58)),
     ];
-    final t = Lunar.termOf(_today.year, _today.month, _today.day);
+    final t = today.term;
     if (t != null) {
       parts.add(_chip(
         Text('今日$t', style: _ts(fg, size: 12, color: nodeColor('#8FD6A0'))),
@@ -357,8 +403,7 @@ class CalendarWidget extends BuiltinController {
     final daysInMonth = DateTime(y, m + 1, 0).day;
     var listed = 0;
     for (var i = d + 1; i <= daysInMonth && listed < 3; i++) {
-      final l = Lunar.fromSolar(y, m, i);
-      final f = l != null ? Lunar.festivalOf(y, m, i, l) : null;
+      final f = _lunarOf(y, m, i).fest;
       if (f == null) continue;
       items.add(Row(
         mainAxisSize: MainAxisSize.min,
@@ -393,9 +438,10 @@ class CalendarWidget extends BuiltinController {
     final day = d.day;
     final isToday = _today.year == y && _today.month == m && _today.day == day;
 
-    final lunar = Lunar.fromSolar(y, m, day);
-    final term = Lunar.termOf(y, m, day);
-    final fest = lunar != null ? Lunar.festivalOf(y, m, day, lunar) : null;
+    final ld = _lunarOf(y, m, day);
+    final lunar = ld.lunar;
+    final term = ld.term;
+    final fest = ld.fest;
 
     // 下行文字的优先级：节日 > 节气 > 初一显示月份 > 农历日
     var sub = '';
@@ -468,36 +514,41 @@ class CalendarWidget extends BuiltinController {
         _selected!.year == y &&
         _selected!.month == m &&
         _selected!.day == day;
-    return TapFeedback(
-      animate: ctx.animate,
-      onTap: () {
-        final same = _selected != null &&
-            _selected!.year == y &&
-            _selected!.month == m &&
-            _selected!.day == day;
-        _selected = same ? null : DateTime(y, m, day);
-        draw();
-      },
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 38, maxHeight: 38),
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: Container(
-              decoration: BoxDecoration(
-                color: isToday
-                    ? nodeColor(_accent)
-                    : (marked ? nodeColor('#FFFFFF18') : null),
-                borderRadius: BorderRadius.circular(19),
-                // 选中圈：只描边不填充，不抢今天的实心圆
-                border: isSelected
-                    ? Border.all(color: fg.withValues(alpha: 0.85), width: 1.5)
-                    : null,
-              ),
-              child: Center(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: inner,
+    return RepaintBoundary(
+      // 按下反馈（AnimatedScale + AnimatedOpacity）原来每格都没有自己的
+      // 重绘边界：按一格就把脏标记冒到卡片的边界上，整张月历连着标题栏一起
+      // 重画。每格一层，代价远小于每次按下重画 42 格。
+      child: TapFeedback(
+        animate: ctx.animate,
+        onTap: () {
+          final same = _selected != null &&
+              _selected!.year == y &&
+              _selected!.month == m &&
+              _selected!.day == day;
+          _selected = same ? null : DateTime(y, m, day);
+          draw();
+        },
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 38, maxHeight: 38),
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isToday
+                      ? nodeColor(_accent)
+                      : (marked ? nodeColor('#FFFFFF18') : null),
+                  borderRadius: BorderRadius.circular(19),
+                  // 选中圈：只描边不填充，不抢今天的实心圆
+                  border: isSelected
+                      ? Border.all(color: fg.withValues(alpha: 0.85), width: 1.5)
+                      : null,
+                ),
+                child: Center(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: inner,
+                  ),
                 ),
               ),
             ),

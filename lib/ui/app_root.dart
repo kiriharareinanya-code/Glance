@@ -62,6 +62,10 @@ class AppRootState extends State<AppRoot> with TrayListener {
   /// 两者换算就靠它。和 _lastMonitors 同时更新。
   ({int x, int y, int w, int h})? _lastWindowRect;
 
+  /// 上一次真正重抓过壁纸时的那组设置。见 [_loadWallpaper]。
+  ({String material, int liveMs, double blur, bool autoColor, bool autoFg})?
+      _lastWallpaperSig;
+
   @override
   void initState() {
     super.initState();
@@ -81,6 +85,9 @@ class AppRootState extends State<AppRoot> with TrayListener {
   @override
   void dispose() {
     trayManager.removeListener(this);
+    // native 把回调存在 static 字段里，不清的话这个闭包会连着 _surfaceKey
+    // 一起把已经 dispose 的 State 一直吊住（热重载时尤其明显）。
+    NativeBridge.onDisplayChanged(null);
     Wallpaper.stop();
     super.dispose();
   }
@@ -99,6 +106,24 @@ class AppRootState extends State<AppRoot> with TrayListener {
     // onPanelChanged 再进这里，所以开关一切换就能同步上。
     Wallpaper.colorExtraction =
         s.autoColorFromWallpaper || s.autoForegroundFromWallpaper;
+
+    // 只要这组"壁纸相关"的设置没动，就别重抓。
+    //
+    // _loadWallpaper 往下走是一次**全桌面捕获 + 高斯模糊 + 缩略图回读 +
+    // 莫奈取色**，几百毫秒起步。而 onPanelChanged（面板里改**任何**一项设置
+    // 都触发，滑块松手 260ms 后）会无条件调它——于是"改网格间距"、"改吸附
+    // 阈值"、"改侧栏宽度"这些跟壁纸八竿子打不着的操作，也会白抓一次整屏，
+    // 表现就是松手后面板卡住一下。
+    final sig = (
+      material: s.material,
+      liveMs: s.liveRefreshMs,
+      blur: s.glassBlur,
+      autoColor: s.autoColorFromWallpaper,
+      autoFg: s.autoForegroundFromWallpaper,
+    );
+    if (sig == _lastWallpaperSig) return;
+    _lastWallpaperSig = sig;
+
     // 【诊断】莫奈取色开关走到这里才算真正生效，记一笔便于对照链路
     Log.i('wallpaper', '刷新壁纸链路: 取色开关 color=${s.autoColorFromWallpaper} '
         'fg=${s.autoForegroundFromWallpaper} → extraction='
@@ -299,6 +324,9 @@ class AppRootState extends State<AppRoot> with TrayListener {
             '${moved > 0 && claimed > 0 ? "，" : ""}'
             '${claimed > 0 ? "认领 $claimed 张" : ""}');
       }
+      // 显示器变了，虚拟屏尺寸也跟着变，壁纸必须按新尺寸重抓一遍——
+      // 这跟"设置有没有改"无关，所以先把记账抹掉，别让 [_loadWallpaper] 短路。
+      _lastWallpaperSig = null;
       _loadWallpaper();
     } catch (e) {
       Log.w('app', '显示器适配失败: $e');
@@ -348,6 +376,10 @@ class AppRootState extends State<AppRoot> with TrayListener {
         await _rebuildTrayMenu();
         setState(() {});
       case 'refreshWall':
+        // 用户明确说"重抓"，所以要连注册表里那条缓存一起作废，
+        // 否则换了壁纸但路径没变时，重抓的还是旧图。
+        Wallpaper.invalidateWallpaperPath();
+        _lastWallpaperSig = null;
         _loadWallpaper();
       case 'restart':
         await _restartApp();
@@ -552,9 +584,9 @@ class AppRootState extends State<AppRoot> with TrayListener {
             //
             // 以前这里放的是全局 _revision——面板里改**任何**一项设置
             // （模糊强度、主题、透明度……）都会让所有卡片的 key 变化，
-            // 5 个 QuickJS 运行时全部销毁重建，瞬时内存峰值和 GC 压力
+            // 5 张卡片的内容全部销毁重建，瞬时内存峰值和 GC 压力
             // 全是白付的。现在：外观类设置走壁纸监听/宿主重建即可，
-            // 运行时只在真正影响插件的量变化时才重建。
+            // 卡片内容只在真正影响它的量变化时才重建。
             key: ValueKey(
               '${card.id}:${card.size}:'
               '${jsonEncode(card.settings)}:'

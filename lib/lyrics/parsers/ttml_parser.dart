@@ -4,7 +4,7 @@
 //
 //   `XDocument.Parse(s, LoadOptions.PreserveWhitespace)` → `XmlDocument.parse(s)`
 //     namespaceUri: uri)` + `getAttribute(local, namespaceUri: uri)`：
-//       `el.Name == NsTtml + "span"`  → `_isNs(el, _ttmlUri, 'span')`
+//       `el.Name == NsTtml + "span"`  → `_isName(el, _ttmlSpan)`
 //       `(string?)el.Attribute(NsTtml + "x")` → `_attrNs(el, _ttmlUri, 'x')`
 //   `doc.Descendants(X + "p")` → `doc.descendants.whereType<XmlElement>().where(...)`。
 //   `params object?[] rootsAndKeys`（FindMetadataValue）→ `List<Object?> rootsAndKeys`。
@@ -31,9 +31,42 @@ const String _xmlUri = 'http://www.w3.org/XML/1998/namespace';
 
 typedef TranslationKey = ({String type, String lang});
 
+/// Pre-built [XmlName]s for every `{namespace}local` pair this parser tests.
+///
+/// PERF: `_isNs` used to evaluate `XmlName.parts(local, namespaceUri: nsUri)` on
+/// **every** comparison, allocating a fresh [XmlName] each time. The eight
+/// `doc.descendants.whereType<XmlElement>().where(...)` walks below run over the
+/// whole tree, and `_getLineStartTime` / `_extractTimedSpanTexts` add one more
+/// walk per line — tens of thousands of allocations per parse.
+///
+/// Every namespace URI here is a `const String`, so these are canonicalized by
+/// the compiler: zero allocation and the comparison degenerates to an identity
+/// check. [XmlName.==] compares `local` + `namespaceUri`, which is exactly what
+/// `XmlName.parts(local, namespaceUri: nsUri)` produced, so results are
+/// unchanged.
+const XmlName _ttmlP = XmlName.parts('p', namespaceUri: _ttmlUri);
+
+const XmlName _ttmlMetadata = XmlName.parts('metadata', namespaceUri: _ttmlUri);
+
+const XmlName _ttmlBody = XmlName.parts('body', namespaceUri: _ttmlUri);
+
+const XmlName _ttmlSpan = XmlName.parts('span', namespaceUri: _ttmlUri);
+
+const XmlName _ttmAgent = XmlName.parts('agent', namespaceUri: _ttmUri);
+
+const XmlName _itunesMetadata =
+    XmlName.parts('iTunesMetadata', namespaceUri: _itunesUri);
+
+const XmlName _itunesSongwriter =
+    XmlName.parts('songwriter', namespaceUri: _itunesUri);
+
+const XmlName _itunesTranslation =
+    XmlName.parts('translation', namespaceUri: _itunesUri);
+
+const XmlName _itunesText = XmlName.parts('text', namespaceUri: _itunesUri);
+
 /// `el.Name == Ns + local`。
-bool _isNs(XmlElement el, String nsUri, String local) =>
-    el.name == XmlName.parts(local, namespaceUri: nsUri);
+bool _isName(XmlElement el, XmlName name) => el.name == name;
 
 /// `(string?)el.Attribute(Ns + local)`。
 String? _attrNs(XmlElement el, String nsUri, String local) =>
@@ -77,7 +110,7 @@ class TtmlParser {
 
     final pNodes = doc.descendants
         .whereType<XmlElement>()
-        .where((e) => _isNs(e, _ttmlUri, 'p'))
+        .where((e) => _isName(e, _ttmlP))
         .toList();
     final alignmentEntries = <({XmlElement node, int index, int startTime})>[];
     for (var index = 0; index < pNodes.length; index++) {
@@ -270,7 +303,7 @@ List<Agent> _parseAgents(XmlDocument doc) {
   final agents = <Agent>[];
   for (final a in doc.descendants
       .whereType<XmlElement>()
-      .where((e) => _isNs(e, _ttmUri, 'agent'))) {
+      .where((e) => _isName(e, _ttmAgent))) {
     final id = _attrNs(a, _xmlUri, 'id');
     if (id == null || id.trim().isEmpty) continue;
 
@@ -288,14 +321,14 @@ List<Agent> _parseAgents(XmlDocument doc) {
 void _parseITunesMetadata(XmlDocument doc, LyricsData data) {
   XmlElement? metadata;
   for (final e in doc.descendants.whereType<XmlElement>()) {
-    if (_isNs(e, _ttmlUri, 'metadata')) {
+    if (_isName(e, _ttmlMetadata)) {
       metadata = e;
       break;
     }
   }
   XmlElement? meta;
   for (final e in doc.descendants.whereType<XmlElement>()) {
-    if (_isNs(e, _itunesUri, 'iTunesMetadata')) {
+    if (_isName(e, _itunesMetadata)) {
       meta = e;
       break;
     }
@@ -314,7 +347,7 @@ void _parseITunesMetadata(XmlDocument doc, LyricsData data) {
 
   final writers = meta.descendants
       .whereType<XmlElement>()
-      .where((e) => _isNs(e, _itunesUri, 'songwriter'))
+      .where((e) => _isName(e, _itunesSongwriter))
       .map((x) => _stringValue(x).trim())
       .where((x) => x.trim().isNotEmpty)
       .toList();
@@ -371,7 +404,7 @@ void _parseTrackMetadata(XmlDocument doc, XmlElement? metadata,
     String? bodyDur;
     for (final x in doc.descendants
         .whereType<XmlElement>()
-        .where((e) => _isNs(e, _ttmlUri, 'body'))) {
+        .where((e) => _isName(e, _ttmlBody))) {
       final dur = x.getAttribute('dur');
       if (dur != null && dur.trim().isNotEmpty) {
         bodyDur = dur;
@@ -388,7 +421,7 @@ void _parseTrackMetadata(XmlDocument doc, XmlElement? metadata,
   String? simplifiedReplacementLang;
   for (final x in doc.descendants
       .whereType<XmlElement>()
-      .where((e) => _isNs(e, _itunesUri, 'translation'))) {
+      .where((e) => _isName(e, _itunesTranslation))) {
     if (!_equalsIgnoreCase(
         (x.getAttribute('type') ?? '').trim(), 'replacement')) {
       continue;
@@ -527,12 +560,12 @@ Map<String, Map<TranslationKey, TranslationValue>> _parseTranslations(
 
   for (final translation in doc.descendants
       .whereType<XmlElement>()
-      .where((e) => _isNs(e, _itunesUri, 'translation'))) {
+      .where((e) => _isName(e, _itunesTranslation))) {
     final type = (translation.getAttribute('type') ?? '').trim();
     final lang = (_attrNs(translation, _xmlUri, 'lang') ?? '').trim();
 
     for (final textNode in translation.childElements
-        .where((e) => _isNs(e, _itunesUri, 'text'))) {
+        .where((e) => _isName(e, _itunesText))) {
       final key = (textNode.getAttribute('for') ?? '').trim();
       if (key.isEmpty) continue;
 
@@ -554,7 +587,7 @@ Map<String, Map<TranslationKey, TranslationValue>> _parseTranslations(
 List<String> _extractTimedSpanTexts(XmlElement textNode) {
   return textNode.descendants
       .whereType<XmlElement>()
-      .where((e) => _isNs(e, _ttmlUri, 'span'))
+      .where((e) => _isName(e, _ttmlSpan))
       .where((x) {
         final begin = x.getAttribute('begin');
         return begin != null && begin.trim().isNotEmpty;
@@ -576,7 +609,7 @@ void _collectSyllablesFromNodes(Iterable<XmlNode> nodes,
     }
 
     if (node is XmlElement) {
-      if (_isNs(node, _ttmlUri, 'span')) {
+      if (_isName(node, _ttmlSpan)) {
         final role = _attrNs(node, _ttmUri, 'role') ?? node.getAttribute('role');
         final isBg = isBackgroundContext || _equalsIgnoreCase(role, 'x-bg');
 
@@ -936,7 +969,7 @@ int? _getLineStartTime(XmlElement line) {
 
   final spanStarts = line.descendants
       .whereType<XmlElement>()
-      .where((e) => _isNs(e, _ttmlUri, 'span'))
+      .where((e) => _isName(e, _ttmlSpan))
       .map((span) => _parseTimeMs(span.getAttribute('begin')))
       .where((time) => time != null)
       .map((time) => time!)

@@ -5,7 +5,6 @@ library;
 
 enum LyricsTypes {
   unknown,
-  lyricifySyllable,
   lyricifyLines,
   lrc,
   qrc,
@@ -18,7 +17,6 @@ enum LyricsTypes {
 
 enum LyricsRawTypes {
   unknown,
-  lyricifySyllable,
   lyricifyLines,
   lrc,
 

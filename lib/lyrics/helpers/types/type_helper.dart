@@ -20,8 +20,6 @@ class TypeHelper {
     switch (type) {
       case LyricsRawTypes.unknown:
         return LyricsTypes.unknown;
-      case LyricsRawTypes.lyricifySyllable:
-        return LyricsTypes.lyricifySyllable;
       case LyricsRawTypes.lyricifyLines:
         return LyricsTypes.lyricifyLines;
       case LyricsRawTypes.lrc:
@@ -85,8 +83,6 @@ class TypeHelper {
         return 'Apple Music (JSON)';
       case LyricsRawTypes.lyricifyLines:
         return 'Lyricify Lines';
-      case LyricsRawTypes.lyricifySyllable:
-        return 'Lyricify Syllable';
       case LyricsRawTypes.musixmatch:
         return 'Musixmatch (JSON)';
       case LyricsRawTypes.spotify:
@@ -153,9 +149,6 @@ class TypeHelper {
       case 'LYRICIFY LINE':
       case 'LYRICIFY LINES':
         return LyricsRawTypes.lyricifyLines;
-      case 'LYRICIFY SYLLABLE':
-      case 'LYRICIFY SYLLABLES':
-        return LyricsRawTypes.lyricifySyllable;
       case 'MUSIXMATCH (JSON)':
       case 'MUSIXMATCH JSON':
       case 'MUSIXMATCHJSON':

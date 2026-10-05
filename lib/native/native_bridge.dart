@@ -63,14 +63,17 @@ class NativeBridge {
 
   /// 显示器插拔后 native 通知这边（磁贴窗口已重摆到新虚拟屏），
   /// 用来迁移卡片、刷新壁纸。
-  static void onDisplayChanged(VoidCallback handler) {
-    _ensureHandler();
+  ///
+  /// 传 null 表示注销。回调存在 static 字段里，持有 State 的强引用，
+  /// 所以 State 销毁时**必须**来清一次，否则热重载/重建后旧 State 一直被吊着。
+  static void onDisplayChanged(VoidCallback? handler) {
+    if (handler != null) _ensureHandler();
     _onDisplayChanged = handler;
   }
 
   /// 系统深浅色切换（native 的 WM_SETTINGCHANGE 推过来）。
-  static void onThemeChanged(VoidCallback handler) {
-    _ensureHandler();
+  static void onThemeChanged(VoidCallback? handler) {
+    if (handler != null) _ensureHandler();
     _onThemeChanged = handler;
   }
 

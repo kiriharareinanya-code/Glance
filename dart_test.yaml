@@ -1,0 +1,21 @@
+# 测试 tag 配置。
+#
+# `test/` 下有几个文件虽然顶着 _test.dart 后缀，但自述都不是断言测试：
+# 它们是**生成工具**或**联网自证**，会写真实文件、发真实网络请求。
+#
+# 其中 `assets/previews/*.png` 是**提交进仓库**的产品素材（组件库预览图），
+# 所以不隔离的话，每跑一次 `flutter test` 都会把它们重新生成一遍，
+# git 工作区永远是脏的 —— 实测每次跑完 `git status` 都多出 6 个 M。
+#
+# 隔离后手动跑（**必须带 --run-skipped**）：
+#   flutter test --tags gen  --run-skipped    # 预览图 + logo 资源
+#   flutter test --tags live --run-skipped    # 联网端到端取词验证
+#
+# 为什么必须带 `--run-skipped`：`skip` 是**无条件**跳过，`--tags` 只是筛选，
+# 两者独立、互不覆盖 —— 只写 `--tags gen` 会得到"All tests skipped"。
+# 实测确认过，别以为是 tag 没生效。
+tags:
+  gen:
+    skip: "生成工具，用 flutter test --tags gen --run-skipped 手动跑"
+  live:
+    skip: "联网自证，用 flutter test --tags live --run-skipped 手动跑"

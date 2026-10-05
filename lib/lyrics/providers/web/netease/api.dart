@@ -320,12 +320,15 @@ class Api extends BaseApi {
   }
 
   static BigInt bcHexDec(String hex) {
+    // PERF: the original built `BigInt.from(16).pow(len - i - 1)` (an
+    // arbitrary-precision exponentiation) and multiplied it into a BigInt on
+    // every single digit. Horner's method does the same arithmetic with one
+    // multiply-add per digit on small values that stay < 16^n only at the end.
     var dec = BigInt.zero;
     final len = hex.length;
 
     for (var i = 0; i < len; i++) {
-      dec += BigInt.from(int.parse(hex[i], radix: 16)) *
-          BigInt.from(16).pow(len - i - 1);
+      dec = (dec << 4) + BigInt.from(int.parse(hex[i], radix: 16));
     }
 
     return dec;

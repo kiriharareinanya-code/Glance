@@ -6,6 +6,16 @@
 ///   IFullLineInfo    → FullLineInfoMixin
 ///   FullLineInfo     → FullTextLineInfo
 ///   FullSyllableLineInfo → FullSyllableLineInfo
+///
+/// **为什么音节类型还留着**（逐字功能已下线）：
+/// KRC/YRC/QRC/TTML 这几种逐字格式，行文本和行时间是**从音节累积出来的**
+/// ——`SyllableLineInfo.text` = 拼所有音节的 text，`startTime` = 第一个音节的
+/// 起点。逐字功能删掉后仍然要靠它才能把这类文件解析出正确的行内容。
+/// 它现在只是解析层的**中间产物**：管线末端由
+/// `SyncDowngrade.downgradeToLineSyncedList` 统一降级成 [TextLineInfo]
+/// （见 `engine.dart` 的 `_optimize`），之后全流程不再有音节。
+///
+/// 所以这里是"解析得出来"和"用得上"两件事——前者还需要，后者已经没有了。
 library;
 
 import '../helpers/general/math_helper.dart';
@@ -97,6 +107,8 @@ class TextLineInfo extends LineInfo {
   LineInfo? subLine;
 }
 
+/// **仅供解析层使用**：见文件头说明。渲染层永远看不到这个类型——
+/// `SyncDowngrade` 会在管线末端把它降级成 [TextLineInfo]。
 class SyllableLineInfo extends LineInfo {
   // PORT NOTE（别名语义）: 上游 `LineInfo.cs:54-57` 的构造是
   // `Syllables = syllables.ToList();`——**复制**一份。这里也复制，
@@ -172,6 +184,7 @@ class FullTextLineInfo extends TextLineInfo with FullLineInfoMixin {
   }
 }
 
+/// **仅供解析层使用**，见文件头说明。
 class FullSyllableLineInfo extends SyllableLineInfo with FullLineInfoMixin {
   FullSyllableLineInfo();
 

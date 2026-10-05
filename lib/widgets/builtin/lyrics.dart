@@ -5,13 +5,15 @@
 ///   「歌词」来自 `lib/lyrics/**`（Lyricify 歌词逻辑的移植，纯 Dart）——
 ///   经由 `lib/widgets/lyrics_bridge.dart` 接上宿主的网络/日志，取词统一走
 ///   `LyricsEngine.fetch()`：多源顺序、匹配打分门槛、语言偏好过滤、信息行
-///   裁剪、逐字词合并都在引擎里，本文件**不再自己搜歌、自己拼 LRC**。
+///   裁剪、逐字格式降级都在引擎里，本文件**不再自己搜歌、自己拼 LRC**。
 ///
 /// 引擎返回的 `LyricsData` 由 `lib/widgets/lyrics_view.dart` 的
-/// [LyricsView]/[LyricsLine] 转成渲染模型（含逐字音节），本文件只负责画：
-///   - 当前行用 `LyricsLine.sungCharsF(pos)` 做**逐字（卡拉OK）高亮**——
-///     连续量，配 [ShaderMask] 的横向渐变遮罩擦出平滑推进的边界；
-///   - 没有逐字数据时退化成原来的整行高亮，行为与旧版一致。
+/// [LyricsView]/[LyricsLine] 转成渲染模型，本文件只负责画：
+///   - 当前行的高亮由**到当前行的距离阶梯**决定（越近越亮、当前行加粗加
+///     辉光），不按"唱到哪里"在行内分两段——逐字（卡拉OK）擦除已下线；
+///   - 逐字格式（KRC/YRC/QRC/TTML）仍在数据侧解析，因为要从音节累积出正确
+///     的行文本和行时间，但管线末端会统一降级成纯文本行（见
+///     `LyricsEngine._optimize`），到这里已经没有音节概念了。
 ///
 /// 位置自己外推：native 每 250ms 采样一次 SMTC，播放中按流逝时间往前推，
 /// 把采样间隔抹平；切歌/暂停/拖动时快照会纠正回来。
@@ -24,7 +26,6 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../../lyrics/engine.dart';
 import '../catalog.dart';
 import '../images.dart' show WidgetImages;
 import '../kit.dart'
@@ -36,6 +37,7 @@ import '../node_anim.dart'
     show NodeAnimatedColor, kNodeAnimCurve, kNodeAnimDuration;
 import '../spring_transition.dart' show SpringSlide;
 import 'lrc.dart';
+import 'lyrics_fetch_130.dart';
 
 class LyricsWidget extends BuiltinController {
   LyricsWidget(super.ctx);
@@ -88,7 +90,7 @@ class LyricsWidget extends BuiltinController {
   Map<String, Object?>? _media; // 最近一次「有歌在放」的 SMTC 快照
   /// 歌词渲染模型（引擎取词结果 / 缓存解析结果）。null = 还没有歌词。
   ///
-  /// 命中判断、行文本、译文、逐字进度全部走它，卡片自己不再持有
+  /// 命中判断、行文本、译文、当前行位置全部走它，卡片自己不再持有
   /// `List<LrcLine>`。
   LyricsView? _view;
   String _lyricState = 'idle'; // idle | loading | ok | none
@@ -112,6 +114,7 @@ class LyricsWidget extends BuiltinController {
   int _idleAtMs = 0;
   String _lastPaint = '';
   int _lastPos = 0;
+
 
   /// 当前歌词行（还没有歌词时是空列表，取用一律安全）。
   List<LyricsLine> get _lines => _view?.lines ?? const <LyricsLine>[];
@@ -185,54 +188,41 @@ class LyricsWidget extends BuiltinController {
   // 取歌词
   // ------------------------------------------------------------------
 
-  /// 载入歌词：缓存优先（命中就不联网）→ 引擎取词 → 回写缓存。
+  /// 载入歌词：**每次都现搜**（不读磁盘缓存）。
   ///
-  /// [key] = 「标题|歌手|时长秒」（含时长，区分现场版/录音室版），也是缓存键。
+  /// [key] = 「标题|歌手|时长秒」（含时长，区分现场版/录音室版）。
+  ///
+  /// 为什么不做缓存：歌词源（尤其网易云）会**不时返回坏数据**——实测遇到过
+  /// 同一个 ID 某天返回 38 行里 36 行是空的 YRC（屏幕上只剩开头两行制作名单）。
+  /// 缓存会把这个瞬间的坏结果**固化下来**，之后每次播放都吃这份坏数据，
+  /// 而重搜一次大概率就正常了。用户的原话是"现搜现用，搜不到就算了"，
+  /// 所以这里彻底不落盘：搜到就用，搜不到就空着。
+  ///
+  /// 只在**换歌时**调用（见调用点的 `key != _trackKey`），不是每帧都来。
   Future<void> _loadLyrics(
       String title, String artist, int durMs, String key) async {
     // 只在没有旧歌词时设 loading（首次加载），避免状态变化触发重绘闪白
     if (_lines.isEmpty) _lyricState = 'loading';
 
-    // 缓存里存的是 LyricsView.encode() 出来的字符串（旧版裸 LrcLine 数组
-    // 也读得懂，decode 里有兼容分支）。
-    final cached = LyricsView.decode(await ctx.cacheGet(key));
-    if (_trackKey != key) return; // 加载期间已经换歌了
-    if (cached != null && cached.lines.isNotEmpty) {
-      _view = cached;
-      _lyricState = 'ok';
-      _lyricKey = key;
-      _paint(true);
-      return;
-    }
-
     LyricsView? fetched;
     try {
-      // 取词全权交给 Lyricify 移植过来的引擎：来源顺序、匹配打分门槛、语言
-      // 偏好过滤、信息行裁剪、逐字词合并都在 fetch() 里，卡片不再自己拼。
-      final outcome = await LyricsEngine().fetch(
-        title: title,
-        // 歌手/时长取不到就传 null（旧代码用空串/0 表示"没有"，引擎按 null 判）
-        artist: artist.isEmpty ? null : artist,
-        durationMs: durMs > 0 ? durMs : null,
-        sourcePreference: '${_settings['source'] ?? 'auto'}',
-        // 语言要求：标题里的标记（Chinese Ver. 之类）优先；没写就用用户偏好。
-        // 默认中文优先——用户是中文用户，英文原文反正还挂着官方翻译，而
-        // "曲库里藏着中演唱版"的情况只有偏好启动了才找得到。英文歌不会受
-        // 影响：全不符时引擎会回退到兜底候选。
-        preferLang: Lrc.wantedLyricLang(title) ??
-            switch ('${_settings['preferLang'] ?? 'zh'}') {
-              'zh' => 'zh',
-              'en' => 'en',
-              _ => '',
-            },
-        // 设置里的「显示制作名单」开着（credits == true）就不裁信息行
-        stripInfoLines: _settings['credits'] != true,
-      );
-      if (outcome != null) {
-        fetched = LyricsView.fromData(
-          outcome.data,
-          sourceName: outcome.sourceName,
-          wantTranslation: _settings['trans'] == true,
+      // 取词走 **130 版**的选词逻辑（见 lyrics_fetch_130.dart 的文件头）。
+      //
+      // 为什么换掉 8 源打分版：它是"**逐源、按分数从高到低、先到先得**"——
+      // 某个源里一条 medium 分的**别的歌**只要排第一且取到了歌词，就会被
+      // 直接返回，把 Apple Music / LRCLIB 的 perfect 候选全挡在后面。
+      // 实测「Golden Number」就是这样被 Netease 一条 medium(70) 的
+      // 「Ozymandias」抢走的。130 版在每个源内部用 pickSong 挑最像的那条，
+      // 挑不到才换源，没有"跨源先到先得"这个失败模式。
+      //
+      // 代价（用户明确接受）：只有网易云 + LRCLIB 两个源，能搜到的歌变少。
+      final arr =
+          await LyricsFetcher130(ctx, _settings).fetch(title, artist, durMs);
+      if (arr != null && arr.isNotEmpty) {
+        fetched = LyricsView.fromSimpleLines(
+          [
+            for (final l in arr) (start: l.t, text: l.s, trans: l.tr),
+          ],
         );
       }
     } catch (_) {
@@ -244,8 +234,8 @@ class LyricsWidget extends BuiltinController {
       _view = fetched;
       _lyricState = 'ok';
       _lyricKey = key;
-      // 存字符串：渲染模型自带格式/同步类型/来源/逐字音节，能无损还原
-      ctx.cacheSet(key, fetched.encode());
+      // 不落盘：见 [_loadLyrics] 的说明。歌词源会返回瞬时坏数据，
+      // 缓存等于把坏结果固化，下次直接吃坏数据、连重搜的机会都没有。
     } else if (_isSameSong(_lyricKey, key)) {
       // **同一首歌**的另一个 key 搜索失败（SMTC 标题在「XXX - Chinese Ver.」
       // 和「XXX (Honkai Star Rail)」之间跳变，同一次切歌会以两个 key 各触发
@@ -416,29 +406,12 @@ class LyricsWidget extends BuiltinController {
     _paint(false);
   }
 
-  /// 只有可见内容真的变了才 render。指纹：当前行、秒数、播放状态、
-  /// 进度条的像素位置（300px 条上 1px 以内的变化不值得重绘）。
-  ///
-  /// 逐字高亮比"秒"更细：同一秒里已唱字符数就可能变（`LyricsLine.sungCharsF`），
-  /// 所以当前行是逐字行时把已唱字符数也进指纹。**只对逐字行加**——普通 LRC
-  /// 行的 charsSungAt 是整行进度的折算值，每帧都在变，塞进指纹等于每 100ms
-  /// 白重绘一次；而它渲染出来只是整行高亮，本来就不需要更细的重绘。
-  /// （也不要直接把 pos 塞进指纹：那是每帧都变。）
-  ///
-  /// 逐字行这里用**量化到 1/8 字**的浮点而不是整数：逐字动画的边界是连续
-  /// 推过去的，只认整数的话每 100ms 才跳一格，看着是"一顿一顿"而不是在动。
-  /// 1/8 字 ≈ 一个字宽的 12%，肉眼看不出台阶，但比整数细得多。
-  /// （不用完整浮点：那样连未唱部分亚像素抖动都会触发重绘，白烧 CPU。）
+
   void _paint(bool force) {
     // 浏览超时自动回到跟随。这里每帧都进来，等价于定时器，还不用管生命周期
     if (_browseOffset != 0 && _browseExpired()) force = true;
     final pos = _nowPos();
     final idx = _view?.indexAt(pos) ?? -1;
-    final lines = _lines;
-    final cur = idx >= 0 && idx < lines.length ? lines[idx] : null;
-    final sung = cur != null && cur.isSyllable
-        ? (cur.sungCharsF(pos) * 8).round()
-        : -1;
     final duration = (_media?['duration'] as num?)?.toInt() ?? 0;
     final barPx = _media != null && duration > 0
         ? (pos / duration * 300).round()
@@ -450,7 +423,6 @@ class LyricsWidget extends BuiltinController {
       idx,
       barPx,
       pos ~/ 1000,
-      sung,
       _media?['status'] ?? -1,
       _browseOffset, // 滚轮浏览位置变了要重绘（否则被节流吃掉）
     ].join('\u0001');
@@ -529,6 +501,51 @@ class LyricsWidget extends BuiltinController {
     _lineContext = _songHasTrans ? _lineBilingual : _lineSingle;
   }
 
+  /// 第 [i] 行实际占的高度。[singing] 是当前正在唱的行号。
+  ///
+  /// **必须与"这行到底画不画译文"完全对齐**——这是这条链上最容易错的地方，
+  /// 用户在 Golden Number 上踩过一次：
+  ///
+  /// 渲染时译文只画在**正在唱**的那一行（见 [_lyricArea] 里构造 `cell` 的
+  /// 分支，译文跟着"正在唱"走、不跟着"你在看哪行"走）。但旧的行高判断只看
+  /// `line.trans.isNotEmpty`——这首歌每行都带官方翻译，于是**每一行**都被判成
+  /// "有译文"、都留出双倍高度，而译文只画在中间那一行，其余行就凭空空出
+  /// 一整行。用户看到的就是"没有翻译的那几行行间距过大"。
+  ///
+  /// 现在的规则和渲染严格一致：**只有真正会画出译文的那一行**（正在唱 +
+  /// 该行有译文）才拿双语高度，其余一律单行。
+  ///
+  /// 代价：换句时上一行收起、下一行展开，整列会有轻微重排。用户明确选了
+  /// 紧凑（他的卡片小，之前就抱怨过行数太少），这个取舍是故意的。
+  int _heightOf(int i, int singing) {
+    if (_settings['trans'] != true) return _lineSingle;
+    final lines = _lines;
+    if (i < 0 || i >= lines.length) return _lineSingle;
+    return (i == singing && lines[i].trans.isNotEmpty)
+        ? _lineBilingual
+        : _lineSingle;
+  }
+
+  /// 第 [i] 行顶端的 y 偏移 = 前面所有行高度之和。
+  ///
+  /// 每帧重算一次，O(n)。歌词最多几百行、每行一次加法，比维护一份
+  /// "什么时候该失效"的缓存简单得多，也不可能算错。
+  double _rowTop(int i, int singing) {
+    var y = 0;
+    for (var k = 0; k < i; k++) {
+      y += _heightOf(k, singing);
+    }
+    return y.toDouble();
+  }
+
+  /// 估算"一屏能放几行"用的平均行高。
+  ///
+  /// 逐行高度之后没有单一 lh 了，但铺行数/锚点这些仍需要个标量。
+  /// **只有正在唱的那一行是双高**，其余全是单行 —— 所以平均值几乎就是
+  /// 单行高。这里就取 `_lineSingle`：偏小估算会让铺的行数偏多（多铺不亏，
+  /// 露白才亏），代价只是末尾多算几行不可见的行。
+  double get _avgLineHeight => _lineSingle.toDouble();
+
   /// 歌词区能放下的**完整**行数（取景框里看得见的行数，不含预滚/预铺行）。
   ///
   /// 预算 = 卡片高 − 上下内边距 − 头部（按钮/进度条/时间）实际占高。
@@ -542,7 +559,9 @@ class LyricsWidget extends BuiltinController {
   /// 口径，测试断言"可见行数"才有意义。
   int _visibleLines() {
     final avail = _availHeight();
-    var n = (avail / _lineContext).floor();
+    // 与 [_lyricArea] 里的 `lines` 同口径：逐行高度之后用平均行高估算，
+    // 这样测试断言"可见行数"才和真机渲染对得上。
+    var n = (avail / _avgLineHeight).floor();
     // 至少 3 行：小卡片上也要能看清"上一句 / 当前句 / 下一句"的上下文，
     // 只有 1~2 行的话歌词就退化成"字幕条"了，完全没有浏览感。
     if (n < 3) n = 3;
@@ -571,45 +590,6 @@ class LyricsWidget extends BuiltinController {
     return 72;
   }
 
-  /// 歌词列表区（列表式滚动 + 弹簧换句，原生 Widget 版）。
-  ///
-  /// ## 两个约束互相拉扯，这是本题的核心矛盾
-  ///
-  /// 1. **要弹簧滚动**：`slide` 的目标偏移必须**随换句变化**——`SpringSlide`
-  ///    在 `didUpdateWidget` 里第一句就是 `if (widget.offset == old.offset) return;`，
-  ///    偏移不变 = 动画不启动。
-  /// 2. **要当前行永远在框内**：整列不能被推出取景框。
-  ///
-  /// 历史上有两版都只满足一半：
-  ///   - **绝对偏移版**（`v = -(base × 行高)`，base 随当前行增长）：
-  ///     动画正常，但数组也每次从 base 重取 → 偏移被算两遍，base 越大整列
-  ///     越远，歌曲后段整列飞出取景框（实测 idx=36 时 y≈-734）= "歌词消失"。
-  ///   - **常量偏移版**（`v = -行高`，数组按窗口取）：位置永远正确，但偏移
-  ///     恒定 → 弹簧完全不触发 = "弹簧效果不见了"。
-  ///
-  /// ## 正解：数组从**固定起点 0** 铺，偏移扛下全部滚动量
-  ///
-  /// 关键是让"取行"和"对齐"**各司其职且互不重复**：
-  ///   - 数组**固定从第 0 行开始铺**，铺到「当前窗口底 + 余量」为止
-  ///     （不是从当前行开始重取，所以下标 `i` 就是真实行号，没有平移语义）；
-  ///   - 偏移 = `-(top × 行高)`，`top` 是窗口顶端行号。**这是绝对滚动量，
-  ///     随换句单调增长** → 弹簧有东西可动。
-  ///
-  /// `top` 被 clamp 到 `maxTop = 总行数 - 可见行数`：
-  ///   - 歌曲中段：`top` 随当前行增长 → 内容真的在滚（每句滚一行高）；
-  ///   - 歌曲到底：`top` 冻结在 `maxTop` → 整列不动，当前行在框内自然下移
-  ///     （经典 scroll-boundary）。此时偏移不变（无动画）是**对的**——
-  ///     内容确实没动，而且当前行仍稳稳在框内。
-  ///
-  /// 不变量：当前行屏上坐标 = `(cur × lh) + v`，恒等于 `anchor × lh`，
-  /// 所以**任何位置当前行都落在锚点处、都在取景框内**（实测 0~39 全覆盖）。
-  ///
-  /// 代价：数组铺的行数随进度增长（40 行的歌最多铺 40 行）。这是必要的——
-  /// 数组长度和偏移变量只能二选一，而要弹簧就必须让偏移动。子节点是
-  /// `Text`，Flutter 会按位置 diff 复用，换句只重建一两个槽位。
-  ///
-  /// [pos] 是当前播放位置（毫秒），只用于当前行的**逐字**高亮
-  /// （`LyricsLine.charsSungAt`）——非逐字行一个像素都不受影响。
   /// 滚轮浏览歌词。返回 true 表示消费掉了这次滚轮。
   ///
   /// 放在 PointerSignalResolver 里而不是 Scrollable：歌词列不是列表，是
@@ -671,10 +651,95 @@ class LyricsWidget extends BuiltinController {
     return true;
   }
 
+  // ---- 歌词列的样式缓存 ----
+  //
+  // [_lyricArea] 的"距离阶梯"（见那里的注释）实际只有 6 种组合，译文样式
+  // 是第 7 种，辉光只有两档。可它们原来每行每帧都现造一遍 TextStyle +
+  // `fg.withValues(alpha: …)` + `nodeGlow(nodeColor(_accent), …)`——n 行的歌
+  // 一帧 n 份一次性分配，而 nodeColor 还要把十六进制串重新解析一遍。
+  // 这三个量（前景色来自卡片环境、字号与强调色来自 [_measure]）都很少变，
+  // 所以缓存住，任何一个变了就整组重建。
+  Color? _styleFg;
+  double? _styleSize;
+  String? _styleAccent;
+  List<TextStyle> _rowStyles = const [];
+  TextStyle _transStyle = const TextStyle();
+
+  void _ensureRowStyles(Color fg) {
+    if (fg == _styleFg &&
+        _lyricSize == _styleSize &&
+        _accent == _styleAccent) {
+      return;
+    }
+    _styleFg = fg;
+    _styleSize = _lyricSize;
+    _styleAccent = _accent;
+    final accentColor = nodeColor(_accent);
+    final glow9 = nodeGlow(accentColor, 9);
+    TextStyle s(
+            double size, FontWeight? weight, double opacity, List<Shadow> g) =>
+        TextStyle(
+          fontSize: size,
+          fontWeight: weight,
+          color: fg.withValues(alpha: opacity),
+          shadows: g,
+        );
+    // 下标与 [_lyricArea] 里的档位选择一一对应，改一处就要改两处。
+    _rowStyles = [
+      s(_lyricSize, FontWeight.w400, 0.82, const []), // 0 浏览·非当前行
+      s(_lyricSize, FontWeight.w400, 0.82, glow9), //     1 浏览·当前行
+      s(_lyricSize + 2, FontWeight.w700, 1.0, glow9), //  2 正在唱
+      s(_lyricSize, FontWeight.w400, 0.55, const []), // 3 距离 1
+      s(_lyricSize, FontWeight.w400, 0.32, const []), // 4 距离 2
+      s(_lyricSize, FontWeight.w400, 0.14, const []), // 5 更远
+    ];
+    _transStyle = s(_lyricSize - 3, null, 0.7, nodeGlow(accentColor, 6));
+  }
+
+  /// 歌词列表区（列表式滚动 + 弹簧换句，原生 Widget 版）。
+  ///
+  /// ## 两个约束互相拉扯，这是本题的核心矛盾
+  ///
+  /// 1. **要弹簧滚动**：`slide` 的目标偏移必须**随换句变化**——`SpringSlide`
+  ///    在 `didUpdateWidget` 里第一句就是 `if (widget.offset == old.offset) return;`，
+  ///    偏移不变 = 动画不启动。
+  /// 2. **要当前行永远在框内**：整列不能被推出取景框。
+  ///
+  /// 历史上有两版都只满足一半：
+  ///   - **绝对偏移版**（`v = -(base × 行高)`，base 随当前行增长）：
+  ///     动画正常，但数组也每次从 base 重取 → 偏移被算两遍，base 越大整列
+  ///     越远，歌曲后段整列飞出取景框（实测 idx=36 时 y≈-734）= "歌词消失"。
+  ///   - **常量偏移版**（`v = -行高`，数组按窗口取）：位置永远正确，但偏移
+  ///     恒定 → 弹簧完全不触发 = "弹簧效果不见了"。
+  ///
+  /// ## 正解：数组从**固定起点 0** 铺，偏移扛下全部滚动量
+  ///
+  /// 关键是让"取行"和"对齐"**各司其职且互不重复**：
+  ///   - 数组**固定从第 0 行开始铺**，铺到「当前窗口底 + 余量」为止
+  ///     （不是从当前行开始重取，所以下标 `i` 就是真实行号，没有平移语义）；
+  ///   - 偏移 = `-(top × 行高)`，`top` 是窗口顶端行号。**这是绝对滚动量，
+  ///     随换句单调增长** → 弹簧有东西可动。
+  ///
+  /// `top` 被 clamp 到 `maxTop = 总行数 - 可见行数`：
+  ///   - 歌曲中段：`top` 随当前行增长 → 内容真的在滚（每句滚一行高）；
+  ///   - 歌曲到底：`top` 冻结在 `maxTop` → 整列不动，当前行在框内自然下移
+  ///     （经典 scroll-boundary）。此时偏移不变（无动画）是**对的**——
+  ///     内容确实没动，而且当前行仍稳稳在框内。
+  ///
+  /// 不变量：当前行屏上坐标 = `(cur × lh) + v`，恒等于 `anchor × lh`，
+  /// 所以**任何位置当前行都落在锚点处、都在取景框内**（实测 0~39 全覆盖）。
+  ///
+  /// 代价：数组铺的行数随进度增长（40 行的歌最多铺 40 行）。这是必要的——
+  /// 数组长度和偏移变量只能二选一，而要弹簧就必须让偏移动。子节点是
+  /// `Text`，Flutter 会按位置 diff 复用，换句只重建一两个槽位。
   Widget _lyricArea(int pos, int idx, Color fg) {
     _syncLineHeights(idx);
+    // 整列的 TextStyle 一次性备齐（原来每行每帧现造，见 [_ensureRowStyles]）。
+    _ensureRowStyles(fg);
     final arr = _lines;
-    final lh = _lineContext;
+    // 逐行高度之后没有单一 lh 了，但"铺几行""锚点在第几行"仍要个标量，
+    // 用平均行高估算；**实际每个 widget 的高度**走 [_heightOf]。
+    final lh = _avgLineHeight;
     // 取景框高度 = 外层 Expanded 实际给到的可用高度。
     final viewport = _availHeight();
     // 列表最顶端多铺一行（预滚行）：换句时它从上方滑进来，边缘不会露白；
@@ -736,56 +801,34 @@ class LyricsWidget extends BuiltinController {
       // 焦点层级：越远越淡。**浏览时整列同一档**——按 dist 分层是为了
       // 跟随时把注意力收到当前句上；浏览时用户要的是"平铺的歌词列表"，
       // 分层只会让窗口外那几行被压到 0.14，读都读不了。
-      double op;
-      num sz, wt;
+      //
+      // 这里只挑**档位**，样式本身由 [_ensureRowStyles] 按（前景色、字号、
+      // 强调色）缓存好：阶梯实际只有 6 种组合、辉光只有两档，而原来每行
+      // 每帧都要现造一个 TextStyle 加一次 withValues。
+      int styleIx;
       if (browsing) {
-        op = 0.82;
-        sz = _lyricSize;
-        wt = 400;
+        styleIx = isSinging ? 1 : 0;
       } else if (dist == 0) {
-        op = 1;
-        sz = _lyricSize + 2;
-        wt = 700;
+        styleIx = 2;
       } else if (dist == 1) {
-        op = 0.55;
-        sz = _lyricSize;
-        wt = 400;
+        styleIx = 3;
       } else if (dist == 2) {
-        op = 0.32;
-        sz = _lyricSize;
-        wt = 400;
+        styleIx = 4;
       } else {
-        op = 0.14;
-        sz = _lyricSize;
-        wt = 400;
+        styleIx = 5;
       }
       // 辉光标的是"正在唱"的那一行，和高亮是同一个含义，同一套规则。
-      final glow = isSinging
-          ? nodeGlow(nodeColor(_accent), 9)
-          : const <Shadow>[];
-      final style = TextStyle(
-        fontSize: sz.toDouble(),
-        fontWeight: wt == 700 ? FontWeight.w700 : FontWeight.w400,
-        color: fg.withValues(alpha: op),
-        shadows: glow,
-      );
+      final style = _rowStyles[styleIx];
       final text = line.text;
-      final Widget body;
-      // 逐字（卡拉OK）高亮只在**跟随时**、且确实是正在唱的那行才做。
-      // 浏览别的句子时按播放位置切已唱/未唱是误导——看着像"这句唱到一半"。
-      if (isSinging && !browsing && line.isSyllable && text.isNotEmpty) {
-        // 逐字行：已唱的部分亮、未唱的部分暗，且只在这一行上做。
-        body = _syllableBody(text, line.sungCharsF(pos), style);
-      } else {
-        // 没有逐字数据（普通 LRC）**或不是当前行**：整行一个颜色，
-        // 与改造前逐像素一致——逐字高亮不会让旧行为退化。
-        body = Text(
-          text.isEmpty ? '·' : text,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: style,
-        );
-      }
+      // 整行一个颜色。当前行的高亮完全由上面那个距离阶梯决定
+      // （op=1 + 字号+2 + 字重700 + 辉光），不按"唱到哪里"再分两段。
+      // 逐字（卡拉OK）擦除已下线，样式因此是全曲统一的。
+      final body = Text(
+        text.isEmpty ? '·' : text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: style,
+      );
       // 正在唱的那行有译文 → 正文 + 译文叠两行**垂直居中**地放进这一行的
       // 高度预算里。整首歌的行高（_lineContext）在 _syncLineHeights 里
       // 已经按"有没有译文"选好，所以这里正文 + 译文一定放得下。
@@ -806,11 +849,7 @@ class LyricsWidget extends BuiltinController {
               line.trans,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: _lyricSize - 3,
-                color: fg.withValues(alpha: 0.7),
-                shadows: nodeGlow(nodeColor(_accent), 6),
-              ),
+              style: _transStyle,
             ),
           ],
         );
@@ -824,13 +863,13 @@ class LyricsWidget extends BuiltinController {
           children: [body],
         );
       }
-      // 每行钉死在同一高度预算内（滚动模型的前提）。宽度撑满取景框，
-      // 让整行（不只文字部分）可点。
+      // 每行按**自己的**高度（有译文要显示就双高，否则单高）。
+      // 宽度撑满取景框，让整行（不只文字部分）可点。
       rows.add(TapFeedback(
         animate: ctx.animate,
         onTap: () => _seekTo(i),
         child: SizedBox(
-          height: lh.toDouble(),
+          height: _heightOf(li, singing).toDouble(),
           width: double.infinity,
           child: Padding(
             // 不裁切：行高已按"有没有译文"选好，正文+译文放得下；
@@ -848,9 +887,11 @@ class LyricsWidget extends BuiltinController {
     // 多出来的部分被裁掉，正是取景框该干的事。OverflowBox 放开高度约束
     // （行堆天然比取景框高），宽度由外面的 SizedBox 收紧。
     //
-    // 偏移 = -(top × 行高)：**绝对滚动量**，随换句单调增长 → 弹簧有东西
-    // 可动（这正是"弹簧效果"的来源）；末尾 top 冻结 → 偏移不变，内容
-    // 确实没动，当前行在框内下移。
+    // 偏移 = -(第 top 行之前所有行的高度之和)：**绝对滚动量**，随换句单调
+    // 增长 → 弹簧有东西可动（这正是"弹簧效果"的来源）；末尾 top 冻结 →
+    // 偏移不变，内容确实没动，当前行在框内下移。
+    //
+    // 逐行高度之后不能再写 `top * lh`——行高不等，必须累加。
     return SizedBox(
       height: viewport,
       width: double.infinity,
@@ -862,7 +903,7 @@ class LyricsWidget extends BuiltinController {
               maxHeight: double.infinity,
               alignment: Alignment.topCenter,
               child: SpringSlide(
-                offset: -(top * lh).toDouble(),
+                offset: -_rowTop(top, singing),
                 // 浏览期间关掉弹簧：弹簧是给"自动跟随换句"用的，让人看到
                 // 句子平滑滚过去。滚轮是**直接操控**，每格都要立刻到位——
                 // 套上弹簧会变成"手还在滚、内容还在追"的橡皮筋延迟感，
@@ -903,120 +944,6 @@ class LyricsWidget extends BuiltinController {
     );
   }
 
-  /// 逐字（卡拉OK）高亮：已唱到 [sung] 个字符（**带小数**，见
-  /// [LyricsLine.sungCharsF]），后面的压暗。
-  ///
-  /// 做法是**两个 `Text` 叠在一起**：
-  ///   - 底层：整行都用暗色（未唱部分）；
-  ///   - 上层：整行亮色（带辉光），再用 [ShaderMask] 按已唱进度做**横向
-  ///     渐变遮罩**——亮的部分露出来，暗的部分被遮掉。
-  ///
-  /// 关键点是**边界能落在字的中间**：上层画的是完整的一行，遮罩只管
-  /// "露到哪"，所以推进是连续的，不会一个字一个字地跳。羽化宽度取一个
-  /// 字号左右，太窄看成硬边（还是跳），太宽糊成一片看不出走到哪。
-  ///
-  /// 为什么不按字符数 `ClipRect` 裁宽度：比例字体下"第 n 个字符"的
-  /// 边界不在宽度的 n/total 处，会切进字里（这就是之前用两层 `Text`
-  /// 叠加而不用裁切的原因）。这里要拿到像素坐标，就用 [TextPainter]
-  /// 量一次每个字符的左边界。
-  ///
-  /// 为什么不用单个 `Text.rich` 分段染色：那样整行得由一个 Text 画，
-  /// 没法让"亮的部分带辉光、暗的部分不带"——辉光是跟着已唱范围走的。
-  ///
-  /// 没有逐字数据的行根本不会走到这里（见 [_lyricArea]），所以旧行为不变。
-  Widget _syllableBody(String text, double sung, TextStyle bright) {
-    final dim = bright.copyWith(
-      color: bright.color?.withValues(alpha: 0.28),
-      shadows: const <Shadow>[],
-    );
-    // 两头都贴边时不用遮罩：0 会有一个"起笔处微微发亮"的残影，
-    // 整行唱完时遮罩的羽化也会在末尾啃掉一点字。直接走无遮罩的两层。
-    if (sung <= 0) {
-      return Text(text,
-          maxLines: 1, overflow: TextOverflow.ellipsis, style: dim);
-    }
-    if (sung >= text.length) {
-      return Text(text,
-          maxLines: 1, overflow: TextOverflow.ellipsis, style: bright);
-    }
-    return LayoutBuilder(
-      builder: (context, cons) {
-        final m = _syllableMetrics(text, bright, cons.maxWidth);
-        // 已唱边界落在像素上的位置：在第 k 个字内部按 frac 线性插值。
-        final k = sung.floor().clamp(0, text.length - 1);
-        final frac = sung - k;
-        final x0 = m.xs[k];
-        final edge = x0 + (m.xs[k + 1] - x0) * frac;
-        final w = m.width <= 0 ? 1.0 : m.width;
-        final t = (edge / w).clamp(0.0, 1.0);
-        // 羽化宽度 ≈ 一个字号。LinearGradient 要求 stops 非降序且落在
-        // [0,1]，两端 clamp 之后天然满足（t-f ≤ t+f，单调 clamp 保序）。
-        final f = ((bright.fontSize ?? 14) * 0.9 / w).clamp(0.0, 1.0);
-        return Stack(
-          // 辉光会画到文字盒子外，Stack 默认 Clip.hardEdge 会把它切掉
-          clipBehavior: Clip.none,
-          children: [
-            Text(text,
-                maxLines: 1, overflow: TextOverflow.ellipsis, style: dim),
-            ShaderMask(
-              // dstIn：遮罩的 alpha 就是亮部的"不透明度"。
-              blendMode: BlendMode.dstIn,
-              shaderCallback: (r) => LinearGradient(
-                colors: const [
-                  Colors.white,
-                  Colors.white,
-                  Colors.transparent,
-                  Colors.transparent,
-                ],
-                stops: [0.0, (t - f).clamp(0.0, 1.0), (t + f).clamp(0.0, 1.0), 1.0],
-              ).createShader(r),
-              child: Text.rich(
-                TextSpan(text: text),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: bright,
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  /// 逐字高亮要的排版度量：[xs] 是每个字符**左边界**的 x 像素（长度
-  /// `text.length + 1`），[width] 是整行排版宽度。
-  ///
-  /// 量一次缓存住：同一首歌里同一行的文字 / 字号 / 可用宽度都是不变的，
-  /// 每帧变的只有播放位置。缓存在单槽 [_syllableMetric] 里——同时只有
-  /// "正在唱的那一行"需要逐字动画，不会互相挤掉。
-  ///
-  /// 必须带 `maxWidth` 量：否则量出的是自然宽度，而实际渲染会被卡片宽度
-  /// 截断成省略号，两者的坐标会错位，擦除边界会飘。
-  ({List<double> xs, double width}) _syllableMetrics(
-      String text, TextStyle style, double maxWidth) {
-    final key = '$text|${style.fontSize}|${style.fontWeight}|'
-        '${style.height}|${style.letterSpacing}|$maxWidth';
-    final hit = _syllableMetric;
-    if (hit != null && key == _syllableMetricKey) return hit;
-    final tp = TextPainter(
-      text: TextSpan(text: text, style: style),
-      maxLines: 1,
-      ellipsis: '…',
-      textDirection: TextDirection.ltr,
-    )..layout(maxWidth: maxWidth);
-    final xs = <double>[
-      for (var i = 0; i <= text.length; i++)
-        tp.getOffsetForCaret(TextPosition(offset: i), Rect.zero).dx,
-    ];
-    final m = (xs: xs, width: tp.width);
-    tp.dispose();
-    _syllableMetricKey = key;
-    _syllableMetric = m;
-    return m;
-  }
-
-  ({List<double> xs, double width})? _syllableMetric;
-  String _syllableMetricKey = '';
 
   Widget _lyricPlaceholder(Color fg) {
     final msg = _lyricState == 'loading' ? '正在找歌词…' : '没找到这首歌的歌词';
@@ -1307,12 +1234,9 @@ class LyricsWidget extends BuiltinController {
     ctx.renderWidget(_root(0, -1));
     _purgeLegacyCache();
     _tick();
-    // 60ms 而不是 100ms：逐字动画的边界每个 tick 推 1/8 字，单字 500ms
-    // 的歌里 100ms 只有 4 格，看着是"一顿一顿"而不是在动。60ms ≈ 16fps，
-    // 够把连续推进抹平，又不至于把 native 采样压力翻倍（_tick 里每次都
-    // await 一次 mediaState，那是跨进程调用）。真正的位置精度不靠这个
-    // tick——[_nowPos] 每次都按本地流逝时间外推，所以采样间隔和位置
-    // 精度是解耦的。
+    // 慢驱动：只管**状态**——切歌、播放/暂停、进度条、整树重建。
+    // 每跳都要跨进程调一次 mediaState（native 自己 250ms 才采一次 SMTC），
+    // 实测整棵树的 build+layout 要 13ms/帧，所以**不能**拿它带动画。
     ctx.interval(_tick, 60);
   }
 
@@ -1469,7 +1393,7 @@ class LyricsWidget extends BuiltinController {
   /// 塞一段演示歌词（预览图生成 / 布局测试用）。
   ///
   /// 签名保持 `List<LrcLine>` 不变（`test/gen_previews_test.dart` 在用），
-  /// 内部转成渲染模型：这些行没有逐字数据，所以画出来就是整行高亮。
+  /// 内部转成渲染模型。
   @visibleForTesting
   void debugSetLyrics(List<LrcLine> lines) {
     _view = LyricsView.fromSimpleLines([
