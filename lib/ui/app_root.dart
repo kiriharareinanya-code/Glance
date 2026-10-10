@@ -226,6 +226,13 @@ class AppRootState extends State<AppRoot> with TrayListener {
       final vx = winRect.x.toDouble(), vy = winRect.y.toDouble();
       final bounds = MediaQuery.of(context).size;
 
+      // 【诊断】对账时把所有坐标系打出来。定位"改分辨率后卡片乱飞"用：
+      // MediaQuery 的 dpr/size 与 native 的窗口矩形/显示器矩形必须同步，
+      // 不同步就会按错误的比例换算位置，而且还会存盘固化下来。
+      Log.i('app',
+          '对账口径 dpr=$dpr MediaQuery=${bounds.width.toStringAsFixed(1)}x${bounds.height.toStringAsFixed(1)} '
+          'winRect=$vx,$vy ${winRect.w}x${winRect.h} '
+          '虚拟屏原生=${monitors.map((m) => "${m.x},${m.y} ${m.w}x${m.h}").join(" ")}');
       var moved = 0, claimed = 0;
       for (final c in widget.state.cards) {
         final size = c.pxSize(widget.state.settings.gridCell,
