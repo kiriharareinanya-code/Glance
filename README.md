@@ -115,9 +115,7 @@ userdata/
 ## 出身
 
 Glance 脱胎于 [Vectra](https://github.com/MacroSTAR-Org/Vectra)，算是从那儿
-"离家出走"出来的一个独立分支。桌面层的 Z 序处理、多显示器的坐标换算、卡片锚定、
-插件的挂载机制、构建与发版流程，都是 Vectra 打下的地基 —— 这份代码能站在这儿，
-是因为有人先把它做出来了。
+"离家出走"出来的一个独立分支。
 
 天气数据来自 [Open-Meteo](https://open-meteo.com)，城市检索走中国天气网。
 
