@@ -14,7 +14,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 String _version = '';
 
 /// 个性化版本串（大版本名 Forst + 小版本 0.2.x）。
-const String kVersionDisplay = 'Forst-0.2.133';
+const String kVersionDisplay = 'Forst-0.2.134';
 
 /// 供 UI 显示 / User-Agent / Sentry release 的版本串
 String get appVersion => kVersionDisplay;
