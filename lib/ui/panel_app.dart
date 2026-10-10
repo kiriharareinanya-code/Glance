@@ -136,10 +136,6 @@ class _PanelAppState extends State<PanelApp> {
                           true,
                       onRemove: (card) =>
                           widget.appKey.currentState?.removeCard(card),
-                      // 应用更新：保存退出 + 拉起静默安装器都在磁贴那边编排
-                      onInstallUpdate: (path) async =>
-                          widget.appKey.currentState?.installUpdate(path) ??
-                          false,
                     ),
                   ),
                 ),

@@ -14,7 +14,6 @@ import 'package:tray_manager/tray_manager.dart';
 import '../core/grid.dart';
 import '../core/logger.dart';
 import '../core/monitor.dart';
-import '../core/paths.dart';
 import '../core/snap.dart' as snap;
 import '../core/theme.dart';
 import '../model/card.dart';
@@ -437,23 +436,6 @@ class AppRootState extends State<AppRoot> with TrayListener {
       return;
     }
     await quitAndExit();
-  }
-
-  /// 安装已下载好的应用更新：收尾落盘 → 拉起静默安装器 → 退出。
-  ///
-  /// Inno 安装器会等本进程退出后覆盖文件（不碰 userdata），解压完按
-  /// [Run] 自动拉起新版。失败时留在原进程里，状态机由 UI 标红重试。
-  Future<bool> installUpdate(String installerPath) async {
-    final ok = await NativeBridge.runUpdateInstaller(
-        installerPath, AppPaths.exeDir);
-    if (!ok) {
-      Log.e('update', '拉起更新安装器失败：$installerPath');
-      return false;
-    }
-    Log.i('update', '更新安装器已拉起，退出当前进程');
-    await _flushBeforeExit();
-    await trayManager.destroy();
-    exit(0);
   }
 
   /// 打开设置窗口（任务栏里那个独立窗口），可指定停在哪页/定位到哪张卡片。

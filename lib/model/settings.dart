@@ -26,8 +26,7 @@ class AppSettings {
     this.autoColorFromWallpaper = false,
     this.paletteIndex = 0,
     this.autoForegroundFromWallpaper = false,
-    this.autoDownloadUpdate = false,
-    this.updateSource = 'auto',
+    this.logEnabled = false,
     this.sidebarWidth = kSidebarWidthDefault,
   });
 
@@ -97,12 +96,14 @@ class AppSettings {
   /// 那个开关各自独立，可以只开一个。见 Wallpaper.dominantForeground。
   bool autoForegroundFromWallpaper;
 
-  /// 检查到新版本时自动在后台下载（下完等用户确认"重启以更新"）。
-  /// 关 = 手动点「立即更新」才开始下载。装不装始终由用户决定。
-  bool autoDownloadUpdate;
-
-  /// 应用更新检查的源：auto（Unisphere → GitHub 依次降级）/ unisphere / github。
-  String updateSource;
+  /// 是否把运行日志写进 `userdata/logs/`。
+  ///
+  /// 默认**关**：普通用户看不到日志文件、也不需要它占磁盘。
+  /// 排查问题时从「其他 → 日志」打开即可，立刻生效。
+  ///
+  /// 注意这**只**管日志文件和控制台输出；崩溃上报不受它影响，
+  /// 否则默认配置下所有崩溃都会静默无痕。见 `Log._enabled`。
+  bool logEnabled;
 
   /// 设置窗口左侧栏的宽度（逻辑像素）。
   ///
@@ -130,8 +131,7 @@ class AppSettings {
         'autoColorFromWallpaper': autoColorFromWallpaper,
         'paletteIndex': paletteIndex,
         'autoForegroundFromWallpaper': autoForegroundFromWallpaper,
-        'autoDownloadUpdate': autoDownloadUpdate,
-        if (updateSource != 'auto') 'updateSource': updateSource,
+        'logEnabled': logEnabled,
         if (sidebarWidth != kSidebarWidthDefault) 'sidebarWidth': sidebarWidth,
       };
 
@@ -154,8 +154,7 @@ class AppSettings {
         paletteIndex: j['paletteIndex'] as int? ?? 0,
         autoForegroundFromWallpaper:
             j['autoForegroundFromWallpaper'] as bool? ?? false,
-        autoDownloadUpdate: j['autoDownloadUpdate'] as bool? ?? false,
-        updateSource: j['updateSource'] as String? ?? 'auto',
+        logEnabled: j['logEnabled'] as bool? ?? false,
         sidebarWidth: (j['sidebarWidth'] as num?)?.toDouble() ??
             kSidebarWidthDefault,
       );

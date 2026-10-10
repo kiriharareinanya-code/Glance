@@ -50,6 +50,16 @@ class Log {
 
   static LogLevel _level = LogLevel.info;
 
+  /// 日志总开关，默认**关**。
+  ///
+  /// 关掉之后不再往控制台和文件里写任何东西——普通用户看不到日志文件、
+  /// 也不需要它占着磁盘。要排查问题再从「其他 → 日志」里打开。
+  ///
+  /// **error 级上报 Sentry 不受这个开关影响**：崩溃现场是唯一一次机会，
+  /// 写文件这类"用户可见的行为"可以按需关闭，但"出事了得有人知道"
+  /// 不能跟着一起关掉，否则默认配置下所有崩溃都静默无痕。
+  static bool _enabled = false;
+
   /// 没 init 时它是 null，日志只打控制台——启动最早期（logger 还没就绪）
   /// 的调用因此不会丢，也不会炸。
   static _FileSink? _file;
@@ -94,6 +104,11 @@ class Log {
 
   static LogLevel get level => _level;
 
+  /// 日志总开关。面板里的开关直接调它，立刻生效，不用重启。
+  static void setEnabled(bool on) => _enabled = on;
+
+  static bool get enabled => _enabled;
+
   static void d(String module, String message) =>
       _log(LogLevel.debug, module, message);
 
@@ -112,6 +127,16 @@ class Log {
 
   static void _log(LogLevel l, String module, String message,
       [StackTrace? stack]) {
+    // 崩溃上报不受总开关约束：默认配置下也要保住"出事了有人知道"这件事，
+    // 所以这里先处理 error，其余级别才受开关控制。见 [_enabled]。
+    if (l == LogLevel.error) {
+      reportToSentry('[$module] $message',
+          stack: stack,
+          level: SentryReportLevel.error,
+          tags: {'module': module});
+    } else if (!_enabled) {
+      return;
+    }
     if (!_level.covers(l)) return;
     final now = DateTime.now();
     final tag = l.label;
@@ -127,15 +152,6 @@ class Log {
       }
     }
     _file?.write(line);
-    // 错误级同时上报 Sentry。Log 这层只看"是不是 error 级"——
-    // 不在这里按模块挑食，所有 error 都值得看一眼。warning 暂不上报，
-    // 避免接口偶发 403 之类把面板刷爆；需要的话以后再说。
-    if (l == LogLevel.error) {
-      reportToSentry('[$module] $message',
-          stack: stack,
-          level: SentryReportLevel.error,
-          tags: {'module': module});
-    }
   }
 
   /// 退出前把队列里欠着的日志都刷下去（app_root 的托盘退出路径调）。
@@ -148,6 +164,7 @@ class Log {
     _file?.dispose();
     _file = null;
     _level = LogLevel.info;
+    _enabled = false;
   }
 
   /// 测试用：可以直接读文件里写了什么。

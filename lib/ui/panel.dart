@@ -29,7 +29,6 @@ import '../core/theme.dart';
 import 'card_view.dart';
 import '../widgets/kit.dart' show iconDataFor;
 import '../widgets/spec.dart';
-import '../core/updater.dart';
 import '../model/card.dart';
 import '../model/settings.dart';
 import '../native/native_bridge.dart';
@@ -141,7 +140,6 @@ class ControlPanel extends StatefulWidget {
     this.canAdd,
     this.focusCardId,
     this.initialTab,
-    this.onInstallUpdate,
     this.embedded = true,
   });
 
@@ -168,10 +166,6 @@ class ControlPanel extends StatefulWidget {
 
   /// 指定打开时停在哪一页（托盘/卡片右键的跳转用）
   final int? initialTab;
-
-  /// 安装应用更新（保存退出 → 拉起静默安装器）。由磁贴侧 AppRoot 提供，
-  /// 不传时（内嵌/测试）点了没反应。
-  final Future<bool> Function(String installerPath)? onInstallUpdate;
 
   @override
   State<ControlPanel> createState() => _ControlPanelState();
@@ -873,8 +867,7 @@ class _ControlPanelState extends State<ControlPanel> {
     ('已放置 卡片 尺寸 移除 删除 布局', 1, '已放置'),
     ('外观 网格 间距 吸附 对齐 锁定 动画 材质 毛玻璃 云母 圆角 透明度 '
         '底色 颜色 取色 莫奈 主题 深色 浅色 壁纸 刷新 模糊', 2, '外观'),
-    ('更新 升级 版本 检查更新 下载 更新源 自动下载 自启 开机启动 启动 '
-        '日志 备份 导出 导入 恢复', 3, '其他'),
+    ('自启 开机启动 启动 日志 备份 导出 导入 恢复', 3, '其他'),
     ('关于 版本 作者', 4, '关于'),
   ];
 
@@ -2242,194 +2235,14 @@ class _ControlPanelState extends State<ControlPanel> {
     );
   }
 
-  // ---------------- 软件更新 ----------------
-
-  String? get _updateCheckBusy =>
-      appUpdateState.value.phase == AppUpdatePhase.checking ||
-      appUpdateState.value.phase == AppUpdatePhase.downloading
-          ? 'busy'
-          : null;
-
-  /// 手动触发检查；开了自动下载时顺手把新版下下来（等用户确认重启）
-  Future<void> _checkUpdate() async {
-    if (_updateCheckBusy != null) return;
-    final s = _s;
-    final u = await runUpdateCheck(
-      currentVersion: appVersion,
-      sources: buildUpdateSources(
-          updateSource: s.updateSource, marketBaseUrl: s.marketBaseUrl),
-    );
-    if (u != null && s.autoDownloadUpdate) {
-      unawaited(_downloadUpdate(autoInstall: false));
-    }
-  }
-
-  /// 「立即更新」：下载 → 装好安装包直接进入安装（保存退出由 AppRoot 编排）
-  Future<void> _downloadAndInstall() async {
-    try {
-      final path = await downloadUpdate(dir: AppPaths.updateDir);
-      await widget.onInstallUpdate?.call(path);
-    } catch (_) {
-      // 状态机已标 failed 并保留更新对象，界面给出重试入口
-    }
-  }
-
-  Future<void> _downloadUpdate({required bool autoInstall}) async {
-    try {
-      final path = await downloadUpdate(dir: AppPaths.updateDir);
-      if (autoInstall) await widget.onInstallUpdate?.call(path);
-    } catch (_) {}
-  }
-
-  Widget _updateBody(AppUpdateSnapshot snap) {
-    const srcName = {
-      'unisphere': 'Unisphere',
-      'github': 'GitHub',
-    };
-    switch (snap.phase) {
-      case AppUpdatePhase.checking:
-        return Text('正在检查更新…',
-            style: TextStyle(fontSize: 12, color: _c.ink70));
-      case AppUpdatePhase.upToDate:
-        return Row(children: [
-          Icon(Icons.check_circle_outline, size: 14, color: _c.ink60),
-          const SizedBox(width: 6),
-          Text('已是最新版本', style: TextStyle(fontSize: 12, color: _c.ink70)),
-          const SizedBox(width: 12),
-          Button(onPressed: _checkUpdate, child: const Text('再查一次')),
-        ]);
-      case AppUpdatePhase.available:
-        final u = snap.update!;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('发现新版本 ${u.version}（来自 ${srcName[u.source] ?? u.source}）',
-                style: TextStyle(
-                    fontSize: 12, color: _c.ink70, fontWeight: FontWeight.w600)),
-            if (u.notes.trim().isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Text(u.notes.trim(),
-                  style: TextStyle(fontSize: 10, color: _c.ink38, height: 1.5)),
-            ],
-            const SizedBox(height: 10),
-            Button(onPressed: _downloadAndInstall, child: const Text('立即更新')),
-          ],
-        );
-      case AppUpdatePhase.downloading:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-                snap.progress < 0 ? '正在下载…' : '正在下载… ${(snap.progress * 100).toInt()}%',
-                style: TextStyle(fontSize: 12, color: _c.ink70)),
-            const SizedBox(height: 6),
-            ProgressBar(value: snap.progress < 0 ? null : snap.progress),
-          ],
-        );
-      case AppUpdatePhase.ready:
-        return Row(children: [
-          Icon(Icons.download_done_outlined, size: 14, color: _c.ink60),
-          const SizedBox(width: 6),
-          Text('新版本 ${snap.update!.version} 已就绪',
-              style: TextStyle(fontSize: 12, color: _c.ink70)),
-          const SizedBox(width: 12),
-          Button(
-            onPressed: () => widget.onInstallUpdate?.call(snap.installerPath!),
-            child: const Text('重启以更新'),
-          ),
-        ]);
-      case AppUpdatePhase.failed:
-        return Row(children: [
-          Expanded(
-            child: Text(snap.error ?? '更新失败',
-                style: TextStyle(fontSize: 12, color: _c.danger)),
-          ),
-          const SizedBox(width: 12),
-          Button(
-            onPressed: snap.update != null
-                ? () => _downloadAndInstall()
-                : _checkUpdate,
-            child: const Text('重试'),
-          ),
-        ]);
-      case AppUpdatePhase.idle:
-        return Button(onPressed: _checkUpdate, child: const Text('检查更新'));
-    }
-  }
 
   // ---------------- 关于 ----------------
 
-  // ---------------- 「其他」页：开机自启 + 布局备份 ----------------
 
   Widget _other() {
     return ListView(
       padding: const EdgeInsets.fromLTRB(28, 8, 28, 24),
       children: [
-        _group(title: '软件更新', icon: Icons.system_update_outlined, children: [
-          ValueListenableBuilder<AppUpdateSnapshot>(
-            valueListenable: appUpdateState,
-            builder: (context, snap, _) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('当前版本 Glance $appVersion',
-                    style: TextStyle(fontSize: 11, color: _c.ink38)),
-                const SizedBox(height: 10),
-                _updateBody(snap),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          _switch('检测到新版本时自动下载（下完等你确认重启）',
-              _s.autoDownloadUpdate, (v) {
-            _s.autoDownloadUpdate = v;
-            _commit();
-          }),
-          const SizedBox(height: 4),
-          Row(children: [
-            Text('更新源',
-                style: TextStyle(fontSize: 12, color: _c.ink70)),
-            const SizedBox(width: 12),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                for (final (v, label) in const [
-                  ('auto', '自动'),
-                  ('unisphere', 'Unisphere'),
-                  ('github', 'GitHub'),
-                ])
-                  GestureDetector(
-                    onTap: () {
-                      _s.updateSource = v;
-                      _commit();
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 160),
-                      curve: Curves.easeOutCubic,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: _s.updateSource == v ? _c.accentBg : _c.chipBg,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(label,
-                          style: TextStyle(
-                              fontSize: 11,
-                              color: _s.updateSource == v
-                                  ? _c.accentSoft
-                                  : _c.ink54)),
-                    ),
-                  ),
-              ],
-            ),
-          ]),
-          const SizedBox(height: 6),
-          Text(
-            '自动 = 先问 Unisphere，连不上再试 GitHub Releases。\n'
-            '更新装到程序所在目录，userdata 里的卡片和设置原样保留。',
-            style: TextStyle(fontSize: 11, color: _c.ink38, height: 1.5),
-          ),
-        ]),
         _group(title: '启动', icon: Icons.power_settings_new_outlined, children: [
           if (_autoStart == null)
             Padding(
@@ -2446,9 +2259,17 @@ class _ControlPanelState extends State<ControlPanel> {
           ),
         ]),
         _group(title: '日志', icon: Icons.description_outlined, children: [
+          _switch('记录运行日志', _s.logEnabled, (v) {
+            _s.logEnabled = v;
+            // 立刻生效，不用重启 —— 开关就是给"现在就想看"准备的。
+            Log.setEnabled(v);
+            _commit();
+          }),
+          const SizedBox(height: 6),
           Text(
-            '运行日志按天分文件，保留最近 7 天。\n'
-            '反馈问题时把最近那几个 .log 一并发来，能省掉大量来回确认。',
+            '默认关闭。打开后运行日志按天分文件写到下面这个目录，保留最近 7 天。\n'
+            '反馈问题时把最近那几个 .log 一并发来，能省掉大量来回确认。\n'
+            '崩溃上报不受这个开关影响。',
             style: TextStyle(fontSize: 11, color: _c.ink38, height: 1.5),
           ),
           const SizedBox(height: 10),

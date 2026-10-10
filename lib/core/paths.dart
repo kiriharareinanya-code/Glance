@@ -31,9 +31,6 @@ class AppPaths {
   /// 用户数据根目录：`<exe>\userdata`
   static String get root => p.join(exeDir, 'userdata');
 
-  /// 应用更新安装包的暂存目录：`<exe>\userdata\update\`
-  static String get updateDir => p.join(root, 'update');
-
   /// 日志目录：`<exe>\userdata\logs`。logger 按天切分，保留 7 天
   static String get logsDir => p.join(root, 'logs');
 

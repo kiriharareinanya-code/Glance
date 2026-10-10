@@ -17,7 +17,6 @@ import 'core/perf_probe.dart';
 import 'core/sentry.dart' as sentry;
 import 'core/sentry_reporter.dart' show wireSentryReporter;
 import 'core/splash_gate.dart';
-import 'core/updater.dart';
 import 'native/native_bridge.dart';
 import 'widgets/spec.dart';
 import 'store/store.dart';
@@ -46,7 +45,7 @@ Future<void> main(List<String> args) async {
 Future<void> _bootstrap(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 日志系统就绪后再干别的，后面每一行才能进文件
+  // 日志系统就绪后再干别的，后面这一行才能进文件
   Log.init(engine: 'main', dir: AppPaths.logsDir);
 
   // 图片缓存上限收到 35 MiB（Flutter 默认 100 MiB 太宽松）。
@@ -64,8 +63,10 @@ Future<void> _bootstrap(List<String> args) async {
   Log.i('app', '图片缓存上限: ${imageCache.maximumSizeBytes >> 20} MiB');
 
   PerfProbe.start();  // 【临时诊断】每 3 秒 dump 帧耗时与构建次数
-  // --verbose：把 debug 级日志也打出来（贴到文件里），排查用
+  // --verbose：把 debug 级日志也打出来（贴到文件里），排查用。
+  // 顺带把总开关打开——否则级别调了也没地方写，参数会显得像没生效。
   if (args.contains('--verbose')) {
+    Log.setEnabled(true);
     Log.setLevel(LogLevel.debug);
   }
   // --wait-restart：重启流程的接力棒。旧进程拉起新进程后立刻退出，新
@@ -102,6 +103,10 @@ Future<void> _bootstrap(List<String> args) async {
   final state = await store.load();
   final loadMs = boot.elapsedMilliseconds;
 
+  // 面板里那个「日志」开关的落地点。必须在 Log.init 之后 —— 开关是跟着
+  // sink 一起生效的，顺序反了这段启动日志仍然进不了文件（而这恰恰是用户
+  // 最想看到的那一段）。
+  Log.setEnabled(state.settings.logEnabled);
   Log.i('app', '启动耗时 读配置 ${loadMs}ms / 内置组件 ${kBuiltinSpecs.length} 个');
 
   if (state.cards.isEmpty) {
@@ -118,22 +123,6 @@ Future<void> _bootstrap(List<String> args) async {
   if (args.contains('--no-sentry')) {
     sentry.disableSentry();
   }
-
-  // 启动后延迟静默检查应用更新：
-  // 失败无声——连不上更新服务器是常态，不该给刚开机的用户弹任何东西。
-  Future<void>.delayed(const Duration(seconds: 30), () {
-    runUpdateCheck(
-      // 更新比较需要四段数值，显示串是个性化的非数字格式
-      currentVersion: appVersionNumeric,
-      sources: buildUpdateSources(
-          updateSource: state.settings.updateSource,
-          marketBaseUrl: state.settings.marketBaseUrl),
-    ).then((u) {
-      if (u != null && state.settings.autoDownloadUpdate) {
-        downloadUpdate(dir: AppPaths.updateDir).catchError((_) => '');
-      }
-    });
-  });
 
   // 把 logger 的 Log.e 接到 sentry：init 之后、app 跑之前
   wireSentryReporter();
